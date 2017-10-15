@@ -1,4 +1,6 @@
-package com.metorikku.spark.metrics.calculators
+package com.yotpo.spark.metrics.calculators
+
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 /**
   * Created by ariel on 7/12/16.

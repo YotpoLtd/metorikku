@@ -1,0 +1,6 @@
+.idea/
+target/
+/parquet/
+derby.log
+metastore_db/
+out/

@@ -1,10 +1,15 @@
-package com.metorikku.spark.metrics
+package com.yotpo.spark.metrics
 
 import java.nio.file.{Files, Paths}
 
+import com.yotpo.Utils
 import com.yotpo.spark.metrics.calculation.{GlobalCalculationConfig, Replacement}
 import com.yotpo.spark.metrics.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.spark.metrics.output.writers.redis.RedisOutputWriter
+import com.yotpo.spark.metrics.udaf.MergeArraysAgg
+import com.yotpo.spark.metrics.udf._
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.types._
 
 class MetricSparkSession(val calculationConfig: GlobalCalculationConfig) {
   val dataTypes = Map(

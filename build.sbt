@@ -1,4 +1,4 @@
-name := "smee"
+name := "metorikku"
 
 version := "1.0"
 
@@ -67,3 +67,42 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-aws" % "2.7.3"
 
 
 javaOptions in Test ++= Seq("-Dspark.master=local[*]")
+
+
+resolvers += Resolver.sonatypeRepo("public")
+
+resolvers += Resolver.bintrayRepo("spark-packages", "maven")
+
+resolvers += "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release"
+
+fork := true
+
+assemblyMergeStrategy in assembly := {
+  case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+  case PathList("META-INF", xs@_*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
+}
+
+assemblyShadeRules in assembly := Seq(
+  ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
+)
+
+javaOptions in Test ++= Seq("-Dspark.master=local[*]")
+
+//Pillar Settings
+import io.ino.sbtpillar.Plugin.PillarKeys._
+import sbt.Resolver
+
+pillarSettings
+
+pillarConfigFile := file("src/main/resources/application.conf")
+
+pillarConfigKey := "cassandra.url"
+
+pillarReplicationStrategyConfigKey := "cassandra.replicationStrategy"
+
+pillarReplicationFactorConfigKey := "cassandra.replicationFactor"
+
+pillarDefaultConsistencyLevelConfigKey := "cassandra.defaultConsistencyLevel"
+
+pillarMigrationsDir := file("conf/migrations")

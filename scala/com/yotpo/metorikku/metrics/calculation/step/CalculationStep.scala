@@ -1,4 +1,6 @@
-package com.metorikku.spark.metrics.calculation.step
+package com.yotpo.spark.metrics.calculation.step
+
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 /**
   * Created by ariel on 7/19/16.
