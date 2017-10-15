@@ -1,0 +1,12 @@
+language: scala
+
+scala:
+  - 2.11.8
+
+script:
+  - sbt clean coverage test coverageReport
+
+after_success:
+  # Temporary for private repo
+  - export CODECOV_TOKEN=e96594dc-4225-4191-a4b2-da7655e17bbd
+  - bash <(curl -s https://codecov.io/bash)
