@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.udaf
+package com.yotpo.metorikku.metrics.udaf
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.expressions.{MutableAggregationBuffer, UserDefinedAggregateFunction}

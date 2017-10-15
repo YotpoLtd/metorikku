@@ -1,7 +1,7 @@
-package com.yotpo.spark.metrics.output.writers.cassandra
+package com.yotpo.metorikku.metrics.output.writers.cassandra
 
-import com.yotpo.spark.metrics.output.writers.cassandra.CassandraOutputWriter.{cassandraDbConfKeys, cassandraPrefix}
-import com.yotpo.spark.metrics.output.{MetricOutputSession, MetricOutputWriter}
+import com.yotpo.metorikku.metrics.output.writers.cassandra.CassandraOutputWriter.{cassandraDbConfKeys, cassandraPrefix}
+import com.yotpo.metorikku.metrics.output.{MetricOutputSession, MetricOutputWriter}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
 import scala.collection.mutable

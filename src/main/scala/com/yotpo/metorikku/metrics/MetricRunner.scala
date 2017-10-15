@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics
+package com.yotpo.metorikku.metrics
 
 import java.io.FileReader
 import java.util.{ArrayList, List => JList, Map => JMap, LinkedHashMap}
@@ -7,8 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.FileUtils
-import com.yotpo.spark.metrics.MetricRunnerUtils.MetricRunnerYamlFileName
-import com.yotpo.spark.metrics.calculation.{Calculation, GlobalCalculationConfigBuilder}
+import com.yotpo.metorikku.metrics.MetricRunnerUtils.MetricRunnerYamlFileName
+import com.yotpo.metorikku.metrics.calculation.{Calculation, GlobalCalculationConfigBuilder}
 
 import scala.collection.JavaConversions._
 

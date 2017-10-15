@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.calculators
+package com.yotpo.metorikku.metrics.calculators
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
 

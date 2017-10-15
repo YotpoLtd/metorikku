@@ -1,6 +1,6 @@
-package com.yotpo.spark.metrics.output.writers.csv
+package com.yotpo.metorikku.metrics.output.writers.csv
 
-import com.yotpo.spark.metrics.output.MetricOutputWriter
+import com.yotpo.metorikku.metrics.output.MetricOutputWriter
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import scala.collection.mutable

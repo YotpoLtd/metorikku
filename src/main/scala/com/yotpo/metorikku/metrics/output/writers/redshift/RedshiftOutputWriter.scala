@@ -1,6 +1,6 @@
-package com.yotpo.spark.metrics.output.writers.redshift
+package com.yotpo.metorikku.metrics.output.writers.redshift
 
-import com.yotpo.spark.metrics.output.MetricOutputWriter
+import com.yotpo.metorikku.metrics.output.MetricOutputWriter
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}

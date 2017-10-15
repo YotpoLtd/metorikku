@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.output
+package com.yotpo.metorikku.metrics.output
 
 import org.apache.spark.sql.DataFrame
 

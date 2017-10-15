@@ -1,6 +1,6 @@
-package com.yotpo.spark.metrics.calculators
+package com.yotpo.metorikku.metrics.calculators
 
-import com.yotpo.spark.metrics.calculation.Metric
+import com.yotpo.metorikku.metrics.calculation.Metric
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.{DataFrame, SQLContext}
 

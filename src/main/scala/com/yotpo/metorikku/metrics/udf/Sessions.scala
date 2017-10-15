@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.udf
+package com.yotpo.metorikku.metrics.udf
 
 import java.sql.Timestamp
 

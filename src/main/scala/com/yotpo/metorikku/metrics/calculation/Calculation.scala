@@ -1,11 +1,11 @@
-package com.yotpo.spark.metrics.calculation
+package com.yotpo.metorikku.metrics.calculation
 
 import java.io.File
 
 import com.yotpo.metorikku.FileUtils
-import com.yotpo.spark.metrics.{MetricSparkSession, MqlFileUtils}
-import com.yotpo.spark.metrics.calculators.ConfigurableCalculator
-import com.yotpo.spark.metrics.udf.UDFUtils
+import com.yotpo.metorikku.metrics.{MetricSparkSession, MqlFileUtils}
+import com.yotpo.metorikku.metrics.calculators.ConfigurableCalculator
+import com.yotpo.metorikku.metrics.udf.UDFUtils
 
 
 /**

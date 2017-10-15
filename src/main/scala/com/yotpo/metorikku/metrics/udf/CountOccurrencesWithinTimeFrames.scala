@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.udf
+package com.yotpo.metorikku.metrics.udf
 
 import com.github.nscala_time.time.Imports._
 import org.apache.spark.sql.Row

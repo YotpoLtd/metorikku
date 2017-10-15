@@ -1,7 +1,7 @@
-package com.yotpo.spark.metrics.output.writers.redis
+package com.yotpo.metorikku.metrics.output.writers.redis
 
 import com.redislabs.provider.redis._
-import com.yotpo.spark.metrics.output.{MetricOutputSession, MetricOutputWriter}
+import com.yotpo.metorikku.metrics.output.{MetricOutputSession, MetricOutputWriter}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.collection.mutable

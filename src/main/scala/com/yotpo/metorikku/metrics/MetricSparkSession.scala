@@ -1,13 +1,13 @@
-package com.yotpo.spark.metrics
+package com.yotpo.metorikku.metrics
 
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.Utils
-import com.yotpo.spark.metrics.calculation.{GlobalCalculationConfig, Replacement}
-import com.yotpo.spark.metrics.output.writers.cassandra.CassandraOutputWriter
-import com.yotpo.spark.metrics.output.writers.redis.RedisOutputWriter
-import com.yotpo.spark.metrics.udaf.MergeArraysAgg
-import com.yotpo.spark.metrics.udf._
+import com.yotpo.metorikku.metrics.calculation.{GlobalCalculationConfig, Replacement}
+import com.yotpo.metorikku.metrics.output.writers.cassandra.CassandraOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.redis.RedisOutputWriter
+import com.yotpo.metorikku.metrics.udaf.MergeArraysAgg
+import com.yotpo.metorikku.metrics.udf._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 

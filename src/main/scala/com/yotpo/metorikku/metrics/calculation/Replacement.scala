@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.calculation
+package com.yotpo.metorikku.metrics.calculation
 
 import java.text.SimpleDateFormat
 import org.joda.time.{DateTime, Period}

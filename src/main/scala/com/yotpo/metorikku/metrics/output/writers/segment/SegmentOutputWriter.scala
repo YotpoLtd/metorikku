@@ -1,10 +1,10 @@
-package com.yotpo.spark.metrics.output.writers.segment
+package com.yotpo.metorikku.metrics.output.writers.segment
 
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.IdentifyMessage
 import com.yotpo.metorikku.metrics.output.writers.segment.BlockingFlush
-//import com.yotpo.spark.instrumentation.Instrumentation
-import com.yotpo.spark.metrics.output.MetricOutputWriter
+//import com.yotpo.metorikku.instrumentation.Instrumentation
+import com.yotpo.metorikku.metrics.output.MetricOutputWriter
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.JavaConversions._

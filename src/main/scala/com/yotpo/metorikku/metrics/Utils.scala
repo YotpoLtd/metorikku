@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics
+package com.yotpo.metorikku.metrics
 
 import java.io.File
 import java.util

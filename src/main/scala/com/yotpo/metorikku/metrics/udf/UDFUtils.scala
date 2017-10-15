@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.udf
+package com.yotpo.metorikku.metrics.udf
 
 import com.yotpo.metorikku.FileUtils
 import org.apache.commons.io.FilenameUtils

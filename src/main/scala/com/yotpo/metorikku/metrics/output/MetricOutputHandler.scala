@@ -1,6 +1,6 @@
-package com.yotpo.spark.metrics.output
+package com.yotpo.metorikku.metrics.output
 
-import com.yotpo.spark.metrics.calculation.GlobalCalculationConfig
+import com.yotpo.metorikku.metrics.calculation.GlobalCalculationConfig
 
 import scala.collection.mutable
 

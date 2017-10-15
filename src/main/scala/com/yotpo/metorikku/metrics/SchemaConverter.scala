@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics
+package com.yotpo.metorikku.metrics
 
 import org.apache.spark.sql.types._
 import play.api.libs.json._

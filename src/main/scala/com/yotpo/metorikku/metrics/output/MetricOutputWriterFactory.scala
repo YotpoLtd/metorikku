@@ -1,12 +1,12 @@
-package com.yotpo.spark.metrics.output
+package com.yotpo.metorikku.metrics.output
 
-import com.yotpo.spark.metrics.calculation.GlobalCalculationConfig
-import com.yotpo.spark.metrics.output.writers.cassandra.CassandraOutputWriter
-import com.yotpo.spark.metrics.output.writers.csv.CSVOutputWriter
-import com.yotpo.spark.metrics.output.writers.parquet.ParquetOutputWriter
-import com.yotpo.spark.metrics.output.writers.redis.RedisOutputWriter
-import com.yotpo.spark.metrics.output.writers.redshift.RedshiftOutputWriter
-import com.yotpo.spark.metrics.output.writers.segment.SegmentOutputWriter
+import com.yotpo.metorikku.metrics.calculation.GlobalCalculationConfig
+import com.yotpo.metorikku.metrics.output.writers.cassandra.CassandraOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.csv.CSVOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.parquet.ParquetOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.redis.RedisOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.redshift.RedshiftOutputWriter
+import com.yotpo.metorikku.metrics.output.writers.segment.SegmentOutputWriter
 
 import scala.collection.mutable
 

@@ -1,7 +1,7 @@
-package com.yotpo.spark.metrics.calculation
+package com.yotpo.metorikku.metrics.calculation
 
-import com.yotpo.spark.metrics.calculation.step.Sql
-import com.yotpo.spark.metrics.output.MetricOutputHandler
+import com.yotpo.metorikku.metrics.calculation.step.Sql
+import com.yotpo.metorikku.metrics.output.MetricOutputHandler
 
 /**
   * Created by ariel on 7/17/16.

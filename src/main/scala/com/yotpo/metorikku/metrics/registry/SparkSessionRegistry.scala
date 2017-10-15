@@ -1,9 +1,9 @@
-package com.yotpo.spark.metrics.registry
+package com.yotpo.metorikku.metrics.registry
 
 import com.yotpo.metorikku.FileUtils
-import com.yotpo.spark.metrics.{MetricSparkSession, MqlFileUtils}
-import com.yotpo.spark.metrics.calculation.{GlobalCalculationConfigBuilder, Metric, MetricConfig}
-import com.yotpo.spark.metrics.udf.UDFUtils
+import com.yotpo.metorikku.metrics.{MetricSparkSession, MqlFileUtils}
+import com.yotpo.metorikku.metrics.calculation.{GlobalCalculationConfigBuilder, Metric, MetricConfig}
+import com.yotpo.metorikku.metrics.udf.UDFUtils
 import org.apache.spark.sql.SparkSession
 
 class SparkSessionRegistry(dataFrames: Map[String, String], calculations: String) {
