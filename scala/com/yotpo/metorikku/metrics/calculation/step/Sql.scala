@@ -1,4 +1,7 @@
-package com.metorikku.spark.metrics.calculation.step
+package com.yotpo.spark.metrics.calculation.step
+
+import com.yotpo.FileUtils
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 /**
   * Represents the SQL query to run

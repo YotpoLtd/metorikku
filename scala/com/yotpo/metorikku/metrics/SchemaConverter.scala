@@ -1,4 +1,7 @@
-package com.metorikku.spark.metrics
+package com.yotpo.spark.metrics
+
+import org.apache.spark.sql.types._
+import play.api.libs.json._
 
 import scala.annotation.tailrec
 import scala.io.Source
