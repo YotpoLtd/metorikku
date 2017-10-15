@@ -7,11 +7,11 @@ import com.yotpo.metorikku.udf.UDFUtils
 import com.yotpo.metorikku.utils.MqlFileUtils
 import com.yotpo.metorikku.{FileUtils, MetricSparkSession}
 
-class MetricSet(MetricSetPath: File, metricSparkSession: MetricSparkSession) {
+class MetricSet(metricSetPath: File, metricSparkSession: MetricSparkSession) {
   //TODO should be injectable
   val MetricSetConfig = metricSparkSession.metricSetConfig
   //TODO Parse Metrics?
-  val metrics = initMetrics(MetricSetPath)
+  val metrics = initMetrics(metricSetPath)
 
   def initMetrics(MetricSetPath: File): Seq[Metric] = {
     val allMetrics = MqlFileUtils.getMetrics(MetricSetPath)
