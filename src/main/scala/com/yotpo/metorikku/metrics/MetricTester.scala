@@ -8,7 +8,7 @@ import java.util.{ArrayList, List => JList, Map => JMap}
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.{BeanProperty, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.yotpo.FileUtils
+import com.yotpo.metorikku.FileUtils
 import com.yotpo.spark.metrics.MetricRunnerUtils.MetricRunnerYamlFileName
 import com.yotpo.spark.metrics.calculation.{Calculation, GlobalCalculationConfigBuilder}
 import org.apache.commons.io.FilenameUtils

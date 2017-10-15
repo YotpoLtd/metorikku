@@ -1,6 +1,6 @@
 package com.yotpo.spark.metrics.registry
 
-import com.yotpo.FileUtils
+import com.yotpo.metorikku.FileUtils
 import com.yotpo.spark.metrics.{MetricSparkSession, MqlFileUtils}
 import com.yotpo.spark.metrics.calculation.{GlobalCalculationConfigBuilder, Metric, MetricConfig}
 import com.yotpo.spark.metrics.udf.UDFUtils

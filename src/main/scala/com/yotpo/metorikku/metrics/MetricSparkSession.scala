@@ -2,7 +2,7 @@ package com.yotpo.spark.metrics
 
 import java.nio.file.{Files, Paths}
 
-import com.yotpo.Utils
+import com.yotpo.metorikku.Utils
 import com.yotpo.spark.metrics.calculation.{GlobalCalculationConfig, Replacement}
 import com.yotpo.spark.metrics.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.spark.metrics.output.writers.redis.RedisOutputWriter

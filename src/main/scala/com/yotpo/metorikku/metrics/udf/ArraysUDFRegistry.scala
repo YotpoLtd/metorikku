@@ -1,6 +1,6 @@
 package com.yotpo.spark.metrics.udf
 
-import com.yotpo.Utils
+import com.yotpo.metorikku.Utils
 import org.apache.spark.sql.api.java.{UDF1, UDF2, UDF3}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row, SparkSession}

@@ -6,7 +6,7 @@ import java.util.{ArrayList, List => JList, Map => JMap, LinkedHashMap}
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.yotpo.FileUtils
+import com.yotpo.metorikku.FileUtils
 import com.yotpo.spark.metrics.MetricRunnerUtils.MetricRunnerYamlFileName
 import com.yotpo.spark.metrics.calculation.{Calculation, GlobalCalculationConfigBuilder}
 

@@ -3,7 +3,7 @@ package com.yotpo.spark.metrics
 import java.io.File
 import java.util
 
-import com.yotpo.FileUtils
+import com.yotpo.metorikku.FileUtils
 import org.apache.commons.io.FilenameUtils
 
 object MetricTesterDefinitions {

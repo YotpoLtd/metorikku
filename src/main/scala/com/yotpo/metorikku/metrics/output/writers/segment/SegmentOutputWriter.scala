@@ -2,7 +2,8 @@ package com.yotpo.spark.metrics.output.writers.segment
 
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.IdentifyMessage
-import com.yotpo.spark.instrumentation.Instrumentation
+import com.yotpo.metorikku.metrics.output.writers.segment.BlockingFlush
+//import com.yotpo.spark.instrumentation.Instrumentation
 import com.yotpo.spark.metrics.output.MetricOutputWriter
 import org.apache.spark.sql.DataFrame
 
@@ -37,13 +38,13 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
           val successEvent = {
             Map("user_id" -> userId.toString, "type" -> "success", "metric" -> metricOutputOptions("dataFrameName"))
           }
-          Instrumentation.increment("segment", successEvent, "Successfully Updated user properties in Segment")
+          //Instrumentation.increment("segment", successEvent, "Successfully Updated user properties in Segment")
         } catch {
           case exception: Throwable =>
             val failedEvent = {
               Map("user_id" -> userId.toString, "type" -> "error", "metric" -> metricOutputOptions("dataFrameName"))
             }
-            Instrumentation.increment("segment", failedEvent, exception.getMessage)
+            //Instrumentation.increment("segment", failedEvent, exception.getMessage)
         }
       })
       analytics.flush()
