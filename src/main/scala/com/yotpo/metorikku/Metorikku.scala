@@ -1,6 +1,7 @@
 package com.yotpo.metorikku
 
 import java.io.FileReader
+import java.io.File
 import java.util.{ArrayList, LinkedHashMap, List => JList, Map => JMap}
 
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -19,7 +20,6 @@ object Metorikku {
   //TODO remove this class and make the config injectable
   class MetorikkuConfig(@JsonProperty("runningDate") _runningDate: String,
                         @JsonProperty("showPreviewLines") _showPreviewLines: Int,
-                        @JsonProperty("calculationsFolderPath") _calculationsFolderPath: String, //TODO remove
                         @JsonProperty("metricSets") _metricSets: JList[String],
                         @JsonProperty("explain") _explain: Boolean,
                         @JsonProperty("tableFiles") _tableFiles: JMap[String, String],
@@ -33,11 +33,10 @@ object Metorikku {
                         @JsonProperty("segmentArgs") _segmentArgs: JMap[String, String],
                         @JsonProperty("fileOutputPath") _fileOutputPath: String = "metrics/") {
     //TODO Remove null use options
-    require(_calculationsFolderPath != null, "calculationsFolderPath is mandatory")
+    require(Option(_metricSets).isDefined, "metricSets is mandatory")
+    val metricSets = _metricSets
     val runningDate = Option(_runningDate).getOrElse("")
     val showPreviewLines = _showPreviewLines
-    val calculationsFolderPath = Option(_calculationsFolderPath).getOrElse("")
-    val metricSets = Option(_metricSets).getOrElse(new ArrayList[String]())
     val explain = _explain
     val tableFiles = Option(_tableFiles).getOrElse(new LinkedHashMap[String, String]())
     val replacements = Option(_replacements).getOrElse(new LinkedHashMap[String, String]())
@@ -83,7 +82,6 @@ object Metorikku {
       .withOutputFilePath(metorikkuConfig.fileOutputPath)
       .withMetricsToCalculate(metorikkuConfig.metrics.toList)
       .withMetricSets(metorikkuConfig.metricSets.toList)
-      .withCalculationsFolderPath(metorikkuConfig.calculationsFolderPath)
       .withLogLevel(metorikkuConfig.logLevel)
       .withVariables(metorikkuConfig.variables.toMap)
       .withTableFiles(metorikkuConfig.tableFiles.toMap)
@@ -93,11 +91,9 @@ object Metorikku {
     //TODO make metric spark session injectable and singleton
     val metricSparkSession = new MetricSparkSession(metricSetConfigBuilder.build)
     //TODO we should have MetricSet and metrics inside it
-    val allDirs = FileUtils.getListOfDirectories(metorikkuConfig.calculationsFolderPath)
-    val metricSetDirectories = FileUtils.intersect(allDirs, metorikkuConfig.metricSets)
+    val metricSetDirectories = metorikkuConfig.metricSets
     metricSetDirectories.foreach(directory => {
-      //TODO Rename MetricSet to metric set
-      val metricSet = new MetricSet(directory, metricSparkSession)
+      val metricSet = new MetricSet(new File(directory), metricSparkSession)
       metricSet.run()
       metricSet.write()
     })
