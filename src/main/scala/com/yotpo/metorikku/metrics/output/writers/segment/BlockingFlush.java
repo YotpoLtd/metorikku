@@ -1,4 +1,4 @@
-package com.yotpo.spark.metrics.output.writers.segment;
+package com.yotpo.metorikku.metrics.output.writers.segment;
 
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Callback;

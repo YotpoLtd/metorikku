@@ -1,5 +1,6 @@
 .idea/
 target/
+**/target
 /parquet/
 derby.log
 metastore_db/
