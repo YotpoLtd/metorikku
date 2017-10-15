@@ -28,7 +28,7 @@ object FileUtils {
     }
   }
 
-  def getListOfContents(dir: String):List[File] = {
+  def getListOfContents(dir: String): List[File] = {
     val d = new File(dir)
     if (d.exists && d.isDirectory) {
       d.listFiles.toList
@@ -37,7 +37,7 @@ object FileUtils {
     }
   }
 
-  def getListOfFiles(dir: String):List[File] = {
+  def getListOfFiles(dir: String): List[File] = {
     val d = new File(dir)
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
@@ -55,7 +55,7 @@ object FileUtils {
   }
 
   def getContentFromFileAsString(path: String, filename: String): String = {
-    scala.io.Source.fromFile(new File(FilenameUtils.concat(path,filename))).mkString
+    scala.io.Source.fromFile(new File(FilenameUtils.concat(path, filename))).mkString
   }
 
   /**
