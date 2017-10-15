@@ -17,32 +17,33 @@ import scala.collection.JavaConversions._
   */
 object MetricRunner {
 
-
-  class MetricRunnerConfig(@JsonProperty("runningDate")            _runningDate: String,
-                               @JsonProperty("showPreviewLines")       _showPreviewLines: Int,
-                               @JsonProperty("calculationsFolderPath") _calculationsFolderPath: String,
-                               @JsonProperty("calculationsDirs")       _calculationsDirs: JList[String],
-                               @JsonProperty("explain")                _explain: Boolean,
-                               @JsonProperty("tableFiles")             _tableFiles: JMap[String, String],
-                               @JsonProperty("replacements")           _replacements: JMap[String, String],
-                               @JsonProperty("logLevel")               _logLevel: String,
-                               @JsonProperty("variables")              _variables: JMap[String, String],
-                               @JsonProperty("metrics")                _metrics: JList[String],
-                               @JsonProperty("scyllaDBArgs")           _scyllaDBArgs: JMap[String, String],
-                               @JsonProperty("redshiftArgs")           _redshiftArgs: JMap[String, String],
-                               @JsonProperty("redisArgs")              _redisArgs: JMap[String, String],
-                               @JsonProperty("segmentArgs")            _segmentArgs: JMap[String, String],
-                               @JsonProperty("fileOutputPath")         _fileOutputPath: String = "metrics/") {
+  //TODO remove this class and make the config injectable
+  class MetricRunnerConfig(@JsonProperty("runningDate") _runningDate: String,
+                           @JsonProperty("showPreviewLines") _showPreviewLines: Int,
+                           @JsonProperty("calculationsFolderPath") _calculationsFolderPath: String,
+                           @JsonProperty("calculationsDirs") _calculationsDirs: JList[String],
+                           @JsonProperty("explain") _explain: Boolean,
+                           @JsonProperty("tableFiles") _tableFiles: JMap[String, String],
+                           @JsonProperty("replacements") _replacements: JMap[String, String],
+                           @JsonProperty("logLevel") _logLevel: String,
+                           @JsonProperty("variables") _variables: JMap[String, String],
+                           @JsonProperty("metrics") _metrics: JList[String],
+                           @JsonProperty("scyllaDBArgs") _scyllaDBArgs: JMap[String, String],
+                           @JsonProperty("redshiftArgs") _redshiftArgs: JMap[String, String],
+                           @JsonProperty("redisArgs") _redisArgs: JMap[String, String],
+                           @JsonProperty("segmentArgs") _segmentArgs: JMap[String, String],
+                           @JsonProperty("fileOutputPath") _fileOutputPath: String = "metrics/") {
+    //TODO Remove null use options
     require(_calculationsFolderPath != null, "calculationsFolderPath is mandatory")
     val runningDate = Option(_runningDate).getOrElse("")
     val showPreviewLines = _showPreviewLines
     val calculationsFolderPath = Option(_calculationsFolderPath).getOrElse("")
     val calculationsDirs = Option(_calculationsDirs).getOrElse(new ArrayList[String]())
     val explain = _explain
-    val tableFiles = Option(_tableFiles).getOrElse(new LinkedHashMap[String,String]())
-    val replacements = Option(_replacements).getOrElse(new LinkedHashMap[String,String]())
+    val tableFiles = Option(_tableFiles).getOrElse(new LinkedHashMap[String, String]())
+    val replacements = Option(_replacements).getOrElse(new LinkedHashMap[String, String]())
     val logLevel = Option(_logLevel).getOrElse("WARN")
-    val variables = Option(_variables).getOrElse(new LinkedHashMap[String,String]())
+    val variables = Option(_variables).getOrElse(new LinkedHashMap[String, String]())
     val metrics = Option(_metrics).getOrElse(new ArrayList[String]())
     val scyllaDBArgs = Option(_scyllaDBArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
     val redshiftArgs = Option(_redshiftArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
@@ -55,6 +56,7 @@ object MetricRunner {
   def main(args: Array[String]): Unit = {
     parser.parse(args, MetricRunnerYamlFileName()) match {
       case Some(yamlFile) =>
+        //TODO Why here?
         val mapper = new ObjectMapper(new YAMLFactory())
         val config: MetricRunnerConfig = mapper.readValue(new FileReader(yamlFile.filename), classOf[MetricRunnerConfig])
         execute(config)
@@ -72,8 +74,8 @@ object MetricRunner {
   }
 
 
-
   def execute(metricRunnerConfig: MetricRunnerConfig): Any = {
+    //TODO remove config
     val calculationConfigBuilder = new GlobalCalculationConfigBuilder()
       .withRunningDate(metricRunnerConfig.runningDate)
       .withOutputCassandraDBConf(metricRunnerConfig.scyllaDBArgs.toMap)
@@ -89,11 +91,13 @@ object MetricRunner {
       .withReplacements(metricRunnerConfig.replacements.toMap)
       .withPreview(metricRunnerConfig.showPreviewLines)
       .withOutputSegmentDBConf(metricRunnerConfig.segmentArgs.toMap)
-
+    //TODO make metric spark session injectable and singleton
     val metricSparkSession = new MetricSparkSession(calculationConfigBuilder.build)
+    //TODO we should have MetricSet and metrics inside it
     val allDirs = FileUtils.getListOfDirectories(metricRunnerConfig.calculationsFolderPath)
     val calculationDirectories = FileUtils.intersect(allDirs, metricRunnerConfig.calculationsDirs)
     calculationDirectories.foreach(directory => {
+      //TODO Rename Calculation to metric set
       val calculation = new Calculation(directory, metricSparkSession)
       calculation.run()
       calculation.write()

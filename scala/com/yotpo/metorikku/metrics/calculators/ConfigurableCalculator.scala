@@ -8,13 +8,18 @@ import org.apache.spark.sql.{DataFrame, SQLContext}
   * Created by ariel on 7/19/16.
   */
 class ConfigurableCalculator(metric: Metric) extends Calculator {
+  //TODO Ne need for sqlcontext here
   override def calculate(sqlContext: SQLContext): DataFrame = {
     calculate(sqlContext, 0)
   }
+  //TODO Should we move this to the constructor?
   def calculate(sqlContext: SQLContext, previewStepLines: Int): DataFrame = {
+    //TODO NAMING emptyDataFrame
     var df = sqlContext.emptyDataFrame
     var lastDFName = ""
     for (step <- metric.steps) {
+      //TODO no need to pass sqlContext naming should call resultDF
+      //TODO MAKE BETTER LOOKING
       df = step.actOnDataFrame(sqlContext)
       lastDFName = step.dataFrameName
       if (previewStepLines > 0) {
