@@ -65,7 +65,7 @@ class MetricRunnerTest extends FunSuite with BeforeAndAfterAll {
     userAggData.write.mode(SaveMode.Overwrite).parquet("src/test/out/user_agg.parquet")
 
     MetricRunner.main(Array(
-      "-c", "src/test/scala/com/yotpo/spark/analytics/integration/metric-tester-config.yaml"))
+      "-c", "src/test/scala/com/yotpo/metorikku/metric-tester-config.yaml"))
 
     assert(new File("src/test/out/account_agg/conversionUplift/_SUCCESS").exists)
     assert(new File("src/test/out/account_agg/timeSpentUplift/_SUCCESS").exists)
