@@ -1,0 +1,26 @@
+{
+  "steps": [
+    {
+      "sql": "select *, makeSessions(events) as sessions from UserAggregatedData",
+      "dataFrameName": "TimeSpentUpliftWithSessions"
+    },
+    {
+      "sql": "select *, makeSessionsWithInteracted(events, sessions) as sessionsCounters from TimeSpentUpliftWithSessions",
+      "dataFrameName": "TimeSpentUpliftWithSessionsAndInteractions"
+    },
+    {
+      "sql": "select app, sum(sessionsCounters.noInteractionSessionsCounter) as noInteractionSessionsCounter, sum(sessionsCounters.noInteractionSessionTotalTime) as noInteractionSessionTotalTime, sum(sessionsCounters.interactedSessionCounter) as interactedSessionCounter, sum(sessionsCounters.interactedSessionTotalTime) as interactedSessionTotalTime from TimeSpentUpliftWithSessionsAndInteractions group by app",
+      "dataFrameName": "TimeSpentUpliftWithRawData"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "TimeSpentUpliftWithRawData",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/account_agg/timeSpentUplift/"
+      }
+    }
+  ]
+}
