@@ -5,7 +5,7 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import scala.collection.mutable
 
-class JsonOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFilePath: String) extends MetricOutputWriter {
+class JSONOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFilePath: String) extends MetricOutputWriter {
 
   case class JSONOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean)
 
