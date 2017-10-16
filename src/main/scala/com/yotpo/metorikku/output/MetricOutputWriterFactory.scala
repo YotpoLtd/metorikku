@@ -2,6 +2,7 @@ package com.yotpo.metorikku.output
 
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
+import com.yotpo.metorikku.output.writers.json.JsonOutputWriter
 import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
@@ -18,6 +19,7 @@ object MetricOutputWriterFactory {
       case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
       case OutputType.Redis => new RedisOutputWriter(metricOutputOptions)
       case OutputType.Segment => new SegmentOutputWriter(metricOutputOptions, Map())
+      case OutputType.JSON => new JsonOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
       case _ => new ParquetOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
     }
   }
