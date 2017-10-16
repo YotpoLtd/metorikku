@@ -1,4 +1,4 @@
-package com.yotpo.spark.udfs
+package com.yotpo.metorikku.udfs
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.yotpo.metorikku.metrics.udf.ArraysUDFRegistry

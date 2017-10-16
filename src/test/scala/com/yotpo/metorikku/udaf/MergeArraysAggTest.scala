@@ -1,4 +1,4 @@
-package com.yotpo.spark.udaf
+package com.yotpo.metorikku.udaf
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.yotpo.metorikku.Utils

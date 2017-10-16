@@ -1,4 +1,4 @@
-package com.yotpo.spark.analytics.integration
+package com.yotpo.metorikku
 
 import java.io.File
 
@@ -56,7 +56,7 @@ class MetricRunnerTest extends FunSuite with BeforeAndAfterAll {
   val secondSession = (dateFormat.parseDateTime("01:01:00").getMillis - dateFormat.parseDateTime("01:00:00").getMillis) / 1000
 
   override def afterAll(): Unit = {
-    FileUtils.deleteDirectory(new File("src/test/out"))
+    org.apache.commons.io.FileUtils.deleteDirectory(new File("src/test/out"))
   }
 
   test("Test full cycle of pixel to user") {
