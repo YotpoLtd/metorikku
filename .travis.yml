@@ -18,14 +18,14 @@ jobs:
       - export CODECOV_TOKEN=e96594dc-4225-4191-a4b2-da7655e17bbd
       - bash <(curl -s https://codecov.io/bash)
     - stage: deploy snapshot to repository
-      if: branch = master
+#      if: branch = master
       deploy:
         provider: script
         script: sbt publish
         on:
           branch: master
     - stage: deploy github
-      if: branch = master AND tag =~ ^v
+#      if: branch = master AND tag =~ ^v
       before_deploy: sbt assembly test:assembly
       deploy:
         provider: releases
