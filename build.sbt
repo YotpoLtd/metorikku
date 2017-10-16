@@ -1,51 +1,37 @@
 name := "metorikku"
-
-version := "1.0"
-
-organization := "YotpoLTD"
+organization := "com.yotpo"
+homepage := Some(url("https://github.com/YotpoLtd/metorikku"))
+licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-license.html"))
+scmInfo := Some(
+  ScmInfo(url("https://github.com/YotpoLtd/metorikku"),
+    "scm:git:git@github.com:YotpoLtd/metorikku.git"))
 
 scalaVersion := "2.11.11"
 val jacksonVersion = "2.8.9"
 val sparkVersion = "2.2.0"
-// | sbt can take a load time checking dependencies. This avoids re-checking the dependencies.
-// | Comment this line if error "Skipping update requested, but update has not previously run successfully."
-// skip in update := true
 
 libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "org.apache.spark" %% "spark-mllib" % sparkVersion
-)
-
-libraryDependencies += "com.amazonaws" % "aws-java-sdk" %   "1.11.160"
-
-libraryDependencies += "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.7.4"
-
-libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.42"
-
-libraryDependencies += "com.typesafe" % "config" % "1.3.1"
-
-libraryDependencies += "com.github.scopt" %% "scopt" % "3.6.0"
-
-libraryDependencies += "com.github.nscala-time" %% "nscala-time" % "2.16.0"
-
-libraryDependencies += "RedisLabs" % "spark-redis" % "0.3.2"
-
-libraryDependencies += "org.json4s" %% "json4s-native" % "3.5.2"
-
-libraryDependencies += "com.datastax.spark" %% "spark-cassandra-connector" % "2.0.3"
-
-libraryDependencies += "org.mongodb.spark" %% "mongo-spark-connector" % sparkVersion
-
-libraryDependencies += "com.google.guava" % "guava" % "16.0.1"
-
-libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.2"
-
-libraryDependencies += "com.databricks" %% "spark-redshift" % "3.0.0-preview1"
-
-libraryDependencies += "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001"
-
-libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
+  "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
+  "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
+  "org.apache.hadoop" % "hadoop-aws" % "2.7.3" % "provided",
+  "org.mongodb.spark" %% "mongo-spark-connector" % sparkVersion % "provided",
+//  "com.amazonaws" % "aws-java-sdk" % "1.11.160",
+  "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.7.4" % "test",
+  "mysql" % "mysql-connector-java" % "5.1.42",
+  "com.typesafe" % "config" % "1.3.1",
+  "com.github.scopt" %% "scopt" % "3.6.0",
+  "com.github.nscala-time" %% "nscala-time" % "2.16.0",
+  "RedisLabs" % "spark-redis" % "0.3.2",
+  "org.json4s" %% "json4s-native" % "3.5.2",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "2.0.3",
+  "com.google.guava" % "guava" % "16.0.1",
+  "com.typesafe.play" %% "play-json" % "2.6.2",
+  "com.databricks" %% "spark-redshift" % "3.0.0-preview1",
+  "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001",
+  "com.segment.analytics.java" % "analytics" % "2.0.0",
+  "org.influxdb" % "influxdb-java" % "2.7",
+  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
@@ -54,55 +40,34 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion
 )
 
-libraryDependencies += "com.segment.analytics.java" % "analytics" % "2.0.0"
-
-libraryDependencies += "org.influxdb" % "influxdb-java" % "2.7"
-
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
 dependencyOverrides += "com.databricks" %% "spark-avro" % "3.2.0"
 
-
-//Allowing local aws access
-libraryDependencies += "org.apache.hadoop" % "hadoop-aws" % "2.7.3"
-
-
-javaOptions in Test ++= Seq("-Dspark.master=local[*]")
-
-
-resolvers += Resolver.sonatypeRepo("public")
-
-resolvers += Resolver.bintrayRepo("spark-packages", "maven")
-
-resolvers += "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release"
+resolvers ++= Seq(
+  Resolver.sonatypeRepo("public"),
+  Resolver.bintrayRepo("spark-packages", "maven"),
+  "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release"
+)
 
 fork := true
+javaOptions in Test ++= Seq("-Dspark.master=local[*]")
 
-assemblyMergeStrategy in assembly := {
+Project.inConfig(Test)(baseAssemblySettings)
+
+assemblyMergeStrategy in (Test, assembly) := {
   case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+  case PathList("LICENSE", xs@_*) => MergeStrategy.discard
   case PathList("META-INF", xs@_*) => MergeStrategy.discard
   case _ => MergeStrategy.first
 }
 
-assemblyShadeRules in assembly := Seq(
+assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
 
-javaOptions in Test ++= Seq("-Dspark.master=local[*]")
+assemblyJarName in (Test, assembly) := s"${name.value}-test-${version.value}.jar"
 
-//Pillar Settings
-import io.ino.sbtpillar.Plugin.PillarKeys._
-import sbt.Resolver
-
-pillarSettings
-
-pillarConfigFile := file("src/main/resources/application.conf")
-
-pillarConfigKey := "cassandra.url"
-
-pillarReplicationStrategyConfigKey := "cassandra.replicationStrategy"
-
-pillarReplicationFactorConfigKey := "cassandra.replicationFactor"
-
-pillarDefaultConsistencyLevelConfigKey := "cassandra.defaultConsistencyLevel"
-
-pillarMigrationsDir := file("conf/migrations")
+publishMavenStyle := true
+// Change when moving to open source
+credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com", "myMavenRepo", "yotpo")
+publishTo := Some("mymavenrepo.com.write" at "https://mymavenrepo.com/repo/0tlqEJu4rjdm1Ksy2pJP")

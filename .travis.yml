@@ -1,12 +1,40 @@
+cache:
+  directories:
+  - $HOME/.ivy2/cache
+  - $HOME/.sbt/boot/
+  - $HOME/.sbt/launchers/
 language: scala
-
 scala:
-  - 2.11.8
-
-script:
-  - sbt clean coverage test coverageReport
-
-after_success:
-  # Temporary for private repo
-  - export CODECOV_TOKEN=e96594dc-4225-4191-a4b2-da7655e17bbd
-  - bash <(curl -s https://codecov.io/bash)
+- 2.11.8
+jdk:
+- oraclejdk8
+script: echo "Skipping default sbt test"
+jobs:
+  include:
+    - stage: unit tests
+      script: sbt clean coverage test coverageReport
+      after_success:
+      # Change when moving to open source
+      - export CODECOV_TOKEN=e96594dc-4225-4191-a4b2-da7655e17bbd
+      - bash <(curl -s https://codecov.io/bash)
+    - stage: deploy snapshot to repository
+      if: branch = master
+      deploy:
+        provider: script
+        script: sbt publish
+        on:
+          branch: master
+    - stage: deploy github
+      if: branch = master AND tag =~ ^v
+      before_deploy: sbt assembly test:assembly
+      deploy:
+        provider: releases
+        api_key:
+          # Change when moving to open source
+          secure: kyyvF0TzK+UOMXLveygSxokT6oin3eYQZ5MpHwLx0ObrGLbUmZ+5Mzjb5Krhi0PzO9X112IcfR/0nkwyCnTxjobkc9OlINpfFFjcTjBzLM7r6m0CqBa95Z0Qm9vTRmAnvBJls3sOMp+cFxP0jKSPvEFtVfJ/Gd1J52pWJFaL0Wh+ZXeksN7mgHCPILGkEt/bpbHKxezDdY8GjWkUU77tzFemo7beGB8iFuKFidaX+Hc2Ee/YCHa0KCwmuW0wCcr/Q7MCqjzQXaKJQhWJfY/Ab7kdn0PpjW3vFHw0yZJh66dL+nbEPaezKeLzaVxvqQ6SloWjHIugcZ3C0mHDwxdHmjnW2tOC+b9vVyCw9GggZrCJvf+xmFifiLr3JlMN/HMypil8UFRLnFFATzcN1wb2+OdbcYl/WYvbwtccTWXb+YmVYAErSqvvN16THsXzBXNfAWx8LgrZeykAGgKfB/BVudaIqgwl/6xcp7dQNb1TmmWhIXktFP9wNKqdUCqP5rI06kvOIMuloa3pdPdE8y4HsD/fc0obYs1+lFFFsJ9PBipDgF/043ahECaaV/J/VA5p9tT26rJnJG0XzG598vCa4fq+5/nCCaMm+QvKZ2aX4oqTtwUmP5nq50IqO7mQEgHwHZusW8jD73gIXuyYILyt/mQ01HW2vTdWuxVfZagYQJg=
+        file_glob: true
+        file: $TRAVIS_BUILD_DIR/target/scala-2.11/*.jar
+        skip_cleanup: true
+        on:
+          tags: true
+          branch: master

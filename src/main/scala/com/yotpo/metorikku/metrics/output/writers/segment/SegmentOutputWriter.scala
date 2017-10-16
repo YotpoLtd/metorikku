@@ -2,7 +2,6 @@ package com.yotpo.metorikku.metrics.output.writers.segment
 
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.IdentifyMessage
-import com.yotpo.metorikku.metrics.output.writers.segment.BlockingFlush
 //import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.metrics.output.MetricOutputWriter
 import org.apache.spark.sql.DataFrame
