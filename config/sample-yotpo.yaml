@@ -1,26 +1,26 @@
 runningDate: 2016/03/01
 tableFiles:
- accounts: ../singa/parquet/accounts.parquet
- reviews: ../singa/parquet/reviews.parquet
- products: ../singa/parquet/products.parquet
- categorized_accounts: ../singa/parquet/categorized_accounts.parquet
- review_source_types: ../singa/parquet/review_source_types.parquet
- review_metadatas: ../singa/parquet/review_metadatas.parquet
- mentions: ../singa/parquet/mentions.parquet
- products_apps: ../singa/parquet/products_apps.parquet
- products_app_specs: ../singa/parquet/products_app_specs.parquet
- spec_types: ../singa/parquet/spec_types.parquet
- metadata_types: ../singa/parquet/metadata_types.parquet
- products_groups: ../singa/parquet/products_groups.parquet
- products_apps_products_groups: ../singa/parquet/products_apps_products_groups.parquet
- categories: ../singa/parquet/categories.parquet
- UserAggregatedData: ../singa/parquet/user_agg_data.parquet
+ accounts: accounts.parquet
+ reviews: reviews.parquet
+ products: products.parquet
+ categorized_accounts: categorized_accounts.parquet
+ review_source_types: review_source_types.parquet
+ review_metadatas: review_metadatas.parquet
+ mentions: mentions.parquet
+ products_apps: products_apps.parquet
+ products_app_specs: products_app_specs.parquet
+ spec_types: spec_types.parquet
+ metadata_types: metadata_types.parquet
+ products_groups: products_groups.parquet
+ products_apps_products_groups: products_apps_products_groups.parquet
+ categories: categories.parquet
+ UserAggregatedData: user_agg_data.parquet
 variables:
  StartDate: 2016/03/01
  EndDate: 2016/04/01
  TrimmedDateFormat: yyyy/MM/dd
 calculationsFolderPath: /Users/ofirventura-mbp/Development/metrical-query-language/calculations/
-fileOutputPath: ../singa/parquet/output
+fileOutputPath: output
 calculationsDirs:
   - roi
 metrics:
