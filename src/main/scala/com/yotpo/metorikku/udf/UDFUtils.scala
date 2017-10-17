@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.udf
 
-import com.yotpo.metorikku.FileUtils
+import com.yotpo.metorikku.utils.FileUtils
 import org.apache.commons.io.FilenameUtils
 
 object UDFUtils {

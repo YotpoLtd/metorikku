@@ -2,20 +2,26 @@ package com.yotpo.metorikku.utils
 
 import java.io.File
 
-import com.yotpo.metorikku.FileUtils
 import org.apache.commons.io.FilenameUtils
 
 object MetricTesterDefinitions {
+
   case class Mock(name: String, path: String)
+
   case class Params(runningDate: String, variables: Any, replacements: Any)
+
   case class TestSettings(mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
+
 }
+
 //TODO: too many utils files and classes
 
 object TableType extends Enumeration {
   type TableType = Value
   val parquet, json, jsonl = Value
+
   def isTableType(s: String) = values.exists(_.toString == s)
+
   def getTableType(path: String) = {
     val extension = FilenameUtils.getExtension(path)
     if (isTableType(extension)) TableType.withName(extension) else parquet
@@ -38,8 +44,8 @@ class MQL(val basePath: String) {
 }
 
 object MqlFileUtils {
-  def getMetrics(metricSets: File): List[File] = {
-    FileUtils.getListOfFiles(FilenameUtils.concat(metricSets.getPath, "metrics"))
+  def getMetrics(metricSetFiles: File): List[File] = {
+    FileUtils.getListOfFiles(metricSetFiles.getPath)
   }
 
   def getTestSettings(metricDirPath: String): MetricTesterDefinitions.TestSettings = {
@@ -51,7 +57,7 @@ object MqlFileUtils {
   }
 }
 
-object MetricRunnerUtils{
+object MetricRunnerUtils {
 
   case class MetricRunnerYamlFileName(filename: String = "")
 
