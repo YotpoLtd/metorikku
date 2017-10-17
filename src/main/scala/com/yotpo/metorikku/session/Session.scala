@@ -1,8 +1,10 @@
-package com.yotpo.metorikku
+package com.yotpo.metorikku.session
 
 import java.nio.file.{Files, Paths}
 
-import com.yotpo.metorikku.metricset.{GlobalMetricSetConfig, Replacement}
+import com.yotpo.metorikku.Utils
+import com.yotpo.metorikku.configuration.{Configuration, DefaultConfiguration}
+import com.yotpo.metorikku.metric.Replacement
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.udaf.MergeArraysAgg
@@ -11,20 +13,33 @@ import com.yotpo.metorikku.utils.{MqlFileUtils, TableType}
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types._
 
-class MetricSparkSession(val metricSetConfig: GlobalMetricSetConfig) {
+import scala.collection.JavaConversions._
+
+object Session {
+  private var configuration: Configuration = new DefaultConfiguration
+  private var spark: SparkSession = createSparkSession(configuration.scyllaDBArgs.toMap, configuration.redisArgs.toMap)
+
+  def init(config: Configuration) {
+    configuration = config
+    spark = createSparkSession(configuration.scyllaDBArgs.toMap, configuration.redisArgs.toMap)
+    spark.sparkContext.setLogLevel(configuration.logLevel)
+    registerVariables(configuration.variables.toMap)
+    registerDataframes(configuration.tableFiles.toMap, configuration.replacements.toMap)
+    registerGlobalUDFs(configuration.globalUDFsPath)
+  }
+
+  def getConfiguration: Configuration = {
+    configuration
+  }
+
   val dataTypes = Map(
     "str" -> StringType,
     "int" -> IntegerType,
     "flt" -> FloatType
   )
 
-  private val spark: SparkSession = createSparkSession(metricSetConfig.outputCassandraDBConf, metricSetConfig.outputRedisDBConf)
-  spark.sparkContext.setLogLevel(metricSetConfig.logLevel)
-  registerVariables(metricSetConfig.variables)
-  registerDataframes(metricSetConfig.tableFiles, metricSetConfig.replacements)
-  registerGlobalUDFs(metricSetConfig.calculationsFolderPath)
 
-  def getSparkSession(): SparkSession = {
+  def getSparkSession: SparkSession = {
     spark
   }
 
@@ -41,7 +56,7 @@ class MetricSparkSession(val metricSetConfig: GlobalMetricSetConfig) {
     ArraysUDFRegistry.registerArraySumFieldUDF(spark, "sumField")
     ArraysUDFRegistry.registerArrayContainsUDF(spark, "arrayContains")
     //register global udfs
-    val udfs = UDFUtils.getAllUDFsInPath(calculationsFolderPath + "/global_udfs/")
+    val udfs = UDFUtils.getAllUDFsInPath(calculationsFolderPath)
     udfs.foreach(udf => registerUdf(udf))
   }
 
@@ -99,5 +114,4 @@ class MetricSparkSession(val metricSetConfig: GlobalMetricSetConfig) {
     RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redisDBConf)
     sparkSessionBuilder.getOrCreate()
   }
-
 }

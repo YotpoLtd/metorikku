@@ -1,32 +1,25 @@
 package com.yotpo.metorikku.calculators
 
-import com.yotpo.metorikku.metricset.Metric
+import com.yotpo.metorikku.metric.Metric
+import com.yotpo.metorikku.session.Session
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.{DataFrame, SQLContext}
 
 class SqlStepCalculator(metric: Metric) extends Calculator {
-  //TODO Ne need for sqlcontext here
-  override def calculate(sqlContext: SQLContext): DataFrame = {
-    calculate(sqlContext, 0)
-  }
-
-  //TODO Should we move this to the constructor?
-  def calculate(sqlContext: SQLContext, previewStepLines: Int): DataFrame = {
-    //TODO NAMING emptyDataFrame
-    var df = sqlContext.emptyDataFrame
+  override def calculate(): DataFrame = {
+    val sqlContext = Session.getSparkSession.sqlContext
+    var emptyDF = sqlContext.emptyDataFrame
     var lastDFName = ""
     for (step <- metric.steps) {
-      //TODO no need to pass sqlContext naming should call resultDF
-      //TODO MAKE BETTER LOOKING
-      df = step.actOnDataFrame(sqlContext)
+      emptyDF = step.actOnDataFrame(sqlContext)
       lastDFName = step.dataFrameName
-      if (previewStepLines > 0) {
+      if (Session.getConfiguration.showPreviewLines > 0) {
         println(s"Previewing step: $lastDFName")
-        df.printSchema()
-        df.show(previewStepLines, truncate = false)
+        emptyDF.printSchema()
+        emptyDF.show(Session.getConfiguration.showPreviewLines, truncate = false)
       }
     }
-    val transformedDF = addDateColumn(df, metric.date)
+    val transformedDF = addDateColumn(emptyDF, "")
     transformedDF.createOrReplaceTempView(lastDFName)
     transformedDF
   }

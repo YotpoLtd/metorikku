@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.metricset
+package com.yotpo.metorikku.metric
 
 import java.text.SimpleDateFormat
 

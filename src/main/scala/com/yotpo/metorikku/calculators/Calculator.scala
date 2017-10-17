@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.calculators
 
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.DataFrame
 
 trait Calculator {
-  def calculate(sQLContext: SQLContext): DataFrame
+  def calculate(): DataFrame
 }

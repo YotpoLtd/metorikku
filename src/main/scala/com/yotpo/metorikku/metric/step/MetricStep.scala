@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.metricset.step
+package com.yotpo.metorikku.metric.step
 
 import org.apache.spark.sql.{DataFrame, SQLContext}
 

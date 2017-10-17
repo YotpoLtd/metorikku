@@ -1,6 +1,6 @@
-package com.yotpo.metorikku.metricset.step
+package com.yotpo.metorikku.metric.step
 
-import com.yotpo.metorikku.FileUtils
+import com.yotpo.metorikku.utils.FileUtils
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
 /**
