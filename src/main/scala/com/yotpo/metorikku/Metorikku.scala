@@ -8,8 +8,6 @@ import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import scopt.OptionParser
 
-import scala.collection.JavaConversions._
-
 /**
   * Metorikku - runs Spark SQL queries on various data sources and exports the results
   */
@@ -24,8 +22,8 @@ object Metorikku extends App {
   }
 
   parser.parse(args, MetorikkuYamlFileName()) match {
-    case Some(yaml) =>
-      val configuration = YAMLConfigurationParser.parse(yaml.filename)
+    case Some(args) =>
+      val configuration = YAMLConfigurationParser.parse(args.filename)
       Session.init(configuration)
       start()
     case None =>

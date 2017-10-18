@@ -1,167 +1,119 @@
 package com.yotpo.metorikku
 
-import java.io.{File, FileReader}
-import java.net.URI
-import java.util.{ArrayList, List => JList, Map => JMap}
+import java.io.File
 
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.yotpo.metorikku.configuration.DefaultConfiguration
 import com.yotpo.metorikku.metric.MetricSet
-import com.yotpo.metorikku.configuration.MetorikkuRunConfiguration.MetorikkuYamlFileName
-import com.yotpo.metorikku.utils.TestUtils.{MQL, MetricTesterDefinitions}
-import com.yotpo.metorikku.utils.MQLUtils
-import org.apache.commons.io.FilenameUtils
+import com.yotpo.metorikku.session.Session
+import com.yotpo.metorikku.utils.TestUtils
+import com.yotpo.metorikku.utils.TestUtils.MetricTesterDefinitions
 import org.apache.spark.sql.SparkSession
+import scopt.OptionParser
 
-object MetorikkuTester {
+case class MetorikkuTesterArgs(settings: Seq[String] = Seq())
 
-//  class MetricTesterConfig(@JsonProperty("testsPath") _testsPath: String,
-//                           @JsonProperty("metricSets") _metricSets: JList[String],
-//                           @JsonProperty("metrics") _metrics: JList[String],
-//                           @JsonProperty("previewStepLines") _showPreviewLines: Int) {
-//    require(_testsPath != null, "testsPath is mandatory")
-//    val testsPath = Option(_testsPath).get
-//    val metricSets = Option(_metricSets).getOrElse(new ArrayList[String]())
-//    val showPreviewLines = _showPreviewLines
-//    val metrics = Option(_metrics).getOrElse(new ArrayList[String]())
-//  }
-//
-//  val parser = new scopt.OptionParser[YamlFileName]("MetorikkuTester") {
-//    head("MetorikkuTester", "1.0")
-//    opt[String]('c', "config")
-//      .text("The YAML file that defines the Metorikku arguments")
-//      .action((x, c) => c.copy(filename = x))
-//      .required()
-//    help("help") text "use command line arguments to specify the YAML configuration file path"
-//  }
-//
-//
-//  def main(args: Array[String]): Unit = {
-//    parser.parse(args, YamlFileName()) match {
-//      case Some(filename) =>
-//        val mapper = new ObjectMapper(new YAMLFactory())
-//        val config: MetricTesterConfig = mapper.readValue(new FileReader(filename.filename), classOf[MetricTesterConfig])
-//        execute(config)
-//      case None =>
-//        System.exit(1)
-//    }
-//  }
-//
-//
-//  def execute(metricTesterConfig: MetricTesterConfig): Any = {
-//    var errors = Array[String]()
-//    val sparkSession = SparkSession.builder.getOrCreate()
-//    val mql = new MQL(metricTesterConfig.testsPath)
-//    mql.getMetricSetsTest().foreach(metricSets => {
-//      val metricName = FilenameUtils.getBaseName(metricSets.getPath)
-//      if (metricTesterConfig.metricSets.isEmpty || metricTesterConfig.metricSets.contains(metricName)) {
-//        val metricDirs = FileUtils.getListOfDirectories(FilenameUtils.concat(metricSets.getPath(), "metrics"))
-//        metricDirs.foreach(metricDir => {
-//          val metricDirPath = metricDir.getPath
-//          val metricName = FilenameUtils.getBaseName(metricDirPath)
-//          if (metricTesterConfig.metrics.isEmpty || metricTesterConfig.metrics.contains(metricName)) {
-//            val metricTestSettings = MqlFileUtils.getTestSettings(metricDirPath)
-//            val metricMockFiles = getMockFiles(metricDirPath, metricTestSettings.mocks)
-//            val metricParams = metricTestSettings.params
-//            runMetricSet(metricName, metricName, metricMockFiles, metricParams, mql, metricTesterConfig.showPreviewLines)
-//            errors = errors ++ compareActualToExpected(metricTestSettings.tests, metricName, sparkSession)
-//          }
-//        })
-//      }
-//    })
-//
-//    sparkSession.stop()
-//
-//    if (!errors.isEmpty) {
-//      println("\n" + errors.mkString("\n"))
-//      println("FAILED!")
-//      System.exit(1)
-//    } else {
-//      println("SUCCESS!")
-//    }
-//  }
-//
-//  def runMetricSet(metricSetName: String, metric: String, mockFiles: Map[String, String],
-//                   params: MetricTesterDefinitions.Params, mql: MQL, showPreviewLines: Int): Unit = {
-//    val MetricSetsConfigBuilder = new GlobalMetricSetConfigBuilder()
-//      .withRunningDate(params.runningDate)
-//      .withMetricsToCalculate(Seq(metric + ".json"))
-//      .withMetricSets(Seq(metricSetName))
-//      .withCalculationsFolderPath(mql.getCalculationsPath())
-//      .withVariables(params.variables.asInstanceOf[Map[String, String]])
-//      .withTableFiles(mockFiles)
-//      .withReplacements(params.replacements.asInstanceOf[Map[String, String]])
-//      .withOutputRedshiftDBConf(Map("jdbcURL" -> "", "tempS3Dir" -> ""))
-//      .withPreviewStep(showPreviewLines)
-//      .withLogLevel("WARN")
-//
-//    val metricSparkSession = new MetricSparkSession(MetricSetsConfigBuilder.build)
-//    val allCalculations = FileUtils.getListOfDirectories(mql.getCalculationsPath())
-//    val requestedCalculation = FileUtils.intersect(allCalculations, Seq(metricSetName))
-//
-//    val calculation = new MetricSet(requestedCalculation.head, metricSparkSession)
-//    calculation.run()
-//  }
-//
-//  def getMockFiles(metricDirPath: String, mocks: List[MetricTesterDefinitions.Mock]): Map[String, String] = {
-//    var mockFiles = Map[String, String]()
-//    mocks.foreach(mock => {
-//      val mockName = mock.name
-//      var mockPath = mock.path
-//      val isAbsoluteUriPath = new URI(mock.path).isAbsolute
-//      val isAbsoluteFilePath = new File(mock.path).isAbsolute
-//      if (!isAbsoluteUriPath && !isAbsoluteFilePath) {
-//        mockPath = FilenameUtils.concat(metricDirPath, mockPath)
-//      }
-//      mockFiles = mockFiles + (mockName -> mockPath)
-//    })
-//    return mockFiles
-//  }
-//
-//  def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]], metricName: String, sparkSession: SparkSession): Array[String] = {
-//    var errors = Array[String]()
-//    metricExpectedTests.keys.foreach(tableName => {
-//      val metricActualResultRows = sparkSession.table(tableName).collect()
-//      var metricExpectedResultRows = metricExpectedTests(tableName)
-//      if (metricExpectedResultRows.length == metricActualResultRows.length) {
-//        for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
-//          val mapOfActualRow = metricActualResultRow.getValuesMap(metricActualResultRow.schema.fieldNames)
-//          val matchingExpectedMetric = matchExpectedRow(mapOfActualRow, metricExpectedResultRows)
-//          if (matchingExpectedMetric == null) {
-//            errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
-//          }
-//          else {
-//            metricExpectedResultRows = metricExpectedResultRows.filter(_ != matchingExpectedMetric)
-//          }
-//        }
-//      } else {
-//        errors = errors :+ s"[$metricName - $tableName] number of rows was ${metricActualResultRows.length} while expected ${metricExpectedResultRows.length}"
-//      }
-//    })
-//    return errors
-//  }
-//
-//  def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
-//    for (expectedRowCandidate <- metricExpectedResultRows) {
-//      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
-//        return expectedRowCandidate
-//      }
-//    }
-//    return null
-//  }
-//
-//  def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
-//    for (key <- expectedRowCandidate.keys) {
-//      val expectedValue = Option(expectedRowCandidate.get(key))
-//      val actualValue = Option(actualRow.get(key))
-//      // TODO: support nested Objects and Arrays
-//      if (expectedValue.toString != actualValue.toString) {
-//        return false
-//      }
-//    }
-//    return true
-//  }
+object MetorikkuTester extends App {
+  val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
+    head("MetorikkuTester", "1.0")
+    opt[Seq[String]]('t', "test-settings")
+      .valueName("<test-setting1>,<test-setting2>...")
+      .action((x, c) => c.copy(settings = x))
+      .text("test settings for each metric set")
+      .required()
+    help("help") text "use command line arguments to specify the settings for each metric set"
+  }
+
+  parser.parse(args, MetorikkuTesterArgs()) match {
+    case Some(args) =>
+      args.settings.foreach(settings => {
+        val metricTestSettings = TestUtils.getTestSettings(settings)
+        val configuration = new DefaultConfiguration
+        configuration.replacements = metricTestSettings.params.replacements
+        configuration.tableFiles = getMockFiles(metricTestSettings.mocks)
+        configuration.runningDate = metricTestSettings.params.runningDate
+        configuration.variables = metricTestSettings.params.variables
+        configuration.metricSets = Seq(metricTestSettings.metricSetPath)
+        Session.init(configuration)
+        start(metricTestSettings.tests)
+      })
+    case None =>
+      System.exit(1)
+  }
+
+
+  def start(tests: Map[String, List[Map[String, Any]]]): Any = {
+    var errors = Array[String]()
+    val sparkSession = SparkSession.builder.getOrCreate()
+    Session.getConfiguration.metricSets.foreach(set => {
+      val metricSet = new MetricSet(new File(set))
+      metricSet.run()
+      errors = errors ++ compareActualToExpected(tests, set, sparkSession)
+    })
+
+    sparkSession.stop()
+
+    if (!errors.isEmpty) {
+      println("\n" + errors.mkString("\n"))
+      println("FAILED!")
+      System.exit(1)
+    } else {
+      println("SUCCESS!")
+    }
+  }
+
+  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock]): Map[String, String] = {
+    var mockFiles = Map[String, String]()
+    mocks.foreach(mock => {
+      val mockName = mock.name
+      var mockPath = mock.path
+      mockFiles = mockFiles + (mockName -> mockPath)
+    })
+    return mockFiles
+  }
+
+  private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]], metricName: String, sparkSession: SparkSession): Array[String] = {
+    var errors = Array[String]()
+    metricExpectedTests.keys.foreach(tableName => {
+      val metricActualResultRows = sparkSession.table(tableName).collect()
+      var metricExpectedResultRows = metricExpectedTests(tableName)
+      if (metricExpectedResultRows.length == metricActualResultRows.length) {
+        for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
+          val mapOfActualRow = metricActualResultRow.getValuesMap(metricActualResultRow.schema.fieldNames)
+          val matchingExpectedMetric = matchExpectedRow(mapOfActualRow, metricExpectedResultRows)
+          if (matchingExpectedMetric == null) {
+            errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
+          }
+          else {
+            metricExpectedResultRows = metricExpectedResultRows.filter(_ != matchingExpectedMetric)
+          }
+        }
+      } else {
+        errors = errors :+ s"[$metricName - $tableName] number of rows was ${metricActualResultRows.length} while expected ${metricExpectedResultRows.length}"
+      }
+    })
+    return errors
+  }
+
+  private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
+    for (expectedRowCandidate <- metricExpectedResultRows) {
+      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
+        return expectedRowCandidate
+      }
+    }
+    return null
+  }
+
+  private def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
+    for (key <- expectedRowCandidate.keys) {
+      val expectedValue = Option(expectedRowCandidate.get(key))
+      val actualValue = Option(actualRow.get(key))
+      // TODO: support nested Objects and Arrays
+      if (expectedValue.toString != actualValue.toString) {
+        return false
+      }
+    }
+    return true
+  }
 
 
 }

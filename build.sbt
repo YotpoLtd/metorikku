@@ -1,3 +1,6 @@
+import sbt.librarymanagement.{Resolver, ScmInfo}
+import sbt.librarymanagement.ivy.Credentials
+
 name := "metorikku"
 organization := "com.yotpo"
 homepage := Some(url("https://github.com/YotpoLtd/metorikku"))

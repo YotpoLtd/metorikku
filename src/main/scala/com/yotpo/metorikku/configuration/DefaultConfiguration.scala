@@ -1,23 +1,19 @@
 package com.yotpo.metorikku.configuration
 
-import java.util
-
-import scala.collection.JavaConversions.mapAsJavaMap
-
 class DefaultConfiguration extends Configuration {
-  val metricSets = new util.ArrayList[String]()
-  val runningDate = ""
-  val showPreviewLines = 0
-  val explain = false
-  val tableFiles = new util.LinkedHashMap[String, String]()
-  val replacements = new util.LinkedHashMap[String, String]()
-  val logLevel = "WARN"
-  val variables = new util.LinkedHashMap[String, String]()
-  val metrics = new util.ArrayList[String]()
-  val cassandraArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val redshiftArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val redisArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val segmentArgs: util.Map[String, String] = mapAsJavaMap(Map("apiKey" -> ""))
-  val fileOutputPath = "metrics/"
-  val globalUDFsPath = ""
+  var metricSets: Seq[String] = Seq[String]()
+  var runningDate = ""
+  var showPreviewLines = 0
+  var explain = false
+  var tableFiles: Map[String, String] = Map[String, String]()
+  var replacements: Map[String, String] = Map[String, String]()
+  var logLevel = "WARN"
+  var variables: Map[String, String] = Map[String, String]()
+  var metrics: Seq[String] = Seq[String]()
+  var cassandraArgs = Map("host" -> "127.0.0.1")
+  var redshiftArgs = Map("host" -> "127.0.0.1")
+  var redisArgs = Map("host" -> "127.0.0.1")
+  var segmentArgs = Map("apiKey" -> "")
+  var fileOutputPath = "metrics/"
+  var globalUDFsPath = ""
 }

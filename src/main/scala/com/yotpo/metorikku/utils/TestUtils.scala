@@ -1,9 +1,5 @@
 package com.yotpo.metorikku.utils
 
-import java.io.File
-
-import org.apache.commons.io.FilenameUtils
-
 
 object TestUtils {
 
@@ -11,30 +7,14 @@ object TestUtils {
 
     case class Mock(name: String, path: String)
 
-    case class Params(runningDate: String, variables: Any, replacements: Any)
+    case class Params(runningDate: String, variables: Map[String, String], replacements: Map[String, String])
 
-    case class TestSettings(mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
-
-  }
-
-  //TODO remove MQL object
-  class MQL(val basePath: String) {
-    def getCalculationsPath(): String = {
-      FilenameUtils.concat(basePath, "metricSet")
-    }
-
-    def getTestsPath(): String = {
-      FilenameUtils.concat(basePath, "tests/metricSet")
-    }
-
-    def getMetricSetsTest(): List[File] = {
-      FileUtils.getListOfDirectories(getTestsPath())
-    }
+    case class TestSettings(metricSetPath: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
 
   }
 
-  def getTestSettings(metricDirPath: String): MetricTesterDefinitions.TestSettings = {
-    FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](FilenameUtils.concat(metricDirPath, "test_settings.json"))
+  def getTestSettings(metricTestSettings: String): MetricTesterDefinitions.TestSettings = {
+    FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](metricTestSettings)
   }
 
 }

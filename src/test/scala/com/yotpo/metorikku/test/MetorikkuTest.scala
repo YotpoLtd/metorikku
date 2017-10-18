@@ -6,9 +6,6 @@ import com.github.nscala_time.time.Imports._
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-/**
-  * Created by ariel on 7/31/16.
-  */
 class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
 
   case class Event(action: String, time: String)
@@ -63,10 +60,10 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     userAggData.write.mode(SaveMode.Overwrite).parquet("src/test/out/user_agg.parquet")
 
     Metorikku.main(Array(
-      "-c", "src/test/scala/com/yotpo/metorikku/metorikku-tester-config.yaml"))
+      "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config.yaml"))
 
-    assert(new File("src/test/out/account_agg/conversionUplift/_SUCCESS").exists)
-    assert(new File("src/test/out/account_agg/timeSpentUplift/_SUCCESS").exists)
+    assert(new File("src/test/out/account_agg/conversionUplift/._SUCCESS.crc").exists)
+    assert(new File("src/test/out/account_agg/timeSpentUplift/._SUCCESS.crc").exists)
 
     val cul = sparkSession.table("ConversionUpliftIWithRawConversionData")
     cul.cache

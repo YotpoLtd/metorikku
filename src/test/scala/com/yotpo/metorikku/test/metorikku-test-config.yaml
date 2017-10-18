@@ -1,4 +1,5 @@
-calculationsFolderPath: src/test/calculations
+metricSets:
+  - src/test/calculations/roi_test
 tableFiles:
  UserAggregatedData: src/test/out/user_agg.parquet
 fileOutputPath: src/test/out/
