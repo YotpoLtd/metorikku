@@ -14,10 +14,10 @@ class DefaultConfiguration extends Configuration {
   val logLevel = "WARN"
   val variables = new util.LinkedHashMap[String, String]()
   val metrics = new util.ArrayList[String]()
-  val scyllaDBArgs = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val redshiftArgs = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val redisArgs = mapAsJavaMap(Map("host" -> "127.0.0.1"))
-  val segmentArgs = mapAsJavaMap(Map("apiKey" -> ""))
+  val cassandraArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
+  val redshiftArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
+  val redisArgs: util.Map[String, String] = mapAsJavaMap(Map("host" -> "127.0.0.1"))
+  val segmentArgs: util.Map[String, String] = mapAsJavaMap(Map("apiKey" -> ""))
   val fileOutputPath = "metrics/"
   val globalUDFsPath = ""
 }

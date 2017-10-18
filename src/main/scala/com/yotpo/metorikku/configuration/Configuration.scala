@@ -21,7 +21,7 @@ trait Configuration {
 
   def metrics: JList[String]
 
-  def scyllaDBArgs: JMap[String, String]
+  def cassandraArgs: JMap[String, String]
 
   def redshiftArgs: JMap[String, String]
 

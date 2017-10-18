@@ -3,6 +3,7 @@ package com.yotpo.metorikku.metric
 import java.io.File
 
 import com.yotpo.metorikku.calculators.SqlStepCalculator
+import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.udf.UDFUtils
 import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
@@ -10,8 +11,8 @@ import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
 import scala.collection.JavaConversions._
 
 class MetricSet(metricSetPath: File) {
-  val configuration = Session.getConfiguration
-  val metrics = parseMetrics(metricSetPath)
+  val configuration: Configuration = Session.getConfiguration
+  val metrics: Seq[Metric] = parseMetrics(metricSetPath)
 
   def parseMetrics(metricSetFiles: File): Seq[Metric] = {
     val allMetrics = MQLUtils.getMetrics(metricSetFiles)

@@ -1,0 +1,38 @@
+{
+  "steps": [
+    {
+      "sql": "select *, size(transactions) > 0 as converted, size(events) > 0 as hasEvents, arrayContains(events, 'action', 'click') as interacted from UserAggregatedData",
+      "dataFrameName": "ConversionUpliftWithIndicators"
+    },
+    {
+      "sql": "select *, case when (hasEvents and not interacted) then 1 else 0 end as baseTraffic from ConversionUpliftWithIndicators",
+      "dataFrameName": "ConversionUpliftIWithBaseTraffic"
+    },
+    {
+      "sql": "select *, case when (hasEvents and not interacted and converted) then 1 else 0 end as convertedBaseTraffic from ConversionUpliftIWithBaseTraffic",
+      "dataFrameName": "ConversionUpliftIWithConvertedBaseTraffic"
+    },
+    {
+      "sql": "select *, case when (interacted) then 1 else 0 end as interactedTraffic from ConversionUpliftIWithConvertedBaseTraffic",
+      "dataFrameName": "ConversionUpliftIWithInteractedTraffic"
+    },
+    {
+      "sql": "select *, case when (interacted and converted) then 1 else 0 end as convertedInteractedTraffic from ConversionUpliftIWithInteractedTraffic",
+      "dataFrameName": "ConversionUpliftIWithConvertedInteractedTraffic"
+    },
+    {
+      "sql": "select app, sum(baseTraffic) as baseTraffic, sum(convertedBaseTraffic) as convertedBaseTraffic, sum(interactedTraffic) as interactedTraffic, sum(convertedInteractedTraffic) as convertedInteractedTraffic from ConversionUpliftIWithConvertedInteractedTraffic group by app",
+      "dataFrameName": "ConversionUpliftIWithRawConversionData"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "ConversionUpliftIWithRawConversionData",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/account_agg/conversionUplift/"
+      }
+    }
+  ]
+}

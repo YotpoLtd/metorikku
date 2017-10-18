@@ -8,9 +8,6 @@ import org.joda.time.DateTime
 
 import scala.collection.mutable
 
-/**
-  * Created by ariel on 7/19/16.
-  */
 object ContainsWithTimeFrames {
 
   def createFunction(params: Any): (mutable.WrappedArray[Row], mutable.WrappedArray[Row]) =>

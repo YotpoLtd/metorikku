@@ -5,9 +5,6 @@ import org.apache.spark.sql.Row
 import scala.collection.mutable
 import scala.util.Try
 
-/**
-  * Created by ariel on 7/31/16.
-  */
 object Arrays {
 
   def mergeArrays (first: mutable.WrappedArray[Row], second: mutable.WrappedArray[Row]): mutable.WrappedArray[Row] = {

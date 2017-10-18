@@ -8,11 +8,7 @@ import org.joda.time.Duration
 
 import scala.collection.mutable
 
-/**
-  * Created by ariel on 7/19/16.
-  */
 object Sessions {
-
   def createFunction(params: Any): (mutable.WrappedArray[Row]) => mutable.Buffer[Session] = {
     val udfParams = params.asInstanceOf[Map[String, Any]]
     val dateFormatString = udfParams("dateFormat").asInstanceOf[String]
@@ -32,11 +28,13 @@ object Sessions {
   (mutable.WrappedArray[Row]) => mutable.Buffer[Session] =
     (events: mutable.WrappedArray[Row]) => {
       val sessionList = mutable.Buffer[Session]()
+
       def addSessionIfDurationIsLongEnough(start: DateTime, end: DateTime): Unit = {
         if (new Duration(start, end).isLongerThan(minimumSessionSeconds.second)) {
           sessionList += Session(new Timestamp(start.getMillis), new Timestamp(end.getMillis))
         }
       }
+
       val dateFormat = DateTimeFormat.forPattern(dateFormatString)
 
       if (Option(events).isDefined && events.nonEmpty) {

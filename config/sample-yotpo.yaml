@@ -1,0 +1,27 @@
+runningDate: 2016/03/01
+tableFiles:
+ accounts: accounts.parquet
+ reviews: reviews.parquet
+ products: products.parquet
+ categorized_accounts: categorized_accounts.parquet
+ review_source_types: review_source_types.parquet
+ review_metadatas: review_metadatas.parquet
+ mentions: mentions.parquet
+ products_apps: products_apps.parquet
+ products_app_specs: products_app_specs.parquet
+ spec_types: spec_types.parquet
+ metadata_types: metadata_types.parquet
+ products_groups: products_groups.parquet
+ products_apps_products_groups: products_apps_products_groups.parquet
+ categories: categories.parquet
+ UserAggregatedData: user_agg_data.parquet
+variables:
+ StartDate: 2016/03/01
+ EndDate: 2016/04/01
+ TrimmedDateFormat: yyyy/MM/dd
+calculationsFolderPath: /Users/ofirventura-mbp/Development/metrical-query-language/calculations/
+fileOutputPath: output
+calculationsDirs:
+  - roi
+metrics:
+  - aovInteractedWithYotpo.json
