@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.udfs
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import com.yotpo.metorikku.metrics.udf.ArraysUDFRegistry
+import com.yotpo.metorikku.udf.ArraysUDFRegistry
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 

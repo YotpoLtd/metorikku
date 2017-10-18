@@ -6,7 +6,7 @@ import com.yotpo.metorikku.calculators.SqlStepCalculator
 import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.udf.UDFUtils
-import com.yotpo.metorikku.utils.{FileUtils, MqlFileUtils}
+import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
 
 import scala.collection.JavaConversions._
 
@@ -15,7 +15,7 @@ class MetricSet(metricSetPath: File) {
   val metrics: Seq[Metric] = parseMetrics(metricSetPath)
 
   def parseMetrics(metricSetFiles: File): Seq[Metric] = {
-    val allMetrics = MqlFileUtils.getMetrics(metricSetFiles)
+    val allMetrics = MQLUtils.getMetrics(metricSetFiles)
 
     //TODO remove all the intersection stuff
     val metricsToCalculate = FileUtils.intersect(allMetrics, configuration.metrics)
@@ -32,11 +32,7 @@ class MetricSet(metricSetPath: File) {
 
   def run() {
     metrics.foreach(metric => {
-      val df = new SqlStepCalculator(metric).calculate()
-      //TODO REFACTOR ALL THE PREVIEW STUFF MECHANISM
-      if (configuration.showPreviewLines > 0) {
-        df.show(configuration.showPreviewLines, truncate = false)
-      }
+      new SqlStepCalculator(metric).calculate()
     })
   }
 

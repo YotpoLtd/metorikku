@@ -8,8 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.metric.MetricSet
-import com.yotpo.metorikku.utils.MetricRunnerUtils.MetricRunnerYamlFileName
-import com.yotpo.metorikku.utils.{MQL, MetricTesterDefinitions, MqlFileUtils}
+import com.yotpo.metorikku.configuration.MetorikkuConfiguration.MetorikkuYamlFileName
+import com.yotpo.metorikku.utils.TestUtils.{MQL, MetricTesterDefinitions}
+import com.yotpo.metorikku.utils.MQLUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.SparkSession
 
@@ -26,7 +27,7 @@ object MetorikkuTester {
 //    val metrics = Option(_metrics).getOrElse(new ArrayList[String]())
 //  }
 //
-//  val parser = new scopt.OptionParser[MetricRunnerYamlFileName]("MetorikkuTester") {
+//  val parser = new scopt.OptionParser[YamlFileName]("MetorikkuTester") {
 //    head("MetorikkuTester", "1.0")
 //    opt[String]('c', "config")
 //      .text("The YAML file that defines the Metorikku arguments")
@@ -37,7 +38,7 @@ object MetorikkuTester {
 //
 //
 //  def main(args: Array[String]): Unit = {
-//    parser.parse(args, MetricRunnerYamlFileName()) match {
+//    parser.parse(args, YamlFileName()) match {
 //      case Some(yamlFile) =>
 //        val mapper = new ObjectMapper(new YAMLFactory())
 //        val config: MetricTesterConfig = mapper.readValue(new FileReader(yamlFile.filename), classOf[MetricTesterConfig])

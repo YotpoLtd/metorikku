@@ -3,15 +3,13 @@ package com.yotpo.metorikku
 import java.io.File
 
 import com.github.nscala_time.time.Imports._
-import com.yotpo.metorikku.metrics.{MetricRunner, MetricSparkSession}
-import org.apache.commons.io.FileUtils
 import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 /**
   * Created by ariel on 7/31/16.
   */
-class MetricRunnerTest extends FunSuite with BeforeAndAfterAll {
+class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
 
   case class Event(action: String, time: String)
 
@@ -64,8 +62,8 @@ class MetricRunnerTest extends FunSuite with BeforeAndAfterAll {
     val userAggData = sparkSession.createDataFrame(data)
     userAggData.write.mode(SaveMode.Overwrite).parquet("src/test/out/user_agg.parquet")
 
-    MetricRunner.main(Array(
-      "-c", "src/test/scala/com/yotpo/metorikku/metric-tester-config.yaml"))
+    Metorikku.main(Array(
+      "-c", "src/test/scala/com/yotpo/metorikku/metorikku-tester-config.yaml"))
 
     assert(new File("src/test/out/account_agg/conversionUplift/_SUCCESS").exists)
     assert(new File("src/test/out/account_agg/timeSpentUplift/_SUCCESS").exists)

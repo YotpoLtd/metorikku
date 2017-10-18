@@ -1,8 +1,6 @@
 package com.yotpo.metorikku.udaf
 
 import com.holdenkarau.spark.testing.SharedSparkContext
-import com.yotpo.metorikku.Utils
-import com.yotpo.metorikku.metrics.udaf.MergeArraysAgg
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.expressions.UserDefinedAggregateFunction

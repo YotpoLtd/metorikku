@@ -2,14 +2,13 @@ package com.yotpo.metorikku.session
 
 import java.nio.file.{Files, Paths}
 
-import com.yotpo.metorikku.Utils
 import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.metric.Replacement
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.udaf.MergeArraysAgg
 import com.yotpo.metorikku.udf._
-import com.yotpo.metorikku.utils.{MqlFileUtils, TableType}
+import com.yotpo.metorikku.utils.{MQLUtils, TableType}
 import org.apache.spark.sql.SparkSession
 import scala.collection.JavaConversions._
 
@@ -80,7 +79,7 @@ object Session {
       case "MergeArrays" => ArraysUDFRegistry.registerMergeArraysUDF(getSparkSession, alias, params)
       case "MergeArraysAgg" =>
         val udfParams = params.asInstanceOf[Map[String, String]]
-        Utils.getArrayTypeFromParams(getSparkSession, udfParams("table"), udfParams("column")) match {
+        UDFUtils.getArrayTypeFromParams(getSparkSession, udfParams("table"), udfParams("column")) match {
           case Some(itemsType) =>
             getSparkSession.udf.register(alias, MergeArraysAgg(itemsType))
           case None =>
@@ -99,7 +98,7 @@ object Session {
         val firstTablePath = TablePaths.head
         val df = TableType.getTableType(firstTablePath) match {
           case TableType.json | TableType.jsonl =>
-            val schemaPath = MqlFileUtils.getSchemaPath(firstTablePath)
+            val schemaPath = MQLUtils.getSchemaPath(firstTablePath)
             if (Files.exists(Paths.get(schemaPath))) {
               val schema = SchemaConverter.convert(schemaPath)
               getSparkSession.read.schema(schema).json(TablePaths: _*)

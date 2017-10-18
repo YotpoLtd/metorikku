@@ -4,7 +4,7 @@ import java.sql.Timestamp
 
 import com.github.nscala_time.time.Imports._
 import com.holdenkarau.spark.testing.SharedSparkContext
-import com.yotpo.metorikku.metrics.udf.ContainsWithTimeFrames
+import com.yotpo.metorikku.udf.ContainsWithTimeFrames
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
