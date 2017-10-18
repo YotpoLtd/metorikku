@@ -5,9 +5,6 @@ import org.apache.spark.sql.Row
 
 import scala.collection.mutable
 
-/**
-  * Created by ariel on 7/19/16.
-  */
 object CountOccurrencesWithinTimeFrames {
 
   def createFunction(params: Any):

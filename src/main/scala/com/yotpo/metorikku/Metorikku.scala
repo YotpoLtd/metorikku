@@ -2,7 +2,7 @@ package com.yotpo.metorikku
 
 import java.io.File
 
-import com.yotpo.metorikku.configuration.{Configuration, YAMLConfigurationParser}
+import com.yotpo.metorikku.configuration.YAMLConfigurationParser
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.MetricRunnerUtils.MetricRunnerYamlFileName
@@ -23,16 +23,20 @@ object Metorikku extends App {
   }
 
   parser.parse(args, MetricRunnerYamlFileName()) match {
-    case Some(yamlFilePath) =>
-      val configuration = YAMLConfigurationParser.parse(yamlFilePath).get
-      Session.init(configuration)
-      start(configuration)
+    case Some(yaml) =>
+      val configuration = YAMLConfigurationParser.parse(yaml)
+      if (configuration.isDefined) {
+        Session.init(configuration.get)
+        start()
+      } else {
+        System.exit(1)
+      }
     case None =>
       System.exit(1)
   }
 
-  def start(configuration: Configuration) {
-    configuration.metricSets.foreach(set => {
+  def start() {
+    Session.getConfiguration.metricSets.foreach(set => {
       val metricSet = new MetricSet(new File(set))
       metricSet.run()
       metricSet.write()

@@ -8,9 +8,6 @@ import org.json4s.native.JsonMethods.parse
 
 import scala.util.parsing.json.JSON
 
-/**
-  * Created by ariel on 7/28/16.\
-  */
 object FileUtils {
 
   def jsonFileToMap(jsonFile: File): Map[String, Any] = {

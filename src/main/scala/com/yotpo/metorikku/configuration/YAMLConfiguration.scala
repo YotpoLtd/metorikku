@@ -32,7 +32,7 @@ class YAMLConfiguration(@JsonProperty("runningDate") _runningDate: String,
   val logLevel: String = Option(_logLevel).getOrElse("WARN")
   val variables: JMap[String, String] = Option(_variables).getOrElse(new util.LinkedHashMap[String, String]())
   val metrics: JList[String] = Option(_metrics).getOrElse(new util.ArrayList[String]())
-  val scyllaDBArgs: JMap[String, String] = Option(_scyllaDBArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
+  val cassandraArgs: JMap[String, String] = Option(_scyllaDBArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
   val redshiftArgs: JMap[String, String] = Option(_redshiftArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
   val redisArgs: JMap[String, String] = Option(_redisArgs).getOrElse(mapAsJavaMap(Map("host" -> "127.0.0.1")))
   val segmentArgs: JMap[String, String] = Option(_segmentArgs).getOrElse(mapAsJavaMap(Map("apiKey" -> "")))

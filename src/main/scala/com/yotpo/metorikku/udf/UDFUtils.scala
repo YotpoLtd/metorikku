@@ -4,7 +4,6 @@ import com.yotpo.metorikku.utils.FileUtils
 import org.apache.commons.io.FilenameUtils
 
 object UDFUtils {
-
   def getAllUDFsInPath(udfsPath: String): List[Map[String, Object]] = {
     val udfsFiles = FileUtils.getListOfContents(udfsPath)
     udfsFiles

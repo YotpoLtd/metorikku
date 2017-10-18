@@ -3,7 +3,7 @@ package com.yotpo.metorikku.session
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.Utils
-import com.yotpo.metorikku.configuration.{Configuration, DefaultConfiguration}
+import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.metric.Replacement
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
@@ -11,75 +11,81 @@ import com.yotpo.metorikku.udaf.MergeArraysAgg
 import com.yotpo.metorikku.udf._
 import com.yotpo.metorikku.utils.{MqlFileUtils, TableType}
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.types._
-
 import scala.collection.JavaConversions._
 
+case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
+                                            private val cause: Throwable = None.orNull)
+  extends Exception(message, cause)
+
 object Session {
-  private var configuration: Configuration = new DefaultConfiguration
-  private var spark: SparkSession = createSparkSession(configuration.scyllaDBArgs.toMap, configuration.redisArgs.toMap)
+  private val configuration: Option[Configuration] = None
+  private var spark: Option[SparkSession] = None
 
   def init(config: Configuration) {
-    configuration = config
-    spark = createSparkSession(configuration.scyllaDBArgs.toMap, configuration.redisArgs.toMap)
-    spark.sparkContext.setLogLevel(configuration.logLevel)
-    registerVariables(configuration.variables.toMap)
-    registerDataframes(configuration.tableFiles.toMap, configuration.replacements.toMap)
-    registerGlobalUDFs(configuration.globalUDFsPath)
+    spark = Some(createSparkSession(config.cassandraArgs.toMap, config.redisArgs.toMap))
+    setSparkLogLevel(config.logLevel)
+    registerVariables(config.variables.toMap)
+    registerDataframes(config.tableFiles.toMap, config.replacements.toMap)
+    registerGlobalUDFs(config.globalUDFsPath)
+  }
+
+  private def setSparkLogLevel(logLevel: String) {
+    getSparkSession.sparkContext.setLogLevel(logLevel)
   }
 
   def getConfiguration: Configuration = {
-    configuration
+    if (configuration.isDefined) {
+      configuration.get
+    }
+    else {
+      throw ConfigurationNotDefinedException()
+    }
   }
 
-  val dataTypes = Map(
-    "str" -> StringType,
-    "int" -> IntegerType,
-    "flt" -> FloatType
-  )
-
-
   def getSparkSession: SparkSession = {
-    spark
+    if (spark.isDefined) {
+      spark.get
+    }
+    else {
+      throw ConfigurationNotDefinedException()
+    }
   }
 
   private def registerVariables(variables: Map[String, String]): Unit = {
     variables.foreach({ case (key, value) => {
-      spark.sql(s"set $key='$value'")
+      getSparkSession.sql(s"set $key='$value'")
     }
     })
   }
 
-  private def registerGlobalUDFs(calculationsFolderPath: String) = {
+  private def registerGlobalUDFs(calculationsFolderPath: String) {
     //register udfs without json
-    ArraysUDFRegistry.registerExtractKeyUDF(spark, "extractKey")
-    ArraysUDFRegistry.registerArraySumFieldUDF(spark, "sumField")
-    ArraysUDFRegistry.registerArrayContainsUDF(spark, "arrayContains")
+    ArraysUDFRegistry.registerExtractKeyUDF(getSparkSession, "extractKey")
+    ArraysUDFRegistry.registerArraySumFieldUDF(getSparkSession, "sumField")
+    ArraysUDFRegistry.registerArrayContainsUDF(getSparkSession, "arrayContains")
     //register global udfs
     val udfs = UDFUtils.getAllUDFsInPath(calculationsFolderPath)
     udfs.foreach(udf => registerUdf(udf))
   }
 
-  def registerUdf(namedUdf: Map[String, Any]): Unit = {
+  def registerUdf(namedUdf: Map[String, Any]) {
     val alias: String = namedUdf("name").asInstanceOf[String]
     val udfSpecs = namedUdf("udf").asInstanceOf[Map[String, Any]]
     val params: Any = udfSpecs("udfParams")
     udfSpecs("type") match {
-      case "ArrayContainsAny" => ArraysUDFRegistry.registerArrayContainsAnyUDF(spark, alias, params)
-      case "Sessions" => spark.udf.register(alias, Sessions.createFunction(params))
-      case "ContainsWithTimeFrames" => spark.udf.register(alias, ContainsWithTimeFrames.createFunction(params))
-      case "CountOccurrencesWithinTimeFrames" => spark.udf.register(alias, CountOccurrencesWithinTimeFrames.createFunction(params))
-      case "MergeArrays" => ArraysUDFRegistry.registerMergeArraysUDF(spark, alias, params)
-      case "MergeArraysAgg" => {
+      case "ArrayContainsAny" => ArraysUDFRegistry.registerArrayContainsAnyUDF(getSparkSession, alias, params)
+      case "Sessions" => getSparkSession.udf.register(alias, Sessions.createFunction(params))
+      case "ContainsWithTimeFrames" => getSparkSession.udf.register(alias, ContainsWithTimeFrames.createFunction(params))
+      case "CountOccurrencesWithinTimeFrames" => getSparkSession.udf.register(alias, CountOccurrencesWithinTimeFrames.createFunction(params))
+      case "MergeArrays" => ArraysUDFRegistry.registerMergeArraysUDF(getSparkSession, alias, params)
+      case "MergeArraysAgg" =>
         val udfParams = params.asInstanceOf[Map[String, String]]
-        Utils.getArrayTypeFromParams(spark, udfParams("table"), udfParams("column")) match {
-          case Some(itemsType) => {
-            spark.udf.register(alias, MergeArraysAgg(itemsType))
-          }
+        Utils.getArrayTypeFromParams(getSparkSession, udfParams("table"), udfParams("column")) match {
+          case Some(itemsType) =>
+            getSparkSession.udf.register(alias, MergeArraysAgg(itemsType))
           case None =>
         }
-      }
-      case "GroupArraysByKey" => ArraysUDFRegistry.registerGroupArraysByKeyUDF(spark, alias, params)
+      case "GroupArraysByKey" => ArraysUDFRegistry.registerGroupArraysByKeyUDF(getSparkSession, alias, params)
     }
   }
 
@@ -92,16 +98,15 @@ object Session {
         // (originated from one table and can be duplicated by 'Replacement')
         val firstTablePath = TablePaths.head
         val df = TableType.getTableType(firstTablePath) match {
-          case TableType.json | TableType.jsonl => {
+          case TableType.json | TableType.jsonl =>
             val schemaPath = MqlFileUtils.getSchemaPath(firstTablePath)
             if (Files.exists(Paths.get(schemaPath))) {
               val schema = SchemaConverter.convert(schemaPath)
-              spark.read.schema(schema).json(TablePaths: _*)
+              getSparkSession.read.schema(schema).json(TablePaths: _*)
             } else {
-              spark.read.json(TablePaths: _*)
+              getSparkSession.read.json(TablePaths: _*)
             }
-          }
-          case _ => spark.read.parquet(TablePaths: _*)
+          case _ => getSparkSession.read.parquet(TablePaths: _*)
         }
         df.createOrReplaceTempView(tableName)
       })
