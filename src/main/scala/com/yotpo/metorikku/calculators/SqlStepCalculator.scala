@@ -8,32 +8,41 @@ import org.apache.spark.sql.functions.lit
 class SqlStepCalculator(metric: Metric) extends Calculator {
   override def calculate(): DataFrame = {
     val sqlContext = Session.getSparkSession.sqlContext
-    var emptyDF = sqlContext.emptyDataFrame
-    var lastDFName = ""
+    var stepResult = sqlContext.emptyDataFrame
+    var stepName = "" //TODO: remove stepName after deleting the addDateColumn function
     for (step <- metric.steps) {
-      emptyDF = step.actOnDataFrame(sqlContext)
-      lastDFName = step.dataFrameName
-      if (Session.getConfiguration.showPreviewLines > 0) {
-        println(s"Previewing step: $lastDFName")
-        emptyDF.printSchema()
-        emptyDF.show(Session.getConfiguration.showPreviewLines, truncate = false)
-      }
+      stepResult = step.actOnDataFrame(sqlContext)
+      stepName = step.dataFrameName
+      printStep(stepResult, stepName)
     }
-    val transformedDF = addDateColumn(emptyDF, "")
-    transformedDF.createOrReplaceTempView(lastDFName)
-    transformedDF
+    val transformedDF = addDateColumn(stepResult, stepName, "")
+    transformedDF //TODO: return stepResult
+  }
+
+  private def printStep(stepResult: DataFrame, stepName: String): Unit = {
+    if (Session.getConfiguration.showPreviewLines > 0) {
+      println(s"Previewing step: $stepName")
+      stepResult.printSchema()
+      stepResult.show(Session.getConfiguration.showPreviewLines, truncate = false)
+    }
   }
 
   //TODO REMOVE THIS HACK AS TECHNICAL DEBT
-  private def addDateColumn(dataFrameWithoutDate: DataFrame, date: String): DataFrame = {
+  private def addDateColumn(dataFrameWithoutDate: DataFrame, lastDFName: String, date: String): DataFrame = {
     var df = dataFrameWithoutDate
     val pattern = "\\d{4}\\/\\d{2}\\/\\d{2}".r
     val dateStr = pattern.findFirstIn(date)
     val hasDateColumn = dataFrameWithoutDate.columns contains "date"
-    if (dateStr.isEmpty && !hasDateColumn) return dataFrameWithoutDate
-    if (!hasDateColumn) {
+    if (dateStr.isEmpty && !hasDateColumn) {
+      df =  dataFrameWithoutDate
+    } else if (!hasDateColumn) {
       val date = dateStr.get.replaceAll("/", "-")
       df = dataFrameWithoutDate.withColumn("date", lit(date + " 00:00:00+0000"))
+    }
+
+    df.createOrReplaceTempView(lastDFName)
+    if (Session.getConfiguration.showPreviewLines > 0) {
+      df.show(Session.getConfiguration.showPreviewLines, truncate = false)
     }
     df
   }

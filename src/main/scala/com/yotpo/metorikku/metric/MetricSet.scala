@@ -32,11 +32,7 @@ class MetricSet(metricSetPath: File) {
 
   def run() {
     metrics.foreach(metric => {
-      val df = new SqlStepCalculator(metric).calculate()
-      //TODO REFACTOR ALL THE PREVIEW STUFF MECHANISM
-      if (configuration.showPreviewLines > 0) {
-        df.show(configuration.showPreviewLines, truncate = false)
-      }
+      new SqlStepCalculator(metric).calculate()
     })
   }
 
