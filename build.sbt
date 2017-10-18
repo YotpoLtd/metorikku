@@ -71,3 +71,19 @@ publishMavenStyle := true
 // Change when moving to open source
 credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com", "myMavenRepo", "yotpo")
 publishTo := Some("mymavenrepo.com.write" at "https://mymavenrepo.com/repo/0tlqEJu4rjdm1Ksy2pJP")
+
+import ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+//  publishArtifacts,
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
