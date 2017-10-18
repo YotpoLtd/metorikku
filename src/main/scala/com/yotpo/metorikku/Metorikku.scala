@@ -2,10 +2,10 @@ package com.yotpo.metorikku
 
 import java.io.File
 
+import com.yotpo.metorikku.configuration.MetorikkuConfiguration.MetorikkuYamlFileName
 import com.yotpo.metorikku.configuration.{Configuration, YAMLConfigurationParser}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
-import com.yotpo.metorikku.utils.MetricRunnerUtils.MetricRunnerYamlFileName
 import scopt.OptionParser
 
 import scala.collection.JavaConversions._
@@ -14,7 +14,7 @@ import scala.collection.JavaConversions._
   * Metorikku - runs Spark SQL queries on various data sources and exports the results
   */
 object Metorikku extends App {
-  val parser: OptionParser[MetricRunnerYamlFileName] = new scopt.OptionParser[MetricRunnerYamlFileName]("Metorikku") {
+  val parser: OptionParser[MetorikkuYamlFileName] = new scopt.OptionParser[MetorikkuYamlFileName]("Metorikku") {
     head("Metorikku", "1.0")
     opt[String]('c', "config")
       .text("The YAML file that defines the Metorikku arguments")
@@ -22,7 +22,7 @@ object Metorikku extends App {
     help("help") text "use command line arguments to specify the YAML configuration file path"
   }
 
-  parser.parse(args, MetricRunnerYamlFileName()) match {
+  parser.parse(args, MetorikkuYamlFileName()) match {
     case Some(yamlFilePath) =>
       val configuration = YAMLConfigurationParser.parse(yamlFilePath).get
       Session.init(configuration)
