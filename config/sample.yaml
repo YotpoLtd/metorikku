@@ -54,3 +54,6 @@ showPreviewLines: 42
 
 # Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 logLevel: WARN
+
+# Set Application Name to have app name prefix in influxDB instrumentation counters
+appName: appName
