@@ -2,7 +2,6 @@ package com.yotpo.metorikku.configuration
 
 class DefaultConfiguration extends Configuration {
   var metrics: Seq[String] = Seq[String]()
-  var runningDate = ""
   var showPreviewLines = 0
   var explain = false
   var inputs: Map[String, String] = Map[String, String]()

@@ -9,7 +9,7 @@ object TestUtils {
 
     case class Mock(name: String, path: String)
 
-    case class Params(runningDate: Option[String], variables: Option[Map[String, String]], dateRange: Option[Map[String, String]])
+    case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, String]])
 
     case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
 

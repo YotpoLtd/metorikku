@@ -4,8 +4,6 @@ package com.yotpo.metorikku.configuration
 trait Configuration {
   def metrics: Seq[String]
 
-  def runningDate: String
-
   def showPreviewLines: Int
 
   def explain: Boolean

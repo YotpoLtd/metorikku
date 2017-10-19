@@ -5,9 +5,6 @@ metrics:
   - /path/to/metric-1
   - /path/to/metric-2
 
-# The Date for the execution, which will appear in the output DF as date column, format: yyyy/MM/dd
-runningDate: 2017/09/01
-
 # Parquet or JSON Tables files paths
 inputs:
  input_1: parquet/input_1.parquet
