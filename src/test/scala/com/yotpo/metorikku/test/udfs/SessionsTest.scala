@@ -1,13 +1,10 @@
-package com.yotpo.metorikku.udfs
+package com.yotpo.metorikku.test.udfs
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.yotpo.metorikku.udf.Sessions
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-/**
-  * Created by ariel on 7/28/16.
-  */
 class SessionsTest extends FunSuite with SharedSparkContext with BeforeAndAfterAll {
 
   case class Event(action: String, time: String)

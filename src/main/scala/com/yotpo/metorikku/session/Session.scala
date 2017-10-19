@@ -17,7 +17,7 @@ case class ConfigurationNotDefinedException(private val message: String = "Sessi
   extends Exception(message, cause)
 
 object Session {
-  private val configuration: Option[Configuration] = None
+  private var configuration: Option[Configuration] = None
   private var spark: Option[SparkSession] = None
 
   def init(config: Configuration) {
@@ -26,6 +26,7 @@ object Session {
     registerVariables(config.variables.toMap)
     registerDataframes(config.tableFiles.toMap, config.replacements.toMap)
     registerGlobalUDFs(config.globalUDFsPath)
+    configuration = Some(config)
   }
 
   private def setSparkLogLevel(logLevel: String) {

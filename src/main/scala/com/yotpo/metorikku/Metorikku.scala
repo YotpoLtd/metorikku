@@ -2,7 +2,7 @@ package com.yotpo.metorikku
 
 import java.io.File
 
-import com.yotpo.metorikku.configuration.MetorikkuConfiguration.MetorikkuYamlFileName
+import com.yotpo.metorikku.configuration.MetorikkuRunConfiguration.MetorikkuYamlFileName
 import com.yotpo.metorikku.configuration.YAMLConfigurationParser
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
@@ -19,18 +19,15 @@ object Metorikku extends App {
     opt[String]('c', "config")
       .text("The YAML file that defines the Metorikku arguments")
       .action((x, c) => c.copy(filename = x))
+      .required()
     help("help") text "use command line arguments to specify the YAML configuration file path"
   }
 
   parser.parse(args, MetorikkuYamlFileName()) match {
     case Some(yaml) =>
-      val configuration = YAMLConfigurationParser.parse(yaml)
-      if (configuration.isDefined) {
-        Session.init(configuration.get)
-        start()
-      } else {
-        System.exit(1)
-      }
+      val configuration = YAMLConfigurationParser.parse(yaml.filename)
+      Session.init(configuration)
+      start()
     case None =>
       System.exit(1)
   }

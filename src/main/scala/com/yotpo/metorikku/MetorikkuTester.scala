@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.metric.MetricSet
-import com.yotpo.metorikku.configuration.MetorikkuConfiguration.MetorikkuYamlFileName
+import com.yotpo.metorikku.configuration.MetorikkuRunConfiguration.MetorikkuYamlFileName
 import com.yotpo.metorikku.utils.TestUtils.{MQL, MetricTesterDefinitions}
 import com.yotpo.metorikku.utils.MQLUtils
 import org.apache.commons.io.FilenameUtils
@@ -39,9 +39,9 @@ object MetorikkuTester {
 //
 //  def main(args: Array[String]): Unit = {
 //    parser.parse(args, YamlFileName()) match {
-//      case Some(yamlFile) =>
+//      case Some(filename) =>
 //        val mapper = new ObjectMapper(new YAMLFactory())
-//        val config: MetricTesterConfig = mapper.readValue(new FileReader(yamlFile.filename), classOf[MetricTesterConfig])
+//        val config: MetricTesterConfig = mapper.readValue(new FileReader(filename.filename), classOf[MetricTesterConfig])
 //        execute(config)
 //      case None =>
 //        System.exit(1)

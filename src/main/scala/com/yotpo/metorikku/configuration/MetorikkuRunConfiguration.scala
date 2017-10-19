@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.configuration
 
-object MetorikkuConfiguration {
+object MetorikkuRunConfiguration {
 
   case class MetorikkuYamlFileName(filename: String = "")
 

@@ -1,4 +1,4 @@
-package com.yotpo.metorikku
+package com.yotpo.metorikku.test
 
 import java.io.File
 

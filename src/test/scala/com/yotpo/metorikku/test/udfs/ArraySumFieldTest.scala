@@ -1,13 +1,10 @@
-package com.yotpo.metorikku.udfs
+package com.yotpo.metorikku.test.udfs
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.yotpo.metorikku.udf.ArraysUDFRegistry
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-/**
-  * Created by Andrei on 09/28/16.
-  */
 class ArraySumFieldTest extends FunSuite with SharedSparkContext with BeforeAndAfterAll {
 
   case class Person(name: String, salary: Float)

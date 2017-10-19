@@ -1,15 +1,13 @@
-package com.yotpo.metorikku.udaf
+package com.yotpo.metorikku.test.udaf
 
 import com.holdenkarau.spark.testing.SharedSparkContext
+import com.yotpo.metorikku.udaf.MergeArraysAgg
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.expressions.UserDefinedAggregateFunction
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.scalatest.FunSuite
 
-/**
-  * Created by ariel on 7/31/16.
-  */
 class MergeArraysAggTest extends FunSuite with SharedSparkContext {
 
   case class Person(name: String, age: Int)

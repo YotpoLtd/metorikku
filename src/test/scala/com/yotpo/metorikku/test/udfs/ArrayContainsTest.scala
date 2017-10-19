@@ -1,14 +1,11 @@
-package com.yotpo.metorikku.udfs
+package com.yotpo.metorikku.test.udfs
 
 import com.holdenkarau.spark.testing.SharedSparkContext
 import com.yotpo.metorikku.udf.ArraysUDFRegistry
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-/**
-  * Created by Andrei on 09/19/16.
-  */
-class ArrayContainsAnyTest extends FunSuite with SharedSparkContext with BeforeAndAfterAll {
+class ArrayContainsTest extends FunSuite with SharedSparkContext with BeforeAndAfterAll {
 
   case class Person(name: String, age: String)
 
@@ -25,47 +22,29 @@ class ArrayContainsAnyTest extends FunSuite with SharedSparkContext with BeforeA
     Startup("crazy", Seq(chris, david, elton), Seq(elton))
   )
 
-  val searchForAliceOrDavid = Seq(
-    Map(
-      "name" -> "alice",
-      "age" -> "30"
-    ),
-    Map(
-      "name" -> "david",
-      "age" -> "28"
-    )
-  )
-
-  val searchForFabio = Seq(
-    Map(
-      "name" -> "fabio",
-      "age" -> "28"
-    )
-  )
-
-  test("find any item in a list") {
+  test("find an item in a list") {
     val spark = SparkSession.builder.getOrCreate
     val df = spark.createDataFrame(data)
     df.createOrReplaceTempView("startups")
-    ArraysUDFRegistry.registerArrayContainsAnyUDF(spark, "searchForAliceOrDavid", searchForAliceOrDavid)
-    val result = spark.sql("select *, searchForAliceOrDavid(developers) as aliceOrDavidInDevelopers, searchForAliceOrDavid(founders) as aliceOrDavidInFounders from startups")
+    ArraysUDFRegistry.registerArrayContainsUDF(spark, "searchForAlice")
+    val result = spark.sql("select *, searchForAlice(developers, 'name', 'alice') as aliceInDevelopers, searchForAlice(founders, 'name', 'alice') as aliceInFounders from startups")
     val awesomeStartup = result.filter(result("name") === "awesome").first()
-    assert(awesomeStartup.getBoolean(awesomeStartup.fieldIndex("aliceOrDavidInDevelopers")))
-    assert(awesomeStartup.getBoolean(awesomeStartup.fieldIndex("aliceOrDavidInFounders")))
+    assert(awesomeStartup.getBoolean(awesomeStartup.fieldIndex("aliceInDevelopers")))
+    assert(!awesomeStartup.getBoolean(awesomeStartup.fieldIndex("aliceInFounders")))
     val bestStartup = result.filter(result("name") === "best").first()
-    assert(bestStartup.getBoolean(bestStartup.fieldIndex("aliceOrDavidInDevelopers")))
-    assert(bestStartup.getBoolean(bestStartup.fieldIndex("aliceOrDavidInFounders")))
+    assert(!bestStartup.getBoolean(bestStartup.fieldIndex("aliceInDevelopers")))
+    assert(bestStartup.getBoolean(bestStartup.fieldIndex("aliceInFounders")))
     val crazyStartup = result.filter(result("name") === "crazy").first()
-    assert(crazyStartup.getBoolean(crazyStartup.fieldIndex("aliceOrDavidInDevelopers")))
-    assert(!crazyStartup.getBoolean(crazyStartup.fieldIndex("aliceOrDavidInFounders")))
+    assert(!crazyStartup.getBoolean(crazyStartup.fieldIndex("aliceInDevelopers")))
+    assert(!crazyStartup.getBoolean(crazyStartup.fieldIndex("aliceInFounders")))
   }
 
-  test("not find all items in a list") {
+  test("not find an item in a list") {
     val spark = SparkSession.builder.getOrCreate
     val df = spark.createDataFrame(data)
     df.createOrReplaceTempView("startups")
-    ArraysUDFRegistry.registerArrayContainsAnyUDF(spark, "searchForFabio", searchForFabio)
-    val result = spark.sql("select *, searchForFabio(developers) as fabioInDevelopers, searchForFabio(founders) as fabioInFounders from startups")
+    ArraysUDFRegistry.registerArrayContainsUDF(spark, "searchForFabio")
+    val result = spark.sql("select *, searchForFabio(developers, 'name', 'fabio') as fabioInDevelopers, searchForFabio(founders, 'name', 'fabio') as fabioInFounders from startups")
     val awesomeStartup = result.filter(result("name") === "awesome").first()
     assert(!awesomeStartup.getBoolean(awesomeStartup.fieldIndex("fabioInDevelopers")))
     assert(!awesomeStartup.getBoolean(awesomeStartup.fieldIndex("fabioInFounders")))

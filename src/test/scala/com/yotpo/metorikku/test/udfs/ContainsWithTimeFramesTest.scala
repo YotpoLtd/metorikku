@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.udfs
+package com.yotpo.metorikku.test.udfs
 
 import java.sql.Timestamp
 
@@ -8,9 +8,6 @@ import com.yotpo.metorikku.udf.ContainsWithTimeFrames
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
-/**
-  * Created by ariel on 7/28/16.
-  */
 class ContainsWithTimeFramesTest extends FunSuite with SharedSparkContext with BeforeAndAfterAll {
 
   val dateFormatString: String = "HH:mm:ss"
