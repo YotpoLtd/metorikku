@@ -4,13 +4,13 @@ import java.io.FileReader
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.yotpo.metorikku.configuration.MetorikkuRunConfiguration.MetorikkuYamlFileName
-
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 object YAMLConfigurationParser {
-  def parse(filename: String): Configuration = {
+  def parse(fileName: String): YAMLConfiguration = {
     val mapper = new ObjectMapper(new YAMLFactory())
-    val config: Configuration = mapper.readValue(new FileReader(filename), classOf[YAMLConfiguration])
+    mapper.registerModule(DefaultScalaModule)
+    val config: YAMLConfiguration = mapper.readValue(new FileReader(fileName), classOf[YAMLConfiguration])
     config
   }
 }

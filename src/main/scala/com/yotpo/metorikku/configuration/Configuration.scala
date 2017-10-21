@@ -1,9 +1,8 @@
 package com.yotpo.metorikku.configuration
 
-import java.util.{List => JList, Map => JMap}
 
 trait Configuration {
-  def metricSets: JList[String]
+  def metricSets: Seq[String]
 
   def runningDate: String
 
@@ -11,23 +10,23 @@ trait Configuration {
 
   def explain: Boolean
 
-  def tableFiles: JMap[String, String]
+  def tableFiles: Map[String, String]
 
-  def replacements: JMap[String, String]
+  def replacements: Map[String, String]
 
   def logLevel: String
 
-  def variables: JMap[String, String]
+  def variables: Map[String, String]
 
-  def metrics: JList[String]
+  def metrics: Seq[String]
 
-  def cassandraArgs: JMap[String, String]
+  def cassandraArgs: Map[String, String]
 
-  def redshiftArgs: JMap[String, String]
+  def redshiftArgs: Map[String, String]
 
-  def redisArgs: JMap[String, String]
+  def redisArgs: Map[String, String]
 
-  def segmentArgs: JMap[String, String]
+  def segmentArgs: Map[String, String]
 
   def fileOutputPath: String
 
