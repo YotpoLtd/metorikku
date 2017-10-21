@@ -1,4 +1,0 @@
-calculationsFolderPath: src/test/calculations
-tableFiles:
- UserAggregatedData: src/test/out/user_agg.parquet
-fileOutputPath: src/test/out/
