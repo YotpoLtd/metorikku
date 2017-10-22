@@ -5,12 +5,13 @@ import java.io.File
 import com.yotpo.metorikku.calculators.SqlStepCalculator
 import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.session.Session
-import com.yotpo.metorikku.udf.UDFUtils
 import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
 
-import scala.collection.JavaConversions._
-
 class MetricSet(metricSetPath: File) {
+  Session.metricSetBeforeCallback match {
+    case Some(callback) => callback(metricSetPath)
+    case None =>
+  }
   val configuration: Configuration = Session.getConfiguration
   val metrics: Seq[Metric] = parseMetrics(metricSetPath)
 
@@ -19,10 +20,6 @@ class MetricSet(metricSetPath: File) {
 
     //TODO remove all the intersection stuff
     val metricsToCalculate = FileUtils.intersect(allMetrics, configuration.metrics)
-
-    //TODO move to function
-    val udfs = UDFUtils.getAllUDFsInPath(metricSetFiles.getPath + "/udfs/")
-    udfs.foreach(udf => Session.registerUdf(udf))
 
     metricsToCalculate.map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile.getAbsolutePath)
@@ -34,6 +31,10 @@ class MetricSet(metricSetPath: File) {
     metrics.foreach(metric => {
       new SqlStepCalculator(metric).calculate()
     })
+    Session.metricSetAfterCallback match {
+      case Some(callback) => callback(metricSetPath)
+      case None =>
+    }
   }
 
   def write() {

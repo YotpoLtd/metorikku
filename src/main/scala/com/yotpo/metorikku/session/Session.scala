@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.session
 
+import java.io.File
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.configuration.Configuration
@@ -10,21 +11,23 @@ import com.yotpo.metorikku.udaf.MergeArraysAgg
 import com.yotpo.metorikku.udf._
 import com.yotpo.metorikku.utils.{MQLUtils, TableType}
 import org.apache.spark.sql.SparkSession
-import scala.collection.JavaConversions._
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
                                             private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
 
 object Session {
+  type metricSetCallback = (File) => Unit
+  var metricSetBeforeCallback: Option[metricSetCallback] = None
+  var metricSetAfterCallback: Option[metricSetCallback] = None
   private var configuration: Option[Configuration] = None
   private var spark: Option[SparkSession] = None
 
   def init(config: Configuration) {
-    spark = Some(createSparkSession(config.cassandraArgs.toMap, config.redisArgs.toMap))
+    spark = Some(createSparkSession(config.cassandraArgs, config.redisArgs))
     setSparkLogLevel(config.logLevel)
-    registerVariables(config.variables.toMap)
-    registerDataframes(config.tableFiles.toMap, config.replacements.toMap)
+    registerVariables(config.variables)
+    registerDataframes(config.tableFiles, config.replacements)
     registerGlobalUDFs(config.globalUDFsPath)
     configuration = Some(config)
   }
@@ -118,5 +121,13 @@ object Session {
     CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandraDBConf)
     RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redisDBConf)
     sparkSessionBuilder.getOrCreate()
+  }
+
+  def setMetricSetBeforeCallback(callback: metricSetCallback) {
+    metricSetBeforeCallback = Some(callback)
+  }
+
+  def setMetricSetAfterCallback(callback: metricSetCallback) {
+    metricSetAfterCallback = Some(callback)
   }
 }
