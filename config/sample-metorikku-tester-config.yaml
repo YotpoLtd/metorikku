@@ -1,5 +1,0 @@
-testsPath: /Users/username/Development/metrical-query-language/
-calculationsDirs:
-- email
-metrics:
-- emailSendTimes

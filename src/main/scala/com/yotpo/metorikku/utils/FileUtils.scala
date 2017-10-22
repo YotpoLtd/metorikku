@@ -18,9 +18,8 @@ object FileUtils {
     }
   }
 
-  def jsonFileToObject[T: Manifest](path: String): T = {
+  def jsonFileToObject[T: Manifest](file: File): T = {
     implicit val formats = DefaultFormats
-    val file = new File(path)
     val jsonString = scala.io.Source.fromFile(file).mkString
     val json = parse(jsonString)
     json.extract[T]
@@ -28,20 +27,5 @@ object FileUtils {
 
   def getContentFromFileAsString(path: String, filename: String): String = {
     scala.io.Source.fromFile(new File(FilenameUtils.concat(path, filename))).mkString
-  }
-
-  /**
-    *
-    * @param listOfFiles
-    * @param ListOfFilesNames
-    * @return A List Of Files corresponds to the file names, or all files
-    */
-  def intersect(listOfFiles: Seq[File], ListOfFilesNames: Seq[String]): Seq[File] = {
-    ListOfFilesNames match {
-      case Seq() =>
-        listOfFiles
-      case _ =>
-        ListOfFilesNames.flatMap(dir => listOfFiles.filter(file => file.getName == dir))
-    }
   }
 }

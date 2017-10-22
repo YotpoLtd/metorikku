@@ -2,7 +2,7 @@ package com.yotpo.metorikku.configuration
 
 
 trait Configuration {
-  def metricSets: Seq[String]
+  def metrics: Seq[String]
 
   def runningDate: String
 
@@ -10,15 +10,13 @@ trait Configuration {
 
   def explain: Boolean
 
-  def tableFiles: Map[String, String]
+  def inputs: Map[String, String]
 
-  def replacements: Map[String, String]
+  def dateRange: Map[String, String]
 
   def logLevel: String
 
   def variables: Map[String, String]
-
-  def metrics: Seq[String]
 
   def cassandraArgs: Map[String, String]
 

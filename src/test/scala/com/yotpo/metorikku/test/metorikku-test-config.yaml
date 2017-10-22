@@ -1,5 +1,5 @@
 metricSets:
   - src/test/calculations/metric_test
-tableFiles:
+inputs:
  UserAggregatedData: src/test/out/user_agg.parquet
 fileOutputPath: src/test/out/

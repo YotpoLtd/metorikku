@@ -1,7 +1,5 @@
 package com.yotpo.metorikku
 
-import java.io.File
-
 import com.yotpo.metorikku.configuration.DefaultConfiguration
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
@@ -28,11 +26,11 @@ object MetorikkuTester extends App {
       args.settings.foreach(settings => {
         val metricTestSettings = TestUtils.getTestSettings(settings)
         val configuration = new DefaultConfiguration
-        configuration.replacements = metricTestSettings.params.replacements
-        configuration.tableFiles = getMockFiles(metricTestSettings.mocks)
-        configuration.runningDate = metricTestSettings.params.runningDate
-        configuration.variables = metricTestSettings.params.variables
-        configuration.metricSets = Seq(metricTestSettings.metricSetPath)
+        configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, String]())
+        configuration.inputs = getMockFiles(metricTestSettings.mocks)
+        configuration.runningDate = metricTestSettings.params.runningDate.getOrElse("")
+        configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
+        configuration.metrics = Seq(metricTestSettings.metric)
         Session.init(configuration)
         start(metricTestSettings.tests)
       })
@@ -44,10 +42,10 @@ object MetorikkuTester extends App {
   def start(tests: Map[String, List[Map[String, Any]]]): Any = {
     var errors = Array[String]()
     val sparkSession = SparkSession.builder.getOrCreate()
-    Session.getConfiguration.metricSets.foreach(set => {
-      val metricSet = new MetricSet(new File(set))
+    Session.getConfiguration.metrics.foreach(metric => {
+      val metricSet = new MetricSet(metric)
       metricSet.run()
-      errors = errors ++ compareActualToExpected(tests, set, sparkSession)
+      errors = errors ++ compareActualToExpected(tests, metric, sparkSession)
     })
 
     sparkSession.stop()
@@ -71,7 +69,8 @@ object MetorikkuTester extends App {
     return mockFiles
   }
 
-  private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]], metricName: String, sparkSession: SparkSession): Array[String] = {
+  private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
+                                      metricName: String, sparkSession: SparkSession): Array[String] = {
     var errors = Array[String]()
     metricExpectedTests.keys.foreach(tableName => {
       val metricActualResultRows = sparkSession.table(tableName).collect()
@@ -80,8 +79,9 @@ object MetorikkuTester extends App {
         for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
           val mapOfActualRow = metricActualResultRow.getValuesMap(metricActualResultRow.schema.fieldNames)
           val matchingExpectedMetric = matchExpectedRow(mapOfActualRow, metricExpectedResultRows)
-          if (matchingExpectedMetric == null) {
-            errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
+          if (Option(matchingExpectedMetric).isEmpty) {
+            errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: " +
+              s"Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
           }
           else {
             metricExpectedResultRows = metricExpectedResultRows.filter(_ != matchingExpectedMetric)
@@ -91,7 +91,7 @@ object MetorikkuTester extends App {
         errors = errors :+ s"[$metricName - $tableName] number of rows was ${metricActualResultRows.length} while expected ${metricExpectedResultRows.length}"
       }
     })
-    return errors
+    errors
   }
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {

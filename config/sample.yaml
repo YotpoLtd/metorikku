@@ -1,32 +1,24 @@
 # ---- SAMPLE YAML FILE TO CONFIGURE METRIC RUNNER ---- #
 
-# !MANDATORY! Calculations Directory !MANDATORY!
-calculationsFolderPath: /path/to/calculations/
-
-# Calculations sub-directories to be executed
-calculationsDirs:
-  - directory-name-1
-  - directory-name-2
-
-# Specific Metrics to calculate, default: all metrics in a calculation
+# !MANDATORY! Metrics and Metrics directories be executed
 metrics:
-  - metric-1.json
-  - metric-2.json
+  - /path/to/metric-1
+  - /path/to/metric-2
 
 # The Date for the execution, which will appear in the output DF as date column, format: yyyy/MM/dd
 runningDate: 2017/09/01
 
 # Parquet or JSON Tables files paths
-tableFiles:
- table_1: parquet/table_1.parquet
- table_2: parquet/table_2.parquet
- table_3: parquet/table_3.parquet
+inputs:
+ input_1: parquet/input_1.parquet
+ input_2: parquet/input_2.parquet
+ input_3: parquet/input_3.parquet
 
-# Replacements section allows defining dynamic date range for multiple folder names 
-# in case a dynamic date parameter was defined in 'tableFiles' section as '%s' , for example- userAggregatedData: /path/to/data/%s/
-replacements: 
-  table_1: dateRange:yyyy/MM/dd:2017/09/01:2017/09/20
-  table_2: dateRange:yyyy/MM/dd:2017/09/01:2017/09/20
+# dateRange section allows defining dynamic date range for multiple folder names
+# in case a dynamic date parameter was defined in 'inputs' section as '%s' , for example- userAggregatedData: /path/to/data/%s/
+dateRange:
+  input_1: yyyy/MM/dd:2017/09/01:2017/09/20
+  input_2: yyyy/MM/dd:2017/09/01:2017/09/20
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -34,28 +26,25 @@ variables:
  EndDate: 2017/09/20
  TrimmedDateFormat: yyyy/MM/dd
 
-# Scylla Database arguments: host, username and password are supported
-scyllaDBArgs:
-  connection.host: example.scylla.db
-
-# Redshift Database arguments: host, username, password, s3_access_key and s3_secret are supported
-redshiftArgs:
-  jdbcURL: jdbc:redshift://<IP>:<PORT>/path?user=username&password=pass
-  tempS3Dir: s3://path/to/redshift/temp/dir/
-
-# Redis Database arguments: host, port and db are supported
-redisArgs:
-  host: hostname
-  port: port-number
-  auth: authentication
-  db: database
-
-# Segment API Key
-segmentArgs: 
-  apiKey: apikey
-
-# Output path for csv or parquet
-fileOutputPath: /path/to/parquet/output
+outputs:
+  # cassandra Database arguments: host, username and password are supported
+  cassandra:
+    connection.host: example.cassandra.db
+  # Redshift Database arguments: host, username, password, s3_access_key and s3_secret are supported
+  redshift:
+    jdbcURL: jdbc:redshift://<IP>:<PORT>/file?user=username&password=pass
+    tempS3Dir: s3://path/to/redshift/temp/dir/
+  # Redis Database arguments: host, port and db are supported
+  redis:
+    host: hostname
+    port: port-number
+    auth: authentication
+    db: database
+  # Segment API Key
+  segment:
+    apiKey: apikey
+  # Output file for csv or parquet
+  file: /path/to/parquet/output
 
 # If set to true, triggers Explain before saving
 explain: true
