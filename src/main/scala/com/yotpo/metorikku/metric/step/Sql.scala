@@ -6,7 +6,8 @@ import org.apache.spark.sql.{DataFrame, SQLContext}
 /**
   * Represents the SQL query to run
   */
-class Sql(step: Any, metricDir: Option[String] = None) extends MetricStep {
+//TODO: get full path, and remove metricDir
+class Sql(step: Any, metricDir: String) extends MetricStep {
   val stepConfig = step.asInstanceOf[Map[String, String]]
   val dataFrameName = stepConfig("dataFrameName")
 
@@ -25,7 +26,7 @@ class Sql(step: Any, metricDir: Option[String] = None) extends MetricStep {
     if (stepConfig.contains("sql")) {
       stepConfig("sql")
     } else {
-      FileUtils.getContentFromFileAsString(metricDir.get, stepConfig("file"))
+      FileUtils.getContentFromFileAsString(metricDir, stepConfig("file"))
     }
   }
 }
