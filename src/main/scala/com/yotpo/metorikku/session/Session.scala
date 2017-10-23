@@ -71,6 +71,15 @@ object Session {
             } else {
               getSparkSession.read.json(TablePaths: _*)
             }
+          case TableType.csv => {
+            getSparkSession.read
+              .option("quote", "\"")
+              .option("escape", "\"")
+              .option("quoteAll", "true")
+              .option("header", "true")
+              .csv(TablePaths: _*)
+              .na.fill("")
+          }
           case _ => getSparkSession.read.parquet(TablePaths: _*)
         }
         df.createOrReplaceTempView(tableName)
