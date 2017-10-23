@@ -6,6 +6,7 @@ import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.spark.groupon.metrics.UserMetricsSystem
 import org.apache.spark.sql.SparkSession
+import scala.collection.JavaConversions._
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
                                             private val cause: Throwable = None.orNull)
@@ -36,6 +37,7 @@ object Session {
       throw ConfigurationNotDefinedException()
     }
   }
+
 
   def getSparkSession: SparkSession = {
     if (spark.isDefined) {
