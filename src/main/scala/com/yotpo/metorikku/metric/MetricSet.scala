@@ -7,11 +7,21 @@ import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
 
-class MetricSet(metricSetPath: File) {
-  Session.metricSetBeforeCallback match {
-    case Some(callback) => callback(metricSetPath)
-    case None =>
+object MetricSet {
+  type metricSetCallback = (File) => Unit
+  private var beforeRun: Option[metricSetCallback] = None
+  private var afterRun: Option[metricSetCallback] = None
+
+  def setBeforeRunCallback(callback: metricSetCallback) {
+    beforeRun = Some(callback)
   }
+
+  def setAfterRunCallback(callback: metricSetCallback) {
+    afterRun = Some(callback)
+  }
+}
+
+class MetricSet(metricSetPath: File) {
   val configuration: Configuration = Session.getConfiguration
   val metrics: Seq[Metric] = parseMetrics(metricSetPath)
 
@@ -28,10 +38,14 @@ class MetricSet(metricSetPath: File) {
   }
 
   def run() {
+    MetricSet.beforeRun match {
+      case Some(callback) => callback(metricSetPath)
+      case None =>
+    }
     metrics.foreach(metric => {
       new SqlStepCalculator(metric).calculate()
     })
-    Session.metricSetAfterCallback match {
+    MetricSet.afterRun match {
       case Some(callback) => callback(metricSetPath)
       case None =>
     }

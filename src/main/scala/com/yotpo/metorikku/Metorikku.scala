@@ -24,6 +24,7 @@ object Metorikku extends App {
   parser.parse(args, MetorikkuYamlFileName()) match {
     case Some(args) =>
       val configuration = YAMLConfigurationParser.parse(args.filename)
+      //TODO this should be initiallized inside the start function?
       Session.init(configuration)
       start()
     case None =>

@@ -1,14 +1,11 @@
 package com.yotpo.metorikku.session
 
-import java.io.File
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.metric.Replacement
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
-import com.yotpo.metorikku.udaf.MergeArraysAgg
-import com.yotpo.metorikku.udf._
 import com.yotpo.metorikku.utils.{MQLUtils, TableType}
 import org.apache.spark.sql.SparkSession
 
@@ -17,9 +14,7 @@ case class ConfigurationNotDefinedException(private val message: String = "Sessi
   extends Exception(message, cause)
 
 object Session {
-  type metricSetCallback = (File) => Unit
-  var metricSetBeforeCallback: Option[metricSetCallback] = None
-  var metricSetAfterCallback: Option[metricSetCallback] = None
+
   private var configuration: Option[Configuration] = None
   private var spark: Option[SparkSession] = None
 
@@ -28,7 +23,6 @@ object Session {
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
     registerDataframes(config.tableFiles, config.replacements)
-    registerGlobalUDFs(config.globalUDFsPath)
     configuration = Some(config)
   }
 
@@ -61,37 +55,6 @@ object Session {
     })
   }
 
-  private def registerGlobalUDFs(calculationsFolderPath: String) {
-    //register udfs without json
-    ArraysUDFRegistry.registerExtractKeyUDF(getSparkSession, "extractKey")
-    ArraysUDFRegistry.registerArraySumFieldUDF(getSparkSession, "sumField")
-    ArraysUDFRegistry.registerArrayContainsUDF(getSparkSession, "arrayContains")
-    //register global udfs
-    val udfs = UDFUtils.getAllUDFsInPath(calculationsFolderPath)
-    udfs.foreach(udf => registerUdf(udf))
-  }
-
-  def registerUdf(namedUdf: Map[String, Any]) {
-    val alias: String = namedUdf("name").asInstanceOf[String]
-    val udfSpecs = namedUdf("udf").asInstanceOf[Map[String, Any]]
-    val params: Any = udfSpecs("udfParams")
-    udfSpecs("type") match {
-      case "ArrayContainsAny" => ArraysUDFRegistry.registerArrayContainsAnyUDF(getSparkSession, alias, params)
-      case "Sessions" => getSparkSession.udf.register(alias, Sessions.createFunction(params))
-      case "ContainsWithTimeFrames" => getSparkSession.udf.register(alias, ContainsWithTimeFrames.createFunction(params))
-      case "CountOccurrencesWithinTimeFrames" => getSparkSession.udf.register(alias, CountOccurrencesWithinTimeFrames.createFunction(params))
-      case "MergeArrays" => ArraysUDFRegistry.registerMergeArraysUDF(getSparkSession, alias, params)
-      case "MergeArraysAgg" =>
-        val udfParams = params.asInstanceOf[Map[String, String]]
-        UDFUtils.getArrayTypeFromParams(getSparkSession, udfParams("table"), udfParams("column")) match {
-          case Some(itemsType) =>
-            getSparkSession.udf.register(alias, MergeArraysAgg(itemsType))
-          case None =>
-        }
-      case "GroupArraysByKey" => ArraysUDFRegistry.registerGroupArraysByKeyUDF(getSparkSession, alias, params)
-    }
-  }
-
   def registerDataframes(tables: Map[String, String], replacements: Map[String, String]): Unit = {
     if (tables.nonEmpty) {
       tables.keys.foreach(tableName => {
@@ -121,13 +84,5 @@ object Session {
     CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandraDBConf)
     RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redisDBConf)
     sparkSessionBuilder.getOrCreate()
-  }
-
-  def setMetricSetBeforeCallback(callback: metricSetCallback) {
-    metricSetBeforeCallback = Some(callback)
-  }
-
-  def setMetricSetAfterCallback(callback: metricSetCallback) {
-    metricSetAfterCallback = Some(callback)
   }
 }

@@ -1,7 +1,7 @@
 {
   "steps": [
     {
-      "sql": "select *, size(transactions) > 0 as converted, size(events) > 0 as hasEvents, arrayContains(events, 'action', 'click') as interacted from UserAggregatedData",
+      "sql": "select *, size(transactions) > 0 as converted, size(events) > 0 as hasEvents from UserAggregatedData",
       "dataFrameName": "testOutput"
     },
     {
