@@ -55,6 +55,7 @@ resolvers ++= Seq(
 fork := true
 javaOptions in Test ++= Seq("-Dspark.master=local[*]")
 
+// Assembly settings
 Project.inConfig(Test)(baseAssemblySettings)
 
 assemblyMergeStrategy in (Test, assembly) := {
@@ -63,18 +64,19 @@ assemblyMergeStrategy in (Test, assembly) := {
   case PathList("META-INF", xs@_*) => MergeStrategy.discard
   case _ => MergeStrategy.first
 }
-
 assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
+assemblyJarName in assembly := "metorikku.jar"
+assemblyJarName in (Test, assembly) := s"${name.value}-test.jar"
 
-assemblyJarName in (Test, assembly) := s"${name.value}-test-${version.value}.jar"
-
+// Publish settings
 publishMavenStyle := true
 // Change when moving to open source
 credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com", "myMavenRepo", "yotpo")
 publishTo := Some("mymavenrepo.com.write" at "https://mymavenrepo.com/repo/0tlqEJu4rjdm1Ksy2pJP")
 
+// Release settings (don't automatically publish upon release)
 import ReleaseTransformations._
 
 releaseProcess := Seq[ReleaseStep](
@@ -90,3 +92,6 @@ releaseProcess := Seq[ReleaseStep](
   commitNextVersion,
   pushChanges
 )
+
+// Fix for SBT run to include the provided at runtime
+run in Compile := Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run)).evaluated

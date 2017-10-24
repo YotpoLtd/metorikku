@@ -13,6 +13,8 @@ object FileUtils {
     val d = new File(dir)
     if (d.exists && d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
+    } else if (d.isFile) {
+      List(d)
     } else {
       List[File]()
     }
