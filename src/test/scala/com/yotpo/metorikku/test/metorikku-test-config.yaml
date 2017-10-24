@@ -2,4 +2,6 @@ metrics:
   - src/test/calculations/metric_test
 inputs:
  UserAggregatedData: src/test/out/user_agg.parquet
-fileOutputPath: src/test/out/
+output:
+ file:
+  dir: src/test/out/
