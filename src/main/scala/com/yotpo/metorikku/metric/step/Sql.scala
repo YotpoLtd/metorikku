@@ -23,13 +23,23 @@ class Sql(step: Any, metricDir: File) extends MetricStep {
     * if the metric step contains the actual query string to run, it is returned (key "sql")
     * Otherwise, a path to a file that contains the query is expected (key "file")
     **/
-  def getSqlQueryStringFromStepsMap: String = {
-    if (stepConfig.contains("sql")) {
-      stepConfig("sql")
-    } else if (stepConfig.contains("file")) {
-      FileUtils.getContentFromFileAsString(new File(metricDir, stepConfig("file")))
-    } else {
-      throw new IllegalArgumentException("Step must contain file or sql")
+  def getSqlQueryStringFromStepsMap(): String = {
+    val stepType = stepConfig.keys.filter(StepType.isStepType(_)).head
+
+    stepType match {
+      case StepType.sql => stepConfig("sql")
+      case StepType.file => FileUtils.getContentFromFileAsString(metricDir, stepConfig("file"))
+      case _ => throw new IllegalArgumentException(s"Not Supported Step type $stepType")
     }
   }
+
+object StepType extends Enumeration {
+  val file = Value("file")
+  val sql = Value("sql")
+
+  def isStepType(s: String) = values.exists(_.toString == s)
+
+}
+
+
 }

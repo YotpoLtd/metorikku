@@ -1,5 +1,8 @@
 package com.yotpo.metorikku
 
+import java.nio.file.{Files, Paths}
+
+import com.yotpo.metorikku.configuration.DefaultConfiguration
 import java.io.File
 
 import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
@@ -15,6 +18,17 @@ import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
 
 
 object MetorikkuTester extends App {
+  val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
+    head("MetorikkuTester", "1.0")
+    opt[Seq[String]]('t', "test-settings")
+      .valueName("<test-setting1>,<test-setting2>...")
+      .action((x, c) => c.copy(settings = x))
+      .text("test settings for each metric set")
+      .validate(x => if (x.exists(f => ! Files.exists(Paths.get(f)))) success
+      else failure("One of the file is not found"))
+      .required()
+    help("help") text "use command line arguments to specify the settings for each metric set"
+  }
 
   val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs())
 
@@ -31,6 +45,7 @@ object MetorikkuTester extends App {
         start(metricTestSettings.tests)
       })
     case None =>
+//      TODO(etrabelsi@yotpo.com) Failures
       System.exit(1)
   }
 
@@ -47,6 +62,7 @@ object MetorikkuTester extends App {
     sparkSession.stop()
 
     if (!errors.isEmpty) {
+      // TODO(etrabelsi@yotpo.com) Failures
       println("\n" + errors.mkString("\n"))
       println("FAILED!")
       System.exit(1)
@@ -121,6 +137,8 @@ object TesterConfigurationParser{
       .valueName("<test-setting1>,<test-setting2>...")
       .action((x, c) => c.copy(settings = x))
       .text("test settings for each metric set")
+      .validate(x => if (x.exists(f => ! Files.exists(Paths.get(f)))) success
+      else failure("One of the file is not found"))
       .required()
     help("help") text "use command line arguments to specify the settings for each metric set"
   }

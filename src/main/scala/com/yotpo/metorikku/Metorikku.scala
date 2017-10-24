@@ -4,7 +4,6 @@ import com.yotpo.metorikku.configuration.{YAMLConfiguration, YAMLConfigurationPa
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
-import scopt.OptionParser
 
 /**
   * Metorikku - runs Spark SQL queries on various data sources and exports the results
