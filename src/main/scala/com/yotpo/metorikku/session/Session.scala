@@ -29,7 +29,8 @@ object Session {
   }
 
   private def setSparkLogLevel(logLevel: String) {
-    getSparkSession.sparkContext.setLogLevel(logLevel)
+    if (logLevel != null)
+      getSparkSession.sparkContext.setLogLevel(logLevel)
   }
 
   def getConfiguration: Configuration = {
