@@ -6,12 +6,10 @@ import org.apache.commons.io.FilenameUtils
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 
-import scala.util.parsing.json.JSON
-
 object FileUtils {
   def getListOfFiles(dir: String): List[File] = {
     val d = new File(dir)
-    if (d.exists && d.isDirectory) {
+    if (d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
     } else if (d.isFile) {
       List(d)

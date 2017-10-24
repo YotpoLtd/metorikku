@@ -52,7 +52,9 @@ metrics:
 inputs:
   input_1: parquet/input_1.parquet
   input_2: parquet/input_2.parquet
-fileOutputPath: /path/to/parquet/output
+output:
+    file:
+        dir: /path/to/parquet/output
 ```
 You can check out a full example file for all possible values in the [sample YAML configuration file](http://test.com).
 
@@ -63,6 +65,7 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment**
+Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
 There are currently 3 options to run Metorikku.

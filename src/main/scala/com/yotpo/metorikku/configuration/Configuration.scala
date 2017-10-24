@@ -8,23 +8,15 @@ trait Configuration {
 
   def explain: Boolean
 
-  def inputs: Map[String, String]
+  def inputs: Seq[Input]
 
-  def dateRange: Map[String, String]
+  def dateRange: Map[String, DateRange]
 
   def logLevel: String
 
   def variables: Map[String, String]
 
-  def cassandraArgs: Map[String, String]
-
-  def redshiftArgs: Map[String, String]
-
-  def redisArgs: Map[String, String]
-
-  def segmentArgs: Map[String, String]
-
-  def fileOutputPath: String
+  def output: Output
 
   def appName: String
 }

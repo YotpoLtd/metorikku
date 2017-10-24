@@ -1,23 +1,25 @@
 package com.yotpo.metorikku.output.writers.cassandra
 
-import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.{cassandraDbConfKeys, cassandraPrefix}
+import com.yotpo.metorikku.configuration.outputs.Cassandra
+import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.host
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
 import scala.collection.mutable
 
 object CassandraOutputWriter extends MetricOutputSession {
-  val cassandraDbConfKeys = List("connection.host", "auth.username", "auth.password")
-  val cassandraPrefix = "spark.cassandra."
+  val host = "spark.cassandra.connection.host"
+  val username = "spark.cassandra.auth.username"
+  val password = "spark.cassandra.auth.password"
 
-  def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, cassandraDBConf: Map[String, String]): Unit = {
-    cassandraDbConfKeys.foreach { configKey =>
-      if (cassandraDBConf.contains(configKey)) sparkSessionBuilder.config(s"$cassandraPrefix$configKey", cassandraDBConf(configKey))
-    }
+  def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, cassandraDBConf: Cassandra): Unit = {
+    sparkSessionBuilder.config(s"$host", cassandraDBConf.host)
+    cassandraDBConf.username.foreach(_username => sparkSessionBuilder.config(s"$username", _username))
+    cassandraDBConf.password.foreach(_password => sparkSessionBuilder.config(s"$password", _password))
   }
 }
 
-class CassandraOutputWriter (metricOutputOptions: mutable.Map[String, String]) extends MetricOutputWriter {
+class CassandraOutputWriter(metricOutputOptions: mutable.Map[String, String]) extends MetricOutputWriter {
 
   case class CassandraOutputProperties(saveMode: SaveMode, dbKeySpace: String, dbTable: String, dataFrameName: String)
 
@@ -25,7 +27,7 @@ class CassandraOutputWriter (metricOutputOptions: mutable.Map[String, String]) e
   val dbOptions = CassandraOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbKeySpace"), props("dbTable"), metricOutputOptions("dataFrameName"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    if (isCassandraConfExist(dataFrame)){
+    if (isCassandraConfExist(dataFrame)) { //TODO Error/log if not exists
       dataFrame.write
         .mode(dbOptions.saveMode)
         .format("org.apache.spark.sql.cassandra")
@@ -34,13 +36,5 @@ class CassandraOutputWriter (metricOutputOptions: mutable.Map[String, String]) e
     }
   }
 
-  def isCassandraConfExist(dataFrame: DataFrame): Boolean ={
-    for (configKey <- cassandraDbConfKeys){
-      val cassandraConf = dataFrame.sparkSession.conf.getOption(s"$cassandraPrefix$configKey")
-      if (!cassandraConf.isEmpty){
-        return true
-      }
-    }
-    return false
-  }
+  private def isCassandraConfExist(dataFrame: DataFrame): Boolean = dataFrame.sparkSession.conf.getOption(s"$host").isDefined
 }

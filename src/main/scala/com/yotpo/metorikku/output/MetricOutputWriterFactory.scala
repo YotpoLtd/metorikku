@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output
 
+import com.yotpo.metorikku.configuration.outputs.{File, Redshift, Segment}
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
@@ -13,14 +14,17 @@ import scala.collection.mutable
 
 object MetricOutputWriterFactory {
   def get(outputType: String, metricOutputOptions: mutable.Map[String, String]): MetricOutputWriter = {
+    val output = Session.getConfiguration.output
     OutputType.withName(outputType) match {
-      case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions)
-      case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, Map())
-      case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
-      case OutputType.Redis => new RedisOutputWriter(metricOutputOptions)
-      case OutputType.Segment => new SegmentOutputWriter(metricOutputOptions, Map())
-      case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
-      case _ => new ParquetOutputWriter(metricOutputOptions, Session.getConfiguration.fileOutputPath)
+      //TODO: getOrElse -> send default values of return error?
+      case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
+      case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift.getOrElse(Redshift()))
+      case OutputType.Redis => new RedisOutputWriter(metricOutputOptions) //TODO add here redis from session
+      case OutputType.Segment => new SegmentOutputWriter(metricOutputOptions, output.segment.getOrElse(Segment()))
+      case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
+      case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
+      case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
+      //TODO case _ => print error
     }
   }
 }

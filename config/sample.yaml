@@ -14,8 +14,14 @@ inputs:
 # dateRange section allows defining dynamic date range for multiple folder names
 # in case a dynamic date parameter was defined in 'inputs' section as '%s' , for example- userAggregatedData: /path/to/data/%s/
 dateRange:
-  input_1: yyyy/MM/dd:2017/09/01:2017/09/20
-  input_2: yyyy/MM/dd:2017/09/01:2017/09/20
+  input_1:
+    format: yyyy/MM/dd
+    startDate: 2017/09/01
+    endDate: 2017/09/20
+  input_2:
+    format: yyyy/MM/dd
+    startDate: 2017/09/01
+    endDate: 2017/09/20
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -24,14 +30,16 @@ variables:
  TrimmedDateFormat: yyyy/MM/dd
 
 outputs:
-  # cassandra Database arguments: host, username and password are supported
+  # cassandra Database arguments: host is mandatory. username and password are supported
   cassandra:
-    connection.host: example.cassandra.db
-  # Redshift Database arguments: host, username, password, s3_access_key and s3_secret are supported
+    host: example.cassandra.db
+    username: user
+    password: password
+  # Redshift Database arguments: jdbcURL and tempS3Dir are mandatory.
   redshift:
     jdbcURL: jdbc:redshift://<IP>:<PORT>/file?user=username&password=pass
     tempS3Dir: s3://path/to/redshift/temp/dir/
-  # Redis Database arguments: host, port and db are supported
+  # Redis Database arguments: host is mandatory. port, auth and db are supported
   redis:
     host: hostname
     port: port-number
@@ -40,8 +48,9 @@ outputs:
   # Segment API Key
   segment:
     apiKey: apikey
-  # Output file for csv or parquet
-  file: /path/to/parquet/output
+  # Output file directory
+  file:
+    dir: /path/to/parquet/output
 
 # If set to true, triggers Explain before saving
 explain: true

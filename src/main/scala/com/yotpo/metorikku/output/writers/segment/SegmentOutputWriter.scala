@@ -2,6 +2,7 @@ package com.yotpo.metorikku.output.writers.segment
 
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.IdentifyMessage
+import com.yotpo.metorikku.configuration.outputs.Segment
 import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.spark.sql.DataFrame
@@ -9,7 +10,7 @@ import org.apache.spark.sql.DataFrame
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Map[String, String]) extends MetricOutputWriter {
+class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Segment) extends MetricOutputWriter {
 
   case class SegmentOutputProperties(keyColumn: String)
 
@@ -17,10 +18,7 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
   val segmentOutputOptions = SegmentOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    val segmentApiKey = segmentOutputConf.get("apiKey") match {
-      case Some(value) => value
-      case None => throw new RuntimeException("Missing Segment API Key")
-    }
+    val segmentApiKey = segmentOutputConf.apiKey //TODO: should we continue with empty string (default)?
     val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
     dataFrame.foreachPartition(partition => {
       val blockingFlush = BlockingFlush.create

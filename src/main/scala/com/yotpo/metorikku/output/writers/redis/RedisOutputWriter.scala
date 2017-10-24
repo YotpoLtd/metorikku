@@ -1,21 +1,19 @@
 package com.yotpo.metorikku.output.writers.redis
 
 import com.redislabs.provider.redis._
+import com.yotpo.metorikku.configuration.outputs.Redis
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.collection.mutable
 import scala.util.parsing.json.JSONObject
 
-/**
-  * Created by avichay on 29/03/2017.
-  */
-
 object RedisOutputWriter extends MetricOutputSession {
-  def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, redisConf: Map[String, String]): Unit = {
-    List("host", "port", "auth", "db").foreach { configKey =>
-      if (redisConf.contains(configKey)) sparkSessionBuilder.config(s"redis.$configKey", redisConf(configKey))
-    }
+  def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, redisConf: Redis): Unit = {
+    sparkSessionBuilder.config(s"redis.host", redisConf.host)
+    redisConf.port.foreach(_port => sparkSessionBuilder.config(s"redis.port", _port))
+    redisConf.auth.foreach(_auth => sparkSessionBuilder.config(s"redis.auth", _auth))
+    redisConf.db.foreach(_db => sparkSessionBuilder.config(s"redis.db", _db))
   }
 }
 

@@ -1,6 +1,6 @@
 package com.yotpo.metorikku
 
-import com.yotpo.metorikku.configuration.DefaultConfiguration
+import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.TestUtils
@@ -26,7 +26,7 @@ object MetorikkuTester extends App {
       args.settings.foreach(settings => {
         val metricTestSettings = TestUtils.getTestSettings(settings)
         val configuration = new DefaultConfiguration
-        configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, String]())
+        configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
         configuration.inputs = getMockFiles(metricTestSettings.mocks)
         configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
         configuration.metrics = Seq(metricTestSettings.metric)
@@ -58,14 +58,14 @@ object MetorikkuTester extends App {
     }
   }
 
-  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock]): Map[String, String] = {
-    var mockFiles = Map[String, String]()
+  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock]): Seq[Input] = {
+    val mockFiles = Seq[Input]()
     mocks.foreach(mock => {
       val mockName = mock.name
-      var mockPath = mock.path
-      mockFiles = mockFiles + (mockName -> mockPath)
+      val mockPath = mock.path
+      mockFiles :+ Input(mockName, mockPath)
     })
-    return mockFiles
+    mockFiles
   }
 
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
