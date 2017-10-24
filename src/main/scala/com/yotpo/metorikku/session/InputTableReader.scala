@@ -3,7 +3,8 @@ package com.yotpo.metorikku.session
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.session.Session.getSparkSession
-import com.yotpo.metorikku.utils.{MQLUtils, TableType}
+import com.yotpo.metorikku.utils.{TableType}
+import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.DataFrame
 
 trait InputTableReader {
@@ -15,7 +16,7 @@ object InputTableReader {
   private class JSONTableReader extends InputTableReader {
     override def read(tablePaths:  Seq[String]): DataFrame = {
       val firstTablePath = tablePaths.head
-      val schemaPath = MQLUtils.getSchemaPath(firstTablePath)
+      val schemaPath = getSchemaPath(firstTablePath)
       if (Files.exists(Paths.get(schemaPath))) {
         val schema = SchemaConverter.convert(schemaPath)
         getSparkSession.read.schema(schema).json(tablePaths: _*)
@@ -52,6 +53,10 @@ object InputTableReader {
       case _ => return new ParquetTableReader
     }
     reader
+  }
+
+  private def getSchemaPath(path: String): String = {
+    FilenameUtils.removeExtension(path) + "_schema.json"
   }
 
 }
