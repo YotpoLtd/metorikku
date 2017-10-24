@@ -56,7 +56,7 @@ object Session {
     })
   }
 
-  def registerDataframes(tables: Map[String, String], replacements: Map[String, String]): Unit = {
+  def registerDataframes(tables: Map[String, String], dateRange: Map[String, String]): Unit = {
     if (tables.nonEmpty) {
       tables.keys.foreach(tableName => {
         val dateRangeOption: Option[String] = dateRange.get(tableName)

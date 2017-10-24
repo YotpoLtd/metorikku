@@ -5,7 +5,7 @@ import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 
 object MetricSet {
-  type metricSetCallback = (File) => Unit
+  type metricSetCallback = (String) => Unit
   private var beforeRun: Option[metricSetCallback] = None
   private var afterRun: Option[metricSetCallback] = None
 
@@ -31,14 +31,14 @@ class MetricSet(metricSet: String) {
 
   def run() {
     MetricSet.beforeRun match {
-      case Some(callback) => callback(metricSetPath)
+      case Some(callback) => callback(metricSet)
       case None =>
     }
     metrics.foreach(metric => {
       new SqlStepCalculator(metric).calculate()
     })
     MetricSet.afterRun match {
-      case Some(callback) => callback(metricSetPath)
+      case Some(callback) => callback(metricSet)
       case None =>
     }
   }

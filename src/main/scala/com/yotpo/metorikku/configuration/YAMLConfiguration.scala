@@ -16,8 +16,7 @@ class YAMLConfiguration(@JsonProperty("runningDate") _runningDate: String,
                         @JsonProperty("redisArgs") _redisArgs: HashMap[String, String],
                         @JsonProperty("segmentArgs") _segmentArgs: HashMap[String, String],
                         @JsonProperty("fileOutputPath") _fileOutputPath: String = "metrics/",
-                        @JsonProperty("showPreviewLines") _showPreviewLines: Int,
-                        @JsonProperty("globalUDFsPath") _globalUDFsPath: String = "") extends Configuration {
+                        @JsonProperty("showPreviewLines") _showPreviewLines: Int) extends Configuration {
   require(Option(_metrics).isDefined, "metrics is mandatory")
   val metrics: Seq[String] = Option(_metrics).getOrElse(Seq())
   val runningDate: String = Option(_runningDate).getOrElse("")
@@ -32,5 +31,4 @@ class YAMLConfiguration(@JsonProperty("runningDate") _runningDate: String,
   val redisArgs: Map[String, String] = Option(_redisArgs).getOrElse(Map("host" -> "127.0.0.1"))
   val segmentArgs: Map[String, String] = Option(_segmentArgs).getOrElse(Map("apiKey" -> ""))
   val fileOutputPath: String = Option(_fileOutputPath).getOrElse("metrics/")
-  val globalUDFsPath: String = Option(_globalUDFsPath).getOrElse("")
 }

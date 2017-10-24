@@ -27,6 +27,4 @@ trait Configuration {
   def segmentArgs: Map[String, String]
 
   def fileOutputPath: String
-
-  def globalUDFsPath: String
 }
