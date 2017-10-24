@@ -8,6 +8,7 @@ import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
+import org.apache.spark.groupon.metrics.UserMetricsSystem
 import org.apache.spark.sql.SparkSession
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
@@ -21,6 +22,7 @@ object Session {
 
   def init(config: Configuration) {
     spark = Some(createSparkSession(config.cassandraArgs, config.redisArgs))
+    UserMetricsSystem.initialize(getSparkSession.sparkContext, "Metorikku")
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
     registerDataframes(config.inputs, config.dateRange)
