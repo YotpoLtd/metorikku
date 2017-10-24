@@ -8,7 +8,7 @@ import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
-import org.apache.spark.groupon.metrics.UserMetricsSystem
+import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.SparkSession
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
@@ -21,8 +21,7 @@ object Session {
   private var spark: Option[SparkSession] = None
 
   def init(config: Configuration) {
-    spark = Some(createSparkSession(config.cassandraArgs, config.redisArgs))
-    UserMetricsSystem.initialize(getSparkSession.sparkContext, "Metorikku")
+    spark = Some(createSparkSession(config))
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
     registerDataframes(config.inputs, config.dateRange)
@@ -72,10 +71,12 @@ object Session {
     }
   }
 
-  private def createSparkSession(cassandraDBConf: Map[String, String], redisDBConf: Map[String, String]): SparkSession = {
-    val sparkSessionBuilder = SparkSession.builder()
-    CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandraDBConf)
-    RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redisDBConf)
-    sparkSessionBuilder.getOrCreate()
+  private def createSparkSession(config: Configuration): SparkSession = {
+    val sparkSessionBuilder = SparkSession.builder().appName(config.appName)
+    CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, config.cassandraArgs)
+    RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, config.redisArgs)
+    val session = sparkSessionBuilder.getOrCreate()
+    UserMetricsSystem.initialize(session.sparkContext, "Metorikku")
+    return session
   }
 }
