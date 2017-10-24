@@ -1,4 +1,0 @@
-metricSets:
-- /Users/rbarabash/Development/yotpo-workspace/metrical-query-language/test/calculations/email
-metrics:
-- emailSendTimes

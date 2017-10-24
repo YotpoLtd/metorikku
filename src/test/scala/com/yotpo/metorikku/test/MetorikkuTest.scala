@@ -54,7 +54,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     org.apache.commons.io.FileUtils.deleteDirectory(new File("src/test/out"))
   }
 
-  test("Test full cycle of pixel to user") {
+  test("Test Metorikku should load a table and filter") {
     val sparkSession = SparkSession.builder.getOrCreate()
     val userAggData = sparkSession.createDataFrame(data)
     userAggData.write.mode(SaveMode.Overwrite).parquet("src/test/out/user_agg.parquet")
@@ -62,40 +62,16 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     Metorikku.main(Array(
       "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config.yaml"))
 
-    assert(new File("src/test/out/account_agg/conversionUplift/._SUCCESS.crc").exists)
-    assert(new File("src/test/out/account_agg/timeSpentUplift/._SUCCESS.crc").exists)
+    assert(new File("src/test/out/metric_test/metric/testOutput/._SUCCESS.crc").exists)
+    assert(new File("src/test/out/metric_test/metric/filteredOutput/._SUCCESS.crc").exists)
 
-    val cul = sparkSession.table("ConversionUpliftIWithRawConversionData")
-    cul.cache
-    assert(cul.count === 2)
+    val testOutput = sparkSession.table("testOutput")
+    val filterOutput = sparkSession.table("filteredOutput")
 
-    var awesomeApp = cul.filter(cul("app") === "awesomeApp").first
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("baseTraffic")) === 0L)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("convertedBaseTraffic")) === 0L)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("interactedTraffic")) === 2L)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("convertedInteractedTraffic")) === 1L)
+    testOutput.cache
+    filterOutput.cache
 
-    var badApp = cul.filter(cul("app") === "badApp").first
-    assert(badApp.getLong(badApp.fieldIndex("baseTraffic")) === 1L)
-    assert(badApp.getLong(badApp.fieldIndex("convertedBaseTraffic")) === 1L)
-    assert(badApp.getLong(badApp.fieldIndex("interactedTraffic")) === 0L)
-    assert(badApp.getLong(badApp.fieldIndex("convertedInteractedTraffic")) === 0L)
-
-    val tsul = sparkSession.table("TimeSpentUpliftWithRawData")
-    tsul.cache
-    assert(tsul.count === 2)
-
-    awesomeApp = tsul.filter(tsul("app") === "awesomeApp").first
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("noInteractionSessionsCounter")) === 2L)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("noInteractionSessionTotalTime")) === secondSession * 2)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("interactedSessionCounter")) === 2L)
-    assert(awesomeApp.getLong(awesomeApp.fieldIndex("interactedSessionTotalTime")) === firstSession * 2)
-
-    badApp = tsul.filter(tsul("app") === "badApp").first
-    assert(badApp.getLong(badApp.fieldIndex("noInteractionSessionsCounter")) === 2L)
-    assert(badApp.getLong(badApp.fieldIndex("noInteractionSessionTotalTime")) === firstSession + secondSession)
-    assert(badApp.getLong(badApp.fieldIndex("interactedSessionCounter")) === 0L)
-    assert(badApp.getLong(badApp.fieldIndex("interactedSessionTotalTime")) === 0L)
-    sparkSession.stop()
+    assert(testOutput.count === 4)
+    assert(filterOutput.count === 1)
   }
 }

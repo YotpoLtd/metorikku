@@ -9,31 +9,6 @@ import org.json4s.native.JsonMethods.parse
 import scala.util.parsing.json.JSON
 
 object FileUtils {
-
-  def jsonFileToMap(jsonFile: File): Map[String, Any] = {
-    val jsonString = scala.io.Source.fromFile(jsonFile).mkString
-    val json = JSON.parseFull(jsonString)
-    json.get.asInstanceOf[Map[String, Any]]
-  }
-
-  def getListOfDirectories(dir: String): List[File] = {
-    val d = new File(dir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isDirectory).toList
-    } else {
-      List[File]()
-    }
-  }
-
-  def getListOfContents(dir: String): List[File] = {
-    val d = new File(dir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.toList
-    } else {
-      List[File]()
-    }
-  }
-
   def getListOfFiles(dir: String): List[File] = {
     val d = new File(dir)
     if (d.exists && d.isDirectory) {

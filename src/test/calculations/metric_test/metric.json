@@ -1,0 +1,30 @@
+{
+  "steps": [
+    {
+      "sql": "select *, size(transactions) > 0 as converted, size(events) > 0 as hasEvents from UserAggregatedData",
+      "dataFrameName": "testOutput"
+    },
+    {
+      "sql": "select * from testOutput where user = 'alice'",
+      "dataFrameName": "filteredOutput"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "testOutput",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/metric_test/metric/testOutput/"
+      }
+    },
+    {
+      "dataFrameName": "filteredOutput",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/metric_test/metric/filteredOutput/"
+      }
+    }
+  ]
+}

@@ -6,26 +6,23 @@ import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.metric.Replacement
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
-import com.yotpo.metorikku.udaf.MergeArraysAgg
-import com.yotpo.metorikku.udf._
 import com.yotpo.metorikku.utils.{MQLUtils, TableType}
 import org.apache.spark.sql.SparkSession
-import scala.collection.JavaConversions._
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
                                             private val cause: Throwable = None.orNull)
   extends Exception(message, cause)
 
 object Session {
+
   private var configuration: Option[Configuration] = None
   private var spark: Option[SparkSession] = None
 
   def init(config: Configuration) {
-    spark = Some(createSparkSession(config.cassandraArgs.toMap, config.redisArgs.toMap))
+    spark = Some(createSparkSession(config.cassandraArgs, config.redisArgs))
     setSparkLogLevel(config.logLevel)
-    registerVariables(config.variables.toMap)
-    registerDataframes(config.tableFiles.toMap, config.replacements.toMap)
-    registerGlobalUDFs(config.globalUDFsPath)
+    registerVariables(config.variables)
+    registerDataframes(config.tableFiles, config.replacements)
     configuration = Some(config)
   }
 
@@ -56,37 +53,6 @@ object Session {
       getSparkSession.sql(s"set $key='$value'")
     }
     })
-  }
-
-  private def registerGlobalUDFs(calculationsFolderPath: String) {
-    //register udfs without json
-    ArraysUDFRegistry.registerExtractKeyUDF(getSparkSession, "extractKey")
-    ArraysUDFRegistry.registerArraySumFieldUDF(getSparkSession, "sumField")
-    ArraysUDFRegistry.registerArrayContainsUDF(getSparkSession, "arrayContains")
-    //register global udfs
-    val udfs = UDFUtils.getAllUDFsInPath(calculationsFolderPath)
-    udfs.foreach(udf => registerUdf(udf))
-  }
-
-  def registerUdf(namedUdf: Map[String, Any]) {
-    val alias: String = namedUdf("name").asInstanceOf[String]
-    val udfSpecs = namedUdf("udf").asInstanceOf[Map[String, Any]]
-    val params: Any = udfSpecs("udfParams")
-    udfSpecs("type") match {
-      case "ArrayContainsAny" => ArraysUDFRegistry.registerArrayContainsAnyUDF(getSparkSession, alias, params)
-      case "Sessions" => getSparkSession.udf.register(alias, Sessions.createFunction(params))
-      case "ContainsWithTimeFrames" => getSparkSession.udf.register(alias, ContainsWithTimeFrames.createFunction(params))
-      case "CountOccurrencesWithinTimeFrames" => getSparkSession.udf.register(alias, CountOccurrencesWithinTimeFrames.createFunction(params))
-      case "MergeArrays" => ArraysUDFRegistry.registerMergeArraysUDF(getSparkSession, alias, params)
-      case "MergeArraysAgg" =>
-        val udfParams = params.asInstanceOf[Map[String, String]]
-        UDFUtils.getArrayTypeFromParams(getSparkSession, udfParams("table"), udfParams("column")) match {
-          case Some(itemsType) =>
-            getSparkSession.udf.register(alias, MergeArraysAgg(itemsType))
-          case None =>
-        }
-      case "GroupArraysByKey" => ArraysUDFRegistry.registerGroupArraysByKeyUDF(getSparkSession, alias, params)
-    }
   }
 
   def registerDataframes(tables: Map[String, String], replacements: Map[String, String]): Unit = {
