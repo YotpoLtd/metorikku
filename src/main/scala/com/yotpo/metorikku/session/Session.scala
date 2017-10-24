@@ -3,10 +3,11 @@ package com.yotpo.metorikku.session
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.configuration.Configuration
-import com.yotpo.metorikku.metric.Replacement
+import com.yotpo.metorikku.metric.DateRange
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
-import com.yotpo.metorikku.utils.{MQLUtils, TableType}
+import com.yotpo.metorikku.utils.TableType
+import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.SparkSession
 
 case class ConfigurationNotDefinedException(private val message: String = "Session Configuration Must Be Set",
@@ -22,7 +23,7 @@ object Session {
     spark = Some(createSparkSession(config.cassandraArgs, config.redisArgs))
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
-    registerDataframes(config.tableFiles, config.replacements)
+    registerDataframes(config.inputs, config.dateRange)
     configuration = Some(config)
   }
 
@@ -55,17 +56,15 @@ object Session {
     })
   }
 
-  def registerDataframes(tables: Map[String, String], replacements: Map[String, String]): Unit = {
+  def registerDataframes(tables: Map[String, String], dateRange: Map[String, String]): Unit = {
     if (tables.nonEmpty) {
       tables.keys.foreach(tableName => {
-        val maybeReplacement: Option[String] = replacements.get(tableName)
-        val TablePaths: Seq[String] = if (maybeReplacement.isEmpty) Seq(tables(tableName)) else Replacement(maybeReplacement.get).replace(tables(tableName))
-        // the type of the table is inferred from the first element of the sequence since they are all of the same type
-        // (originated from one table and can be duplicated by 'Replacement')
+        val dateRangeOption: Option[String] = dateRange.get(tableName)
+        val TablePaths: Seq[String] = if (dateRangeOption.isEmpty) Seq(tables(tableName)) else DateRange(dateRangeOption.get).replace(tables(tableName))
         val firstTablePath = TablePaths.head
         val df = TableType.getTableType(firstTablePath) match {
           case TableType.json | TableType.jsonl =>
-            val schemaPath = MQLUtils.getSchemaPath(firstTablePath)
+            val schemaPath = getSchemaPath(firstTablePath)
             if (Files.exists(Paths.get(schemaPath))) {
               val schema = SchemaConverter.convert(schemaPath)
               getSparkSession.read.schema(schema).json(TablePaths: _*)
@@ -77,6 +76,10 @@ object Session {
         df.createOrReplaceTempView(tableName)
       })
     }
+  }
+
+  private def getSchemaPath(path: String): String = {
+    FilenameUtils.removeExtension(path) + "_schema.json"
   }
 
   private def createSparkSession(cassandraDBConf: Map[String, String], redisDBConf: Map[String, String]): SparkSession = {

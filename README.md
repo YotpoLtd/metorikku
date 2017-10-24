@@ -47,11 +47,11 @@ This file will include **input sources**, **output destinations** and the locati
 
 So for example a simple config.yaml file should be as follows:
 ```yaml
-calculationsDirs:
+metrics:
   - configuration_directory
-tableFiles:
-  table_1: parquet/table_1.parquet
-  table_2: parquet/table_2.parquet
+inputs:
+  input_1: parquet/input_1.parquet
+  input_2: parquet/input_2.parquet
 fileOutputPath: /path/to/parquet/output
 ```
 You can check out a full example file for all possible values in the [sample YAML configuration file](http://test.com).
@@ -95,6 +95,7 @@ This defines what to test and where to get the mocked data.
 For example, a simple `test_settings.json` file will be:
 ```json
 {
+  "metric": "/path/to/metric"
   "mocks": [
     {
       "name": "table_1",
@@ -121,14 +122,6 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 200, "name": "test" }
 { "id": 300, "name": "test2" }
 { "id": 1, "name": "test3" }
-```
-For example, a simple `config.yaml` file will be:
-##### Test Run Configuration
-
-
-```yaml
-calculationsDirs:
-- path_to_test_settings_with_settings.json/
 ```
 
 ##### Running Metorikku Tester

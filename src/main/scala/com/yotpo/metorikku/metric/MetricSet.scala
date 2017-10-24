@@ -1,14 +1,11 @@
 package com.yotpo.metorikku.metric
 
-import java.io.File
-
 import com.yotpo.metorikku.calculators.SqlStepCalculator
-import com.yotpo.metorikku.configuration.Configuration
 import com.yotpo.metorikku.session.Session
-import com.yotpo.metorikku.utils.{FileUtils, MQLUtils}
+import com.yotpo.metorikku.utils.FileUtils
 
 object MetricSet {
-  type metricSetCallback = (File) => Unit
+  type metricSetCallback = (String) => Unit
   private var beforeRun: Option[metricSetCallback] = None
   private var afterRun: Option[metricSetCallback] = None
 
@@ -20,33 +17,28 @@ object MetricSet {
     afterRun = Some(callback)
   }
 }
+class MetricSet(metricSet: String) {
+  val metrics: Seq[Metric] = parseMetrics(metricSet)
 
-class MetricSet(metricSetPath: File) {
-  val configuration: Configuration = Session.getConfiguration
-  val metrics: Seq[Metric] = parseMetrics(metricSetPath)
-
-  def parseMetrics(metricSetFiles: File): Seq[Metric] = {
-    val allMetrics = MQLUtils.getMetrics(metricSetFiles)
-
-    //TODO remove all the intersection stuff
-    val metricsToCalculate = FileUtils.intersect(allMetrics, configuration.metrics)
+  def parseMetrics(metricSet: String): Seq[Metric] = {
+    val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
 
     metricsToCalculate.map(metricFile => {
-      val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile.getAbsolutePath)
+      val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       new Metric(metricConfig, metricFile.getParent)
     })
   }
 
   def run() {
     MetricSet.beforeRun match {
-      case Some(callback) => callback(metricSetPath)
+      case Some(callback) => callback(metricSet)
       case None =>
     }
     metrics.foreach(metric => {
       new SqlStepCalculator(metric).calculate()
     })
     MetricSet.afterRun match {
-      case Some(callback) => callback(metricSetPath)
+      case Some(callback) => callback(metricSet)
       case None =>
     }
   }

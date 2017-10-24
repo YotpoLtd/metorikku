@@ -1,7 +1,5 @@
 package com.yotpo.metorikku
 
-import java.io.File
-
 import com.yotpo.metorikku.configuration.MetorikkuRunConfiguration.MetorikkuYamlFileName
 import com.yotpo.metorikku.configuration.YAMLConfigurationParser
 import com.yotpo.metorikku.metric.MetricSet
@@ -32,8 +30,8 @@ object Metorikku extends App {
   }
 
   def start() {
-    Session.getConfiguration.metricSets.foreach(set => {
-      val metricSet = new MetricSet(new File(set))
+    Session.getConfiguration.metrics.foreach(metric => {
+      val metricSet = new MetricSet(metric)
       metricSet.run()
       metricSet.write()
     })
