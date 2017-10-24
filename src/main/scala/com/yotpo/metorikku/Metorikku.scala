@@ -17,9 +17,8 @@ object Metorikku extends App {
   Session.init(config)
   start
 
-  def start() {
+  def start(): Unit = {
     Session.getConfiguration.metrics.foreach(metric => {
-      log.info(s"Starting to calculate for metric ${metric}")
       val metricSet = new MetricSet(metric)
       metricSet.run()
       metricSet.write()

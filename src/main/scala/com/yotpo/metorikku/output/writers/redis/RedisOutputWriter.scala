@@ -3,6 +3,7 @@ package com.yotpo.metorikku.output.writers.redis
 import com.redislabs.provider.redis._
 import com.yotpo.metorikku.configuration.outputs.Redis
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
+import org.apache.log4j.LogManager
 import com.yotpo.metorikku.session.Session
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -22,6 +23,7 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
 
   case class RedisOutputProperties(keyColumn: String)
 
+  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val redisOutputOptions = RedisOutputProperties(props("keyColumn"))
 
@@ -38,8 +40,10 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
 
       redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
     } else {
-      //TODO error log
+      log.error(s"Failed Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
     }
+    log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
+    redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
   }
 
   private def isRedisConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"redis.host").isDefined

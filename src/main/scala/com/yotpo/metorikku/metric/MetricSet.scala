@@ -25,10 +25,13 @@ class MetricSet(metricSet: String) {
   val metrics: Seq[Metric] = parseMetrics(metricSet)
 
   def parseMetrics(metricSet: String): Seq[Metric] = {
+    log.info(s"Starting to parse metricSet")
     val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       new Metric(metricConfig, metricFile.getParentFile)
+      log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
+      new Metric(metricConfig, metricFile.getParent)
     })
   }
 
@@ -37,10 +40,11 @@ class MetricSet(metricSet: String) {
       case Some(callback) => callback(metricSet)
       case None =>
     }
+
     metrics.foreach(metric => {
-      log.info(s"Starting to run metric ${metric.metricDir}")
       new SqlStepCalculator(metric).calculate()
     })
+
     MetricSet.afterRun match {
       case Some(callback) => callback(metricSet)
       case None =>
@@ -49,11 +53,11 @@ class MetricSet(metricSet: String) {
 
   def write() {
     metrics.foreach(metric => {
-      log.info(s"Starting to write results of metric ${metric.metricDir}")
       metric.outputs.foreach(output => {
         val sparkSession = Session.getSparkSession
         val dataFrame = sparkSession.table(output.df)
         dataFrame.cache()
+        log.info(s"Starting to Write results of ${output.df}")
         output.writer.write(dataFrame)
       })
     })

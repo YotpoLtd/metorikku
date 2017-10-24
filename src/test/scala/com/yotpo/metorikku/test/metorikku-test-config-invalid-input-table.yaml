@@ -1,7 +1,7 @@
 metrics:
   - src/test/calculations/metric_test
 inputs:
- employees: src/test/tables/employees.parquet
+ employees: src/test/tables/employeesc.parquet
 output:
  file:
   dir: src/test/out/

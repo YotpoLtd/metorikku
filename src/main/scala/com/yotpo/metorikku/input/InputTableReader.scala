@@ -40,7 +40,7 @@ object InputTableReader {
 
   private object ParquetTableReader extends InputTableReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
-      getSparkSession.read.parquet(tablePaths: _*)
+      getSparkSession.read.parquet(tablePaths: _*)//By default on read spark fail with legit error
     }
   }
 

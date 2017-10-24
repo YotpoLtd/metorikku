@@ -71,7 +71,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     testOutput.cache
     filterOutput.cache
 
-    assert(testOutput.count === 4)
+    assert(testOutput.count === 5)
     assert(filterOutput.count === 1)
   }
 }

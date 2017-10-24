@@ -2,6 +2,8 @@ package com.yotpo.metorikku.utils
 
 import java.io.File
 
+import com.yotpo.metorikku.configuration.metorikkuException
+import org.apache.commons.io.FilenameUtils
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 
@@ -13,7 +15,7 @@ object FileUtils {
     } else if (d.isFile) {
       List(d)
     } else {
-      List[File]()
+        throw new metorikkuException(s"No Files to Run ${dir}")
     }
   }
 
@@ -25,6 +27,6 @@ object FileUtils {
   }
 
   def getContentFromFileAsString(file: File): String = {
-    scala.io.Source.fromFile(file).mkString
+    scala.io.Source.fromFile(file).mkString //    //By scala.io. on read spark fail with legit error when path does not exists
   }
 }

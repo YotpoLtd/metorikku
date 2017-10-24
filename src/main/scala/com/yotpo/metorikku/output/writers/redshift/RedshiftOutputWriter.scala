@@ -2,6 +2,7 @@ package com.yotpo.metorikku.output.writers.redshift
 
 import com.yotpo.metorikku.configuration.outputs.Redshift
 import com.yotpo.metorikku.output.MetricOutputWriter
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}
@@ -12,6 +13,7 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
 
   case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String)
 
+  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"))
 
@@ -27,7 +29,7 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
           var max_length = df.agg(max(length(df(f.name)))).as[Int].first
           df = df.withColumn(f.name, df(f.name).as(f.name, new MetadataBuilder().putLong("maxlength", max_length).build()))
         })
-
+        log.info(s"Writing dataframe to Redshift' table ${props("dbTable")}")
         val writer = df.write.format("com.databricks.spark.redshift")
           .option("url", redshiftDBConf.jdbcURL)
           .option("forward_spark_s3_credentials", true)
@@ -43,7 +45,7 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
         }
         writer.save()
 
-      case None => //TODO add error log
+      case None => log.error(s"Redshift DB configuration isn't provided")
     }
   }
 }

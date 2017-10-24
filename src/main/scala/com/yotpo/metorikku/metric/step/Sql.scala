@@ -2,6 +2,7 @@ package com.yotpo.metorikku.metric.step
 
 import java.io.File
 
+import com.yotpo.metorikku.configuration.metorikkuException
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
@@ -26,10 +27,10 @@ class Sql(step: Any, metricDir: File) extends MetricStep {
   def getSqlQueryStringFromStepsMap(): String = {
     val stepType = stepConfig.keys.filter(StepType.isStepType(_)).head
 
-    stepType match {
+    StepType.withName(stepType) match {
       case StepType.sql => stepConfig("sql")
       case StepType.file => FileUtils.getContentFromFileAsString(metricDir, stepConfig("file"))
-      case _ => throw new IllegalArgumentException(s"Not Supported Step type $stepType")
+      case _ => throw new metorikkuException(s"Not Supported Step type $stepType")
     }
   }
 

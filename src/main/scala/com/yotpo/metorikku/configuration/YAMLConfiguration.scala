@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 import scala.collection.immutable.HashMap
 
+case class metorikkuException(private val message: String = "",
+                           private val cause: Throwable = None.orNull)
+  extends Exception(message, cause)
+
 class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("explain") _explain: Boolean,
                         @JsonProperty("inputs") _inputs: HashMap[String, String],
@@ -20,6 +24,7 @@ class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
   val inputs: Seq[Input] = Option(_inputs.map{case (k, v) => Input(k, v) }.toSeq).getOrElse(Seq())
   val dateRange: Map[String, DateRange] = Option(_dateRange).getOrElse(Map())
   val logLevel: String = Option(_logLevel).getOrElse("WARN")
+
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())
   val output: Output = Option(_output).getOrElse(Output())
   val appName: String = Option(_appName).getOrElse("Metorikku")
