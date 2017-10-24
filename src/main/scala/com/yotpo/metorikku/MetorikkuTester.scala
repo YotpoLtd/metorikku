@@ -28,7 +28,6 @@ object MetorikkuTester extends App {
         val configuration = new DefaultConfiguration
         configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, String]())
         configuration.inputs = getMockFiles(metricTestSettings.mocks)
-        configuration.runningDate = metricTestSettings.params.runningDate.getOrElse("")
         configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
         configuration.metrics = Seq(metricTestSettings.metric)
         Session.init(configuration)
