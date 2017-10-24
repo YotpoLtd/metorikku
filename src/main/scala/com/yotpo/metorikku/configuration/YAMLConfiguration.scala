@@ -24,7 +24,7 @@ class YAMLConfiguration(@JsonProperty("runningDate") _runningDate: String,
   val explain: Boolean = _explain
   val inputs: Map[String, String] = Option(_inputs).getOrElse(Map())
   val dateRange: Map[String, String] = Option(_dateRange).getOrElse(Map())
-  val logLevel: String = Option(_logLevel).getOrElse("WARN")
+  val logLevel: String = Option(_logLevel).getOrElse(null)
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())
   val cassandraArgs: Map[String, String] = Option(_scyllaDBArgs).getOrElse(Map("host" -> "127.0.0.1"))
   val redshiftArgs: Map[String, String] = Option(_redshiftArgs).getOrElse(Map("host" -> "127.0.0.1"))

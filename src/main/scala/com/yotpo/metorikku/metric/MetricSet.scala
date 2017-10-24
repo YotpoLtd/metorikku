@@ -3,6 +3,7 @@ package com.yotpo.metorikku.metric
 import com.yotpo.metorikku.calculators.SqlStepCalculator
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
+import org.apache.log4j.LogManager
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -17,7 +18,10 @@ object MetricSet {
     afterRun = Some(callback)
   }
 }
+
 class MetricSet(metricSet: String) {
+  val log = LogManager.getLogger(this.getClass)
+
   val metrics: Seq[Metric] = parseMetrics(metricSet)
 
   def parseMetrics(metricSet: String): Seq[Metric] = {
@@ -35,6 +39,7 @@ class MetricSet(metricSet: String) {
       case None =>
     }
     metrics.foreach(metric => {
+      log.info(s"Starting to run metric ${metric.metricDir}")
       new SqlStepCalculator(metric).calculate()
     })
     MetricSet.afterRun match {
@@ -45,6 +50,7 @@ class MetricSet(metricSet: String) {
 
   def write() {
     metrics.foreach(metric => {
+      log.info(s"Starting to write results of metric ${metric.metricDir}")
       metric.outputs.foreach(output => {
         val sparkSession = Session.getSparkSession
         val dataFrame = sparkSession.table(output.df)
