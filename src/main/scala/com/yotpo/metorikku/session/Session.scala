@@ -60,35 +60,14 @@ object Session {
     if (tables.nonEmpty) {
       tables.keys.foreach(tableName => {
         val dateRangeOption: Option[String] = dateRange.get(tableName)
-        val TablePaths: Seq[String] = if (dateRangeOption.isEmpty) Seq(tables(tableName)) else DateRange(dateRangeOption.get).replace(tables(tableName))
-        val firstTablePath = TablePaths.head
-        val df = TableType.getTableType(firstTablePath) match {
-          case TableType.json | TableType.jsonl =>
-            val schemaPath = getSchemaPath(firstTablePath)
-            if (Files.exists(Paths.get(schemaPath))) {
-              val schema = SchemaConverter.convert(schemaPath)
-              getSparkSession.read.schema(schema).json(TablePaths: _*)
-            } else {
-              getSparkSession.read.json(TablePaths: _*)
-            }
-          case TableType.csv => {
-            getSparkSession.read
-              .option("quote", "\"")
-              .option("escape", "\"")
-              .option("quoteAll", "true")
-              .option("header", "true")
-              .csv(TablePaths: _*)
-              .na.fill("")
-          }
-          case _ => getSparkSession.read.parquet(TablePaths: _*)
-        }
+        val tablePaths: Seq[String] = if (dateRangeOption.isEmpty) Seq(tables(tableName)) else DateRange(dateRangeOption.get).replace(tables(tableName))
+        // the type of the table is inferred from the first element of the sequence since they are all of the same type
+        // (originated from one table and can be duplicated by 'Replacement')
+        val reader = InputTableReader(tablePaths)
+        val df = reader.read(tablePaths)
         df.createOrReplaceTempView(tableName)
       })
     }
-  }
-
-  private def getSchemaPath(path: String): String = {
-    FilenameUtils.removeExtension(path) + "_schema.json"
   }
 
   private def createSparkSession(cassandraDBConf: Map[String, String], redisDBConf: Map[String, String]): SparkSession = {
