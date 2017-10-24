@@ -14,4 +14,5 @@ class DefaultConfiguration extends Configuration {
   var redisArgs = Map("host" -> "127.0.0.1")
   var segmentArgs = Map("apiKey" -> "")
   var fileOutputPath = "metrics/"
+  var appName = "Metorikku"
 }
