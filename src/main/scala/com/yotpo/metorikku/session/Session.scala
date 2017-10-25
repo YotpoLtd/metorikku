@@ -66,8 +66,8 @@ object Session {
   private def createSparkSession(appName: String, output: Output): SparkSession = {
     val sparkSessionBuilder = SparkSession.builder().appName(appName)
     //TODO: remove to writer factory
-    output.cassandra.foreach(cassandra => CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandra))
-    output.redis.foreach(redis => RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redis))
+    CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, output.cassandra)
+    RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, output.redis)
     val session = sparkSessionBuilder.getOrCreate()
     UserMetricsSystem.initialize(session.sparkContext, "Metorikku")
     session

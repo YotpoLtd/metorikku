@@ -18,12 +18,12 @@ object MetricOutputWriterFactory {
     OutputType.withName(outputType) match {
       //TODO: getOrElse -> send default values of return error?
       case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
-      case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift.getOrElse(Redshift()))
+      case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift)
       case OutputType.Redis => new RedisOutputWriter(metricOutputOptions) //TODO add here redis from session
-      case OutputType.Segment => new SegmentOutputWriter(metricOutputOptions, output.segment.getOrElse(Segment()))
-      case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
-      case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
-      case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file.getOrElse(File()))
+      case OutputType.Segment => new SegmentOutputWriter(metricOutputOptions, output.segment)
+      case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file)
+      case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
+      case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
       //TODO case _ => print error
     }
   }
