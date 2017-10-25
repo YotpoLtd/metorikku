@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.output
 
-import com.yotpo.metorikku.configuration.outputs.{File, Redshift, Segment}
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter

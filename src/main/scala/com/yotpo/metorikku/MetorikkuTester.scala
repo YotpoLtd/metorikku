@@ -1,5 +1,7 @@
 package com.yotpo.metorikku
 
+import java.io.File
+
 import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
@@ -27,7 +29,7 @@ object MetorikkuTester extends App {
         val metricTestSettings = TestUtils.getTestSettings(settings)
         val configuration = new DefaultConfiguration
         configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
-        configuration.inputs = getMockFiles(metricTestSettings.mocks)
+        configuration.inputs = getMockFiles(metricTestSettings.mocks, new File(settings).getParentFile)
         configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
         configuration.metrics = Seq(metricTestSettings.metric)
         Session.init(configuration)
@@ -58,12 +60,12 @@ object MetorikkuTester extends App {
     }
   }
 
-  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock]): Seq[Input] = {
-    val mockFiles = Seq[Input]()
+  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
+    var mockFiles = Seq[Input]()
     mocks.foreach(mock => {
       val mockName = mock.name
       val mockPath = mock.path
-      mockFiles :+ Input(mockName, mockPath)
+      mockFiles :+= Input(mockName, new File(testDir, mockPath).getPath)
     })
     mockFiles
   }
@@ -72,6 +74,7 @@ object MetorikkuTester extends App {
                                       metricName: String, sparkSession: SparkSession): Array[String] = {
     var errors = Array[String]()
     metricExpectedTests.keys.foreach(tableName => {
+
       val metricActualResultRows = sparkSession.table(tableName).collect()
       var metricExpectedResultRows = metricExpectedTests(tableName)
       if (metricExpectedResultRows.length == metricActualResultRows.length) {
