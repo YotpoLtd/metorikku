@@ -25,6 +25,7 @@ class MetricSet(metricSet: String) {
 
     metricsToCalculate.map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
+      //TODO: remove parent, use Absolute path
       new Metric(metricConfig, metricFile.getParent)
     })
   }

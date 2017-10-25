@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output.writers.redshift
 
+import com.yotpo.metorikku.configuration.outputs.Redshift
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
@@ -7,12 +8,12 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import scala.collection.mutable
 
-class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String],redshiftDBConf: Map[String, String]) extends MetricOutputWriter {
+class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Redshift) extends MetricOutputWriter {
+
+  case class ConnectionProperties(jdbcURL: String, tempS3Dir: String)
 
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
-
-  case class ConnectionProperties(jdbcURL: String,  tempS3Dir: String)
-  val connectionOptions = ConnectionProperties(redshiftDBConf("jdbcURL"), redshiftDBConf("tempS3Dir"))
+  val connectionOptions = ConnectionProperties(redshiftDBConf.jdbcURL, redshiftDBConf.tempS3Dir)
 
   override def write(dataFrame: DataFrame): Unit = {
     import dataFrame.sparkSession.implicits._
@@ -26,16 +27,16 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String],reds
     })
 
     val writer = df.write.format("com.databricks.spark.redshift")
-           .option("url", connectionOptions.jdbcURL)
-           .option("forward_spark_s3_credentials",true)
-           .option("tempdir", connectionOptions.tempS3Dir)
-           .option("dbtable", props("dbTable"))
-           .mode(SaveMode.valueOf(props("saveMode")))
+      .option("url", connectionOptions.jdbcURL)
+      .option("forward_spark_s3_credentials", true)
+      .option("tempdir", connectionOptions.tempS3Dir)
+      .option("dbtable", props("dbTable"))
+      .mode(SaveMode.valueOf(props("saveMode")))
 
-    if (props.contains("postActions")){
+    if (props.contains("postActions")) {
       writer.option("postActions", props("postActions"))
     }
-    if (props.contains("extracopyoptions")){
+    if (props.contains("extracopyoptions")) {
       writer.option("extracopyoptions", props("extracopyoptions"))
     }
     writer.save()
