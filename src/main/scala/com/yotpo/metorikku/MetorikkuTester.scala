@@ -29,7 +29,7 @@ object MetorikkuTester extends App {
         val metricTestSettings = TestUtils.getTestSettings(settings)
         val configuration = new DefaultConfiguration
         configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
-        configuration.inputs = getMockFiles(metricTestSettings.mocks, new File(settings).getParentFile)
+        configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
         configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
         configuration.metrics = Seq(metricTestSettings.metric)
         Session.init(configuration)
@@ -60,12 +60,9 @@ object MetorikkuTester extends App {
     }
   }
 
-  def getMockFiles(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
-    var mockFiles = Seq[Input]()
-    mocks.foreach(mock => {
-      val mockName = mock.name
-      val mockPath = mock.path
-      mockFiles :+= Input(mockName, new File(testDir, mockPath).getPath)
+  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
+    val mockFiles = mocks.map(mock => {
+      Input(mock.name, new File(testDir, mock.path).getPath)
     })
     mockFiles
   }
