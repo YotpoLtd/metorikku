@@ -25,17 +25,21 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
   val redisOutputOptions = RedisOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
+    if (isRedisConfExist(dataFrame)) {
+      val columns = dataFrame.columns.filter(_ != redisOutputOptions.keyColumn)
 
-    val columns = dataFrame.columns.filter(_ != redisOutputOptions.keyColumn)
+      import dataFrame.sparkSession.implicits._
 
-    import dataFrame.sparkSession.implicits._
+      val redisDF = dataFrame.na.fill(0).na.fill("")
+        .map(row => row.getAs[Any](redisOutputOptions.keyColumn).toString ->
+          JSONObject(row.getValuesMap(columns)).toString()
+        )
 
-    val redisDF = dataFrame.na.fill(0).na.fill("")
-      .map(row => row.getAs[Any](redisOutputOptions.keyColumn).toString ->
-        JSONObject(row.getValuesMap(columns)).toString()
-      )
-
-    redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
+      redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
+    } else {
+      //TODO error log
+    }
   }
 
+  private def isRedisConfExist(dataFrame: DataFrame): Boolean = dataFrame.sparkSession.conf.getOption(s"redis.host").isDefined
 }

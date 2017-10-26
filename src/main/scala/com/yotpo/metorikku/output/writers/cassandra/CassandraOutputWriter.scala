@@ -33,6 +33,8 @@ class CassandraOutputWriter(metricOutputOptions: mutable.Map[String, String]) ex
         .format("org.apache.spark.sql.cassandra")
         .options(Map("table" -> dbOptions.dbTable, "keyspace" -> dbOptions.dbKeySpace))
         .save()
+    } else {
+      //TODO error log
     }
   }
 

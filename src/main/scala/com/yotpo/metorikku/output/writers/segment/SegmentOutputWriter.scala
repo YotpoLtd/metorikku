@@ -10,7 +10,7 @@ import org.apache.spark.sql.DataFrame
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Segment) extends MetricOutputWriter {
+class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
 
   case class SegmentOutputProperties(keyColumn: String)
 
@@ -18,35 +18,39 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
   val segmentOutputOptions = SegmentOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    val segmentApiKey = segmentOutputConf.apiKey //TODO: should we continue with empty string (default)?
-    val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
-    dataFrame.foreachPartition(partition => {
-      val blockingFlush = BlockingFlush.create
-      val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
-      partition.foreach(row => {
-        val userId = row.getAs[Any](segmentOutputOptions.keyColumn)
-        try {
-          val eventTraits = new mutable.HashMap[String, String]()
-          row.getValuesMap[Any](columns).foreach { case (key, value) => eventTraits.put(key, value.toString) }
-          analytics.enqueue(IdentifyMessage.builder()
-            .userId(userId.toString)
-            .traits(eventTraits)
-          )
-          val successEvent = {
-            Map("user_id" -> userId.toString, "type" -> "success", "metric" -> metricOutputOptions("dataFrameName"))
-          }
-          Instrumentation.segmentWriterSuccess.inc(1)
-        } catch {
-          case exception: Throwable =>
-            val failedEvent = {
-              Map("user_id" -> userId.toString, "type" -> "error", "metric" -> metricOutputOptions("dataFrameName"))
+    segmentOutputConf match {
+      case Some(segmentOutputConf) =>
+        val segmentApiKey = segmentOutputConf.apiKey
+        val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
+        dataFrame.foreachPartition(partition => {
+          val blockingFlush = BlockingFlush.create
+          val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
+          partition.foreach(row => {
+            val userId = row.getAs[Any](segmentOutputOptions.keyColumn)
+            try {
+              val eventTraits = new mutable.HashMap[String, String]()
+              row.getValuesMap[Any](columns).foreach { case (key, value) => eventTraits.put(key, value.toString) }
+              analytics.enqueue(IdentifyMessage.builder()
+                .userId(userId.toString)
+                .traits(eventTraits)
+              )
+              val successEvent = {
+                Map("user_id" -> userId.toString, "type" -> "success", "metric" -> metricOutputOptions("dataFrameName"))
+              }
+              Instrumentation.segmentWriterSuccess.inc(1)
+            } catch {
+              case exception: Throwable =>
+                val failedEvent = {
+                  Map("user_id" -> userId.toString, "type" -> "error", "metric" -> metricOutputOptions("dataFrameName"))
+                }
+                Instrumentation.segmentWriterFailure.inc(1)
             }
-            Instrumentation.segmentWriterFailure.inc(1)
-        }
-      })
-      analytics.flush()
-      blockingFlush.block()
-      analytics.shutdown()
-    })
+          })
+          analytics.flush()
+          blockingFlush.block()
+          analytics.shutdown()
+        })
+      case None => //TODO add error log
+    }
   }
 }
