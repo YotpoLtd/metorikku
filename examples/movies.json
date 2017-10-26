@@ -10,10 +10,10 @@
     },
     {
       "sql": "SELECT movieId,title,avg(rating) as averageRating from fantasyMoviesWithRatings group by movieId,title order by averageRating desc limit 100",
-      "dataFrameName": "top100FantasyMovies"
+      "dataFrameName": "topFantasyMovies"
     },
     {
-      "sql": "SELECT * from top100FantasyMovies where title like '%${myFavoriteMovie}%'",
+      "sql": "SELECT * from topFantasyMovies where title like '%${myFavoriteMovie}%'",
       "dataFrameName": "myFavoriteMovieRated"
     }
   ],

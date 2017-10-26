@@ -1,36 +1,24 @@
 {
+  "metric": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/movies.json",
   "mocks": [
     {
       "name": "movies",
-      "path": "mocks/movies.json"
+      "path": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/mocks/movies.json"
     },
     {
       "name": "ratings",
-      "path": "mocks/ratings.json"
-    },
-    {
-      "name": "tags",
-      "path": "mocks/tags.json"
+      "path": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/mocks/ratings.json"
     }
   ],
   "params": {
-    "variables": {}
+    "variables": {
+      "myFavoriteMovie": "Lord of the Rings"
+    }
   },
   "tests": {
-    "ReviewsData": [
+    "myFavoriteMovieRated": [
       {
-        "review_id": 836,
-        "title": "The RusticHound is an efficient",
-        "content": "The RusticHound is an",
-        "score": 0,
-        "app_key": "lTkPn1ND7gwyg3Y6yEN1tTpK0ptrxmr0C2DdAyNP",
-        "reviewed_at": "2014-09-28T21:00:00.000+03:00",
-        "updated_at": "2015-03-29T14:23:59.000+03:00",
-        "user_type": "AnonymousUser",
-        "verified_buyer": true,
-        "review_source_type_id": 2,
-        "votes_up": 0,
-        "votes_down": 0
+
       }
     ]
   }
