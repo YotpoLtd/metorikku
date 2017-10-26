@@ -7,6 +7,8 @@ Metorikku is a library that simplifies writing and executing ETLs on top of [Apa
 A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
 The platform also includes a way to write tests for metrics using MetorikkuTester.
 
+![Metorikku Logo](https://s3.amazonaws.com/yotpo-images-production/images/metorikku.png)
+
 ### Getting started
 To run Metorikku you must first define 2 files.
 
