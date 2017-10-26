@@ -1,0 +1,36 @@
+# !MANDATORY! Metrics and Metrics directories be executed
+metrics:
+  - examples/movies.json
+
+inputs:
+ movies: examples/inputs/movies.csv
+ ratings: examples/inputs/ratings.csv
+ tags: examples/inputs/tags.csv
+
+# dateRange section allows defining dynamic date range for multiple folder names
+# in case a dynamic date parameter was defined in 'inputs' section as '%s' , for example- userAggregatedData: /path/to/data/%s/
+dateRange:
+  input_1:
+    format: yyyy/MM/dd
+    startDate: 2017/09/01
+    endDate: 2017/09/20
+
+# Set custom variables that would be accessible from the SQL
+variables:
+ myFavoriteMovie: "Lord of the Rings"
+
+output:
+  file:
+    dir: examples/output
+
+# If set to true, triggers Explain before saving
+explain: true
+
+# Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+logLevel: WARN
+
+# Set Application Name to have app name prefix in spark instrumentation counters
+appName: moviesApp
+
+# Shows a Preview of the output
+showPreviewLines: 100

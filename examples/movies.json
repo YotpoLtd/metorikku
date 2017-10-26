@@ -1,0 +1,30 @@
+{
+  "steps": [
+    {
+      "sql": "SELECT userId, movies.movieId, rating, timestamp, title, genres from ratings join movies on ratings.movieId = movies.movieId",
+      "dataFrameName": "moviesWithRatings"
+    },
+    {
+      "sql": "SELECT movieId,cast(rating as float) as rating,timestamp,title,genres from moviesWithRatings where genres like '%Fantasy%'",
+      "dataFrameName": "fantasyMoviesWithRatings"
+    },
+    {
+      "sql": "SELECT movieId,title,avg(rating) as averageRating from fantasyMoviesWithRatings group by movieId,title order by averageRating desc limit 100",
+      "dataFrameName": "top100FantasyMovies"
+    },
+    {
+      "sql": "SELECT * from top100FantasyMovies where title like '%${myFavoriteMovie}%'",
+      "dataFrameName": "myFavoriteMovieRated"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "moviesWithRatings",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "moviesWithRatings.parquet"
+      }
+    }
+  ]
+}

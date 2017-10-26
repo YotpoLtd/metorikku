@@ -46,7 +46,7 @@ object Session {
 
   private def registerVariables(variables: Map[String, String]): Unit = {
     variables.foreach({ case (key, value) => {
-      getSparkSession.sql(s"set $key='$value'")
+      getSparkSession.sql(s"set $key=$value")
     }
     })
   }
