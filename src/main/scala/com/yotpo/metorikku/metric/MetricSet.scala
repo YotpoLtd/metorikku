@@ -22,8 +22,7 @@ class MetricSet(metricSet: String) {
 
   def parseMetrics(metricSet: String): Seq[Metric] = {
     val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
-
-    metricsToCalculate.map(metricFile => {
+    metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       new Metric(metricConfig, metricFile.getParentFile)
     })
