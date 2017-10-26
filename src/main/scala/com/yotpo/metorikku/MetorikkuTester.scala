@@ -31,7 +31,7 @@ object MetorikkuTester extends App {
         configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
         configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
         configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
-        configuration.metrics = Seq(metricTestSettings.metric)
+        configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
         Session.init(configuration)
         start(metricTestSettings.tests)
       })
@@ -65,6 +65,10 @@ object MetorikkuTester extends App {
       Input(mock.name, new File(testDir, mock.path).getPath)
     })
     mockFiles
+  }
+
+  def getMetricFromDir(metric: String, testDir: File): Seq[String] = {
+    Seq(new File(testDir, metric).getPath)
   }
 
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
