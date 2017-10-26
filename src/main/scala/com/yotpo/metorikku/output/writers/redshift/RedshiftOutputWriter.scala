@@ -8,37 +8,42 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import scala.collection.mutable
 
-class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Redshift) extends MetricOutputWriter {
+class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
 
-  case class ConnectionProperties(jdbcURL: String, tempS3Dir: String)
+  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String)
 
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
-  val connectionOptions = ConnectionProperties(redshiftDBConf.jdbcURL, redshiftDBConf.tempS3Dir)
+  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    import dataFrame.sparkSession.implicits._
+    redshiftDBConf match {
+      case Some(redshiftDBConf) =>
+        import dataFrame.sparkSession.implicits._
 
-    // Calculate actual Schema For Varchar columns
-    var df = dataFrame
+        // Calculate actual Schema For Varchar columns
+        var df = dataFrame
 
-    df.schema.fields.filter(f => f.dataType.isInstanceOf[StringType]).foreach(f => {
-      var max_length = df.agg(max(length(df(f.name)))).as[Int].first
-      df = df.withColumn(f.name, df(f.name).as(f.name, new MetadataBuilder().putLong("maxlength", max_length).build()))
-    })
+        df.schema.fields.filter(f => f.dataType.isInstanceOf[StringType]).foreach(f => {
+          var max_length = df.agg(max(length(df(f.name)))).as[Int].first
+          df = df.withColumn(f.name, df(f.name).as(f.name, new MetadataBuilder().putLong("maxlength", max_length).build()))
+        })
 
-    val writer = df.write.format("com.databricks.spark.redshift")
-      .option("url", connectionOptions.jdbcURL)
-      .option("forward_spark_s3_credentials", true)
-      .option("tempdir", connectionOptions.tempS3Dir)
-      .option("dbtable", props("dbTable"))
-      .mode(SaveMode.valueOf(props("saveMode")))
+        val writer = df.write.format("com.databricks.spark.redshift")
+          .option("url", redshiftDBConf.jdbcURL)
+          .option("forward_spark_s3_credentials", true)
+          .option("tempdir", redshiftDBConf.tempS3Dir)
+          .option("dbtable", dbOptions.dbTable)
+          .mode(dbOptions.saveMode)
 
-    if (props.contains("postActions")) {
-      writer.option("postActions", props("postActions"))
+        if (props.contains("postActions")) {
+          writer.option("postActions", props("postActions"))
+        }
+        if (props.contains("extracopyoptions")) {
+          writer.option("extracopyoptions", props("extracopyoptions"))
+        }
+        writer.save()
+
+      case None => //TODO add error log
     }
-    if (props.contains("extracopyoptions")) {
-      writer.option("extracopyoptions", props("extracopyoptions"))
-    }
-    writer.save()
   }
 }

@@ -3,6 +3,7 @@ package com.yotpo.metorikku.output.writers.cassandra
 import com.yotpo.metorikku.configuration.outputs.Cassandra
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.host
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
+import com.yotpo.metorikku.session.Session
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
 import scala.collection.mutable
@@ -27,14 +28,16 @@ class CassandraOutputWriter(metricOutputOptions: mutable.Map[String, String]) ex
   val dbOptions = CassandraOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbKeySpace"), props("dbTable"), metricOutputOptions("dataFrameName"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    if (isCassandraConfExist(dataFrame)) { //TODO Error/log if not exists
+    if (isCassandraConfExist()) { //TODO Error/log if not exists
       dataFrame.write
         .mode(dbOptions.saveMode)
         .format("org.apache.spark.sql.cassandra")
         .options(Map("table" -> dbOptions.dbTable, "keyspace" -> dbOptions.dbKeySpace))
         .save()
+    } else {
+      //TODO error log
     }
   }
 
-  private def isCassandraConfExist(dataFrame: DataFrame): Boolean = dataFrame.sparkSession.conf.getOption(s"$host").isDefined
+  private def isCassandraConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"$host").isDefined
 }

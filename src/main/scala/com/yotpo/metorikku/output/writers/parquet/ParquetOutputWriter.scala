@@ -6,17 +6,19 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import scala.collection.mutable
 
-class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFile: File) extends MetricOutputWriter {
+class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String)
 
-  val baseOutputPath = outputFile.dir
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")), props("path"))
 
-
   override def write(dataFrame: DataFrame): Unit = {
-    dataFrame.write.mode(parquetOutputOptions.saveMode).parquet(baseOutputPath + "/" + parquetOutputOptions.path)
+    outputFile match {
+      case Some(outputFile) =>
+        dataFrame.write.mode(parquetOutputOptions.saveMode).parquet(outputFile.dir + "/" + parquetOutputOptions.path)
+      case None => //TODO add error log
+    }
   }
 }
 
