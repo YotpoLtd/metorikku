@@ -1,10 +1,9 @@
 package com.yotpo.metorikku
 
+import java.io.File
 import java.nio.file.{Files, Paths}
 
-import com.yotpo.metorikku.configuration.DefaultConfiguration
-import java.io.File
-
+import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
 import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
@@ -13,44 +12,23 @@ import com.yotpo.metorikku.utils.TestUtils.MetricTesterDefinitions
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
 import scopt.OptionParser
-import java.io.File
-
-import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
 
 
 object MetorikkuTester extends App {
   val log = LogManager.getLogger(this.getClass)
+  
+  val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs()).get
 
-  val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
-    head("MetorikkuTester", "1.0")
-    opt[Seq[String]]('t', "test-settings")
-      .valueName("<test-setting1>,<test-setting2>...")
-      .action((x, c) => c.copy(settings = x))
-      .text("test settings for each metric set")
-      .validate(x => if (x.exists(f => ! Files.exists(Paths.get(f)))) success
-      else failure("One of the file is not found"))
-      .required()
-    help("help") text "use command line arguments to specify the settings for each metric set"
-  }
-
-  val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs())
-
-  metorikkuTesterArgs match {
-    case Some(args) =>
-      args.settings.foreach(settings => {
-        val metricTestSettings = TestUtils.getTestSettings(settings)
-        val configuration = new DefaultConfiguration
-        configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
-        configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
-        configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
-        configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
-        Session.init(configuration)
-        start(metricTestSettings.tests)
-      })
-    case None =>
-//      TODO(etrabelsi@yotpo.com) Failures
-      System.exit(1)
-  }
+  metorikkuTesterArgs.settings.foreach(settings => {
+    val metricTestSettings = TestUtils.getTestSettings(settings)
+    val configuration = new DefaultConfiguration
+    configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
+    configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
+    configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
+    configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
+    Session.init(configuration)
+    start(metricTestSettings.tests)
+  })
 
 
   def start(tests: Map[String, List[Map[String, Any]]]): Any = {
@@ -66,7 +44,7 @@ object MetorikkuTester extends App {
     sparkSession.stop()
 
     if (!errors.isEmpty) {
-      log.error("FAILED!\n"+errors.mkString("\n"))
+      log.error("FAILED!\n" + errors.mkString("\n"))
     } else {
       log.info("SUCCESS!")
     }
@@ -131,7 +109,8 @@ object MetorikkuTester extends App {
   }
 }
 
-object TesterConfigurationParser{
+object TesterConfigurationParser {
+
   case class MetorikkuTesterArgs(settings: Seq[String] = Seq())
 
   val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
@@ -140,7 +119,7 @@ object TesterConfigurationParser{
       .valueName("<test-setting1>,<test-setting2>...")
       .action((x, c) => c.copy(settings = x))
       .text("test settings for each metric set")
-      .validate(x => if (x.exists(f => ! Files.exists(Paths.get(f)))) success
+      .validate(x => if (x.exists(f => !Files.exists(Paths.get(f)))) success
       else failure("One of the file is not found"))
       .required()
     help("help") text "use command line arguments to specify the settings for each metric set"

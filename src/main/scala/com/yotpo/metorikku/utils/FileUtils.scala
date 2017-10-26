@@ -1,9 +1,7 @@
 package com.yotpo.metorikku.utils
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 
-import com.yotpo.metorikku.configuration.metorikkuException
-import org.apache.commons.io.FilenameUtils
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 
@@ -15,7 +13,7 @@ object FileUtils {
     } else if (d.isFile) {
       List(d)
     } else {
-        throw new metorikkuException(s"No Files to Run ${dir}")
+        throw new FileNotFoundException(s"No Files to Run ${dir}")
     }
   }
 

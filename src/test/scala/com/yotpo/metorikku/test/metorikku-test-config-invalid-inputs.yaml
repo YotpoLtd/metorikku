@@ -1,7 +1,7 @@
 metrics:
   - src/test/calculations/valid_metric_test/
 inputs:
- employees: src/test/tables/employees.parquet
+ employees: src/test/tables/non_existing_file.parquet
 output:
  file:
   dir: src/test/out/

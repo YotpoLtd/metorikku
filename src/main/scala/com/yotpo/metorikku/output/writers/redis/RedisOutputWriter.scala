@@ -37,13 +37,11 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
         .map(row => row.getAs[Any](redisOutputOptions.keyColumn).toString ->
           JSONObject(row.getValuesMap(columns)).toString()
         )
-
+      log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
       redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
     } else {
-      log.error(s"Failed Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
+      log.error(s"Redshift Configuration does not exists")
     }
-    log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
-    redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
   }
 
   private def isRedisConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"redis.host").isDefined

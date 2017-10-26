@@ -29,9 +29,8 @@ class MetricSet(metricSet: String) {
     val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
-      new Metric(metricConfig, metricFile.getParentFile)
       log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
-      new Metric(metricConfig, metricFile.getParent)
+      new Metric(metricConfig, metricFile.getParentFile)
     })
   }
 

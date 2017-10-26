@@ -1,8 +1,7 @@
 {
-  "continueOnFailedStep":true,
   "steps": [
     {
-      "sql": "select * from employees",
+      "notSupportedType": "select * from employees",
       "dataFrameName": "testOutput"
     },
     {

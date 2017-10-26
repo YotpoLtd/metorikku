@@ -11,7 +11,6 @@ class CSVOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFi
 
   case class CSVOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean, csvOptions: Map[String, String])
 
-  val baseOutputPath = outputFile.dir
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val coalesce = props.getOrElse("coalesce", true).asInstanceOf[Boolean]
@@ -21,12 +20,12 @@ class CSVOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFi
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
       case Some(outputFile) =>
-        val outputPath = baseOutputPath + "/" + csvOutputOptions.path
+        val outputPath = outputFile.dir + "/" + csvOutputOptions.path
         log.info(s"Writing CSV Dataframe to ${outputPath}")
 
         val df = if (csvOutputOptions.coalesce) dataFrame.coalesce(1) else dataFrame
         df.write.mode(csvOutputOptions.saveMode).options(csvOptions).csv(outputPath)
-      case None => //TODO add error log
+      case None => log.error(s"CSV file configuration were not provided")
     }
   }
 }

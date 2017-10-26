@@ -51,6 +51,8 @@ object InputTableReader {
       case TableType.json | TableType.jsonl => JSONTableReader
       case TableType.csv => CSVTableReader
       case _ => ParquetTableReader
+      //TODO(etrabelsi@yotpo.com) exception handling eneded
+
     }
     reader
   }

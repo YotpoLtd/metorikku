@@ -1,5 +1,5 @@
 metrics:
-  - src/test/calculations/metric_tests
+  - src/test/calculations/non_existing_path/
 inputs:
  employees: src/test/tables/employees.parquet
 output:

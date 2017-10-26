@@ -11,7 +11,6 @@ class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outp
 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String)
 
-  val baseOutputPath = outputFile.dir
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")), props("path"))
@@ -19,10 +18,10 @@ class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outp
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
       case Some(outputFile) =>
-        val outputPath = baseOutputPath + "/" + parquetOutputOptions.path
+        val outputPath = outputFile.dir + "/" + parquetOutputOptions.path
         log.info(s"Writing Parquet Dataframe to ${outputPath}")
         dataFrame.write.mode(parquetOutputOptions.saveMode).parquet(outputPath)
-      case None => //TODO add error log
+      case None => log.error(s"Parquet file configuration were not provided")
     }
 
   }

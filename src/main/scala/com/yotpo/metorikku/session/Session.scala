@@ -1,6 +1,8 @@
 package com.yotpo.metorikku.session
 
 import com.yotpo.metorikku.configuration.{Configuration, DateRange, Input, Output}
+import com.yotpo.metorikku.exceptions.MetorikkuException
+import com.yotpo.metorikku.input.InputTableReader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
@@ -31,7 +33,7 @@ object Session {
       configuration.get
     }
     else {
-      throw metorikkuException(s"Session Configuration Must Be Set")
+      throw MetorikkuException(s"Session Configuration Must Be Set")
     }
   }
 
@@ -41,7 +43,7 @@ object Session {
       spark.get
     }
     else {
-      throw metorikkuException(s"Session Configuration Must Be Set")
+      throw MetorikkuException(s"Session Configuration Must Be Set")
     }
   }
 

@@ -5,6 +5,7 @@ import java.io.FileReader
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.yotpo.metorikku.configuration.ConfigurationParser.ConfigFileName
 import org.apache.log4j.LogManager
 
 object YAMLConfigurationParser {

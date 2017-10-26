@@ -2,7 +2,7 @@ package com.yotpo.metorikku.metric.step
 
 import java.io.File
 
-import com.yotpo.metorikku.configuration.metorikkuException
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
@@ -25,22 +25,24 @@ class Sql(step: Any, metricDir: File) extends MetricStep {
     * Otherwise, a path to a file that contains the query is expected (key "file")
     **/
   def getSqlQueryStringFromStepsMap(): String = {
-    val stepType = stepConfig.keys.filter(StepType.isStepType(_)).head
+    val stepType = stepConfig.keys.filter(StepType.isStepType(_))
+    if (stepType.isEmpty) {
+      throw new MetorikkuException(s"Not Supported Step type $stepType")
+    }
 
-    StepType.withName(stepType) match {
+    StepType.withName(stepType.head) match {
       case StepType.sql => stepConfig("sql")
-      case StepType.file => FileUtils.getContentFromFileAsString(metricDir, stepConfig("file"))
-      case _ => throw new metorikkuException(s"Not Supported Step type $stepType")
+      case StepType.file => FileUtils.getContentFromFileAsString(new File(metricDir, stepConfig("file")))
     }
   }
 
-object StepType extends Enumeration {
-  val file = Value("file")
-  val sql = Value("sql")
+  object StepType extends Enumeration {
+    val file = Value("file")
+    val sql = Value("sql")
 
-  def isStepType(s: String) = values.exists(_.toString == s)
+    def isStepType(s: String) = values.exists(_.toString == s)
 
-}
+  }
 
 
 }

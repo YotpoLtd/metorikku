@@ -11,7 +11,6 @@ class JSONOutputWriter(metricOutputOptions: mutable.Map[String, String], outputF
 
   case class JSONOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean)
 
-  val baseOutputPath = outputFile.dir
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val coalesce = props.getOrElse("coalesce", true).asInstanceOf[Boolean]
@@ -20,7 +19,7 @@ class JSONOutputWriter(metricOutputOptions: mutable.Map[String, String], outputF
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
       case Some(outputFile) =>
-        val outputPath = baseOutputPath + "/" + jsonOutputOptions.path
+        val outputPath = outputFile.dir + "/" + jsonOutputOptions.path
         log.info(s"Writing JSON Dataframe to ${outputPath}")
 
         val df = if (jsonOutputOptions.coalesce) dataFrame.coalesce(1) else dataFrame

@@ -54,6 +54,7 @@ resolvers ++= Seq(
 )
 
 fork := true
+//TODO(etrabelsi@yotpo.com) doesnt work
 javaOptions in Test ++= Seq("-Dspark.master=local[*]")
 
 // Assembly settings

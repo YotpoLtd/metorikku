@@ -18,7 +18,7 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
       } catch {
         case ex: Exception => {
           if (metric.continueOnFailedStep) {
-            log.error(ex.getMessage + ex.getStackTrace.toString)
+            log.error(ex.getMessage)
           } else {
             throw ex
           }
