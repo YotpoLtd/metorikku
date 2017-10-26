@@ -9,21 +9,16 @@ import com.yotpo.metorikku.utils.TestUtils
 import com.yotpo.metorikku.utils.TestUtils.MetricTesterDefinitions
 import org.apache.spark.sql.SparkSession
 import scopt.OptionParser
+import java.io.File
 
-case class MetorikkuTesterArgs(settings: Seq[String] = Seq())
+import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
+
 
 object MetorikkuTester extends App {
-  val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
-    head("MetorikkuTester", "1.0")
-    opt[Seq[String]]('t', "test-settings")
-      .valueName("<test-setting1>,<test-setting2>...")
-      .action((x, c) => c.copy(settings = x))
-      .text("test settings for each metric set")
-      .required()
-    help("help") text "use command line arguments to specify the settings for each metric set"
-  }
 
-  parser.parse(args, MetorikkuTesterArgs()) match {
+  val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs())
+
+  metorikkuTesterArgs match {
     case Some(args) =>
       args.settings.foreach(settings => {
         val metricTestSettings = TestUtils.getTestSettings(settings)
@@ -42,7 +37,7 @@ object MetorikkuTester extends App {
 
   def start(tests: Map[String, List[Map[String, Any]]]): Any = {
     var errors = Array[String]()
-    val sparkSession = SparkSession.builder.getOrCreate()
+    val sparkSession = Session.getSparkSession
     Session.getConfiguration.metrics.foreach(metric => {
       val metricSet = new MetricSet(metric)
       metricSet.run()
@@ -62,13 +57,13 @@ object MetorikkuTester extends App {
 
   def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
     val mockFiles = mocks.map(mock => {
-      Input(mock.name, new File(testDir, mock.path).getPath)
+      Input(mock.name, new File(testDir, mock.path).getCanonicalPath)
     })
     mockFiles
   }
 
   def getMetricFromDir(metric: String, testDir: File): Seq[String] = {
-    Seq(new File(testDir, metric).getPath)
+    Seq(new File(testDir, metric).getCanonicalPath)
   }
 
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
@@ -119,4 +114,18 @@ object MetorikkuTester extends App {
   }
 
 
+}
+
+object TesterConfigurationParser{
+  case class MetorikkuTesterArgs(settings: Seq[String] = Seq())
+
+  val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
+    head("MetorikkuTesterRunner", "1.0")
+    opt[Seq[String]]('t', "test-settings")
+      .valueName("<test-setting1>,<test-setting2>...")
+      .action((x, c) => c.copy(settings = x))
+      .text("test settings for each metric set")
+      .required()
+    help("help") text "use command line arguments to specify the settings for each metric set"
+  }
 }
