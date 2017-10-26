@@ -65,13 +65,11 @@ object Session {
 
   private def createSparkSession(appName: String, output: Output): SparkSession = {
     val sparkSessionBuilder = SparkSession.builder().appName(appName)
-    output.cassandra match {
-      case Some(cassandra) => CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandra)
-      case None => //Do nothing
+    if (output.cassandra.isDefined) {
+      CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, output.cassandra.get)
     }
-    output.redis match {
-      case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redis)
-      case None => //Do nothing
+    if (output.redis.isDefined) {
+      RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, output.redis.get)
     }
     val session = sparkSessionBuilder.getOrCreate()
     UserMetricsSystem.initialize(session.sparkContext, "Metorikku")

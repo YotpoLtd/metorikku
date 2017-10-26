@@ -3,6 +3,7 @@ package com.yotpo.metorikku.output.writers.redis
 import com.redislabs.provider.redis._
 import com.yotpo.metorikku.configuration.outputs.Redis
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
+import com.yotpo.metorikku.session.Session
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.collection.mutable
@@ -25,7 +26,7 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
   val redisOutputOptions = RedisOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
-    if (isRedisConfExist(dataFrame)) {
+    if (isRedisConfExist()) {
       val columns = dataFrame.columns.filter(_ != redisOutputOptions.keyColumn)
 
       import dataFrame.sparkSession.implicits._
@@ -41,5 +42,5 @@ class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extend
     }
   }
 
-  private def isRedisConfExist(dataFrame: DataFrame): Boolean = dataFrame.sparkSession.conf.getOption(s"redis.host").isDefined
+  private def isRedisConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"redis.host").isDefined
 }
