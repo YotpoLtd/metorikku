@@ -2,7 +2,6 @@ package com.yotpo.metorikku.utils
 
 import java.io.File
 
-import org.apache.commons.io.FilenameUtils
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods.parse
 
@@ -25,7 +24,7 @@ object FileUtils {
     json.extract[T]
   }
 
-  def getContentFromFileAsString(path: String, filename: String): String = {
-    scala.io.Source.fromFile(new File(FilenameUtils.concat(path, filename))).mkString
+  def getContentFromFileAsString(file: File): String = {
+    scala.io.Source.fromFile(file).mkString
   }
 }
