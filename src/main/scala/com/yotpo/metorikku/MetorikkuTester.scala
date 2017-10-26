@@ -62,13 +62,13 @@ object MetorikkuTester extends App {
 
   def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
     val mockFiles = mocks.map(mock => {
-      Input(mock.name, new File(testDir, mock.path).getPath)
+      Input(mock.name, new File(testDir, mock.path).getCanonicalPath)
     })
     mockFiles
   }
 
   def getMetricFromDir(metric: String, testDir: File): Seq[String] = {
-    Seq(new File(testDir, metric).getPath)
+    Seq(new File(testDir, metric).getCanonicalPath)
   }
 
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
