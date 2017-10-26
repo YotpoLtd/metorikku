@@ -1,16 +1,108 @@
 # Examples
+Let's analyze a small movie lens data set!
 
-Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
-A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
-The platform also includes a way to write tests for metrics using MetorikkuTester.
+### The Data
+We have our movies.csv in our inputs folder 
+```
++-------+-------------------------------------------------------------------------------+-------------------------------------------+
+|movieId|title                                                                          |genres                                     |
++-------+-------------------------------------------------------------------------------+-------------------------------------------+
+|1      |Toy Story (1995)                                                               |Adventure|Animation|Children|Comedy|Fantasy|
+|2      |Jumanji (1995)                                                                 |Adventure|Children|Fantasy                 |
+|3      |Grumpier Old Men (1995)                                                        |Comedy|Romance                             |
+|4      |Waiting to Exhale (1995)                                                       |Comedy|Drama|Romance                       |
+|5      |Father of the Bride Part II (1995)                                             |Comedy                                     |
+|6      |Heat (1995)                                                                    |Action|Crime|Thriller                      |
+|7      |Sabrina (1995)                                                                 |Comedy|Romance                             |
+|8      |Tom and Huck (1995)                                                            |Adventure|Children                         |
+|9      |Sudden Death (1995)                                                            |Action                                     |
+|10     |GoldenEye (1995)                                                               |Action|Adventure|Thriller                  |
+|11     |American President, The (1995)                                                 |Comedy|Drama|Romance                       |
+|12     |Dracula: Dead and Loving It (1995)                                             |Comedy|Horror                              |
+|13     |Balto (1995)                                                                   |Adventure|Animation|Children               |
+|14     |Nixon (1995)                                                                   |Drama                                      |
+|15     |Cutthroat Island (1995)                                                        |Action|Adventure|Romance                   |
 
-### Getting started
-To run Metorikku you must first define 2 files.
+```
+and also our ratings.csv:
+```
++------+-------+------+----------+
+|userId|movieId|rating|timestamp |
++------+-------+------+----------+
+|1     |31     |2.5   |1260759144|
+|1     |1029   |3.0   |1260759179|
+|1     |1061   |3.0   |1260759182|
+|1     |1129   |2.0   |1260759185|
+|1     |1172   |4.0   |1260759205|
+|1     |1263   |2.0   |1260759151|
+|1     |1287   |2.0   |1260759187|
+|1     |1293   |2.0   |1260759148|
+|1     |1339   |3.5   |1260759125|
+|1     |1343   |2.0   |1260759131|
+|1     |1371   |2.5   |1260759135|
+|1     |1405   |1.0   |1260759203|
+|1     |1953   |4.0   |1260759191|
+|1     |2105   |4.0   |1260759139|
+|1     |2150   |3.0   |1260759194|
+|1     |2193   |2.0   |1260759198|
+```
+### Configuration 
+We are registering our data sources, our variables and our output configurations  
+Here's our example configuration:
+```yaml
+metrics:
+  - examples/movies.json
+inputs:
+ movies: examples/inputs/movies.csv
+ ratings: examples/inputs/ratings.csv
+variables:
+ myFavoriteMovie: "Lord of the Rings"
+output:
+  file:
+    dir: examples/output
+explain: true
+logLevel: WARN
+appName: moviesApp
+showPreviewLines: 100
+```
+### The Metric
+Our metric files is as follows:
+```json
+{
+  "steps": [
+    {
+      "sql": "SELECT userId, movies.movieId, rating, timestamp, title, genres from ratings join movies on ratings.movieId = movies.movieId",
+      "dataFrameName": "moviesWithRatings"
+    },
+    {
+      "sql": "SELECT movieId,cast(rating as float) as rating,timestamp,title,genres from moviesWithRatings where genres like '%Fantasy%'",
+      "dataFrameName": "fantasyMoviesWithRatings"
+    },
+    {
+      "sql": "SELECT movieId,title,avg(rating) as averageRating from fantasyMoviesWithRatings group by movieId,title order by averageRating desc limit 100",
+      "dataFrameName": "topFantasyMovies"
+    },
+    {
+      "sql": "SELECT * from topFantasyMovies where title like '%${myFavoriteMovie}%'",
+      "dataFrameName": "myFavoriteMovieRated"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "moviesWithRatings",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "moviesWithRatings.parquet"
+      }
+    }
+  ]
+}
 
-##### MQL file
-An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
-
-For example a simple configuration JSON should be as follows:
+```
+### Results
+We are running each step sequentially and here are the results:   
+#### Step1 - moviesWithRatings
 ```
 +------+-------+------+----------+----------------------------------------------------------------------------+-----------------------------------------------+
 |userId|movieId|rating|timestamp |title                                                                       |genres                                         |
@@ -26,10 +118,78 @@ For example a simple configuration JSON should be as follows:
 |1     |1339   |3.5   |1260759125|Dracula (Bram Stoker's Dracula) (1992)                                      |Fantasy|Horror|Romance|Thriller                |
 |1     |1343   |2.0   |1260759131|Cape Fear (1991)                                                            |Thriller                                       |
 |1     |1371   |2.5   |1260759135|Star Trek: The Motion Picture (1979)                                        |Adventure|Sci-Fi                               |
-|1     |1405   |1.0   |1260759203|Beavis and Butt-Head Do America (1996)                                      |Adventure|Animation|Comedy|Crime               |
-|1     |1953   |4.0   |1260759191|French Connection, The (1971)                                               |Action|Crime|Thriller                          |
-|1     |2105   |4.0   |1260759139|Tron (1982)                                                                 |Action|Adventure|Sci-Fi                        |
-|1     |2150   |3.0   |1260759194|Gods Must Be Crazy, The (1980)                                              |Adventure|Comedy                               |
-|1     |2193   |2.0   |1260759198|Willow (1988)                                                               |Action|Adventure|Fantasy                       |
+|1     |1405   |1.0   |1260759203|Beavis and Butt-Head Do America (1996)                                      |Adventure|Animation|Comedy|Crime            
 ```
-Take a look at the [examples file](http://test.com) for further configuration examples.
+#### Step2 - fantasyMoviesWithRatings
+```
++-------+------+----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+|movieId|rating|timestamp |title                                                                                         |genres                                                   |
++-------+------+----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
+|1339   |3.5   |1260759125|Dracula (Bram Stoker's Dracula) (1992)                                                        |Fantasy|Horror|Romance|Thriller                          |
+|2193   |2.0   |1260759198|Willow (1988)                                                                                 |Action|Adventure|Fantasy                                 |
+|2294   |2.0   |1260759108|Antz (1998)                                                                                   |Adventure|Animation|Children|Comedy|Fantasy              |
+|2968   |1.0   |1260759200|Time Bandits (1981)                                                                           |Adventure|Comedy|Fantasy|Sci-Fi                          |
+|265    |5.0   |835355697 |Like Water for Chocolate (Como agua para chocolate) (1992)                                    |Drama|Fantasy|Romance                                    |
+|314    |4.0   |835356044 |Secret of Roan Inish, The (1994)                                                              |Children|Drama|Fantasy|Mystery                           |
+|317    |2.0   |835355551 |Santa Clause, The (1994)                                                                      |Comedy|Drama|Fantasy                                     |
+|367    |3.0   |835355619 |Mask, The (1994)                                                                              |Action|Comedy|Crime|Fantasy                              |
+|405    |2.0   |835356246 |Highlander III: The Sorcerer (a.k.a. Highlander: The Final Dimension) (1994)                  |Action|Fantasy                                           |
+|410    |3.0   |835355532 |Addams Family Values (1993)                                                                   |Children|Comedy|Fantasy                                  |
+|485    |3.0   |835355918 |Last Action Hero (1993)                                                                       |Action|Adventure|Comedy|Fantasy                          |
+|551    |5.0   |835355767 |Nightmare Before Christmas, The (1993)                                                        |Animation|Children|Fantasy|Musical                       |
+|587    |3.0   |835355779 |Ghost (1990)                                                                                  |Comedy|Drama|Fantasy|Romance|Thriller                    |
+|661    |4.0   |835356141 |James and the Giant Peach (1996)                                                              |Adventure|Animation|Children|Fantasy|Musical             |
+            
+```
+#### Step3 - topFantasyMovies
+```
++-------+------------------------------------------------------------------------------------------------------------------+------------------+
+|movieId|title                                                                                                             |averageRating     |
++-------+------------------------------------------------------------------------------------------------------------------+------------------+
+|95113  |Eaux d'artifice (1953)                                                                                            |5.0               |
+|99764  |It's Such a Beautiful Day (2012)                                                                                  |5.0               |
+|26749  |Prospero's Books (1991)                                                                                           |5.0               |
+|59392  |Stargate: The Ark of Truth (2008)                                                                                 |5.0               |
+|27792  |Saddest Music in the World, The (2003)                                                                            |5.0               |
+|74089  |Peter Pan (1960)                                                                                                  |5.0               |
+|2086   |One Magic Christmas (1985)                                                                                        |5.0               |
+|3837   |Phantasm II (1988)                                                                                                |5.0               |
+|8254   |Arizona Dream (1993)                                                                                              |5.0               |
+|4789   |Phantom of the Paradise (1974)                                                                                    |5.0               |
+|96832  |Holy Motors (2012)                                                                                                |5.0               |
+|106471 |One Piece Film: Strong World (2009)                                                                               |5.0               |
+|4591   |Erik the Viking (1989)                                                                                            |5.0               |
+|101962 |Wolf Children (Okami kodomo no ame to yuki) (2012)                                                                |5.0               |
+|53887  |O Lucky Man! (1973)                                                                                               |5.0               |
+|3612   |The Slipper and the Rose: The Story of Cinderella (1976)                                                          |5.0               |
+|118468 |Mei and the Kittenbus (2002)                                                                                      |5.0               |
+|140747 |16 Wishes (2010)                                                                                                  |5.0               |
+|3216   |Vampyros Lesbos (Vampiras, Las) (1971)                                                                            |5.0               |
+|7302   |Thief of Bagdad, The (1924)                                                                                       |5.0               |
+|50641  |House (Hausu) (1977)                                                                                              |4.75              |
+|72356  |Partly Cloudy (2009)                                                                                              |4.75              |
+|114552 |Boxtrolls, The (2014)                                                                                             |4.5               |
+|68835  |Were the World Mine (2008)                                                                                        |4.5               |
+|6536   |Sinbad: Legend of the Seven Seas (2003)                                                                           |4.5               |
+|31184  |Appleseed (Appurushîdo) (2004)                                                                                    |4.5               |
+|27156  |Neon Genesis Evangelion: The End of Evangelion (Shin seiki Evangelion Gekijô-ban: Air/Magokoro wo, kimi ni) (1997)|4.5               |
+|110645 |Witching and Bitching (Brujas de Zugarramurdi, Las) (2014)                                                        |4.5               |
+|4927   |Last Wave, The (1977)                                                                                             |4.5               |
+|62764  |Black Moon (1975)                                                                                                 |4.5               |
+|136016 |The Good Dinosaur (2015)                                                                                          |4.5               |
+|27186  |Kirikou and the Sorceress (Kirikou et la sorcière) (1998)                                                         |4.5               |
+|95115  |Inauguration of the Pleasure Dome (1954)                                                                          |4.5               |
+|80748  |Alice in Wonderland (1933)                                                                                        |4.5               |
+|50011  |Bothersome Man, The (Brysomme mannen, Den) (2006)                                                                 |4.5               |
+|38499  |Angels in America (2003)                                                                                          |4.4               |
+```            
+#### Step2 - myFavoriteMovieRated
+```
++-------+---------------------------------------------------------+------------------+
+|movieId|title                                                    |averageRating     |
++-------+---------------------------------------------------------+------------------+
+|4993   |Lord of the Rings: The Fellowship of the Ring, The (2001)|4.1825            |
+|7153   |Lord of the Rings: The Return of the King, The (2003)    |4.127840909090909 |
+|5952   |Lord of the Rings: The Two Towers, The (2002)            |4.0611702127659575|
++-------+---------------------------------------------------------+------------------+
+```

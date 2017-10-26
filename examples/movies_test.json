@@ -1,13 +1,13 @@
 {
-  "metric": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/movies.json",
+  "metric": "examples/movies.json",
   "mocks": [
     {
       "name": "movies",
-      "path": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/mocks/movies.json"
+      "path": "examples/mocks/movies.json"
     },
     {
       "name": "ratings",
-      "path": "/Users/rbarabash/Development/yotpo-workspace/metorikku/examples/mocks/ratings.json"
+      "path": "examples/mocks/ratings.json"
     }
   ],
   "params": {
@@ -18,7 +18,6 @@
   "tests": {
     "myFavoriteMovieRated": [
       {
-
       }
     ]
   }
