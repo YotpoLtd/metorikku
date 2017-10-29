@@ -99,11 +99,9 @@ object MetorikkuTester extends App {
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
     for (expectedRowCandidate <- metricExpectedResultRows) {
-      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
-        return expectedRowCandidate
-      }
+      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) return expectedRowCandidate
     }
-    return null
+    null
   }
 
   private def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
@@ -115,8 +113,6 @@ object MetorikkuTester extends App {
         return false
       }
     }
-    return true
+    true
   }
-
-
 }

@@ -1,0 +1,24 @@
+{
+  "metric": "examples/movies.json",
+  "mocks": [
+    {
+      "name": "movies",
+      "path": "examples/mocks/movies.json"
+    },
+    {
+      "name": "ratings",
+      "path": "examples/mocks/ratings.json"
+    }
+  ],
+  "params": {
+    "variables": {
+      "myFavoriteMovie": "Lord of the Rings"
+    }
+  },
+  "tests": {
+    "myFavoriteMovieRated": [
+      {
+      }
+    ]
+  }
+}
