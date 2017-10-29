@@ -41,7 +41,7 @@ For example a simple configuration JSON should be as follows:
     ]
 }
 ```
-Take a look at the [examples file](http://test.com) for further configuration examples.
+Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/master/examples) for further configuration examples.
 
 ##### Run configuration file
 Metorikku uses a YAML file to describe the run configuration.
@@ -58,7 +58,7 @@ output:
     file:
         dir: /path/to/parquet/output
 ```
-You can check out a full example file for all possible values in the [sample YAML configuration file](http://test.com).
+You can check out a full example file for all possible values in the [sample YAML configuration file](https://github.com/YotpoLtd/metorikku/blob/master/config/sample.yaml).
 
 ##### Supported input/output:
 
@@ -66,7 +66,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment**
+**CSV, JSON, parquet, Redshift, Cassandra, Segment**<br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
