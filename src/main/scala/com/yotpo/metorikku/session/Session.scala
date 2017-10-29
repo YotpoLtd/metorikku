@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.session
 
 import com.yotpo.metorikku.configuration.{Configuration, DateRange, Input, Output}
+import com.yotpo.metorikku.input.InputTableReader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.spark.groupon.metrics.UserMetricsSystem
@@ -46,7 +47,7 @@ object Session {
 
   private def registerVariables(variables: Map[String, String]): Unit = {
     variables.foreach({ case (key, value) => {
-      getSparkSession.sql(s"set $key='$value'")
+      getSparkSession.sql(s"set $key=$value")
     }
     })
   }

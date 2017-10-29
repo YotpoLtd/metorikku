@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.session
+package com.yotpo.metorikku.input
 
 import org.apache.spark.sql.types._
 import play.api.libs.json._
