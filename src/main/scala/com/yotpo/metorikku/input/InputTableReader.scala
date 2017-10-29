@@ -1,20 +1,20 @@
-package com.yotpo.metorikku.session
+package com.yotpo.metorikku.input
 
 import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.session.Session.getSparkSession
-import com.yotpo.metorikku.utils.{TableType}
+import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.DataFrame
 
 trait InputTableReader {
-  def read(tablePaths:  Seq[String]): DataFrame
+  def read(tablePaths: Seq[String]): DataFrame
 }
 
 object InputTableReader {
 
-  private class JSONTableReader extends InputTableReader {
-    override def read(tablePaths:  Seq[String]): DataFrame = {
+  private object JSONTableReader extends InputTableReader {
+    override def read(tablePaths: Seq[String]): DataFrame = {
       val firstTablePath = tablePaths.head
       val schemaPath = getSchemaPath(firstTablePath)
       if (Files.exists(Paths.get(schemaPath))) {
@@ -26,8 +26,8 @@ object InputTableReader {
     }
   }
 
-  private class CSVTableReader extends InputTableReader {
-    override def read(tablePaths:  Seq[String]): DataFrame = {
+  private object CSVTableReader extends InputTableReader {
+    override def read(tablePaths: Seq[String]): DataFrame = {
       getSparkSession.read
         .option("quote", "\"")
         .option("escape", "\"")
@@ -38,19 +38,19 @@ object InputTableReader {
     }
   }
 
-  private class ParquetTableReader extends InputTableReader {
-    override def read(tablePaths:  Seq[String]): DataFrame = {
+  private object ParquetTableReader extends InputTableReader {
+    override def read(tablePaths: Seq[String]): DataFrame = {
       getSparkSession.read.parquet(tablePaths: _*)
     }
   }
 
-  def apply(tablePaths:  Seq[String]):InputTableReader = {
+  def apply(tablePaths: Seq[String]): InputTableReader = {
     val firstTablePath = tablePaths.head
     val tableType = TableType.getTableType(firstTablePath)
     val reader = tableType match {
-      case TableType.json | TableType.jsonl => return new JSONTableReader
-      case TableType.csv => return new CSVTableReader
-      case _ => return new ParquetTableReader
+      case TableType.json | TableType.jsonl => JSONTableReader
+      case TableType.csv => CSVTableReader
+      case _ => ParquetTableReader
     }
     reader
   }
