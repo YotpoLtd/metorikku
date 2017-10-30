@@ -4,6 +4,8 @@ import com.segment.analytics.Analytics
 import com.segment.analytics.messages.IdentifyMessage
 import com.yotpo.metorikku.configuration.outputs.Segment
 import com.yotpo.metorikku.instrumentation.Instrumentation
+import org.apache.log4j.LogManager
+import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.spark.sql.DataFrame
 
@@ -14,6 +16,7 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
 
   case class SegmentOutputProperties(keyColumn: String)
 
+  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val segmentOutputOptions = SegmentOutputProperties(props("keyColumn"))
 
@@ -22,6 +25,8 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
       case Some(segmentOutputConf) =>
         val segmentApiKey = segmentOutputConf.apiKey
         val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
+        log.info(s"Writting Dataframe into Segment with key ${segmentOutputOptions.keyColumn}")
+
         dataFrame.foreachPartition(partition => {
           val blockingFlush = BlockingFlush.create
           val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
@@ -50,7 +55,8 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
           blockingFlush.block()
           analytics.shutdown()
         })
-      case None => //TODO add error log
+      case None => log.info(s"Segment configurations were not provided")
+
     }
   }
 }

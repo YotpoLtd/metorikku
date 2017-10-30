@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 import scala.collection.immutable.HashMap
 
+
 class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("explain") _explain: Boolean,
                         @JsonProperty("inputs") _inputs: HashMap[String, String],
@@ -17,7 +18,7 @@ class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
   val metrics: Seq[String] = Option(_metrics).getOrElse(Seq())
   val showPreviewLines: Int = _showPreviewLines
   val explain: Boolean = _explain
-  val inputs: Seq[Input] = Option(_inputs.map{case (k, v) => Input(k, v) }.toSeq).getOrElse(Seq())
+  val inputs: Seq[Input] = Option(_inputs.map { case (k, v) => Input(k, v) }.toSeq).getOrElse(Seq())
   val dateRange: Map[String, DateRange] = Option(_dateRange).getOrElse(Map())
   val logLevel: String = Option(_logLevel).getOrElse("WARN")
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())

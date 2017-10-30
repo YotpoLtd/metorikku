@@ -10,5 +10,6 @@ class Metric(metricConfig: MetricConfig, metricDir: File) {
   //TODO Concat metricDir to all files before the call to Sql constructor
   val steps: List[Sql] = metricConfig.steps.map(new Sql(_, metricDir))
   val outputs: List[MetricOutputHandler] = metricConfig.output.map(new MetricOutputHandler(_))
+  val continueOnFailedStep: Boolean = metricConfig.continueOnFailedStep
 }
 

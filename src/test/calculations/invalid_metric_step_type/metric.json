@@ -1,11 +1,11 @@
 {
   "steps": [
     {
-      "sql": "select *, size(transactions) > 0 as converted, size(events) > 0 as hasEvents from UserAggregatedData",
+      "notSupportedType": "select * from employees",
       "dataFrameName": "testOutput"
     },
     {
-      "sql": "select * from testOutput where user = 'alice'",
+      "sql": "select * from employees where name = 'ron'",
       "dataFrameName": "filteredOutput"
     }
   ],

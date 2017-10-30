@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output
 
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
@@ -15,7 +16,6 @@ object MetricOutputWriterFactory {
   def get(outputType: String, metricOutputOptions: mutable.Map[String, String]): MetricOutputWriter = {
     val output = Session.getConfiguration.output
     OutputType.withName(outputType) match {
-      //TODO: getOrElse -> send default values of return error?
       case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
       case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift)
       case OutputType.Redis => new RedisOutputWriter(metricOutputOptions) //TODO add here redis from session
@@ -23,12 +23,20 @@ object MetricOutputWriterFactory {
       case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file)
       case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
-      //TODO case _ => print error
+      case _ => throw new MetorikkuException(s"Not Supported Writer $outputType") //TODO(etrabelsi@yotpo.com) exception thrown before
     }
   }
 }
 
 object OutputType extends Enumeration {
-  type OutputType = Value
-  val Parquet, Cassandra, CSV, JSON, Redshift, Redis, Segment = Value
+
+
+  val Parquet = Value("Parquet")
+  val Cassandra = Value("Cassandra")
+  val CSV = Value("CSV")
+  val JSON = Value("JSON")
+  val Redshift = Value("Redshift")
+  val Redis = Value("Redis")
+  val Segment = Value("Segment")
+
 }

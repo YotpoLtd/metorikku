@@ -1,0 +1,18 @@
+{
+  "steps": [
+    {
+      "sql": "select non_existing_column from employees",
+      "dataFrameName": "testOutput"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "testOutput",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/metric_test/metric/testOutput/"
+      }
+    }
+  ]
+}
