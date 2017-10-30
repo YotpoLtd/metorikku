@@ -1,23 +1,53 @@
 {
-  "metric": "examples/movies.json",
+  "metric": "movies.json",
   "mocks": [
     {
       "name": "movies",
-      "path": "examples/mocks/movies.json"
+      "path": "mocks/movies.jsonl"
     },
     {
       "name": "ratings",
-      "path": "examples/mocks/ratings.json"
+      "path": "mocks/ratings.jsonl"
     }
   ],
   "params": {
     "variables": {
       "myFavoriteMovie": "Lord of the Rings"
-    }
+    },
+    "showPreviewLines": 10
   },
   "tests": {
+    "moviesWithRatings": [
+      {
+        "userId": "1",
+        "movieId": "1",
+        "rating": 2.5,
+        "timestamp": 1260759144,
+        "title": "Lord of the Rings, The (1978)",
+        "genres": "Adventure|Animation|Children|Fantasy"
+      }
+    ],
+    "fantasyMoviesWithRatings": [
+      {
+        "movieId": "1",
+        "rating": 2.5,
+        "timestamp": 1260759144,
+        "title": "Lord of the Rings, The (1978)",
+        "genres": "Adventure|Animation|Children|Fantasy"
+      }
+    ],
+    "topFantasyMovies": [
+      {
+        "movieId": "1",
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
+      }
+    ],
     "myFavoriteMovieRated": [
       {
+        "movieId": "1",
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
       }
     ]
   }

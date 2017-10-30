@@ -51,7 +51,7 @@ We are registering our data sources, our variables and our output configurations
 Here's our example configuration:
 ```yaml
 metrics:
-  - examples/movies.json
+  - movies.jsonl
 inputs:
  movies: examples/inputs/movies.csv
  ratings: examples/inputs/ratings.csv
@@ -193,3 +193,63 @@ We are running each step sequentially and here are the results:
 |5952   |Lord of the Rings: The Two Towers, The (2002)            |4.0611702127659575|
 +-------+---------------------------------------------------------+------------------+
 ```
+###Testing our metric
+For each metric we define a test json file which will define our mocks, the custom params we want to pass to our queries, and our expected results.
+Here's out movie_test.json file:
+```json
+{
+  "metric": "movies.json",
+  "mocks": [
+    {
+      "name": "movies",
+      "path": "mocks/movies.jsonl"
+    },
+    {
+      "name": "ratings",
+      "path": "mocks/ratings.jsonl"
+    }
+  ],
+  "params": {
+    "variables": {
+      "myFavoriteMovie": "Lord of the Rings"
+    },
+    "showPreviewLines": 10
+  },
+  "tests": {
+    "moviesWithRatings": [
+      {
+        "userId": "1",
+        "movieId": "1",
+        "rating": 2.5,
+        "timestamp": 1260759144,
+        "title": "Lord of the Rings, The (1978)",
+        "genres": "Adventure|Animation|Children|Fantasy"
+      }
+    ],
+    "fantasyMoviesWithRatings": [
+      {
+        "movieId": "1",
+        "rating": 2.5,
+        "timestamp": 1260759144,
+        "title": "Lord of the Rings, The (1978)",
+        "genres": "Adventure|Animation|Children|Fantasy"
+      }
+    ],
+    "topFantasyMovies": [
+      {
+        "movieId": "1",
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
+      }
+    ],
+    "myFavoriteMovieRated": [
+      {
+        "movieId": "1",
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
+      }
+    ]
+  }
+}
+```
+For each of our intermediate tables we can define an expected result, and our tester will compare the actual results of our queries to the expected outputs

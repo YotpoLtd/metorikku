@@ -19,11 +19,11 @@
   ],
   "output": [
     {
-      "dataFrameName": "moviesWithRatings",
+      "dataFrameName": "myFavoriteMovieRated",
       "outputType": "Parquet",
       "outputOptions": {
         "saveMode": "Overwrite",
-        "path": "moviesWithRatings.parquet"
+        "path": "myFavoriteMovieRated.parquet"
       }
     }
   ]
