@@ -29,7 +29,7 @@ variables:
  EndDate: 2017/09/20
  TrimmedDateFormat: yyyy/MM/dd
 
-outputs:
+output:
   # cassandra Database arguments: host is mandatory. username and password are supported
   cassandra:
     host: example.cassandra.db
