@@ -1,32 +1,23 @@
-package com.yotpo.metorikku
+package com.yotpo.metorikku.test
 
-import java.io.File
 import java.nio.file.{Files, Paths}
-
-import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
-import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
+import com.yotpo.metorikku.test.TesterConfigurationParser.MetorikkuTesterArgs
 import com.yotpo.metorikku.utils.TestUtils
-import com.yotpo.metorikku.utils.TestUtils.MetricTesterDefinitions
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.SparkSession
 import scopt.OptionParser
 
 
 object MetorikkuTester extends App {
-  val log = LogManager.getLogger(this.getClass)
-  
-  val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs()).get
+  lazy val log = LogManager.getLogger(this.getClass)
+  val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs()).getOrElse(MetorikkuTesterArgs())
 
   metorikkuTesterArgs.settings.foreach(settings => {
     val metricTestSettings = TestUtils.getTestSettings(settings)
-    val configuration = new DefaultConfiguration
-    configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
-    configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
-    configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
-    configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
-    Session.init(configuration)
+    val config = TestUtils.createMetorikkuConfigFromTestSettings(settings, metricTestSettings)
+    Session.init(config)
     start(metricTestSettings.tests)
   })
 
@@ -50,16 +41,7 @@ object MetorikkuTester extends App {
     }
   }
 
-  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
-    val mockFiles = mocks.map(mock => {
-      Input(mock.name, new File(testDir, mock.path).getCanonicalPath)
-    })
-    mockFiles
-  }
 
-  def getMetricFromDir(metric: String, testDir: File): Seq[String] = {
-    Seq(new File(testDir, metric).getCanonicalPath)
-  }
 
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
                                       metricName: String, sparkSession: SparkSession): Array[String] = {
@@ -119,8 +101,8 @@ object TesterConfigurationParser {
       .valueName("<test-setting1>,<test-setting2>...")
       .action((x, c) => c.copy(settings = x))
       .text("test settings for each metric set")
-      .validate(x => if (x.exists(f => !Files.exists(Paths.get(f)))) success
-      else failure("One of the file is not found"))
+      .validate(x => if (x.exists(f => !Files.exists(Paths.get(f)))) failure("One of the file is not found")
+      else success)
       .required()
     help("help") text "use command line arguments to specify the settings for each metric set"
   }
