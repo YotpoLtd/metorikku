@@ -17,7 +17,7 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
         stepResult = step.actOnDataFrame(sqlContext)
       } catch {
         case ex: Exception => {
-          if (metric.continueOnFailedStep) {
+          if (Session.getConfiguration.continueOnFailedStep) {
             log.error(ex.getMessage)
           } else {
             throw ex

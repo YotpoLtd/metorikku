@@ -15,7 +15,7 @@ object Metorikku extends App {
   Session.init(config)
   runMetrics
 
-  def runMetrics(): Unit ={
+  def runMetrics(): Unit = {
     Session.getConfiguration.metrics.foreach(metric => {
       val metricSet = new MetricSet(metric)
       metricSet.run()

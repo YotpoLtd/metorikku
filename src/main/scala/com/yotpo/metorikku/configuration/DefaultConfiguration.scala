@@ -10,4 +10,5 @@ class DefaultConfiguration extends Configuration {
   var variables: Map[String, String] = Map[String, String]()
   var output: Output = Output()
   var appName = "Metorikku"
+  var continueOnFailedStep = false
 }
