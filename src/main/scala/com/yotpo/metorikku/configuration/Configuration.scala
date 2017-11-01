@@ -19,4 +19,6 @@ trait Configuration {
   def output: Output
 
   def appName: String
+
+  def continueOnFailedStep: Boolean
 }

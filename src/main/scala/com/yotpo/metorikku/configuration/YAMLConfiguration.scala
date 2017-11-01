@@ -13,7 +13,8 @@ class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("variables") _variables: HashMap[String, String],
                         @JsonProperty("output") _output: Output,
                         @JsonProperty("showPreviewLines") _showPreviewLines: Int,
-                        @JsonProperty("appName") _appName: String) extends Configuration {
+                        @JsonProperty("appName") _appName: String,
+                        @JsonProperty("continueOnFailedStep") _continueOnFailedStep: Boolean) extends Configuration {
   require(Option(_metrics).isDefined, "metrics is mandatory")
   val metrics: Seq[String] = Option(_metrics).getOrElse(Seq())
   val showPreviewLines: Int = _showPreviewLines
@@ -24,4 +25,5 @@ class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())
   val output: Output = Option(_output).getOrElse(Output())
   val appName: String = Option(_appName).getOrElse("Metorikku")
+  val continueOnFailedStep: Boolean = Option(_continueOnFailedStep).getOrElse(false)
 }
