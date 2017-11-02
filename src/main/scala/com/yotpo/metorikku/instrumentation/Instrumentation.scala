@@ -1,8 +1,15 @@
 package com.yotpo.metorikku.instrumentation
 
-import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
+import org.apache.spark.groupon.metrics.{SparkCounter, SparkTimer, UserMetricsSystem}
 
 object Instrumentation {
-  lazy val segmentWriterSuccess: SparkCounter = UserMetricsSystem.counter("segmentWriterSuccess")
-  lazy val segmentWriterFailure: SparkCounter = UserMetricsSystem.counter("segmentWriterFailure")
+
+  def createNewCounter(titles: Array[String]): SparkCounter = {
+    UserMetricsSystem.counter(titles.mkString("_"))
+  }
+
+  def createNewTimer(titles: Array[String]): SparkTimer = {
+    UserMetricsSystem.timer(titles.mkString("_"))
+  }
+
 }

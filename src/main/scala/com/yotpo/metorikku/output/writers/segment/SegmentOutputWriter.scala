@@ -6,18 +6,21 @@ import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
 import com.yotpo.metorikku.configuration.outputs.Segment
 import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.output.MetricOutputWriter
+import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.DataFrame
-
+import org.apache.log4j.LogManager
 import scala.collection.mutable
 
 class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
 
   case class SegmentOutputProperties(eventType: String, keyColumn: String, eventName: String)
-
+  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val eventType = props.getOrElse("eventType", "identify")
   val eventName = props.getOrElse("eventName", "")
   val keyColumn = props.getOrElse("keyColumn", "")
+  lazy val segmentWriterSuccess: SparkCounter = UserMetricsSystem.counter("segmentWriterSuccess")
+  lazy val segmentWriterFailure: SparkCounter = UserMetricsSystem.counter("segmentWriterFailure")
 
   if (eventType == "identify") setMandatoryArguments("keyColumn") else setMandatoryArguments("keyColumn", "eventName")
 
@@ -49,10 +52,11 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
                     .traits(eventTraits)
                   )
               }
-              Instrumentation.segmentWriterSuccess.inc(1)
+              segmentWriterSuccess.inc(1)
             } catch {
-              case exception: Throwable =>
-                Instrumentation.segmentWriterFailure.inc(1)
+              case exception: Throwable =>{
+                segmentWriterFailure.inc(1)
+              }
             }
           })
           analytics.flush()

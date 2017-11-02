@@ -4,6 +4,10 @@ import com.yotpo.metorikku.calculators.SqlStepCalculator
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
+import org.apache.spark.groupon.metrics.SparkCounter
+import com.yotpo.metorikku.instrumentation.Instrumentation
+import com.yotpo.metorikku.output.MetricOutputHandler
+import org.apache.spark.sql.DataFrame
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -54,11 +58,18 @@ class MetricSet(metricSet: String) {
     metrics.foreach(metric => {
       metric.outputs.foreach(output => {
         val sparkSession = Session.getSparkSession
-        val dataFrame = sparkSession.table(output.df)
+        val dataFrame = sparkSession.table(output.dataFrameName)
         dataFrame.cache()
-        log.info(s"Starting to Write results of ${output.df}")
+        handleInstrumentation(metric, output, dataFrame)
+        log.info(s"Starting to Write results of ${output.dataFrameName}")
         output.writer.write(dataFrame)
       })
     })
+  }
+
+  private def handleInstrumentation(metric: Metric, output: MetricOutputHandler, dataFrame: DataFrame) = {
+    val counterNames = Array(metric.name, output.dataFrameName)
+    lazy val dfCounter: SparkCounter = Instrumentation.createNewCounter(counterNames)
+    dfCounter.inc(dataFrame.count())
   }
 }
