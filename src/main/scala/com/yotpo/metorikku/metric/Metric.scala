@@ -4,7 +4,6 @@ import java.io.File
 
 import com.yotpo.metorikku.metric.step.Sql
 import com.yotpo.metorikku.output.MetricOutputHandler
-import org.apache.spark.groupon.metrics.{SparkTimer, UserMetricsSystem}
 
 
 class Metric(metricConfig: MetricConfig, metricDir: File) {
