@@ -12,6 +12,5 @@ class Metric(metricConfig: MetricConfig, metricDir: File) {
   val name = metricDir.getName
   val steps: List[Sql] = metricConfig.steps.map(new Sql(_, metricDir))
   val outputs: List[MetricOutputHandler] = metricConfig.output.map(new MetricOutputHandler(_))
-  lazy val timer: SparkTimer  = UserMetricsSystem.timer(name)
 }
 
