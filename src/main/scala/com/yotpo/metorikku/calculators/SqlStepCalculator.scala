@@ -4,7 +4,7 @@ import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.metric.Metric
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
-import org.apache.spark.groupon.metrics.{SparkTimer}
+import org.apache.spark.groupon.metrics.SparkTimer
 import org.apache.spark.sql.DataFrame
 
 class SqlStepCalculator(metric: Metric) extends Calculator {
@@ -23,8 +23,8 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
         stepResult = step.actOnDataFrame(sqlContext)
         successStepsCounter.inc(1)
       } catch {
-        failedStepsCounter.inc(1)
         case ex: Exception => {
+          failedStepsCounter.inc(1)
           if (Session.getConfiguration.continueOnFailedStep) {
             log.error(ex.getMessage)
           } else {
