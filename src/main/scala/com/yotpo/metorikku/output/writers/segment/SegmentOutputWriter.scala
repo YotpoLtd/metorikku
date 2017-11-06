@@ -53,7 +53,7 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
           blockingFlush.block()
           analytics.shutdown()
         })
-      case None => _
+      case None =>
     }
   }
 }
