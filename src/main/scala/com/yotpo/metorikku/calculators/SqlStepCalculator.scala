@@ -12,7 +12,7 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
     val sqlContext = Session.getSparkSession.sqlContext
     var stepResult = sqlContext.emptyDataFrame
     for (step <- metric.steps) {
-      log.debug(s"Calculating step ${step.dataFrameName}")
+      log.info(s"Calculating step ${step.dataFrameName}")
       try {
         stepResult = step.actOnDataFrame(sqlContext)
       } catch {
