@@ -16,7 +16,6 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
 
   case class SegmentOutputProperties(keyColumn: String)
 
-  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val segmentOutputOptions = SegmentOutputProperties(props("keyColumn"))
 
@@ -25,7 +24,6 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
       case Some(segmentOutputConf) =>
         val segmentApiKey = segmentOutputConf.apiKey
         val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
-        log.info(s"Writting Dataframe into Segment with key ${segmentOutputOptions.keyColumn}")
 
         dataFrame.foreachPartition(partition => {
           val blockingFlush = BlockingFlush.create
@@ -55,8 +53,7 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
           blockingFlush.block()
           analytics.shutdown()
         })
-      case None => log.info(s"Segment configurations were not provided")
-
+      case None => _
     }
   }
 }
