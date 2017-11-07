@@ -1,12 +1,11 @@
 package com.yotpo.metorikku.test
 
 import java.nio.file.{Files, Paths}
-import com.yotpo.metorikku.metric.MetricSet
+
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.test.TesterConfigurationParser.MetorikkuTesterArgs
 import com.yotpo.metorikku.utils.TestUtils
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.SparkSession
 import scopt.OptionParser
 
 
@@ -15,7 +14,7 @@ object MetorikkuTester extends App {
   val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs()).getOrElse(MetorikkuTesterArgs())
 
   metorikkuTesterArgs.settings.foreach(settings => {
-    val metricTestSettings = TestUtils.getTestSettings(settings)
+    val metricTestSettings = TestUtils.getTestSettings(settings, metorikkuTesterArgs.preview)
     val config = TestUtils.createMetorikkuConfigFromTestSettings(settings, metricTestSettings)
     Session.init(config)
     TestUtils.runTests(metricTestSettings.tests)
@@ -25,7 +24,7 @@ object MetorikkuTester extends App {
 
 object TesterConfigurationParser {
 
-  case class MetorikkuTesterArgs(settings: Seq[String] = Seq())
+  case class MetorikkuTesterArgs(settings: Seq[String] = Seq(), preview: Int = 0)
 
   val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
     head("MetorikkuTesterRunner", "1.0")
@@ -36,6 +35,8 @@ object TesterConfigurationParser {
       .validate(x => if (x.exists(f => !Files.exists(Paths.get(f)))) failure("One of the file is not found")
       else success)
       .required()
+    opt[Int]('p', "preview").action((x, c) =>
+      c.copy(preview = x)).text("number of preview lines for each step")
     help("help") text "use command line arguments to specify the settings for each metric set"
   }
 }
