@@ -1,13 +1,10 @@
 package com.yotpo.metorikku.metric
 
 import com.yotpo.metorikku.calculators.SqlStepCalculator
+import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
-import org.apache.spark.groupon.metrics.SparkCounter
-import com.yotpo.metorikku.instrumentation.Instrumentation
-import com.yotpo.metorikku.output.MetricOutputHandler
-import org.apache.spark.sql.DataFrame
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -34,7 +31,7 @@ class MetricSet(metricSet: String) {
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
-      new Metric(metricConfig, metricFile.getParentFile)
+      new Metric(metricConfig, metricFile.getParentFile, metricFile.getName)
     })
   }
 
@@ -58,18 +55,15 @@ class MetricSet(metricSet: String) {
     metrics.foreach(metric => {
       metric.outputs.foreach(output => {
         val sparkSession = Session.getSparkSession
-        val dataFrame = sparkSession.table(output.dataFrameName)
+        val dfName = output.dataFrameName
+        val dataFrame = sparkSession.table(dfName)
         dataFrame.cache()
-        handleInstrumentation(metric, output, dataFrame)
-        log.info(s"Starting to Write results of ${output.dataFrameName}")
+        log.info(s"Starting to Write results of ${dfName}")
+        InstrumentationUtils.instrumentDataframeCount(metric.name, dfName, dataFrame, output.outputType)
         output.writer.write(dataFrame)
       })
     })
   }
 
-  private def handleInstrumentation(metric: Metric, output: MetricOutputHandler, dataFrame: DataFrame) = {
-    val counterNames = Array(metric.name, output.dataFrameName)
-    lazy val dfCounter: SparkCounter = Instrumentation.createNewCounter(counterNames)
-    dfCounter.inc(dataFrame.count())
-  }
+
 }

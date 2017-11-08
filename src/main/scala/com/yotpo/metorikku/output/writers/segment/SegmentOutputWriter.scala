@@ -4,8 +4,8 @@ import com.google.gson.Gson
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
 import com.yotpo.metorikku.configuration.outputs.Segment
-import com.yotpo.metorikku.instrumentation.Instrumentation
 import com.yotpo.metorikku.output.MetricOutputWriter
+import org.apache.log4j.LogManager
 import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.DataFrame
 import org.apache.log4j.LogManager
@@ -32,6 +32,7 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
         val segmentApiKey = segmentOutputConf.apiKey
         val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
         dataFrame.toJSON.foreachPartition(partition => {
+          log.info(s"Writting Dataframe into Segment with key ${segmentOutputOptions.keyColumn}")
           val blockingFlush = BlockingFlush.create
           val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
           partition.foreach(row => {
