@@ -18,12 +18,14 @@ object TestUtils {
 
     case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
 
-    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
+    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]], var previewLines: Int = 0)
 
   }
 
-  def getTestSettings(metricTestSettings: String): MetricTesterDefinitions.TestSettings = {
-    FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](new File(metricTestSettings))
+  def getTestSettings(metricTestSettings: String, preview: Int): MetricTesterDefinitions.TestSettings = {
+    val settings = FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](new File(metricTestSettings))
+    settings.previewLines = preview
+    settings
   }
 
   def createMetorikkuConfigFromTestSettings(settings: String, metricTestSettings: MetricTesterDefinitions.TestSettings) = {
@@ -32,6 +34,7 @@ object TestUtils {
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
+    configuration.showPreviewLines = metricTestSettings.previewLines
     configuration
   }
 
