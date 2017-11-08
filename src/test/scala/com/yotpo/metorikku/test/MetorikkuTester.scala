@@ -24,7 +24,7 @@ object MetorikkuTester extends App {
 
 object TesterConfigurationParser {
 
-  case class MetorikkuTesterArgs(settings: Seq[String] = Seq(), preview: Int = 0)
+  case class MetorikkuTesterArgs(settings: Seq[String] = Seq(), preview: Int = 10)
 
   val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
     head("MetorikkuTesterRunner", "1.0")
