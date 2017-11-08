@@ -15,7 +15,7 @@ import scala.collection.mutable
 object MetricOutputWriterFactory {
   def get(outputType: String, metricOutputOptions: mutable.Map[String, String]): MetricOutputWriter = {
     val output = Session.getConfiguration.output
-    OutputType.withName(outputType) match {
+    val metricOutputWriter = OutputType.withName(outputType) match {
       case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
       case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift)
       case OutputType.Redis => new RedisOutputWriter(metricOutputOptions) //TODO add here redis from session
@@ -25,6 +25,8 @@ object MetricOutputWriterFactory {
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
       case _ => throw new MetorikkuException(s"Not Supported Writer $outputType") //TODO(etrabelsi@yotpo.com) exception thrown before
     }
+    metricOutputWriter.validateMandatoryArguments(metricOutputOptions)
+    metricOutputWriter
   }
 }
 
