@@ -5,10 +5,9 @@ import com.segment.analytics.Analytics
 import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
 import com.yotpo.metorikku.configuration.outputs.Segment
 import com.yotpo.metorikku.output.MetricOutputWriter
-import org.apache.log4j.LogManager
 import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.DataFrame
-import org.apache.log4j.LogManager
+
 import scala.collection.mutable
 
 class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
