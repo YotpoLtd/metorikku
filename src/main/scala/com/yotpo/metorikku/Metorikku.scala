@@ -19,15 +19,8 @@ object Metorikku extends App {
 
   def runMetrics(): Unit = {
     Session.getConfiguration.metrics.foreach(metricSetPath => {
-      val metricSetName = new File(metricSetPath).getParentFile.getName
-      lazy val timer = InstrumentationUtils.createNewGauge(Array(metricSetName, "timer"))
-      val startTime = System.nanoTime()
       val metricSet = new MetricSet(metricSetPath)
       metricSet.run()
-      metricSet.write()
-      val endTime = System.nanoTime()
-      val elapsedTimeInNS = (endTime - startTime)
-      timer.set(elapsedTimeInNS)
     })
   }
 

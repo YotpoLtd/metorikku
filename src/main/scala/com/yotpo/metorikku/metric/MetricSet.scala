@@ -42,7 +42,15 @@ class MetricSet(metricSet: String) {
     }
 
     metrics.foreach(metric => {
+      lazy val timer = InstrumentationUtils.createNewGauge(Array(metric.name, "timer"))
+      val startTime = System.nanoTime()
+
       new SqlStepCalculator(metric).calculate()
+      write(metric)
+
+      val endTime = System.nanoTime()
+      val elapsedTimeInNS = (endTime - startTime)
+      timer.set(elapsedTimeInNS)
     })
 
     MetricSet.afterRun match {
@@ -51,18 +59,24 @@ class MetricSet(metricSet: String) {
     }
   }
 
-  def write() {
-    metrics.foreach(metric => {
-      metric.outputs.foreach(output => {
-        val sparkSession = Session.getSparkSession
-        val dfName = output.dataFrameName
-        val dataFrame = sparkSession.table(dfName)
-        dataFrame.cache()
-        log.info(s"Starting to Write results of ${dfName}")
-        InstrumentationUtils.instrumentDataframeCount(metric.name, dfName, dataFrame, output.outputType)
+  def write(metric: Metric) {
+    metric.outputs.foreach(output => {
+      val sparkSession = Session.getSparkSession
+      val dataFrameName = output.dataFrameName
+      val dataFrame = sparkSession.table(dataFrameName)
+      dataFrame.cache()
+      log.info(s"Starting to Write results of ${dataFrameName}")
+      InstrumentationUtils.instrumentDataframeCount(metric.name, dataFrameName, dataFrame, output.outputType)
+      try {
         output.writer.write(dataFrame)
-      })
+      } catch {
+        case ex: Exception => {
+          log.error(s"Failed to write dataFrame: ${dataFrameName} to output:${output.outputType} on metric: ${metric.name}")
+          throw ex
+        }
+      }
     })
+
   }
 
 

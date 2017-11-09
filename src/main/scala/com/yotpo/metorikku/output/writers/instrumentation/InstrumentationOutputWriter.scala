@@ -19,22 +19,18 @@ class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, Strin
     val counterNames = Array(metricName, dataFrameName)
     val columns = dataFrame.schema.fields.filter(_.name != keyColumnProperty).zipWithIndex
     val indexOfKeyCol = dataFrame.schema.fieldNames.indexOf(keyColumnProperty)
-
-    for((column,i) <- columns) {
-      lazy val columnCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames :+ column.name)
-      dataFrame.foreach(row => {
-        if (!keyColumnProperty.isEmpty){
-          val valueOfRowAtKeyCol = row.getLong(indexOfKeyCol)
-          val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+ valueOfRowAtKeyCol.toString
-          lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
-          fieldCounter.set(row.get(i).asInstanceOf[AnyVal])
-        } else {
-          columnCounter.set(row.get(i).asInstanceOf[AnyVal])
-        }
-      })
-    }
+    dataFrame.foreach(row => {
+      for((column,i) <- columns) {
+          if (!keyColumnProperty.isEmpty){
+            val valueOfRowAtKeyCol = row.get(indexOfKeyCol).asInstanceOf[AnyVal]
+            val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+ valueOfRowAtKeyCol.toString
+            lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
+            fieldCounter.set(row.get(i).asInstanceOf[AnyVal])
+          } else {
+            lazy val columnCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames :+ column.name)
+            columnCounter.set(row.get(i).asInstanceOf[AnyVal])
+          }
+      }
+    })
   }
-
-
-
 }
