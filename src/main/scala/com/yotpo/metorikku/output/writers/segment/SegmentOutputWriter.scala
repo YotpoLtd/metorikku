@@ -14,7 +14,6 @@ import scala.collection.mutable
 class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
 
   case class SegmentOutputProperties(eventType: String, keyColumn: String, eventName: String)
-  val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val eventType = props.getOrElse("eventType", "identify")
   val eventName = props.getOrElse("eventName", "")
@@ -32,7 +31,6 @@ class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segm
         val segmentApiKey = segmentOutputConf.apiKey
         val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
         dataFrame.toJSON.foreachPartition(partition => {
-          log.info(s"Writting Dataframe into Segment with key ${segmentOutputOptions.keyColumn}")
           val blockingFlush = BlockingFlush.create
           val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
           partition.foreach(row => {

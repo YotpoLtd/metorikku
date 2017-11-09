@@ -11,13 +11,11 @@ import scala.collection.mutable
 class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, String], metricName: String) extends MetricOutputWriter {
 
   case class InstrumentationOutputProperties(keyColumn: String)
-  @transient val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dataFrameName = metricOutputOptions("dataFrameName")
   val keyColumnProperty = InstrumentationOutputProperties(props("keyColumn")).keyColumn
 
   override def write(dataFrame: DataFrame): Unit = {
-    log.info(s"Writing Dataframe Instrumentation with key column ${keyColumnProperty} and dataframe ${keyColumnProperty}")
     val counterNames = Array(metricName, dataFrameName)
     val columns = dataFrame.schema.fields.filter(_.name != keyColumnProperty).zipWithIndex
     val indexOfKeyCol = dataFrame.schema.fieldNames.indexOf(keyColumnProperty)
