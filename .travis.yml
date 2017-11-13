@@ -23,7 +23,7 @@ jobs:
         provider: script
         script: sbt publish
         on:
-          condition: branch = master OR tag =~ ^v
+          all_branches: true
     - stage: deploy github
       if: tag =~ ^v
       before_deploy: sbt assembly test:assembly
