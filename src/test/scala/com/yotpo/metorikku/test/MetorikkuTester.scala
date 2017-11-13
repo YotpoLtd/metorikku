@@ -14,8 +14,8 @@ object MetorikkuTester extends App {
   val metorikkuTesterArgs = TesterConfigurationParser.parser.parse(args, MetorikkuTesterArgs()).getOrElse(MetorikkuTesterArgs())
 
   metorikkuTesterArgs.settings.foreach(settings => {
-    val metricTestSettings = TestUtils.getTestSettings(settings, metorikkuTesterArgs.preview)
-    val config = TestUtils.createMetorikkuConfigFromTestSettings(settings, metricTestSettings)
+    val metricTestSettings = TestUtils.getTestSettings(settings)
+    val config = TestUtils.createMetorikkuConfigFromTestSettings(settings, metricTestSettings, metorikkuTesterArgs.preview)
     Session.init(config)
     TestUtils.runTests(metricTestSettings.tests)
   })

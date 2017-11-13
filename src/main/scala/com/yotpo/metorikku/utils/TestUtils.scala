@@ -18,23 +18,23 @@ object TestUtils {
 
     case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
 
-    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]], var previewLines: Int = 0)
+    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
 
+    var previewLines: Int = 0
   }
 
-  def getTestSettings(metricTestSettings: String, preview: Int): MetricTesterDefinitions.TestSettings = {
+  def getTestSettings(metricTestSettings: String): MetricTesterDefinitions.TestSettings = {
     val settings = FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](new File(metricTestSettings))
-    settings.previewLines = preview
     settings
   }
 
-  def createMetorikkuConfigFromTestSettings(settings: String, metricTestSettings: MetricTesterDefinitions.TestSettings) = {
+  def createMetorikkuConfigFromTestSettings(settings: String, metricTestSettings: MetricTesterDefinitions.TestSettings, previewLines: Int) = {
     val configuration = new DefaultConfiguration
     configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
-    configuration.showPreviewLines = metricTestSettings.previewLines
+    configuration.showPreviewLines = previewLines
     configuration
   }
 
@@ -62,9 +62,10 @@ object TestUtils {
     sparkSession.stop()
 
     if (!errors.isEmpty) {
-      log.error("FAILED!\n" + errors.mkString("\n"))
+      log.error("Tests failed:\n" + errors.mkString("\n"))
+      System.exit(1)
     } else {
-      log.info("SUCCESS!")
+      log.info("Tests completed successfully")
     }
   }
 
