@@ -62,8 +62,7 @@ object TestUtils {
     sparkSession.stop()
 
     if (!errors.isEmpty) {
-      log.error("Tests failed:\n" + errors.mkString("\n"))
-      System.exit(1)
+      throw new TestFailedException("Tests failed:\n" + errors.mkString("\n"))
     } else {
       log.info("Tests completed successfully")
     }
@@ -116,6 +115,6 @@ object TestUtils {
     }
     true
   }
-
-
 }
+
+case class TestFailedException(message: String) extends Exception(message)
