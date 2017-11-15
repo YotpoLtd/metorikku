@@ -4,7 +4,9 @@ import com.yotpo.metorikku.calculators.SqlStepCalculator
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.LogManager
+import org.apache.spark.groupon.metrics.{SparkGauge, UserMetricsSystem}
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -31,7 +33,7 @@ class MetricSet(metricSet: String) {
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
-      new Metric(metricConfig, metricFile.getParentFile, metricFile.getName)
+      new Metric(metricConfig, metricFile.getParentFile, FilenameUtils.removeExtension(metricFile.getName))
     })
   }
 
@@ -45,7 +47,8 @@ class MetricSet(metricSet: String) {
       lazy val timer = InstrumentationUtils.createNewGauge(Array(metric.name, "timer"))
       val startTime = System.nanoTime()
 
-      new SqlStepCalculator(metric).calculate()
+      val calculator = new SqlStepCalculator(metric)
+      calculator.calculate()
       write(metric)
 
       val endTime = System.nanoTime()
@@ -65,8 +68,12 @@ class MetricSet(metricSet: String) {
       val dataFrameName = output.dataFrameName
       val dataFrame = sparkSession.table(dataFrameName)
       dataFrame.cache()
+
+      lazy val counterNames = Array(metric.name, dataFrameName, output.outputType)
+      lazy val dfCounter: SparkGauge = UserMetricsSystem.gauge(counterNames.mkString("_"))
+      dfCounter.set(dataFrame.count())
+
       log.info(s"Starting to Write results of ${dataFrameName}")
-      InstrumentationUtils.instrumentDataframeCount(metric.name, dataFrameName, dataFrame, output.outputType)
       try {
         output.writer.write(dataFrame)
       } catch {

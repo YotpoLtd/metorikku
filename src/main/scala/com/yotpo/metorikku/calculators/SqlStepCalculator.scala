@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.calculators
 
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.metric.Metric
 import com.yotpo.metorikku.session.Session
@@ -15,23 +16,23 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
     val sqlContext = Session.getSparkSession.sqlContext
     var stepResult = sqlContext.emptyDataFrame
     for (step <- metric.steps) {
-      log.info(s"Calculating step ${step.dataFrameName}")
       try {
+        log.info(s"Calculating step ${step.dataFrameName}")
         stepResult = step.actOnDataFrame(sqlContext)
-        successStepsCounter.inc(1)
+        successStepsCounter.inc()
       } catch {
         case ex: Exception => {
-          failedStepsCounter.inc(1)
+          val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metric.name}"
+          failedStepsCounter.inc()
           if (Session.getConfiguration.continueOnFailedStep) {
-            log.error(s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metric.name}", ex)
+            log.error(errorMessage, ex)
           } else {
-            throw ex
+            throw MetorikkuException(errorMessage, ex)
           }
         }
       }
       printStep(stepResult, step.dataFrameName)
     }
-
     stepResult
   }
 

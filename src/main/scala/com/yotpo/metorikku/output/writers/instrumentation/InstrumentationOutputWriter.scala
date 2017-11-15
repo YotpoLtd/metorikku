@@ -5,11 +5,14 @@ import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.groupon.metrics.SparkGauge
 import org.apache.spark.sql.DataFrame
-
 import scala.collection.mutable
 
-class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, String], metricName: String) extends MetricOutputWriter {
 
+object InstrumentationOutputWriter {
+  val log = LogManager.getLogger(this.getClass)
+}
+
+class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, String], metricName: String) extends MetricOutputWriter {
   case class InstrumentationOutputProperties(keyColumn: String)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dataFrameName = metricOutputOptions("dataFrameName")
@@ -21,15 +24,26 @@ class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, Strin
     val indexOfKeyCol = dataFrame.schema.fieldNames.indexOf(keyColumnProperty)
     dataFrame.foreach(row => {
       for((column,i) <- columns) {
-          if (!keyColumnProperty.isEmpty){
-            val valueOfRowAtKeyCol = row.get(indexOfKeyCol).asInstanceOf[AnyVal]
-            val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+ valueOfRowAtKeyCol.toString
-            lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
-            fieldCounter.set(row.get(i).asInstanceOf[AnyVal])
-          } else {
-            lazy val columnCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames :+ column.name)
-            columnCounter.set(row.get(i).asInstanceOf[AnyVal])
+        try{
+          val valueOfRowAtCurrentCol = row.get(i)
+          if (valueOfRowAtCurrentCol != null){
+            if (!keyColumnProperty.isEmpty){
+              val valueOfRowAtKeyCol = row.get(indexOfKeyCol)
+              if (valueOfRowAtKeyCol != null){
+                val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+ valueOfRowAtKeyCol.asInstanceOf[AnyVal].toString
+                lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
+                fieldCounter.set(valueOfRowAtCurrentCol.asInstanceOf[AnyVal])
+              }
+            } else {
+              lazy val columnCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames :+ column.name)
+              columnCounter.set(valueOfRowAtCurrentCol.asInstanceOf[AnyVal])
+            }
           }
+        } catch {
+          case ex: Throwable =>{
+            InstrumentationOutputWriter.log.error(s"failed to write instrumentation on data frame: ${dataFrameName} for row: ${row.toString()} on column: ${column.name}", ex)
+          }
+        }
       }
     })
   }
