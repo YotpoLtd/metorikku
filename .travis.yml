@@ -14,8 +14,6 @@ jobs:
     - stage: unit tests
       script: sbt clean coverage test coverageReport
       after_success:
-      # Change when moving to open source
-      - export CODECOV_TOKEN=e96594dc-4225-4191-a4b2-da7655e17bbd
       - bash <(curl -s https://codecov.io/bash)
     - stage: deploy snapshot to repository
       if: branch = master OR tag =~ ^v
@@ -38,3 +36,11 @@ jobs:
         on:
           tags: true
           branch: master
+env: # Change when moving to open source
+  global:
+  #CODECOV_TOKEN
+  - secure: c7iTPT6sfeURZlrz/919WDU1C7qUdZ/E3GcLgla6QKfvEcRxP+QwIWQSpbidUeYKQlQYLtEzRR6z3Zfo8mb7ivK/IKmcwjHcLczSH3YrovBCpd9IZJj/PWAAGevnTpPq5HaYNl/6fIXDXgP26H0jJ7Ku3gXQuFcz5Rleq4zn3fUegCtILF3qbYQMGrtAUw58NchOg97McqDhSiIdlEQLjlvWCc4A0vMat6M+dB6hp1jXzleBn+XBN/5mSFSthVdRkYMehr75vKXbOpxXt0kKOG1kw6iRhBHt2YUBLGlef7AKJoKECMBrCVZ8qQtuPUrxiDHE4JTv6IkrEPaEw9Zhf8hek3oCy4PgU3MwSRBjTJYcQNTxkzGCVmXc0R9aCv8xCygvh8CXKsX/1gmZb+OmddbZgAF9+Bvw1TSxQMY+0yY94mwhGLLiXRvjZqE0l7zSQMXpUyZy39rxGgDGrvpxDnJKWF1ULRsezCYN6oismNpK46gZfukPL0Sj210Ey00scxQqIdYMCGxfhgh+hR13U0rvhBMdzJxIZCFj9StE3BEOIr2DjffpFsb4XkN+Zixe8YSoKMDn9SY3MSe7xYwD3KFNwn6t/POwpp5GCxiJZQAJRJ1SQm6USWrxCwA/AQVBhd1gkw2McejKMEl4UbHK258WKIKZ0R19WjldGC4nGts=
+  #REPO_USER
+  - secure: rKwIvl1tIZ/tIM/pabaUIcr0xLROrrv6XxexgvLVNU4iae+39PdYuIkyolpjyTtRXjsOJqj8uApy05TXQTNP2Ux76wv93lyM38Bqhu+2DcuATR11betewSaSGpYoIHw/yjz0rpTmyDxX0C2SZRrNBfLONTN7LJo3UYNdcD64y/vhypd5vD+vdkalGpR0uJ08objJQ1oReIyzGOdpf0ZsIWXB7OSS7v/f86CNnKaRupmg00f9Tpc9aBtGXqCNat1zbtDT2N6bbzhIan5nvDNfZCNxjHpxHpWw3b4qc292ULbvUnm5DTs7jNoSDC8SPc09bR2qDof9ZFbinMa2Dq2Vb9GK9lzRek8Aw0a4nzynLVETbJ83BTV1QvCVhkQAGw6t4x3iTpC1b/+qpDNTzrAUF2bgrJNIFNkCilI96He9xZxZrzNTSJQ3SN/S73TqYlCyglIh+/80UUOOeYOY9YXAiuqdREGjHe/71F1i76THMKsdsMm6pCv/D2G1lJjx++w1pWDdtD556/m6EInGBlz7rgGscVP8+Hx7eC2QSZJoHuY9uonRaJre6b8v4fmzgG/ZBHICZDZjNo9wFaISp6zZQq61ZFDRy/w2QhGjZ4xNyI9ibieLRnSmNcrBKAbixk1SMla7ghraXIr0dTVR2NUW1Vkkn6+PyGb8bbBSmonFulU=
+  #REPO_PASSWORD
+  - secure: dTVWCdR8zbVXTQyPT62Cu9ErZNNNjTgbfxuClQNQmVpqLcLw6FXBxk1oMMdeWku91elOu4XuqflHk/78K35SQlvqSiS9O7qm+lnpUeeu86aZeT4p6puv3mg4RNAKnDEcED5XUk5T1nz+GyOGbCGtidjfsdHJuuhyPeR5NkcBLSOK9yYmj1/8rjm6accnRhUSV4gqAgFjVU4xmfoRVx12t49IOR74VyeGf6rBjuTs7iiwWwe5FohI80VSobFkv7VkHOWzU5+cid5hCJ3oKRvCDL0Iu1DCkUsKTJB5L+P0AB8KLSg6rkKTt77/0R2nL9QP+1AGdhs13DwO6j7DXijo6Pjfnfi6MmSd92VRYyS8r7LbvDDV/iw6xNKod7nT1IJLuYo/A3lIj5KjEYqOYRRp+HT4S2MrENiThjqGtWzkF80d50iOHV5fulRFcrh5QatGqI5yKTYe3NLpUDq5V99pO4bB0KXIa8Dlk0X7X/FZaYfGog8mWtXdOCQFjm6lIdfdsgkYKD2UE0n3678aIcPQfv0vESPdJYRMr7CgrsC2r4W50w0AiFV4onHKQybMKnQC8tXjtlBFb4VBsH4iJwlnXCVIATaEsYy0lQgEbXN9TzOL1EzR5NUDwno84CjlzKBscbrsTjcC71r/1pius+Wo5nxmJ6MfQ/x4ctM7EFDx4Zo=

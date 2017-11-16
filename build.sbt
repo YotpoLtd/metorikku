@@ -68,7 +68,9 @@ assemblyJarName in (Test, assembly) := s"${name.value}-test.jar"
 // Publish settings
 publishMavenStyle := true
 // Change when moving to open source
-credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com", "myMavenRepo", "yotpo")
+credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com",
+  sys.env.getOrElse("REPO_USER", ""),
+  sys.env.getOrElse("REPO_PASSWORD", ""))
 publishTo := Some("mymavenrepo.com.write" at "https://mymavenrepo.com/repo/0tlqEJu4rjdm1Ksy2pJP")
 
 // Release settings (don't automatically publish upon release)
