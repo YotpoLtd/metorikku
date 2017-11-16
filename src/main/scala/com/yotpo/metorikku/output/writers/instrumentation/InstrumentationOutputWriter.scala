@@ -31,8 +31,7 @@ class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, Strin
           val valueOfRowAtCurrentCol = row.get(i)
           if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass())){
             val doubleValue = valueOfRowAtCurrentCol.asInstanceOf[Number].doubleValue()
-            val keyColumnDefined = keyColumnProperty!=null && indexOfKeyCol.isDefined
-            if(keyColumnDefined && column.name != keyColumnProperty){
+            if(indexOfKeyCol.isDefined && column.name != keyColumnProperty){
               // Key column defined
               val valueOfRowAtKeyCol = row.get(indexOfKeyCol.get)
               if (valueOfRowAtKeyCol != null){
