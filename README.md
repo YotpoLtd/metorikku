@@ -132,3 +132,6 @@ And the corresponding `mocks/table_1.jsonl`:
 ##### Running Metorikku Tester
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
 The main class changes from `com.yotpo.metorikku.Metorikku` to `com.yotpo.metorikku.MetorikkuTester`
+
+## License  
+See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
