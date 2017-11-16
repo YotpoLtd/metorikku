@@ -1,5 +1,7 @@
 package com.yotpo.metorikku.calculators
 
+import com.yotpo.metorikku.exceptions.MetorikkuFailedStepException
+import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.metric.Metric
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -7,25 +9,29 @@ import org.apache.spark.sql.DataFrame
 
 class SqlStepCalculator(metric: Metric) extends Calculator {
   val log = LogManager.getLogger(this.getClass)
+  lazy val successStepsCounter = InstrumentationUtils.createNewCounter(Array(metric.name, "successfulSteps"))
+  lazy val failedStepsCounter = InstrumentationUtils.createNewCounter(Array(metric.name, "failedSteps"))
 
   override def calculate(): DataFrame = {
     val sqlContext = Session.getSparkSession.sqlContext
     var stepResult = sqlContext.emptyDataFrame
     for (step <- metric.steps) {
-      log.info(s"Calculating step ${step.dataFrameName}")
       try {
+        log.info(s"Calculating step ${step.dataFrameName}")
         stepResult = step.actOnDataFrame(sqlContext)
+        successStepsCounter.inc()
       } catch {
         case ex: Exception => {
+          val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metric.name}"
+          failedStepsCounter.inc()
           if (Session.getConfiguration.continueOnFailedStep) {
-            log.error(ex.getMessage)
+            log.error(errorMessage, ex)
           } else {
-            throw ex
+            throw MetorikkuFailedStepException(errorMessage, ex)
           }
         }
       }
       printStep(stepResult, step.dataFrameName)
-
     }
     stepResult
   }

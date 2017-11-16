@@ -3,6 +3,7 @@ package com.yotpo.metorikku.output
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
+import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
 import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
@@ -13,7 +14,7 @@ import com.yotpo.metorikku.session.Session
 import scala.collection.mutable
 
 object MetricOutputWriterFactory {
-  def get(outputType: String, metricOutputOptions: mutable.Map[String, String]): MetricOutputWriter = {
+  def get(outputType: String, metricOutputOptions: mutable.Map[String, String], metricName: String): MetricOutputWriter = {
     val output = Session.getConfiguration.output
     val metricOutputWriter = OutputType.withName(outputType) match {
       case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
@@ -23,6 +24,7 @@ object MetricOutputWriterFactory {
       case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file)
       case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
+      case OutputType.Instrumentation => new InstrumentationOutputWriter(metricOutputOptions, metricName)
       case _ => throw new MetorikkuException(s"Not Supported Writer $outputType") //TODO(etrabelsi@yotpo.com) exception thrown before
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions)
@@ -31,8 +33,6 @@ object MetricOutputWriterFactory {
 }
 
 object OutputType extends Enumeration {
-
-
   val Parquet = Value("Parquet")
   val Cassandra = Value("Cassandra")
   val CSV = Value("CSV")
@@ -40,5 +40,5 @@ object OutputType extends Enumeration {
   val Redshift = Value("Redshift")
   val Redis = Value("Redis")
   val Segment = Value("Segment")
-
+  val Instrumentation = Value("Instrumentation")
 }

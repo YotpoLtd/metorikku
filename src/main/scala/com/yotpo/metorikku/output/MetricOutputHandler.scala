@@ -2,8 +2,9 @@ package com.yotpo.metorikku.output
 
 import scala.collection.mutable
 
-class MetricOutputHandler(details: Any) {
-  val outputOptions = mutable.Map(details.asInstanceOf[Map[String, String]].toSeq: _*)
-  val df = outputOptions("dataFrameName")
-  val writer = MetricOutputWriterFactory.get(outputOptions("outputType"), outputOptions)
+class MetricOutputHandler(_outputConfig: Any, metricName: String) {
+  val outputConfig = mutable.Map(_outputConfig.asInstanceOf[Map[String, String]].toSeq: _*)
+  val dataFrameName = outputConfig("dataFrameName")
+  val outputType = outputConfig("outputType")
+  val writer = MetricOutputWriterFactory.get(outputType, outputConfig, metricName)
 }

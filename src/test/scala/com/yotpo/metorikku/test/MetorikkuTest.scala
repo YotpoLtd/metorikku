@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.test
 
 import java.io.{File, FileNotFoundException}
-
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -60,7 +59,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val thrown = intercept[Exception] {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-query.yaml"))
     }
-    assert(thrown.getMessage.startsWith("cannot resolve '`non_existing_column`'"))
+    assert(thrown.getCause.getMessage.startsWith("cannot resolve '`non_existing_column`'"))
   }
 
 
@@ -68,7 +67,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val thrown = intercept[Exception] {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-step-type.yaml"))
     }
-    assert(thrown.getMessage.startsWith("Not Supported Step type"))
+    assert(thrown.getCause.getMessage.startsWith("Not Supported Step type"))
 
   }
 }

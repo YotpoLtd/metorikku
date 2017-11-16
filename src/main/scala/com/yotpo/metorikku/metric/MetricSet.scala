@@ -1,9 +1,13 @@
 package com.yotpo.metorikku.metric
 
 import com.yotpo.metorikku.calculators.SqlStepCalculator
+import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
+import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
+import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.LogManager
+import org.apache.spark.groupon.metrics.{SparkGauge, UserMetricsSystem}
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -30,7 +34,7 @@ class MetricSet(metricSet: String) {
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
       val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
       log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
-      new Metric(metricConfig, metricFile.getParentFile)
+      new Metric(metricConfig, metricFile.getParentFile, FilenameUtils.removeExtension(metricFile.getName))
     })
   }
 
@@ -41,7 +45,16 @@ class MetricSet(metricSet: String) {
     }
 
     metrics.foreach(metric => {
-      new SqlStepCalculator(metric).calculate()
+      lazy val timer = InstrumentationUtils.createNewGauge(Array(metric.name, "timer"))
+      val startTime = System.nanoTime()
+
+      val calculator = new SqlStepCalculator(metric)
+      calculator.calculate()
+      write(metric)
+
+      val endTime = System.nanoTime()
+      val elapsedTimeInNS = (endTime - startTime)
+      timer.set(elapsedTimeInNS)
     })
 
     MetricSet.afterRun match {
@@ -50,15 +63,29 @@ class MetricSet(metricSet: String) {
     }
   }
 
-  def write() {
-    metrics.foreach(metric => {
-      metric.outputs.foreach(output => {
-        val sparkSession = Session.getSparkSession
-        val dataFrame = sparkSession.table(output.df)
-        dataFrame.cache()
-        log.info(s"Starting to Write results of ${output.df}")
+  def write(metric: Metric) {
+    metric.outputs.foreach(output => {
+      val sparkSession = Session.getSparkSession
+      val dataFrameName = output.dataFrameName
+      val dataFrame = sparkSession.table(dataFrameName)
+      dataFrame.cache()
+
+      lazy val counterNames = Array(metric.name, dataFrameName, output.outputType, "counter")
+      lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
+      dfCounter.set(dataFrame.count())
+
+      log.info(s"Starting to Write results of ${dataFrameName}")
+      try {
+
         output.writer.write(dataFrame)
-      })
+      } catch {
+        case ex: Exception => {
+          throw MetorikkuWriteFailedException(s"Failed to write dataFrame: ${dataFrameName} to output: ${output.outputType} on metric: ${metric.name}", ex)
+        }
+      }
     })
+
   }
+
+
 }
