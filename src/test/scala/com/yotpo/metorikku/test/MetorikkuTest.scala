@@ -1,9 +1,7 @@
 package com.yotpo.metorikku.test
 
 import java.io.{File, FileNotFoundException}
-
-import com.yotpo.metorikku.exceptions.MetorikkuException
-import org.apache.spark.sql.{AnalysisException, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 class MetorikkuTest extends FunSuite with BeforeAndAfterAll {

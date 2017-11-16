@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.calculators
 
-import com.yotpo.metorikku.exceptions.MetorikkuException
+import com.yotpo.metorikku.exceptions.MetorikkuFailedStepException
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.metric.Metric
 import com.yotpo.metorikku.session.Session
@@ -27,7 +27,7 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
           if (Session.getConfiguration.continueOnFailedStep) {
             log.error(errorMessage, ex)
           } else {
-            throw MetorikkuException(errorMessage, ex)
+            throw MetorikkuFailedStepException(errorMessage, ex)
           }
         }
       }
