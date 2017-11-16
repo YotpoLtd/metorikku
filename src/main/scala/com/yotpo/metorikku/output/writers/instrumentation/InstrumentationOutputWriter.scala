@@ -12,36 +12,36 @@ import scala.collection.mutable
 
 class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, String], metricName: String) extends MetricOutputWriter {
   @transient lazy val log = LogManager.getLogger(this.getClass)
-
   case class InstrumentationOutputProperties(keyColumn: String)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
+  val props = getOutputOptions()
   val dataFrameName = metricOutputOptions("dataFrameName")
-  val keyColumnProperty = Option(InstrumentationOutputProperties(props("keyColumn")).keyColumn)
+  val keyColumnProperty: String = getKeyColumnProperty()
 
 
   override def write(dataFrame: DataFrame): Unit = {
     val counterNames = Array(metricName, dataFrameName)
     val columns = dataFrame.schema.fields.zipWithIndex
-    val indexOfKeyCol = dataFrame.schema.fieldNames.indexOf(keyColumnProperty.getOrElse(""))
+    val indexOfKeyCol = getIndexOfKeyColumn(dataFrame)
+
     log.info(s"Starting to write Instrumentation of data frame: ${dataFrameName} on metric: ${metricName}")
     dataFrame.foreach(row => {
       for((column,i) <- columns) {
         try {
-          val keyColumnDefined = !keyColumnProperty.isEmpty
+
           val valueOfRowAtCurrentCol = row.get(i)
           if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass())){
             val doubleValue = valueOfRowAtCurrentCol.asInstanceOf[Number].doubleValue()
-
-            if(keyColumnDefined && column.name != keyColumnProperty.get){
+            val keyColumnDefined = keyColumnProperty!=null && indexOfKeyCol.isDefined
+            if(keyColumnDefined && column.name != keyColumnProperty){
               // Key column defined
-              val valueOfRowAtKeyCol = row.get(indexOfKeyCol)
+              val valueOfRowAtKeyCol = row.get(indexOfKeyCol.get)
               if (valueOfRowAtKeyCol != null){
-                val counterTitles = counterNames :+ column.name :+ keyColumnProperty.get :+ valueOfRowAtKeyCol.asInstanceOf[AnyVal].toString
+                val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+ valueOfRowAtKeyCol.asInstanceOf[AnyVal].toString
                 lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
                 fieldCounter.set(doubleValue)
 
               } else{
-                log.warn(s"Key column value:${valueOfRowAtKeyCol} is null or the requested column does not exist. Skipped instrumentation of value in row ${row.toString()} on column: ${column.name}")
+                log.warn(s"Key column value:${valueOfRowAtKeyCol} is null or the requested column does not exist. Skipped instrumentation of value in metric:${metricName}  dataframe:${dataFrameName} row ${row.toString()} on column: ${column.name}")
               }
 
             } else {
@@ -50,7 +50,7 @@ class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, Strin
               columnCounter.set(doubleValue)
             }
           }else{
-            log.warn(s"Instrumented Value:${valueOfRowAtCurrentCol} is null or non numeric. Skipped instrumentation for this value on column: ${column.name}")
+            log.warn(s"Instrumented Value:${valueOfRowAtCurrentCol} is null or non numeric. Skipped instrumentation for this value in metric:${metricName} dataframe:${dataFrameName} on column: ${column.name}")
           }
 
         } catch {
@@ -60,5 +60,26 @@ class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, Strin
         }
       }
     })
+  }
+
+  def getKeyColumnProperty(): String ={
+    if (props !=null && props.get("keyColumn").isDefined){
+      val keyColumnValueFromConf = InstrumentationOutputProperties(props("keyColumn"))
+      return keyColumnValueFromConf.keyColumn
+    }
+      null
+  }
+
+  def getOutputOptions(): Map[String, String] ={
+    if (metricOutputOptions.get("outputOptions").isDefined){
+      return metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
+    }
+    null
+  }
+
+  def getIndexOfKeyColumn(dataFrame:DataFrame): Option[Int] ={
+    if(keyColumnProperty != null){
+      return Option(dataFrame.schema.fieldNames.indexOf(keyColumnProperty))
+    } else return None
   }
 }
