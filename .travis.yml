@@ -19,7 +19,7 @@ jobs:
     if: branch = master OR tag =~ ^v
     deploy:
       provider: script
-      script: sbt publish
+      script: sbt publishSigned sonatypeReleaseAll
       on:
         all_branches: true
   - stage: deploy github

@@ -1,6 +1,3 @@
-import sbt.librarymanagement.{Resolver, ScmInfo}
-import sbt.librarymanagement.ivy.Credentials
-
 name := "metorikku"
 organization := "com.yotpo"
 homepage := Some(url("https://github.com/YotpoLtd/metorikku"))
@@ -8,6 +5,15 @@ licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-lic
 scmInfo := Some(
   ScmInfo(url("https://github.com/YotpoLtd/metorikku"),
     "scm:git:git@github.com:YotpoLtd/metorikku.git"))
+developers := List(
+  Developer(id="amitco1", name="Amit Cohen", email="amit@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="avichay", name="Avichay Etzioni", email="avichay@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="etrabelsi", name="Eyal Trabelsi", email="etrabelsi@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="lyogev", name="Liran Yogev", email="lyogev@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="ofirventura", name="Ofir Ventura", email="oventura@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="ronbarab", name="Ron Barabash", email="rbarabash@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="shirbr", name="Shir Bromberg", email="sbromberg@yotpo.com", url=url("http://www.yotpo.com"))
+)
 
 scalaVersion := "2.11.11"
 val jacksonVersion = "2.8.9"
@@ -67,11 +73,23 @@ assemblyJarName in (Test, assembly) := s"${name.value}-test.jar"
 
 // Publish settings
 publishMavenStyle := true
-// Change when moving to open source
-credentials += Credentials("mymavenrepo.com.write", "mymavenrepo.com",
+
+credentials += Credentials("Sonatype Nexus Repository Manager",
+  "oss.sonatype.org",
   sys.env.getOrElse("REPO_USER", ""),
   sys.env.getOrElse("REPO_PASSWORD", ""))
-publishTo := Some("mymavenrepo.com.write" at "https://mymavenrepo.com/repo/0tlqEJu4rjdm1Ksy2pJP")
+
+// Add sonatype repository settings
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
+
+pgpPublicRing := baseDirectory.value / "project" / ".gnupg" / "pubring.asc"
+pgpSecretRing := baseDirectory.value / "project" / ".gnupg" / "secring.asc"
+pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray)
 
 // Release settings (don't automatically publish upon release)
 import ReleaseTransformations._
