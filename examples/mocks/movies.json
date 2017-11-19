@@ -1,0 +1,27 @@
+[
+  {
+    "movieId": 1,
+    "title": "Lord of the Rings, The (1978)",
+    "genres": "Adventure|Animation|Children|Fantasy"
+  },
+  {
+    "movieId": 2,
+    "title": "Lord of the Rings: The Fellowship of the Ring",
+    "genres": "Adventure|Fantasy"
+  },
+  {
+    "movieId": 3,
+    "title": "Lord of the Rings: The Two Towers, The (2002)",
+    "genres": "Adventure|Fantasy"
+  },
+  {
+    "movieId": 4,
+    "title": "Some other fantasy movie",
+    "genres": "Adventure|Fantasy"
+  },
+  {
+    "movieId": 4,
+    "title": "Some non fantasy movie",
+    "genres": "Adventure"
+  }
+]

@@ -1,0 +1,9 @@
+.idea/
+target/
+**/target
+/parquet/
+derby.log
+metastore_db/
+out/
+metorikku.iml
+examples/output

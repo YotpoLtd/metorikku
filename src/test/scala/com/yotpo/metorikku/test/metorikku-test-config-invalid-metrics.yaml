@@ -1,0 +1,7 @@
+metrics:
+  - src/test/calculations/non_existing_path/
+inputs:
+ employees: src/test/tables/employees.parquet
+output:
+ file:
+  dir: src/test/out/
