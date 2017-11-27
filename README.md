@@ -18,7 +18,7 @@ For example a simple configuration JSON should be as follows:
 {
     "steps": [
         {
-            "sql": "SELECT * from table_1 where id > 100",
+            "sql": "SELECT * from input_1 where id > 100",
             "dataFrameName": "df1"
         },
         {
