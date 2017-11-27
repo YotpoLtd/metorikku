@@ -1,3 +1,4 @@
+![Metorikku Logo](metorikku.png)
 # Metorikku
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
@@ -6,8 +7,6 @@
 Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
 A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
 The platform also includes a way to write tests for metrics using MetorikkuTester.
-
-![Metorikku Logo](logo/metorikku.png)
 
 ### Getting started
 To run Metorikku you must first define 2 files.
