@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 [![codecov](https://codecov.io/gh/YotpoLtd/metorikku/branch/master/graph/badge.svg)](https://codecov.io/gh/YotpoLtd/metorikku)
 
-Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
+Metorikku is a library that simplifies writing and executing ELTs on top of [Apache Spark](http://spark.apache.org/).
 A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
 The platform also includes a way to write tests for metrics using MetorikkuTester.
 
@@ -11,7 +11,7 @@ The platform also includes a way to write tests for metrics using MetorikkuTeste
 To run Metorikku you must first define 2 files.
 
 ##### MQL file
-An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
+An MQL (Metorikku Query Language) file defines the steps and queries of the ELT as well as where and what to output.
 
 For example a simple configuration JSON should be as follows:
 ```json
@@ -73,19 +73,19 @@ There are currently 3 options to run Metorikku.
 *To run on a cluster Metorikku requires [Apache Spark](http://spark.apache.org/) v2.2+*
 * Download the [last released JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
 * Run the following command:
-     `spark-submit --class com.yotpo.metorikku.Metorikku metorikku-assembly-0.0.3.jar -c config.yaml`
+     `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
 * Download the [last released TEST JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
 * Run the following command:
-`java -cp metorikku-assembly-test-0.0.3.jar com.yotpo.metorikku.Metorikku -c config.yaml`
+`java -cp metorikku-test.jar com.yotpo.metorikku.Metorikku -c config.yaml`
 
 ##### Run as a library
 *It's also possible to use Metorikku inside your own software*
 *Metorikku library requires scala 2.11*
 * Add the following dependency to your build.sbt:
-`"com.yotpo" % "metorikku" % "0.0.3"`
+`"com.yotpo" % "metorikku" % "0.0.1"`
 * Start Metorikku by creating an instance of `com.yotpo.metorikku.config` and run `com.yotpo.metorikku.Metorikku.execute(config)`
 
 
@@ -98,7 +98,7 @@ This defines what to test and where to get the mocked data.
 For example, a simple `test_settings.json` file will be:
 ```json
 {
-  "metric": "/path/to/metric"
+  "metric": "/path/to/metric",
   "mocks": [
     {
       "name": "table_1",
