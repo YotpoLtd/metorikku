@@ -11,11 +11,11 @@ import scala.collection.mutable
 
 class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
 
-  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, maxStringSize: Int)
+  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, maxStringSize: String)
 
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
-  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"), props("maxStringSize").asInstanceOf[Int])
+  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"), props("maxStringSize"))
 
   override def write(dataFrame: DataFrame): Unit = {
     redshiftDBConf match {
@@ -27,7 +27,7 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
 
         df.schema.fields.filter(f => f.dataType.isInstanceOf[StringType]).foreach(f => {
           val maxlength = props match {
-            case _ if props.contains("maxStringSize") => props("maxStringSize").asInstanceOf[Int]
+            case _ if props.contains("maxStringSize") => props("maxStringSize").toInt
             case _ =>  df.agg(max(length(df(f.name)))).as[Int].first
           }
           df = df.withColumn(f.name, df(f.name).as(f.name, new MetadataBuilder().putLong("maxlength", maxlength).build()))
