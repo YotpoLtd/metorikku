@@ -8,7 +8,7 @@ inputs:
 
 # Set custom variables that would be accessible from the SQL
 variables:
- myFavoriteMovie: "Lord of the Rings"
+ myFavoriteMovie: "Aladdin (1992)"
 
 output:
   file:

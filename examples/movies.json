@@ -13,7 +13,7 @@
       "dataFrameName": "topFantasyMovies"
     },
     {
-      "sql": "SELECT * from topFantasyMovies where title like '%${myFavoriteMovie}%'",
+      "sql": "SELECT * from topFantasyMovies where title = ${myFavoriteMovie}",
       "dataFrameName": "myFavoriteMovieRated"
     }
   ],
