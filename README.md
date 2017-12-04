@@ -48,7 +48,7 @@ This file will include **input sources**, **output destinations** and the locati
 So for example a simple config.yaml file should be as follows:
 ```yaml
 metrics:
-  - configuration_directory
+  - /full/path/to/your/MQL/file.json
 inputs:
   input_1: parquet/input_1.parquet
   input_2: parquet/input_2.parquet
