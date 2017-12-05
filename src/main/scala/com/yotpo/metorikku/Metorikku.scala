@@ -1,11 +1,9 @@
 package com.yotpo.metorikku
 
 import com.yotpo.metorikku.configuration.{Configuration, YAMLConfigurationParser}
-import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
-import java.io.File
 
 /**
   * Metorikku - runs Spark SQL queries on various data sources and exports the results
