@@ -15,8 +15,11 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
 
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
-  val maxStringSize = props.getOrElse("maxStringSize", "")
-  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"), props("extraCopyOptions"), props("postActions"), maxStringSize)
+  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")),
+                                           props("dbTable"),
+                                           props.getOrElse("extraCopyOptions",""),
+                                           props.getOrElse("postActions",""),
+                                           props.getOrElse("maxStringSize",""))
 
   override def write(dataFrame: DataFrame): Unit = {
     redshiftDBConf match {
