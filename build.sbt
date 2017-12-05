@@ -62,6 +62,7 @@ Project.inConfig(Test)(baseAssemblySettings)
 assemblyMergeStrategy in (Test, assembly) := {
   case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
   case PathList("LICENSE", xs@_*) => MergeStrategy.discard
+  case PathList("META-INF", "services", xs@_*) => MergeStrategy.filterDistinctLines
   case PathList("META-INF", xs@_*) => MergeStrategy.discard
   case _ => MergeStrategy.first
 }
@@ -69,7 +70,7 @@ assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
 assemblyJarName in assembly := "metorikku.jar"
-assemblyJarName in (Test, assembly) := s"${name.value}-test.jar"
+assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
 
 // Publish settings
 publishMavenStyle := true

@@ -77,9 +77,9 @@ There are currently 3 options to run Metorikku.
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
-* Download the [last released TEST JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
+* Download the [last released Standalone JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
 * Run the following command:
-`java -cp metorikku-test.jar com.yotpo.metorikku.Metorikku -c config.yaml`
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
 
 ##### Run as a library
 *It's also possible to use Metorikku inside your own software*
@@ -121,7 +121,7 @@ For example, a simple `test_settings.json` file will be:
 ```
 
 And the corresponding `mocks/table_1.jsonl`:
-```json
+```jsonl
 { "id": 200, "name": "test" }
 { "id": 300, "name": "test2" }
 { "id": 1, "name": "test3" }
