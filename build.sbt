@@ -69,7 +69,7 @@ assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
 assemblyJarName in assembly := "metorikku.jar"
-assemblyJarName in (Test, assembly) := s"${name.value}-test.jar"
+assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
 
 // Publish settings
 publishMavenStyle := true
