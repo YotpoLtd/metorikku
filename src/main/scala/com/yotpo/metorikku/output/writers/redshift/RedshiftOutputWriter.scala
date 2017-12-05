@@ -11,11 +11,12 @@ import scala.collection.mutable
 
 class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
 
-  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, maxStringSize: String, extraCopyOptions: String, postActions: String)
+  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, extraCopyOptions: String, postActions: String, maxStringSize: String)
 
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
-  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"), props("maxStringSize"), props("extraCopyOptions"), props("postActions"))
+  val maxStringSize = props.getOrElse("maxStringSize", "")
+  val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"), props("extraCopyOptions"), props("postActions"), maxStringSize)
 
   override def write(dataFrame: DataFrame): Unit = {
     redshiftDBConf match {
