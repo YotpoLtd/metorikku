@@ -2,7 +2,7 @@ package com.yotpo.metorikku.output
 
 import scala.collection.mutable
 
-class MetricOutputHandler(_outputConfig: Any, metricName: String) {
+class MetricOutput(_outputConfig: Any, metricName: String) {
   val outputConfig = mutable.Map(_outputConfig.asInstanceOf[Map[String, String]].toSeq: _*)
   val dataFrameName = outputConfig("dataFrameName")
   val outputType = outputConfig("outputType")

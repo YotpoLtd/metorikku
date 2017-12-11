@@ -2,8 +2,9 @@ package com.yotpo.metorikku.utils
 
 import java.io.{File, FileNotFoundException}
 
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.json4s.DefaultFormats
-import org.json4s.native.JsonMethods.parse
+import org.json4s.native.JsonMethods
 
 object FileUtils {
   def getListOfFiles(dir: String): List[File] = {
@@ -20,8 +21,14 @@ object FileUtils {
   def jsonFileToObject[T: Manifest](file: File): T = {
     implicit val formats = DefaultFormats
     val jsonString = scala.io.Source.fromFile(file).mkString
-    val json = parse(jsonString)
-    json.extract[T]
+
+    try {
+      val json = JsonMethods.parse(jsonString)
+      json.extract[T]
+    } catch {
+      case cast: ClassCastException => throw MetorikkuException(s"Failed to cast json file " + file, cast)
+      case other: Throwable => throw other
+    }
   }
 
   def getContentFromFileAsString(file: File): String = {
