@@ -1,23 +1,26 @@
 {
-  "metric": "examples/movies.json",
+  "metric": "movies.json",
   "mocks": [
     {
       "name": "movies",
-      "path": "examples/mocks/movies.json"
+      "path": "mocks/movies.jsonl"
     },
     {
       "name": "ratings",
-      "path": "examples/mocks/ratings.json"
+      "path": "mocks/ratings.jsonl"
     }
   ],
   "params": {
     "variables": {
-      "myFavoriteMovie": "Lord of the Rings"
+      "myFavoriteMovie": "Lord of the Rings, The (1978)"
     }
   },
   "tests": {
     "myFavoriteMovieRated": [
       {
+        "movieId": 1,
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
       }
     ]
   }
