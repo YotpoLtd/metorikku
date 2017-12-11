@@ -50,20 +50,33 @@ and also our ratings.csv:
 We are registering our data sources, our variables and our output configurations  
 Here's our example configuration:
 ```yaml
+# !MANDATORY! Metrics and Metrics directories be executed
 metrics:
   - movies.jsonl
 inputs:
  movies: examples/inputs/movies.csv
  ratings: examples/inputs/ratings.csv
+
+# Set custom variables that would be accessible from the SQL
 variables:
- myFavoriteMovie: "Lord of the Rings"
+ myFavoriteMovie: 'Princess Bride, The (1987)'
+
 output:
   file:
     dir: examples/output
+
+# If set to true, triggers Explain before saving
 explain: true
+
+# Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 logLevel: WARN
+
+# Set Application Name to have app name prefix in spark instrumentation counters
 appName: moviesApp
+
+# Shows a Preview of the output
 showPreviewLines: 100
+
 ```
 ### The Metric
 Our metric files is as follows:
@@ -83,7 +96,7 @@ Our metric files is as follows:
       "dataFrameName": "topFantasyMovies"
     },
     {
-      "sql": "SELECT * from topFantasyMovies where title like '%${myFavoriteMovie}%'",
+      "sql": "SELECT * from topFantasyMovies where title = ${myFavoriteMovie}",
       "dataFrameName": "myFavoriteMovieRated"
     }
   ],
@@ -98,7 +111,6 @@ Our metric files is as follows:
     }
   ]
 }
-
 ```
 ### Results
 We are running each step sequentially and here are the results:   
@@ -146,52 +158,45 @@ We are running each step sequentially and here are the results:
 +-------+------------------------------------------------------------------------------------------------------------------+------------------+
 |movieId|title                                                                                                             |averageRating     |
 +-------+------------------------------------------------------------------------------------------------------------------+------------------+
-|95113  |Eaux d'artifice (1953)                                                                                            |5.0               |
-|99764  |It's Such a Beautiful Day (2012)                                                                                  |5.0               |
-|26749  |Prospero's Books (1991)                                                                                           |5.0               |
 |59392  |Stargate: The Ark of Truth (2008)                                                                                 |5.0               |
-|27792  |Saddest Music in the World, The (2003)                                                                            |5.0               |
-|74089  |Peter Pan (1960)                                                                                                  |5.0               |
-|2086   |One Magic Christmas (1985)                                                                                        |5.0               |
+|3216   |Vampyros Lesbos (Vampiras, Las) (1971)                                                                            |5.0               |
+|140747 |16 Wishes (2010)                                                                                                  |5.0               |
 |3837   |Phantasm II (1988)                                                                                                |5.0               |
+|27792  |Saddest Music in the World, The (2003)                                                                            |5.0               |
+|118468 |Mei and the Kittenbus (2002)                                                                                      |5.0               |
+|2086   |One Magic Christmas (1985)                                                                                        |5.0               |
 |8254   |Arizona Dream (1993)                                                                                              |5.0               |
 |4789   |Phantom of the Paradise (1974)                                                                                    |5.0               |
+|74089  |Peter Pan (1960)                                                                                                  |5.0               |
 |96832  |Holy Motors (2012)                                                                                                |5.0               |
 |106471 |One Piece Film: Strong World (2009)                                                                               |5.0               |
-|4591   |Erik the Viking (1989)                                                                                            |5.0               |
 |101962 |Wolf Children (Okami kodomo no ame to yuki) (2012)                                                                |5.0               |
-|53887  |O Lucky Man! (1973)                                                                                               |5.0               |
 |3612   |The Slipper and the Rose: The Story of Cinderella (1976)                                                          |5.0               |
-|118468 |Mei and the Kittenbus (2002)                                                                                      |5.0               |
-|140747 |16 Wishes (2010)                                                                                                  |5.0               |
-|3216   |Vampyros Lesbos (Vampiras, Las) (1971)                                                                            |5.0               |
+|4591   |Erik the Viking (1989)                                                                                            |5.0               |
 |7302   |Thief of Bagdad, The (1924)                                                                                       |5.0               |
-|50641  |House (Hausu) (1977)                                                                                              |4.75              |
+|26749  |Prospero's Books (1991)                                                                                           |5.0               |
+|99764  |It's Such a Beautiful Day (2012)                                                                                  |5.0               |
+|53887  |O Lucky Man! (1973)                                                                                               |5.0               |
+|95113  |Eaux d'artifice (1953)                                                                                            |5.0               |
 |72356  |Partly Cloudy (2009)                                                                                              |4.75              |
+|50641  |House (Hausu) (1977)                                                                                              |4.75              |
 |114552 |Boxtrolls, The (2014)                                                                                             |4.5               |
-|68835  |Were the World Mine (2008)                                                                                        |4.5               |
-|6536   |Sinbad: Legend of the Seven Seas (2003)                                                                           |4.5               |
-|31184  |Appleseed (Appurushîdo) (2004)                                                                                    |4.5               |
-|27156  |Neon Genesis Evangelion: The End of Evangelion (Shin seiki Evangelion Gekijô-ban: Air/Magokoro wo, kimi ni) (1997)|4.5               |
-|110645 |Witching and Bitching (Brujas de Zugarramurdi, Las) (2014)                                                        |4.5               |
-|4927   |Last Wave, The (1977)                                                                                             |4.5               |
 |62764  |Black Moon (1975)                                                                                                 |4.5               |
 |136016 |The Good Dinosaur (2015)                                                                                          |4.5               |
-|27186  |Kirikou and the Sorceress (Kirikou et la sorcière) (1998)                                                         |4.5               |
-|95115  |Inauguration of the Pleasure Dome (1954)                                                                          |4.5               |
 |80748  |Alice in Wonderland (1933)                                                                                        |4.5               |
+|110645 |Witching and Bitching (Brujas de Zugarramurdi, Las) (2014)                                                        |4.5               |
+|27156  |Neon Genesis Evangelion: The End of Evangelion (Shin seiki Evangelion Gekijô-ban: Air/Magokoro wo, kimi ni) (1997)|4.5               |
 |50011  |Bothersome Man, The (Brysomme mannen, Den) (2006)                                                                 |4.5               |
-|38499  |Angels in America (2003)                                                                                          |4.4               |
+|68835  |Were the World Mine (2008)                                                                                        |4.5               |
+|4927   |Last Wave, The (1977)                                                                                             |4.5               |
 ```            
 #### Step2 - myFavoriteMovieRated
 ```
-+-------+---------------------------------------------------------+------------------+
-|movieId|title                                                    |averageRating     |
-+-------+---------------------------------------------------------+------------------+
-|4993   |Lord of the Rings: The Fellowship of the Ring, The (2001)|4.1825            |
-|7153   |Lord of the Rings: The Return of the King, The (2003)    |4.127840909090909 |
-|5952   |Lord of the Rings: The Two Towers, The (2002)            |4.0611702127659575|
-+-------+---------------------------------------------------------+------------------+
++-------+--------------------------+-----------------+
+|movieId|title                     |averageRating    |
++-------+--------------------------+-----------------+
+|1197   |Princess Bride, The (1987)|4.208588957055214|
++-------+--------------------------+-----------------+
 ```
 
 ## Testing our metric
