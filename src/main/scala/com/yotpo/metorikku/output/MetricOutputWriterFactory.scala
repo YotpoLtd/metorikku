@@ -33,12 +33,12 @@ object MetricOutputWriterFactory {
 }
 
 object OutputType extends Enumeration {
-  val Parquet = Value("Parquet")
-  val Cassandra = Value("Cassandra")
-  val CSV = Value("CSV")
-  val JSON = Value("JSON")
-  val Redshift = Value("Redshift")
-  val Redis = Value("Redis")
-  val Segment = Value("Segment")
-  val Instrumentation = Value("Instrumentation")
+  val Parquet: OutputType.Value = Value("Parquet")
+  val Cassandra: OutputType.Value = Value("Cassandra")
+  val CSV: OutputType.Value = Value("CSV")
+  val JSON: OutputType.Value = Value("JSON")
+  val Redshift: OutputType.Value = Value("Redshift")
+  val Redis: OutputType.Value = Value("Redis")
+  val Segment: OutputType.Value = Value("Segment")
+  val Instrumentation: OutputType.Value = Value("Instrumentation")
 }

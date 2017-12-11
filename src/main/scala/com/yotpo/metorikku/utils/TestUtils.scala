@@ -28,7 +28,9 @@ object TestUtils {
     settings
   }
 
-  def createMetorikkuConfigFromTestSettings(settings: String, metricTestSettings: MetricTesterDefinitions.TestSettings, previewLines: Int) = {
+  def createMetorikkuConfigFromTestSettings(settings: String,
+                                            metricTestSettings: MetricTesterDefinitions.TestSettings,
+                                            previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
     configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
@@ -99,9 +101,12 @@ object TestUtils {
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
     for (expectedRowCandidate <- metricExpectedResultRows) {
-      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) return expectedRowCandidate
+      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) expectedRowCandidate
     }
+    // scalastyle:off null
+    //TODO Avoid using nulls
     null
+    // scalastyle:on null
   }
 
   private def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
@@ -110,7 +115,7 @@ object TestUtils {
       val actualValue = Option(actualRow.get(key))
       // TODO: support nested Objects and Arrays
       if (expectedValue.toString != actualValue.toString) {
-        return false
+        false
       }
     }
     true
