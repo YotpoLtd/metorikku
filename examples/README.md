@@ -51,7 +51,7 @@ We are registering our data sources, our variables and our output configurations
 Here's our example configuration:
 ```yaml
 metrics:
-  - examples/movies.json
+  - movies.jsonl
 inputs:
  movies: examples/inputs/movies.csv
  ratings: examples/inputs/ratings.csv
@@ -193,3 +193,45 @@ We are running each step sequentially and here are the results:
 |5952   |Lord of the Rings: The Two Towers, The (2002)            |4.0611702127659575|
 +-------+---------------------------------------------------------+------------------+
 ```
+
+## Testing our metric
+Metorikku also supports testing your logic, using MetorikkuTester.
+
+Metorikku Tester expects a test-settings json file
+
+```json
+{
+  "metric": "movies.json",
+  "mocks": [
+    {
+      "name": "movies",
+      "path": "mocks/movies.jsonl"
+    },
+    {
+      "name": "ratings",
+      "path": "mocks/ratings.jsonl"
+    }
+  ],
+  "params": {
+    "variables": {
+      "myFavoriteMovie": "Lord of the Rings, The (1978)"
+    }
+  },
+  "tests": {
+    "myFavoriteMovieRated": [
+      {
+        "movieId": 1,
+        "title": "Lord of the Rings, The (1978)",
+        "averageRating": 2.5
+      }
+    ]
+  }
+}
+``` 
+A test settings file consists of the following:
+* Our metric file which has our business logic
+* A set of mocks in the format of **JSONL** 
+* A set of variables if needed to be used inside our SQL queries
+* A set of expected results
+
+You can run MetoriikuTester as a stand alone application or a spark application

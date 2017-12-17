@@ -1,6 +1,6 @@
 # !MANDATORY! Metrics and Metrics directories be executed
 metrics:
-  - examples/movies.json
+  - examples/movies.jsonl
 
 inputs:
  movies: examples/inputs/movies.csv
