@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.session
 
-import com.yotpo.metorikku.configuration.{Configuration, DateRange, Output}
-import com.yotpo.metorikku.configuration.inputs.FileInput
+import com.yotpo.metorikku.configuration.{Configuration, Output}
+import com.yotpo.metorikku.configuration.inputs.{Input}
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.input.InputTableReader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
@@ -20,7 +20,7 @@ object Session {
     spark = Some(createSparkSession(config.appName, config.output))
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
-    registerDataframes(config.inputs, config.dateRange)
+    registerInputs(config.inputs)
     configuration = Some(config)
   }
 
@@ -55,12 +55,11 @@ object Session {
     })
   }
 
-  def registerDataframes(inputs: Seq[FileInput], dateRange: Map[String, DateRange]): Unit = {
+  def registerInputs(inputs: Seq[Input]): Unit = {
     if (inputs.nonEmpty) {
       inputs.foreach(input => {
         log.info(s"Registering ${input.name} table")
-        val dateRangeOption: Option[DateRange] = dateRange.get(input.name)
-        val tablePaths: Seq[String] = if (dateRangeOption.isEmpty) Seq(input.path) else dateRangeOption.get.replace(input.path)
+        val tablePaths: Seq[String] = input.getSequence
         val reader = InputTableReader(tablePaths)
         val df = reader.read(tablePaths)
         df.createOrReplaceTempView(input.name)
