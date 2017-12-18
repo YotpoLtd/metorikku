@@ -1,14 +1,18 @@
 # !MANDATORY! Metrics and Metrics directories be executed
 metrics:
-  - examples/movies.json
+  - examples/file_date_range_inputs/movies.json
 
 inputs:
  movies:
-  type: file
-  path: examples/inputs/movies.csv
+  type: file_date_range
+  template: examples/file_date_range_inputs/inputs/%s/movies.csv
+  dateRange:
+    format: yyyy/MM/dd
+    startDate: 2017/09/01
+    endDate: 2017/09/03
  ratings:
   type: file
-  path: examples/inputs/ratings.csv
+  path: examples/file_date_range_inputs/inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -16,7 +20,7 @@ variables:
 
 output:
   file:
-    dir: examples/output
+    dir: examples/file_date_range_inputs/output
 
 # If set to true, triggers Explain before saving
 explain: true

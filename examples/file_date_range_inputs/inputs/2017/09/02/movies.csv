@@ -1,0 +1,2316 @@
+movieId,title,genres
+2000,Lethal Weapon (1987),Action|Comedy|Crime|Drama
+2001,Lethal Weapon 2 (1989),Action|Comedy|Crime|Drama
+2002,Lethal Weapon 3 (1992),Action|Comedy|Crime|Drama
+2003,Gremlins (1984),Comedy|Horror
+2004,Gremlins 2: The New Batch (1990),Comedy|Horror
+2005,"Goonies, The (1985)",Action|Adventure|Children|Comedy|Fantasy
+2006,"Mask of Zorro, The (1998)",Action|Comedy|Romance
+2007,Polish Wedding (1998),Comedy
+2008,"This World, Then the Fireworks (1997)",Crime|Drama|Film-Noir
+2009,Soylent Green (1973),Drama|Mystery|Sci-Fi|Thriller
+2010,Metropolis (1927),Drama|Sci-Fi
+2011,Back to the Future Part II (1989),Adventure|Comedy|Sci-Fi
+2012,Back to the Future Part III (1990),Adventure|Comedy|Sci-Fi|Western
+2013,"Poseidon Adventure, The (1972)",Action|Adventure|Drama
+2014,Freaky Friday (1977),Children|Comedy|Fantasy
+2015,"Absent-Minded Professor, The (1961)",Children|Comedy|Fantasy
+2016,"Apple Dumpling Gang Rides Again, The (1979)",Children|Comedy|Western
+2017,Babes in Toyland (1961),Children|Fantasy|Musical
+2018,Bambi (1942),Animation|Children|Drama
+2019,Seven Samurai (Shichinin no samurai) (1954),Action|Adventure|Drama
+2020,Dangerous Liaisons (1988),Drama|Romance
+2021,Dune (1984),Adventure|Sci-Fi
+2022,"Last Temptation of Christ, The (1988)",Drama
+2023,"Godfather: Part III, The (1990)",Crime|Drama|Mystery|Thriller
+2024,"Rapture, The (1991)",Drama|Mystery
+2025,Lolita (1997),Drama|Romance
+2026,Disturbing Behavior (1998),Horror|Thriller
+2027,Jane Austen's Mafia! (1998),Comedy|Crime
+2028,Saving Private Ryan (1998),Action|Drama|War
+2029,Billy's Hollywood Screen Kiss (1997),Comedy|Romance
+2031,"Million Dollar Duck, The (a.k.a. $1,000,000 Duck) (1971)",Children|Comedy
+2032,"Barefoot Executive, The (1971)",Children|Comedy
+2033,"Black Cauldron, The (1985)",Adventure|Animation|Children|Fantasy
+2034,"Black Hole, The (1979)",Children|Sci-Fi
+2035,Blackbeard's Ghost (1968),Children|Comedy
+2036,Blank Check (1994),Children|Comedy
+2037,Candleshoe (1977),Adventure|Children|Comedy
+2038,"Cat from Outer Space, The (1978)",Children|Comedy|Sci-Fi
+2039,Cheetah (1989),Adventure|Children
+2040,"Computer Wore Tennis Shoes, The (1969)",Children|Comedy
+2041,Condorman (1981),Action|Adventure|Children|Comedy
+2042,D2: The Mighty Ducks (1994),Children|Comedy
+2043,Darby O'Gill and the Little People (1959),Adventure|Children|Fantasy
+2044,"Devil and Max Devlin, The (1981)",Comedy|Fantasy
+2045,"Far Off Place, A (1993)",Adventure|Children|Drama|Romance
+2046,Flight of the Navigator (1986),Adventure|Children|Sci-Fi
+2047,"Gnome-Mobile, The (1967)",Adventure|Children|Fantasy|Musical
+2048,"Great Mouse Detective, The (1986)",Action|Animation|Children|Crime
+2049,"Happiest Millionaire, The (1967)",Comedy|Musical
+2050,Herbie Goes Bananas (1980),Adventure|Children|Comedy
+2051,Herbie Goes to Monte Carlo (1977),Adventure|Children|Comedy
+2052,Hocus Pocus (1993),Children|Comedy|Fantasy|Horror
+2053,"Honey, I Blew Up the Kid (1992)",Children|Comedy|Sci-Fi
+2054,"Honey, I Shrunk the Kids (1989)",Adventure|Children|Comedy|Fantasy|Sci-Fi
+2055,Hot Lead and Cold Feet (1978),Action|Comedy|Western
+2056,In Search of the Castaways (1962),Adventure|Children
+2057,"Incredible Journey, The (1963)",Adventure|Children
+2058,"Negotiator, The (1998)",Action|Crime|Drama|Mystery|Thriller
+2059,"Parent Trap, The (1998)",Children|Comedy|Romance
+2060,BASEketball (1998),Comedy
+2062,"Governess, The (1998)",Drama|Romance
+2063,"Seventh Heaven (Septième ciel, Le) (1997)",Drama|Romance
+2064,Roger & Me (1989),Documentary
+2065,"Purple Rose of Cairo, The (1985)",Comedy|Drama|Fantasy|Romance
+2066,Out of the Past (1947),Film-Noir
+2067,Doctor Zhivago (1965),Drama|Romance|War
+2068,Fanny and Alexander (Fanny och Alexander) (1982),Drama|Fantasy|Mystery
+2069,"Trip to Bountiful, The (1985)",Drama
+2070,Tender Mercies (1983),Drama|Romance|Western
+2071,And the Band Played On (1993),Drama
+2072,"'burbs, The (1989)",Comedy
+2073,Fandango (1985),Comedy
+2074,"Night Porter, The (Portiere di notte, Il) (1974)",Crime|Drama|Romance
+2075,Mephisto (1981),Drama|War
+2076,Blue Velvet (1986),Drama|Mystery|Thriller
+2077,"Journey of Natty Gann, The (1985)",Adventure|Children
+2078,"Jungle Book, The (1967)",Animation|Children|Comedy|Musical
+2079,Kidnapped (1960),Adventure|Children|Drama
+2080,Lady and the Tramp (1955),Animation|Children|Comedy|Romance
+2081,"Little Mermaid, The (1989)",Animation|Children|Comedy|Musical|Romance
+2082,"Mighty Ducks, The (1992)",Children|Comedy
+2083,"Muppet Christmas Carol, The (1992)",Children|Comedy|Musical
+2084,Newsies (1992),Children|Musical
+2085,101 Dalmatians (One Hundred and One Dalmatians) (1961),Adventure|Animation|Children
+2086,One Magic Christmas (1985),Drama|Fantasy
+2087,Peter Pan (1953),Animation|Children|Fantasy|Musical
+2088,Popeye (1980),Adventure|Comedy|Musical
+2089,"Rescuers Down Under, The (1990)",Adventure|Animation|Children
+2090,"Rescuers, The (1977)",Adventure|Animation|Children|Crime|Drama
+2091,Return from Witch Mountain (1978),Children|Sci-Fi
+2092,"Return of Jafar, The (1994)",Adventure|Animation|Children|Fantasy|Musical|Romance
+2093,Return to Oz (1985),Adventure|Children|Fantasy
+2094,"Rocketeer, The (1991)",Action|Adventure|Sci-Fi
+2095,"Shaggy D.A., The (1976)",Children|Comedy
+2096,Sleeping Beauty (1959),Animation|Children|Musical
+2097,Something Wicked This Way Comes (1983),Children|Drama|Fantasy|Mystery|Thriller
+2098,Son of Flubber (1963),Children|Comedy
+2099,Song of the South (1946),Adventure|Animation|Children|Musical
+2100,Splash (1984),Comedy|Fantasy|Romance
+2101,Squanto: A Warrior's Tale (1994),Adventure|Drama
+2102,Steamboat Willie (1928),Animation|Children|Comedy|Musical
+2103,Tall Tale (1995),Adventure|Children|Fantasy|Western
+2104,Tex (1982),Drama
+2105,Tron (1982),Action|Adventure|Sci-Fi
+2106,Swing Kids (1993),Drama|War
+2107,Halloween H20: 20 Years Later (Halloween 7: The Revenge of Laurie Strode) (1998),Horror|Thriller
+2108,L.A. Story (1991),Comedy|Romance
+2109,"Jerk, The (1979)",Comedy
+2110,Dead Men Don't Wear Plaid (1982),Comedy|Crime|Thriller
+2111,"Man with Two Brains, The (1983)",Comedy
+2112,Grand Canyon (1991),Crime|Drama
+2113,Graveyard Shift (Stephen King's Graveyard Shift) (1990),Horror|Thriller
+2114,"Outsiders, The (1983)",Drama
+2115,Indiana Jones and the Temple of Doom (1984),Action|Adventure|Fantasy
+2116,"Lord of the Rings, The (1978)",Adventure|Animation|Children|Fantasy
+2117,1984 (Nineteen Eighty-Four) (1984),Drama|Sci-Fi
+2118,"Dead Zone, The (1983)",Thriller
+2119,Maximum Overdrive (1986),Horror
+2120,Needful Things (1993),Drama|Horror
+2121,Cujo (1983),Horror|Thriller
+2122,Children of the Corn (1984),Horror|Thriller
+2123,All Dogs Go to Heaven (1989),Animation|Children|Comedy|Drama|Fantasy
+2124,"Addams Family, The (1991)",Children|Comedy|Fantasy
+2125,Ever After: A Cinderella Story (1998),Comedy|Drama|Romance
+2126,Snake Eyes (1998),Action|Crime|Mystery|Thriller
+2128,Safe Men (1998),Comedy
+2130,Atlantic City (1980),Crime|Drama|Romance
+2131,Autumn Sonata (Höstsonaten) (1978),Drama
+2132,Who's Afraid of Virginia Woolf? (1966),Drama
+2133,Adventures in Babysitting (1987),Adventure|Comedy
+2134,Weird Science (1985),Comedy|Fantasy|Sci-Fi
+2135,Doctor Dolittle (1967),Adventure|Children|Musical
+2136,"Nutty Professor, The (1963)",Comedy|Sci-Fi
+2137,Charlotte's Web (1973),Animation|Children
+2138,Watership Down (1978),Adventure|Animation|Children|Drama|Fantasy
+2139,"Secret of NIMH, The (1982)",Adventure|Animation|Children|Drama
+2140,"Dark Crystal, The (1982)",Adventure|Fantasy
+2141,"American Tail, An (1986)",Adventure|Animation|Children|Comedy
+2142,"American Tail: Fievel Goes West, An (1991)",Adventure|Animation|Children|Musical|Western
+2143,Legend (1985),Adventure|Fantasy|Romance
+2144,Sixteen Candles (1984),Comedy|Romance
+2145,Pretty in Pink (1986),Comedy|Drama|Romance
+2146,St. Elmo's Fire (1985),Drama|Romance
+2147,"Clan of the Cave Bear, The (1986)",Adventure|Drama|Fantasy
+2148,House (1986),Comedy|Fantasy|Horror
+2149,House II: The Second Story (1987),Comedy|Fantasy|Horror
+2150,"Gods Must Be Crazy, The (1980)",Adventure|Comedy
+2151,"Gods Must Be Crazy II, The (1989)",Comedy
+2152,Air Bud: Golden Receiver (1998),Children|Comedy
+2153,"Avengers, The (1998)",Action|Adventure
+2154,How Stella Got Her Groove Back (1998),Drama|Romance
+2155,"Slums of Beverly Hills, The (1998)",Comedy|Drama
+2159,Henry: Portrait of a Serial Killer (1986),Crime|Horror|Thriller
+2160,Rosemary's Baby (1968),Drama|Horror|Thriller
+2161,"NeverEnding Story, The (1984)",Adventure|Children|Fantasy
+2162,"NeverEnding Story II: The Next Chapter, The (1990)",Adventure|Children|Fantasy
+2163,Attack of the Killer Tomatoes! (1978),Comedy|Horror
+2164,Surf Nazis Must Die (1987),Action|Comedy|Drama|Horror
+2165,Your Friends and Neighbors (1998),Comedy|Drama
+2166,Return to Paradise (1998),Crime|Drama|Romance|Thriller
+2167,Blade (1998),Action|Horror|Thriller
+2168,Dance with Me (1998),Drama|Romance
+2169,Dead Man on Campus (1998),Comedy
+2170,Wrongfully Accused (1998),Action|Comedy
+2171,Next Stop Wonderland (1998),Comedy|Drama|Romance
+2173,"Navigator: A Mediaeval Odyssey, The (1988)",Adventure|Fantasy|Sci-Fi
+2174,Beetlejuice (1988),Comedy|Fantasy
+2176,Rope (1948),Crime|Drama|Thriller
+2177,Family Plot (1976),Comedy|Thriller
+2178,Frenzy (1972),Thriller
+2180,Torn Curtain (1966),Thriller
+2181,Marnie (1964),Drama|Mystery|Romance|Thriller
+2182,"Wrong Man, The (1956)",Drama|Film-Noir|Thriller
+2183,"Man Who Knew Too Much, The (1956)",Adventure|Drama|Mystery|Thriller
+2184,"Trouble with Harry, The (1955)",Comedy|Mystery
+2186,Strangers on a Train (1951),Crime|Drama|Film-Noir|Thriller
+2187,Stage Fright (1950),Mystery|Romance|Thriller
+2188,54 (1998),Drama
+2189,I Married A Strange Person! (1997),Animation|Comedy|Fantasy|Sci-Fi
+2190,Why Do Fools Fall In Love? (1998),Drama
+2191,"Merry War, A (1997)",Comedy
+2193,Willow (1988),Action|Adventure|Fantasy
+2194,"Untouchables, The (1987)",Action|Crime|Drama
+2195,Dirty Work (1998),Comedy
+2197,Firelight (1997),Drama
+2200,Under Capricorn (1949),Drama
+2201,"Paradine Case, The (1947)",Drama
+2202,Lifeboat (1944),Drama|War
+2203,Shadow of a Doubt (1943),Crime|Drama|Thriller
+2204,Saboteur (1942),Mystery|Thriller
+2205,Mr. & Mrs. Smith (1941),Comedy|Romance
+2206,Suspicion (1941),Film-Noir|Mystery|Thriller
+2207,Jamaica Inn (1939),Drama
+2208,"Lady Vanishes, The (1938)",Drama|Mystery|Thriller
+2210,Sabotage (1936),Thriller
+2212,"Man Who Knew Too Much, The (1934)",Drama|Thriller
+2214,Number Seventeen (a.k.a. Number 17) (1932),Thriller
+2215,Rich and Strange (1931),Comedy|Romance
+2219,Murder! (1930),Mystery|Thriller
+2221,Blackmail (1929),Drama|Thriller
+2227,"Lodger: A Story of the London Fog, The (1927)",Crime|Drama|Thriller
+2231,Rounders (1998),Drama
+2232,Cube (1997),Horror|Mystery|Sci-Fi|Thriller
+2236,Simon Birch (1998),Drama
+2237,Without Limits (1998),Drama
+2238,Seven Beauties (Pasqualino Settebellezze) (1976),Comedy|Drama
+2239,Swept Away (Travolti da un insolito destino nell'azzurro mare d'Agosto) (1975),Comedy|Drama
+2240,My Bodyguard (1980),Drama
+2241,Class (1983),Comedy
+2243,Broadcast News (1987),Comedy|Drama|Romance
+2244,"Allnighter, The (1987)",Comedy|Romance
+2245,Working Girl (1988),Comedy|Drama|Romance
+2246,Stars and Bars (1988),Action|Comedy|Romance
+2247,Married to the Mob (1988),Comedy
+2248,Say Anything... (1989),Comedy|Drama|Romance
+2249,My Blue Heaven (1990),Comedy
+2250,Men Don't Leave (1990),Drama
+2252,Hero (1992),Comedy|Drama
+2253,Toys (1992),Comedy|Fantasy
+2254,Choices (1981),Drama
+2255,Young Doctors in Love (1982),Comedy
+2256,Parasite (1982),Horror|Sci-Fi
+2257,No Small Affair (1984),Comedy|Romance
+2259,Blame It on Rio (1984),Comedy|Romance
+2260,Wisdom (1986),Crime|Drama
+2261,One Crazy Summer (1986),Comedy
+2262,About Last Night... (1986),Comedy|Drama|Romance
+2263,"Seventh Sign, The (1988)",Drama|Fantasy|Thriller
+2264,We're No Angels (1989),Comedy|Crime
+2265,Nothing But Trouble (1991),Adventure|Comedy
+2266,"Butcher's Wife, The (1991)",Comedy|Romance
+2267,Mortal Thoughts (1991),Mystery|Thriller
+2268,"Few Good Men, A (1992)",Crime|Drama|Thriller
+2269,Indecent Proposal (1993),Drama|Romance
+2271,Permanent Midnight (1998),Drama
+2272,One True Thing (1998),Drama
+2273,Rush Hour (1998),Action|Comedy|Crime|Thriller
+2275,Six-String Samurai (1998),Action|Adventure|Sci-Fi
+2276,"Soldier's Daughter Never Cries, A (1998)",Drama
+2278,Ronin (1998),Action|Crime|Thriller
+2279,Urban Legend (1998),Horror|Thriller
+2280,Clay Pigeons (1998),Crime
+2282,Pecker (1998),Comedy|Drama
+2283,"Sheltering Sky, The (1990)",Drama
+2284,Bandit Queen (1994),Drama
+2285,If.... (1968),Drama
+2286,"Fiendish Plot of Dr. Fu Manchu, The (1980)",Comedy
+2287,Them! (1954),Horror|Sci-Fi|Thriller
+2288,"Thing, The (1982)",Action|Horror|Sci-Fi|Thriller
+2289,"Player, The (1992)",Comedy|Crime|Drama
+2290,Stardust Memories (1980),Comedy|Drama
+2291,Edward Scissorhands (1990),Drama|Fantasy|Romance
+2292,Overnight Delivery (1998),Comedy|Romance
+2294,Antz (1998),Adventure|Animation|Children|Comedy|Fantasy
+2295,"Impostors, The (1998)",Comedy
+2296,"Night at the Roxbury, A (1998)",Comedy
+2297,What Dreams May Come (1998),Adventure|Drama|Fantasy|Romance
+2300,"Producers, The (1968)",Comedy
+2301,History of the World: Part I (1981),Comedy|Musical
+2302,My Cousin Vinny (1992),Comedy
+2303,Nashville (1975),Drama|Musical
+2304,Love Is the Devil (1998),Drama
+2305,Slam (1998),Drama
+2306,Holy Man (1998),Comedy
+2307,One Tough Cop (1998),Action|Crime
+2310,"Mighty, The (1998)",Drama
+2311,2010: The Year We Make Contact (1984),Sci-Fi
+2312,Children of a Lesser God (1986),Drama
+2313,"Elephant Man, The (1980)",Drama
+2314,Beloved (1998),Drama
+2315,Bride of Chucky (Child's Play 4) (1998),Comedy|Horror|Thriller
+2316,Practical Magic (1998),Drama|Fantasy|Mystery|Romance
+2318,Happiness (1998),Comedy|Drama
+2320,Apt Pupil (1998),Drama|Thriller
+2321,Pleasantville (1998),Comedy|Drama|Fantasy
+2322,Soldier (1998),Action|Sci-Fi|War
+2323,"Cruise, The (1998)",Documentary
+2324,Life Is Beautiful (La Vita è bella) (1997),Comedy|Drama|Romance|War
+2325,Orgazmo (1997),Comedy
+2327,Tales from the Darkside: The Movie (1990),Fantasy|Horror|Thriller
+2328,Vampires (1998),Horror|Western
+2329,American History X (1998),Crime|Drama
+2330,Hands on a Hard Body (1996),Comedy|Documentary
+2331,Living Out Loud (1998),Comedy|Drama|Romance
+2333,Gods and Monsters (1998),Drama
+2334,"Siege, The (1998)",Action|Thriller
+2335,"Waterboy, The (1998)",Comedy
+2336,Elizabeth (1998),Drama
+2337,Velvet Goldmine (1998),Drama
+2338,I Still Know What You Did Last Summer (1998),Horror|Mystery|Thriller
+2339,I'll Be Home For Christmas (1998),Comedy|Romance
+2340,Meet Joe Black (1998),Romance
+2342,Hard Core Logo (1996),Comedy|Drama
+2344,Runaway Train (1985),Action|Adventure|Drama|Thriller
+2345,Desert Bloom (1986),Drama
+2346,"Stepford Wives, The (1975)",Mystery|Sci-Fi|Thriller
+2347,"Pope of Greenwich Village, The (1984)",Drama
+2348,Sid and Nancy (1986),Drama
+2349,Mona Lisa (1986),Comedy|Thriller
+2350,Heart Condition (1990),Comedy
+2351,"Nights of Cabiria (Notti di Cabiria, Le) (1957)",Drama
+2352,"Big Chill, The (1983)",Comedy|Drama
+2353,Enemy of the State (1998),Action|Thriller
+2354,"Rugrats Movie, The (1998)",Animation|Children|Comedy
+2355,"Bug's Life, A (1998)",Adventure|Animation|Children|Comedy
+2356,Celebrity (1998),Comedy
+2357,Central Station (Central do Brasil) (1998),Drama
+2359,Waking Ned Devine (a.k.a. Waking Ned) (1998),Comedy
+2360,"Celebration, The (Festen) (1998)",Drama
+2361,Pink Flamingos (1972),Comedy
+2362,Glen or Glenda (1953),Drama
+2363,Godzilla (Gojira) (1954),Drama|Horror|Sci-Fi
+2364,"Godzilla 1985: The Legend Is Reborn (Gojira) (Godzilla) (Return of Godzilla, The) (1984)",Action|Horror|Sci-Fi|Thriller
+2365,King Kong vs. Godzilla (Kingukongu tai Gojira) (1962),Action|Sci-Fi
+2366,King Kong (1933),Action|Adventure|Fantasy|Horror
+2367,King Kong (1976),Adventure|Fantasy|Romance|Sci-Fi|Thriller
+2368,King Kong Lives (1986),Adventure|Sci-Fi
+2369,Desperately Seeking Susan (1985),Comedy|Drama|Romance
+2370,"Emerald Forest, The (1985)",Action|Adventure|Drama
+2371,Fletch (1985),Comedy|Crime|Mystery
+2372,Fletch Lives (1989),Comedy
+2373,Red Sonja (1985),Action|Adventure|Fantasy
+2374,Gung Ho (1986),Comedy|Drama
+2375,"Money Pit, The (1986)",Comedy
+2376,"View to a Kill, A (1985)",Action|Adventure|Thriller
+2377,Lifeforce (1985),Horror|Sci-Fi
+2378,Police Academy (1984),Comedy|Crime
+2379,Police Academy 2: Their First Assignment (1985),Comedy|Crime
+2380,Police Academy 3: Back in Training (1986),Comedy|Crime
+2381,Police Academy 4: Citizens on Patrol (1987),Comedy|Crime
+2382,Police Academy 5: Assignment: Miami Beach (1988),Comedy|Crime
+2383,Police Academy 6: City Under Siege (1989),Comedy|Crime
+2384,Babe: Pig in the City (1998),Adventure|Children|Drama
+2385,Home Fries (1998),Comedy|Romance
+2386,Jerry Springer: Ringmaster (1998),Comedy|Drama
+2387,Very Bad Things (1998),Comedy|Crime
+2388,Steam: The Turkish Bath (Hamam) (1997),Drama|Romance
+2389,Psycho (1998),Crime|Horror|Thriller
+2390,Little Voice (1998),Comedy
+2391,"Simple Plan, A (1998)",Crime|Drama|Thriller
+2392,Jack Frost (1998),Children|Comedy|Drama
+2393,Star Trek: Insurrection (1998),Action|Drama|Romance|Sci-Fi
+2394,"Prince of Egypt, The (1998)",Animation|Musical
+2395,Rushmore (1998),Comedy|Drama
+2396,Shakespeare in Love (1998),Comedy|Drama|Romance
+2397,Mass Appeal (1984),Drama
+2398,Miracle on 34th Street (1947),Comedy|Drama
+2399,Santa Claus: The Movie (1985),Adventure|Children|Fantasy
+2400,Prancer (1989),Children|Drama|Fantasy
+2401,Pale Rider (1985),Western
+2402,Rambo: First Blood Part II (1985),Action|Adventure|Thriller
+2403,First Blood (Rambo: First Blood) (1982),Action|Adventure|Drama|Thriller
+2404,Rambo III (1988),Action|Adventure|Thriller|War
+2405,"Jewel of the Nile, The (1985)",Action|Adventure|Comedy|Romance
+2406,Romancing the Stone (1984),Action|Adventure|Comedy|Romance
+2407,Cocoon (1985),Comedy|Sci-Fi
+2408,Cocoon: The Return (1988),Comedy|Sci-Fi
+2409,Rocky II (1979),Action|Drama
+2410,Rocky III (1982),Action|Drama
+2411,Rocky IV (1985),Action|Drama
+2412,Rocky V (1990),Action|Drama
+2413,Clue (1985),Comedy|Crime|Mystery|Thriller
+2414,Young Sherlock Holmes (1985),Action|Adventure|Children|Fantasy|Mystery|Thriller
+2415,Violets Are Blue... (1986),Drama|Romance
+2416,Back to School (1986),Comedy
+2417,Heartburn (1986),Comedy|Drama
+2418,Nothing in Common (1986),Comedy
+2419,Extremities (1986),Drama|Thriller
+2420,"Karate Kid, The (1984)",Drama
+2421,"Karate Kid, Part II, The (1986)",Action|Adventure|Drama
+2422,"Karate Kid, Part III, The (1989)",Action|Adventure|Children|Drama
+2423,Christmas Vacation (National Lampoon's Christmas Vacation) (1989),Comedy
+2424,You've Got Mail (1998),Comedy|Romance
+2425,"General, The (1998)",Crime
+2427,"Thin Red Line, The (1998)",Action|Drama|War
+2428,"Faculty, The (1998)",Horror|Sci-Fi
+2429,Mighty Joe Young (1998),Action|Adventure|Drama|Fantasy|Thriller
+2430,Mighty Joe Young (1949),Adventure|Children|Drama
+2431,Patch Adams (1998),Comedy|Drama
+2432,Stepmom (1998),Drama
+2433,"Civil Action, A (1998)",Drama
+2434,Down in the Delta (1998),Drama
+2435,Hurlyburly (1998),Drama
+2436,Tea with Mussolini (1999),Comedy|Drama|War
+2437,Wilde (1997),Drama
+2438,Outside Ozona (1998),Comedy|Drama|Thriller
+2439,Affliction (1997),Drama
+2440,Another Day in Paradise (1998),Drama
+2441,"Hi-Lo Country, The (1998)",Drama|Romance|Western
+2442,Hilary and Jackie (1998),Drama
+2443,Playing by Heart (1998),Drama|Romance
+2445,At First Sight (1999),Drama
+2446,In Dreams (1999),Horror|Thriller
+2447,Varsity Blues (1999),Comedy|Drama
+2448,Virus (1999),Horror|Sci-Fi
+2449,"Garbage Pail Kids Movie, The (1987)",Adventure|Children|Comedy
+2450,Howard the Duck (1986),Adventure|Comedy|Sci-Fi
+2451,"Gate, The (1987)",Horror
+2453,"Boy Who Could Fly, The (1986)",Drama|Fantasy
+2454,"Fly, The (1958)",Horror|Mystery|Sci-Fi
+2455,"Fly, The (1986)",Drama|Horror|Sci-Fi|Thriller
+2456,"Fly II, The (1989)",Horror|Sci-Fi
+2457,Running Scared (1986),Action|Comedy
+2458,Armed and Dangerous (1986),Comedy|Crime
+2459,"Texas Chainsaw Massacre, The (1974)",Horror
+2460,"Texas Chainsaw Massacre 2, The (1986)",Horror
+2461,Leatherface: Texas Chainsaw Massacre III (1990),Comedy|Horror|Thriller
+2462,Texas Chainsaw Massacre: The Next Generation (a.k.a. The Return of the Texas Chainsaw Massacre) (1994),Horror
+2463,Ruthless People (1986),Comedy
+2464,Trick or Treat (1986),Horror
+2465,Deadly Friend (1986),Horror
+2467,"Name of the Rose, The (Name der Rose, Der) (1986)",Crime|Drama|Mystery|Thriller
+2468,Jumpin' Jack Flash (1986),Action|Comedy|Romance|Thriller
+2469,Peggy Sue Got Married (1986),Comedy|Drama
+2470,Crocodile Dundee (1986),Adventure|Comedy
+2471,Crocodile Dundee II (1988),Action|Adventure|Comedy
+2472,Tough Guys (1986),Comedy
+2473,Soul Man (1986),Comedy
+2474,"Color of Money, The (1986)",Drama
+2475,52 Pick-Up (1986),Action|Mystery|Thriller
+2476,Heartbreak Ridge (1986),Action|War
+2478,¡Three Amigos! (1986),Comedy|Western
+2479,Gloria (1999),Drama|Thriller
+2481,My Name Is Joe (1998),Drama|Romance
+2482,Still Crazy (1998),Comedy|Romance
+2483,"Day of the Beast, The (Día de la Bestia, El) (1995)",Adventure|Comedy|Thriller
+2485,She's All That (1999),Comedy|Romance
+2486,"24 Hour Woman, The (1998)",Comedy|Drama
+2487,"Blood, Guts, Bullets and Octane (1998)",Action|Comedy
+2488,Peeping Tom (1960),Drama|Horror|Thriller
+2490,Payback (1999),Action|Thriller
+2491,Simply Irresistible (1999),Comedy|Romance
+2492,20 Dates (1998),Comedy|Romance
+2493,"Harmonists, The (1997)",Drama
+2494,"Last Days, The (1998)",Documentary
+2495,"Fantastic Planet, The (Planète sauvage, La) (1973)",Animation|Sci-Fi
+2496,Blast from the Past (1999),Comedy|Romance
+2497,Message in a Bottle (1999),Romance
+2498,My Favorite Martian (1999),Comedy|Sci-Fi
+2499,God Said 'Ha!' (1998),Comedy
+2500,Jawbreaker (1999),Comedy
+2501,October Sky (1999),Drama
+2502,Office Space (1999),Comedy|Crime
+2504,200 Cigarettes (1999),Comedy|Drama
+2505,8MM (1999),Drama|Mystery|Thriller
+2506,"Other Sister, The (1999)",Comedy|Drama|Romance
+2507,Breakfast of Champions (1999),Comedy|Sci-Fi
+2511,"Long Goodbye, The (1973)",Crime|Film-Noir
+2513,Pet Sematary (1989),Horror
+2514,Pet Sematary II (1992),Comedy|Horror
+2515,Children of the Corn II: The Final Sacrifice (1993),Horror
+2516,Children of the Corn III (1994),Horror
+2517,Christine (1983),Horror
+2518,Night Shift (1982),Comedy
+2519,House on Haunted Hill (1959),Drama|Horror|Thriller
+2520,Airport (1970),Drama
+2521,Airport 1975 (1974),Action|Drama|Thriller
+2522,Airport '77 (1977),Drama
+2523,Rollercoaster (1977),Drama|Thriller
+2524,"Towering Inferno, The (1974)",Action|Adventure|Drama|Thriller
+2525,Alligator (1980),Action|Horror|Sci-Fi
+2526,Meteor (1979),Sci-Fi
+2527,Westworld (1973),Action|Sci-Fi|Thriller|Western
+2528,Logan's Run (1976),Action|Adventure|Sci-Fi
+2529,Planet of the Apes (1968),Action|Drama|Sci-Fi
+2530,Beneath the Planet of the Apes (1970),Action|Sci-Fi
+2531,Battle for the Planet of the Apes (1973),Action|Sci-Fi
+2532,Conquest of the Planet of the Apes (1972),Action|Sci-Fi
+2533,Escape from the Planet of the Apes (1971),Action|Sci-Fi
+2534,Avalanche (1978),Action
+2535,Earthquake (1974),Action|Drama|Thriller
+2536,"Concorde: Airport '79, The (1979)",Drama
+2537,Beyond the Poseidon Adventure (1979),Adventure
+2539,Analyze This (1999),Comedy
+2540,"Corruptor, The (1999)",Action|Crime|Drama|Thriller
+2541,Cruel Intentions (1999),Drama
+2542,"Lock, Stock & Two Smoking Barrels (1998)",Comedy|Crime|Thriller
+2545,Relax... It's Just Sex (1998),Comedy
+2546,"Deep End of the Ocean, The (1999)",Drama
+2548,"Rage: Carrie 2, The (1999)",Horror
+2549,Wing Commander (1999),Action|Sci-Fi
+2550,"Haunting, The (1963)",Horror|Thriller
+2551,Dead Ringers (1988),Drama|Horror|Thriller
+2552,My Boyfriend's Back (1993),Comedy
+2553,Village of the Damned (1960),Horror|Sci-Fi|Thriller
+2554,Children of the Damned (1963),Horror|Sci-Fi|Thriller
+2555,Baby Geniuses (1999),Comedy
+2557,I Stand Alone (Seul contre tous) (1998),Drama|Thriller
+2558,Forces of Nature (1999),Comedy|Romance
+2559,"King and I, The (1999)",Animation|Children
+2560,Ravenous (1999),Horror|Thriller
+2561,True Crime (1999),Crime|Thriller
+2562,Bandits (1997),Drama
+2563,Dangerous Beauty (1998),Drama
+2565,"King and I, The (1956)",Drama|Musical|Romance
+2566,Doug's 1st Movie (1999),Animation|Children
+2567,EDtv (1999),Comedy
+2568,"Mod Squad, The (1999)",Action|Crime
+2569,Among Giants (1998),Comedy|Drama|Romance
+2570,"Walk on the Moon, A (1999)",Drama|Romance
+2571,"Matrix, The (1999)",Action|Sci-Fi|Thriller
+2572,10 Things I Hate About You (1999),Comedy|Romance
+2573,Tango (1998),Drama|Musical
+2574,"Out-of-Towners, The (1999)",Comedy
+2575,"Dreamlife of Angels, The (Vie rêvée des anges, La) (1998)",Drama
+2577,Metroland (1997),Comedy|Drama
+2579,Following (1998),Crime|Mystery|Thriller
+2580,Go (1999),Comedy|Crime
+2581,Never Been Kissed (1999),Comedy|Romance
+2582,Twin Dragons (Shuang long hui) (1992),Action|Comedy
+2583,Cookie's Fortune (1999),Comedy|Drama
+2585,"Lovers of the Arctic Circle, The (Los Amantes del Círculo Polar) (1998)",Drama|Romance
+2586,Goodbye Lover (1999),Comedy|Crime|Thriller
+2587,Life (1999),Comedy|Crime|Drama
+2589,Friends & Lovers (1999),Comedy|Drama|Romance
+2590,Hideous Kinky (1998),Drama
+2594,Open Your Eyes (Abre los ojos) (1997),Drama|Romance|Sci-Fi|Thriller
+2596,SLC Punk! (1998),Comedy|Drama
+2597,Lost & Found (1999),Comedy|Romance
+2598,Pushing Tin (1999),Comedy
+2599,Election (1999),Comedy
+2600,eXistenZ (1999),Action|Sci-Fi|Thriller
+2605,Entrapment (1999),Crime|Thriller
+2606,Idle Hands (1999),Comedy|Horror
+2607,Get Real (1998),Drama|Romance
+2609,"King of Masks, The (Bian Lian) (1996)",Drama
+2610,Three Seasons (1999),Drama
+2611,"Winslow Boy, The (1999)",Drama
+2612,Mildred Pierce (1945),Drama|Film-Noir
+2613,Night of the Comet (1984),Comedy|Horror|Sci-Fi
+2615,My Science Project (1985),Adventure|Sci-Fi
+2616,Dick Tracy (1990),Action|Crime
+2617,"Mummy, The (1999)",Action|Adventure|Comedy|Fantasy|Horror|Thriller
+2618,"Castle, The (1997)",Comedy
+2620,This Is My Father (1998),Drama|Romance
+2621,Xiu Xiu: The Sent-Down Girl (Tian yu) (1998),Drama
+2622,William Shakespeare's A Midsummer Night's Dream (1999),Comedy|Fantasy
+2624,After Life (Wandafuru raifu) (1998),Drama|Fantasy
+2625,Black Mask (Hak hap) (1996),Action|Adventure|Crime|Sci-Fi|Thriller
+2626,Edge of Seventeen (1998),Comedy|Drama|Romance
+2627,Endurance (1999),Documentary|Drama
+2628,Star Wars: Episode I - The Phantom Menace (1999),Action|Adventure|Sci-Fi
+2629,"Love Letter, The (1999)",Comedy|Romance
+2630,Besieged (a.k.a. L' Assedio) (1998),Drama
+2631,Frogs for Snakes (1998),Comedy|Film-Noir|Thriller
+2633,"Mummy, The (1932)",Horror|Romance
+2634,"Mummy, The (1959)",Horror
+2635,"Mummy's Curse, The (1944)",Horror
+2636,"Mummy's Ghost, The (1944)",Horror
+2637,"Mummy's Hand, The (1940)",Horror
+2638,"Mummy's Tomb, The (1942)",Horror
+2639,Mommie Dearest (1981),Drama
+2640,Superman (1978),Action|Adventure|Sci-Fi
+2641,Superman II (1980),Action|Sci-Fi
+2642,Superman III (1983),Action|Adventure|Sci-Fi
+2643,Superman IV: The Quest for Peace (1987),Action|Adventure|Sci-Fi
+2644,Dracula (1931),Horror
+2647,House of Frankenstein (1944),Horror
+2648,Frankenstein (1931),Drama|Horror|Sci-Fi
+2649,Son of Frankenstein (1939),Horror
+2650,"Ghost of Frankenstein, The (1942)",Horror
+2651,Frankenstein Meets the Wolf Man (1943),Horror
+2652,"Curse of Frankenstein, The (1957)",Horror
+2653,Son of Dracula (1943),Horror
+2654,"Wolf Man, The (1941)",Drama|Fantasy|Horror
+2655,Howling II: Your Sister Is a Werewolf (1985),Horror
+2656,Tarantula (1955),Horror|Sci-Fi
+2657,"Rocky Horror Picture Show, The (1975)",Comedy|Horror|Musical|Sci-Fi
+2659,It Came from Hollywood (1982),Comedy|Documentary
+2660,"Thing from Another World, The (1951)",Horror|Sci-Fi
+2661,It Came from Outer Space (1953),Sci-Fi
+2662,"War of the Worlds, The (1953)",Action|Drama|Sci-Fi
+2664,Invasion of the Body Snatchers (1956),Horror|Sci-Fi|Thriller
+2668,Swamp Thing (1982),Horror|Sci-Fi
+2669,Pork Chop Hill (1959),War
+2670,Run Silent Run Deep (1958),War
+2671,Notting Hill (1999),Comedy|Romance
+2672,"Thirteenth Floor, The (1999)",Drama|Sci-Fi|Thriller
+2673,Eternity and a Day (Mia aoniotita kai mia mera) (1998),Drama
+2674,"Loss of Sexual Innocence, The (1999)",Drama|Fantasy
+2676,Instinct (1999),Drama|Thriller
+2677,Buena Vista Social Club (1999),Documentary|Musical
+2678,Desert Blue (1998),Drama
+2681,Free Enterprise (1998),Comedy|Romance|Sci-Fi
+2682,Limbo (1999),Drama
+2683,Austin Powers: The Spy Who Shagged Me (1999),Action|Adventure|Comedy
+2686,"Red Violin, The (Violon rouge, Le) (1998)",Drama|Mystery
+2687,Tarzan (1999),Adventure|Animation|Children|Drama
+2688,"General's Daughter, The (1999)",Crime|Drama|Mystery|Thriller
+2689,Get Bruce (1999),Documentary
+2690,"Ideal Husband, An (1999)",Comedy|Romance
+2691,"Legend of 1900, The (a.k.a. The Legend of the Pianist on the Ocean) (Leggenda del pianista sull'oceano) (1998)",Drama
+2692,Run Lola Run (Lola rennt) (1998),Action|Crime
+2693,Trekkies (1997),Documentary
+2694,Big Daddy (1999),Comedy
+2696,"Dinner Game, The (Dîner de cons, Le) (1998)",Comedy
+2697,My Son the Fanatic (1997),Comedy|Drama|Romance
+2699,Arachnophobia (1990),Comedy|Horror
+2700,"South Park: Bigger, Longer and Uncut (1999)",Animation|Comedy|Musical
+2701,Wild Wild West (1999),Action|Comedy|Sci-Fi|Western
+2702,Summer of Sam (1999),Drama
+2704,"Lovers on the Bridge, The (Amants du Pont-Neuf, Les) (1991)",Drama|Romance
+2706,American Pie (1999),Comedy|Romance
+2707,Arlington Road (1999),Thriller
+2708,"Autumn Tale, An (Conte d'automne) (1998)",Romance
+2709,Muppets From Space (1999),Children|Comedy
+2710,"Blair Witch Project, The (1999)",Drama|Horror|Thriller
+2712,Eyes Wide Shut (1999),Drama|Mystery|Thriller
+2713,Lake Placid (1999),Horror|Thriller
+2714,"Wood, The (1999)",Drama
+2715,"Velocity of Gary, The (1998)",Comedy|Romance
+2716,Ghostbusters (a.k.a. Ghost Busters) (1984),Action|Comedy|Sci-Fi
+2717,Ghostbusters II (1989),Comedy|Fantasy|Sci-Fi
+2718,Drop Dead Gorgeous (1999),Comedy
+2719,"Haunting, The (1999)",Horror|Thriller
+2720,Inspector Gadget (1999),Action|Adventure|Children|Comedy
+2721,Trick (1999),Comedy|Romance
+2722,Deep Blue Sea (1999),Action|Horror|Sci-Fi|Thriller
+2723,Mystery Men (1999),Action|Comedy|Fantasy
+2724,Runaway Bride (1999),Comedy|Romance
+2725,Twin Falls Idaho (1999),Drama
+2726,"Killing, The (1956)",Crime|Film-Noir
+2727,Killer's Kiss (1955),Crime|Film-Noir
+2728,Spartacus (1960),Action|Drama|Romance|War
+2729,Lolita (1962),Drama|Romance
+2730,Barry Lyndon (1975),Drama|Romance|War
+2731,"400 Blows, The (Les quatre cents coups) (1959)",Crime|Drama
+2732,Jules and Jim (Jules et Jim) (1961),Drama|Romance
+2733,Vibes (1988),Adventure|Comedy|Romance
+2734,"Mosquito Coast, The (1986)",Adventure|Drama|Thriller
+2735,"Golden Child, The (1986)",Action|Adventure|Comedy|Fantasy|Mystery
+2736,Brighton Beach Memoirs (1986),Comedy
+2738,Crimes of the Heart (1986),Comedy|Drama
+2739,"Color Purple, The (1985)",Drama
+2741,No Mercy (1986),Action|Crime|Thriller
+2745,"Mission, The (1986)",Drama
+2746,Little Shop of Horrors (1986),Comedy|Horror|Musical
+2747,"Little Shop of Horrors, The (1960)",Comedy|Horror
+2748,Allan Quatermain and the Lost City of Gold (1987),Action|Adventure|Comedy
+2749,"Morning After, The (1986)",Drama|Mystery
+2750,Radio Days (1987),Comedy|Drama
+2751,From the Hip (1987),Comedy|Drama
+2752,Outrageous Fortune (1987),Comedy|Mystery
+2753,"Bedroom Window, The (1987)",Thriller
+2754,Deadtime Stories (1987),Horror
+2755,Light of Day (1987),Drama
+2757,Frances (1982),Drama
+2758,Plenty (1985),Drama
+2759,Dick (1999),Comedy
+2761,"Iron Giant, The (1999)",Adventure|Animation|Children|Drama|Sci-Fi
+2762,"Sixth Sense, The (1999)",Drama|Horror|Mystery
+2763,"Thomas Crown Affair, The (1999)",Action|Mystery
+2764,"Thomas Crown Affair, The (1968)",Crime|Drama|Romance|Thriller
+2766,"Adventures of Sebastian Cole, The (1998)",Comedy|Drama
+2767,Illuminata (1998),Comedy
+2769,"Yards, The (2000)",Crime|Drama
+2770,Bowfinger (1999),Comedy
+2771,Brokedown Palace (1999),Drama
+2772,Detroit Rock City (1999),Comedy
+2774,Better Than Chocolate (1999),Comedy|Romance
+2775,Head On (1998),Drama
+2776,"Marcello Mastroianni: I Remember Yes, I Remember (Marcello Mastroianni: mi ricordo, sì, io mi ricordo) (1997)",Documentary
+2779,Heaven Can Wait (1978),Comedy
+2780,"Raven, The (1963)",Comedy|Horror
+2781,"Tingler, The (1959)",Horror
+2782,Pit and the Pendulum (1961),Horror
+2783,"Tomb of Ligeia, The (1965)",Horror
+2784,"Masque of the Red Death, The (1964)",Horror
+2786,Haunted Honeymoon (1986),Comedy
+2787,Cat's Eye (1985),Horror
+2788,Monty Python's And Now for Something Completely Different (1971),Comedy
+2789,Damien: Omen II (1978),Horror
+2790,"Final Conflict, The (a.k.a. Omen III: The Final Conflict) (1981)",Horror|Thriller
+2791,Airplane! (1980),Comedy
+2792,Airplane II: The Sequel (1982),Comedy
+2793,"American Werewolf in Paris, An (1997)",Comedy|Horror|Romance|Thriller
+2794,European Vacation (aka National Lampoon's European Vacation) (1985),Adventure|Comedy|Romance
+2795,National Lampoon's Vacation (1983),Comedy
+2796,Funny Farm (1988),Comedy
+2797,Big (1988),Comedy|Drama|Fantasy|Romance
+2798,Problem Child (1990),Children|Comedy
+2799,Problem Child 2 (1991),Comedy
+2800,Little Nemo: Adventures in Slumberland (1992),Adventure|Animation|Children|Drama|Fantasy
+2801,Oscar and Lucinda (a.k.a. Oscar & Lucinda) (1997),Drama|Romance
+2802,Tequila Sunrise (1988),Action|Drama|Romance|Thriller
+2803,"Pelican Brief, The (1993)",Crime|Drama|Mystery|Romance|Thriller
+2804,"Christmas Story, A (1983)",Children|Comedy
+2805,Mickey Blue Eyes (1999),Comedy|Romance
+2806,Teaching Mrs. Tingle (1999),Comedy|Thriller
+2807,Universal Soldier: The Return (1999),Action|Sci-Fi
+2808,Universal Soldier (1992),Action|Sci-Fi
+2809,Love Stinks (1999),Comedy
+2810,Perfect Blue (1997),Animation|Horror|Mystery|Thriller
+2812,In Too Deep (1999),Action|Thriller
+2815,Iron Eagle (1986),Action|War
+2816,Iron Eagle II (1988),Action|War
+2817,Aces: Iron Eagle III (1992),Action
+2819,Three Days of the Condor (3 Days of the Condor) (1975),Drama|Mystery|Romance|Thriller
+2820,Hamlet (1964),Drama
+2822,Medicine Man (1992),Adventure|Romance
+2824,On the Ropes (1999),Documentary|Drama
+2826,"13th Warrior, The (1999)",Action|Adventure|Fantasy
+2827,"Astronaut's Wife, The (1999)",Horror|Sci-Fi|Thriller
+2828,Dudley Do-Right (1999),Children|Comedy
+2829,"Muse, The (1999)",Comedy
+2832,"Lost Son, The (1999)",Drama
+2835,Chill Factor (1999),Action|Adventure|Comedy|Thriller
+2836,Outside Providence (1999),Comedy
+2837,Bedrooms & Hallways (1998),Comedy|Romance
+2839,West Beirut (West Beyrouth) (1998),Drama
+2840,Stigmata (1999),Drama|Thriller
+2841,Stir of Echoes (1999),Horror|Mystery|Thriller
+2843,"Black Cat, White Cat (Crna macka, beli macor) (1998)",Comedy|Romance
+2844,"Minus Man, The (1999)",Drama|Mystery
+2845,Whiteboyz (1999),Comedy|Drama
+2846,"Adventures of Milo and Otis, The (Koneko monogatari) (1986)",Adventure|Children|Comedy|Drama
+2847,Only Angels Have Wings (1939),Adventure|Drama|Romance
+2848,"Othello (Tragedy of Othello: The Moor of Venice, The) (1952)",Drama
+2849,Queens Logic (1991),Comedy|Drama
+2850,Public Access (1993),Drama|Thriller
+2851,Saturn 3 (1980),Adventure|Sci-Fi|Thriller
+2852,"Soldier's Story, A (1984)",Drama
+2853,"Alice, Sweet Alice (a.k.a. Communion) (a.k.a. Holy Terror) (1976)",Horror|Mystery
+2855,Nightmares (1983),Horror
+2856,I Saw What You Did (1965),Thriller
+2857,Yellow Submarine (1968),Adventure|Animation|Comedy|Fantasy|Musical
+2858,American Beauty (1999),Drama|Romance
+2859,Stop Making Sense (1984),Documentary|Musical
+2860,Blue Streak (1999),Comedy
+2861,For Love of the Game (1999),Comedy|Drama
+2862,Caligula (1979),Drama
+2863,"Hard Day's Night, A (1964)",Adventure|Comedy|Musical
+2864,Splendor (1999),Comedy
+2866,"Buddy Holly Story, The (1978)",Drama
+2867,Fright Night (1985),Comedy|Horror|Thriller
+2868,Fright Night Part II (1988),Horror
+2869,"Separation, The (Séparation, La) (1994)",Drama
+2870,Barefoot in the Park (1967),Comedy
+2871,Deliverance (1972),Adventure|Drama|Thriller
+2872,Excalibur (1981),Adventure|Fantasy
+2874,"Pajama Game, The (1957)",Comedy|Musical|Romance
+2875,Sommersby (1993),Drama|Mystery|Romance
+2876,Thumbelina (1994),Animation|Children|Fantasy
+2877,Tommy (1975),Musical
+2878,Hell Night (1981),Horror
+2879,Armour of God II: Operation Condor (Operation Condor) (Fei ying gai wak) (1991),Action|Adventure|Comedy
+2880,Armour of God (Long xiong hu di) (1987),Action|Adventure|Comedy
+2881,Double Jeopardy (1999),Action|Crime|Drama|Thriller
+2882,Jakob the Liar (1999),Drama
+2883,Mumford (1999),Comedy|Drama
+2884,Dog Park (1998),Comedy|Romance
+2885,Guinevere (1999),Drama|Romance
+2886,"Adventures of Elmo in Grouchland, The (1999)",Children|Comedy
+2887,Simon Sez (1999),Action|Comedy
+2888,Drive Me Crazy (1999),Comedy|Romance
+2889,"Mystery, Alaska (1999)",Comedy|Drama
+2890,Three Kings (1999),Action|Adventure|Comedy|Drama|War
+2891,"Happy, Texas (1999)",Comedy
+2892,New Rose Hotel (1998),Action|Drama
+2893,Plunkett & MaCleane (1999),Action|Adventure|Drama
+2894,Romance (1999),Drama|Romance
+2897,And the Ship Sails On (E la nave va) (1983),Comedy|War
+2898,"Dark Half, The (1993)",Horror|Mystery
+2899,Gulliver's Travels (1939),Adventure|Animation|Children
+2900,Monkey Shines (1988),Horror|Sci-Fi
+2901,Phantasm (1979),Horror|Sci-Fi
+2902,Psycho II (1983),Horror|Mystery|Thriller
+2903,Psycho III (1986),Horror|Thriller
+2904,Rain (1932),Drama
+2905,Sanjuro (Tsubaki Sanjûrô) (1962),Action|Adventure|Drama
+2906,Random Hearts (1999),Drama|Romance
+2907,Superstar (1999),Comedy
+2908,Boys Don't Cry (1999),Drama
+2912,"Limey, The (1999)",Crime|Drama|Thriller
+2913,The Mating Habits of the Earthbound Human (1999),Comedy|Sci-Fi
+2915,Risky Business (1983),Comedy
+2916,Total Recall (1990),Action|Adventure|Sci-Fi|Thriller
+2917,Body Heat (1981),Crime|Thriller
+2918,Ferris Bueller's Day Off (1986),Comedy
+2919,"Year of Living Dangerously, The (1982)",Drama|Romance|War
+2920,Children of Paradise (Les enfants du paradis) (1945),Drama|Romance
+2921,High Plains Drifter (1973),Western
+2922,Hang 'Em High (1968),Crime|Drama|Western
+2923,Handle with Care (a.k.a. Citizen's Band) (1977),Comedy
+2924,Drunken Master (Jui kuen) (1978),Action|Comedy
+2925,"Conformist, The (Conformista, Il) (1970)",Drama
+2926,Hairspray (1988),Comedy|Drama
+2927,Brief Encounter (1946),Drama|Romance
+2928,"Razor's Edge, The (1984)",Drama
+2929,Reds (1981),Drama|Romance
+2930,Return with Honor (1998),Documentary
+2932,Days of Heaven (1978),Drama
+2935,"Lady Eve, The (1941)",Comedy|Romance
+2936,Sullivan's Travels (1941),Adventure|Comedy|Romance
+2937,"Palm Beach Story, The (1942)",Comedy
+2938,Man Facing Southeast (1986),Drama|Sci-Fi
+2939,Niagara (1953),Drama|Thriller
+2940,Gilda (1946),Drama|Film-Noir|Mystery|Romance
+2941,South Pacific (1958),Musical|Romance|War
+2942,Flashdance (1983),Drama|Romance
+2943,Indochine (1992),Drama|Romance
+2944,"Dirty Dozen, The (1967)",Action|Drama|War
+2945,Mike's Murder (1984),Mystery
+2946,Help! (1965),Comedy|Musical
+2947,Goldfinger (1964),Action|Adventure|Thriller
+2948,From Russia with Love (1963),Action|Adventure|Thriller
+2949,Dr. No (1962),Action|Adventure|Thriller
+2950,"Blue Lagoon, The (1980)",Adventure|Drama|Romance
+2951,"Fistful of Dollars, A (Per un pugno di dollari) (1964)",Action|Western
+2952,Sydney (Hard Eight) (1996),Crime|Drama|Thriller
+2953,Home Alone 2: Lost in New York (1992),Children|Comedy
+2956,Someone to Watch Over Me (1987),Action|Crime|Thriller
+2959,Fight Club (1999),Action|Crime|Drama|Thriller
+2961,"Story of Us, The (1999)",Comedy|Drama
+2962,Fever Pitch (1997),Comedy|Romance
+2964,Julien Donkey-Boy (1999),Drama
+2966,"Straight Story, The (1999)",Adventure|Drama
+2967,"Bad Seed, The (1956)",Drama|Thriller
+2968,Time Bandits (1981),Adventure|Comedy|Fantasy|Sci-Fi
+2969,"Man and a Woman, A (Un homme et une femme) (1966)",Drama|Romance
+2970,Fitzcarraldo (1982),Adventure|Drama
+2971,All That Jazz (1979),Drama|Fantasy|Musical
+2972,Red Sorghum (Hong gao liang) (1987),Drama|War
+2973,Crimes and Misdemeanors (1989),Comedy|Crime|Drama
+2974,Bats (1999),Horror|Thriller
+2975,"Best Man, The (1999)",Comedy|Drama
+2976,Bringing Out the Dead (1999),Drama
+2977,Crazy in Alabama (1999),Comedy|Drama
+2978,Three to Tango (1999),Comedy|Romance
+2979,Body Shots (1999),Drama
+2981,"Brother, Can You Spare a Dime? (1975)",Documentary
+2982,"Guardian, The (1990)",Horror|Thriller
+2983,"Ipcress File, The (1965)",Thriller
+2984,On Any Sunday (1971),Documentary
+2985,RoboCop (1987),Action|Crime|Drama|Sci-Fi|Thriller
+2986,RoboCop 2 (1990),Action|Crime|Sci-Fi|Thriller
+2987,Who Framed Roger Rabbit? (1988),Adventure|Animation|Children|Comedy|Crime|Fantasy|Mystery
+2988,Melvin and Howard (1980),Drama
+2989,For Your Eyes Only (1981),Action|Adventure|Thriller
+2990,Licence to Kill (1989),Action|Adventure|Thriller
+2991,Live and Let Die (1973),Action|Adventure|Thriller
+2992,Rawhead Rex (1986),Horror|Thriller
+2993,Thunderball (1965),Action|Adventure|Thriller
+2995,House on Haunted Hill (1999),Horror|Thriller
+2996,Music of the Heart (1999),Drama
+2997,Being John Malkovich (1999),Comedy|Drama|Fantasy
+2998,Dreaming of Joseph Lees (1999),Drama|Romance
+3000,Princess Mononoke (Mononoke-hime) (1997),Action|Adventure|Animation|Drama|Fantasy
+3001,"Suburbans, The (1999)",Drama
+3002,My Best Fiend (Mein liebster Feind) (1999),Documentary
+3003,Train of Life (Train de vie) (1998),Comedy|Drama|Romance|War
+3004,"Bachelor, The (1999)",Comedy|Romance
+3005,"Bone Collector, The (1999)",Thriller
+3006,"Insider, The (1999)",Drama|Thriller
+3007,American Movie (1999),Documentary
+3008,Last Night (1998),Drama|Sci-Fi
+3010,Rosetta (1999),Drama
+3011,"They Shoot Horses, Don't They? (1969)",Drama
+3013,Bride of Re-Animator (1990),Comedy|Horror
+3015,Coma (1978),Thriller
+3016,Creepshow (1982),Horror
+3017,Creepshow 2 (1987),Horror
+3018,Re-Animator (1985),Comedy|Horror|Sci-Fi
+3019,Drugstore Cowboy (1989),Crime|Drama
+3020,Falling Down (1993),Action|Drama
+3021,"Funhouse, The (1981)",Horror
+3022,"General, The (1926)",Comedy|War
+3024,Piranha (1978),Horror|Sci-Fi
+3025,Rough Night in Jericho (1967),Western
+3028,"Taming of the Shrew, The (1967)",Comedy
+3029,Nighthawks (1981),Action|Drama
+3030,Yojimbo (1961),Action|Adventure
+3031,Repossessed (1990),Comedy
+3032,"Omega Man, The (1971)",Action|Drama|Sci-Fi|Thriller
+3033,Spaceballs (1987),Comedy|Sci-Fi
+3034,Robin Hood (1973),Adventure|Animation|Children|Comedy|Musical
+3035,Mister Roberts (1955),Comedy|Drama|War
+3036,"Quest for Fire (Guerre du feu, La) (1981)",Adventure|Drama
+3037,Little Big Man (1970),Western
+3038,"Face in the Crowd, A (1957)",Drama
+3039,Trading Places (1983),Comedy
+3040,Meatballs (1979),Comedy
+3041,Meatballs Part II (1984),Comedy
+3042,Meatballs III (1987),Comedy
+3043,Meatballs 4 (1992),Comedy
+3044,Dead Again (1991),Mystery|Romance|Thriller
+3045,Peter's Friends (1992),Comedy|Drama
+3046,"Incredibly True Adventure of Two Girls in Love, The (1995)",Comedy|Romance
+3047,Experience Preferred... But Not Essential (1982),Drama
+3048,Under the Rainbow (1981),Comedy
+3051,Anywhere But Here (1999),Comedy|Drama
+3052,Dogma (1999),Adventure|Comedy|Fantasy
+3053,"Messenger: The Story of Joan of Arc, The (1999)",Drama|War
+3054,Pokémon: The First Movie (1998),Adventure|Animation|Children|Fantasy|Sci-Fi
+3055,Felicia's Journey (1999),Thriller
+3057,Where's Marlowe? (1998),Comedy
+3060,"Commitments, The (1991)",Comedy|Drama|Musical
+3061,Holiday Inn (1942),Comedy|Musical
+3062,"Longest Day, The (1962)",Action|Drama|War
+3063,Poison Ivy (1992),Drama|Thriller
+3064,Poison Ivy: New Seduction (1997),Drama|Thriller
+3066,Tora! Tora! Tora! (1970),Action|Drama|War
+3067,Women on the Verge of a Nervous Breakdown (Mujeres al borde de un ataque de nervios) (1988),Comedy|Drama
+3068,"Verdict, The (1982)",Drama|Mystery
+3069,"Effect of Gamma Rays on Man-in-the-Moon Marigolds, The (1972)",Drama
+3070,"Adventures of Buckaroo Banzai Across the 8th Dimension, The (1984)",Adventure|Comedy|Sci-Fi
+3071,Stand and Deliver (1988),Comedy|Drama
+3072,Moonstruck (1987),Comedy|Romance
+3074,Jeremiah Johnson (1972),Western
+3075,Repulsion (1965),Drama|Horror
+3076,Irma la Douce (1963),Comedy
+3077,42 Up (1998),Documentary
+3078,Liberty Heights (1999),Drama
+3079,Mansfield Park (1999),Comedy|Drama|Romance
+3081,Sleepy Hollow (1999),Fantasy|Horror|Mystery|Romance
+3082,"World Is Not Enough, The (1999)",Action|Adventure|Thriller
+3083,All About My Mother (Todo sobre mi madre) (1999),Drama
+3086,Babes in Toyland (1934),Children|Comedy|Fantasy|Musical
+3087,Scrooged (1988),Comedy|Fantasy|Romance
+3088,Harvey (1950),Comedy|Fantasy
+3089,Bicycle Thieves (a.k.a. The Bicycle Thief) (a.k.a. The Bicycle Thieves) (Ladri di biciclette) (1948),Drama
+3090,Matewan (1987),Drama
+3091,Kagemusha (1980),Drama|War
+3093,McCabe & Mrs. Miller (1971),Drama|Western
+3094,Maurice (1987),Drama|Romance
+3095,"Grapes of Wrath, The (1940)",Drama
+3096,My Man Godfrey (1957),Comedy
+3097,"Shop Around the Corner, The (1940)",Comedy|Drama|Romance
+3098,"Natural, The (1984)",Drama
+3099,Shampoo (1975),Comedy|Drama|Romance
+3100,"River Runs Through It, A (1992)",Drama
+3101,Fatal Attraction (1987),Drama|Thriller
+3102,Jagged Edge (1985),Crime|Romance|Thriller
+3103,Stanley & Iris (1990),Drama|Romance
+3104,Midnight Run (1988),Action|Comedy|Crime|Thriller
+3105,Awakenings (1990),Drama|Mystery
+3106,Come See the Paradise (1990),Drama|Romance
+3107,Backdraft (1991),Action|Drama
+3108,"Fisher King, The (1991)",Comedy|Drama|Fantasy|Romance
+3109,"River, The (1984)",Drama
+3110,Country (1984),Drama
+3111,Places in the Heart (1984),Drama
+3112,'night Mother (1986),Drama
+3113,End of Days (1999),Action|Fantasy|Horror|Mystery|Thriller
+3114,Toy Story 2 (1999),Adventure|Animation|Children|Comedy|Fantasy
+3115,Flawless (1999),Drama
+3116,Miss Julie (1999),Drama
+3117,Ride with the Devil (1999),Drama|Romance|War
+3118,Tumbleweeds (1999),Drama
+3120,"Distinguished Gentleman, The (1992)",Comedy
+3121,"Hitch-Hiker, The (1953)",Drama|Film-Noir
+3122,Santa Fe Trail (1940),Drama|Romance|Western
+3125,"End of the Affair, The (1999)",Drama
+3127,Holy Smoke (1999),Comedy|Drama
+3128,"Map of the World, A (1999)",Drama
+3129,Sweet and Lowdown (1999),Comedy|Drama
+3130,Bonfire of the Vanities (1990),Comedy|Crime|Drama
+3133,Go West (1925),Comedy|Western
+3134,Grand Illusion (La grande illusion) (1937),Drama|War
+3135,"Great Santini, The (1979)",Drama
+3136,"James Dean Story, The (1957)",Documentary
+3138,Stealing Home (1988),Drama
+3140,Three Ages (1923),Comedy
+3141,"Two Jakes, The (1990)",Drama
+3142,U2: Rattle and Hum (1988),Documentary|Musical
+3143,Hell in the Pacific (1968),Drama|War
+3144,"Glass Bottom Boat, The (1966)",Comedy|Romance
+3145,Cradle Will Rock (1999),Drama
+3146,Deuce Bigalow: Male Gigolo (1999),Comedy
+3147,"Green Mile, The (1999)",Crime|Drama
+3148,"Cider House Rules, The (1999)",Drama
+3150,"War Zone, The (1999)",Drama|Thriller
+3152,"Last Picture Show, The (1971)",Drama
+3153,"7th Voyage of Sinbad, The (1958)",Action|Adventure|Fantasy
+3155,Anna and the King (1999),Drama|Romance
+3156,Bicentennial Man (1999),Drama|Romance|Sci-Fi
+3157,Stuart Little (1999),Children|Comedy|Fantasy
+3158,"Emperor and the Assassin, The (Jing ke ci qin wang) (1999)",Drama
+3159,Fantasia 2000 (1999),Animation|Children|Musical|IMAX
+3160,Magnolia (1999),Drama
+3161,Onegin (1999),Drama|Romance
+3163,Topsy-Turvy (1999),Comedy|Drama|Musical
+3165,Boiling Point (1993),Action|Drama
+3166,Brenda Starr (1989),Adventure
+3167,Carnal Knowledge (1971),Comedy|Drama
+3168,Easy Rider (1969),Adventure|Drama
+3169,The Falcon and the Snowman (1985),Crime|Drama|Thriller
+3171,Room at the Top (1959),Drama
+3173,Any Given Sunday (1999),Drama
+3174,Man on the Moon (1999),Comedy|Drama
+3175,Galaxy Quest (1999),Adventure|Comedy|Sci-Fi
+3176,"Talented Mr. Ripley, The (1999)",Drama|Mystery|Thriller
+3177,Next Friday (2000),Comedy
+3178,"Hurricane, The (1999)",Drama
+3179,Angela's Ashes (1999),Drama
+3180,Play it to the Bone (1999),Comedy|Drama
+3181,Titus (1999),Drama
+3182,"Mr. Death: The Rise and Fall of Fred A. Leuchter, Jr. (1999)",Documentary
+3183,"Third Miracle, The (1999)",Drama
+3185,Snow Falling on Cedars (1999),Drama
+3186,"Girl, Interrupted (1999)",Drama
+3188,"Life and Times of Hank Greenberg, The (1998)",Documentary
+3189,My Dog Skip (1999),Children|Drama
+3190,Supernova (2000),Adventure|Sci-Fi|Thriller
+3192,"Terrorist, The (a.k.a. Malli) (Theeviravaathi) (1998)",Drama
+3194,"Way We Were, The (1973)",Drama|Romance
+3196,Stalag 17 (1953),Drama|War
+3197,"Presidio, The (1988)",Action|Crime|Romance|Thriller
+3198,Papillon (1973),Crime|Drama
+3199,Pal Joey (1957),Comedy|Drama|Musical|Romance
+3200,"Last Detail, The (1973)",Comedy|Drama
+3201,Five Easy Pieces (1970),Drama
+3202,Even Dwarfs Started Small (Auch Zwerge haben klein angefangen) (1971),Drama|Horror
+3203,Dead Calm (1989),Thriller
+3204,"Boys from Brazil, The (1978)",Action|Mystery|Thriller
+3205,Black Sunday (La maschera del demonio) (1960),Horror
+3206,Against All Odds (1984),Romance
+3207,"Snows of Kilimanjaro, The (1952)",Adventure
+3208,Loaded Weapon 1 (National Lampoon's Loaded Weapon 1) (1993),Action|Comedy
+3210,Fast Times at Ridgemont High (1982),Comedy|Drama|Romance
+3211,"Cry in the Dark, A (1988)",Drama
+3213,Batman: Mask of the Phantasm (1993),Animation|Children
+3214,American Flyers (1985),Drama
+3216,"Vampyros Lesbos (Vampiras, Las) (1971)",Fantasy|Horror|Thriller
+3217,"Star Is Born, A (1937)",Drama
+3218,Poison (1991),Drama
+3219,Pacific Heights (1990),Mystery|Thriller
+3221,"Draughtsman's Contract, The (1982)",Drama
+3223,"Zed & Two Noughts, A (1985)",Drama
+3224,Woman in the Dunes (Suna no onna) (1964),Drama
+3225,Down to You (2000),Comedy|Romance
+3232,Seven Chances (1925),Comedy
+3235,Where the Buffalo Roam (1980),Comedy
+3238,Eye of the Beholder (1999),Thriller
+3239,Isn't She Great? (2000),Comedy
+3240,"Big Tease, The (1999)",Comedy
+3241,"Cup, The (Phörpa) (1999)",Comedy
+3243,Encino Man (1992),Comedy
+3244,"Goodbye Girl, The (1977)",Comedy|Romance
+3245,I Am Cuba (Soy Cuba/Ya Kuba) (1964),Drama
+3246,Malcolm X (1992),Drama
+3247,Sister Act (1992),Comedy|Crime
+3248,Sister Act 2: Back in the Habit (1993),Comedy
+3249,"Hand That Rocks the Cradle, The (1992)",Drama|Thriller
+3250,Alive (1993),Drama
+3251,Agnes of God (1985),Drama|Mystery
+3252,Scent of a Woman (1992),Drama
+3253,Wayne's World (1992),Comedy
+3254,Wayne's World 2 (1993),Comedy
+3255,"League of Their Own, A (1992)",Comedy|Drama
+3256,Patriot Games (1992),Action|Crime|Drama|Thriller
+3257,"Bodyguard, The (1992)",Drama|Romance|Thriller
+3258,Death Becomes Her (1992),Comedy|Fantasy
+3259,Far and Away (1992),Adventure|Drama|Romance
+3260,Howards End (1992),Drama
+3261,Singles (1992),Comedy|Drama|Romance
+3262,Twin Peaks: Fire Walk with Me (1992),Crime|Drama|Mystery|Thriller
+3263,White Men Can't Jump (1992),Comedy|Drama
+3264,Buffy the Vampire Slayer (1992),Action|Comedy|Horror
+3265,Hard-Boiled (Lat sau san taam) (1992),Action|Crime|Drama|Thriller
+3266,Man Bites Dog (C'est arrivé près de chez vous) (1992),Comedy|Crime|Drama|Thriller
+3267,"Mariachi, El (1992)",Action|Crime|Thriller|Western
+3268,Stop! Or My Mom Will Shoot (1992),Action|Comedy
+3269,Forever Young (1992),Drama|Romance|Sci-Fi
+3270,"Cutting Edge, The (1992)",Comedy|Drama|Romance
+3271,Of Mice and Men (1992),Drama
+3272,Bad Lieutenant (1992),Crime|Drama
+3273,Scream 3 (2000),Comedy|Horror|Mystery|Thriller
+3274,Single White Female (1992),Drama|Thriller
+3275,"Boondock Saints, The (2000)",Action|Crime|Drama|Thriller
+3276,Gun Shy (2000),Comedy
+3281,"Brandon Teena Story, The (1998)",Documentary
+3282,Different for Girls (1996),Comedy
+3284,They Might Be Giants (1971),Comedy|Mystery|Romance
+3285,"Beach, The (2000)",Adventure|Drama
+3286,Snow Day (2000),Comedy
+3287,"Tigger Movie, The (2000)",Animation|Children
+3289,Not One Less (Yi ge dou bu neng shao) (1999),Drama
+3292,"Big Combo, The (1955)",Film-Noir
+3294,Eaten Alive (1977),Horror
+3296,To Sir with Love (1967),Drama
+3298,Boiler Room (2000),Crime|Drama|Thriller
+3299,Hanging Up (2000),Comedy|Drama
+3300,Pitch Black (2000),Horror|Sci-Fi|Thriller
+3301,"Whole Nine Yards, The (2000)",Comedy|Crime
+3302,Beautiful People (1999),Comedy
+3303,Black Tar Heroin: The Dark End of the Street (2000),Documentary
+3304,Blue Collar (1978),Crime|Drama
+3306,"Circus, The (1928)",Comedy
+3307,City Lights (1931),Comedy|Drama|Romance
+3308,"Flamingo Kid, The (1984)",Comedy|Drama
+3309,"Dog's Life, A (1918)",Comedy
+3310,"Kid, The (1921)",Comedy|Drama
+3313,Class Reunion (1982),Comedy
+3314,"Big Trees, The (1952)",Action|Drama
+3316,Reindeer Games (2000),Action|Thriller
+3317,Wonder Boys (2000),Comedy|Drama
+3318,Deterrence (1999),Drama|Thriller
+3320,Mifune's Last Song (Mifunes sidste sang) (1999),Comedy|Drama|Romance
+3324,Drowning Mona (2000),Comedy
+3325,"Next Best Thing, The (2000)",Comedy|Drama
+3326,What Planet Are You From? (2000),Comedy|Sci-Fi
+3327,Beyond the Mat (1999),Documentary
+3328,Ghost Dog: The Way of the Samurai (1999),Crime|Drama
+3329,The Year My Voice Broke (1987),Drama|Romance
+3330,Splendor in the Grass (1961),Drama|Romance
+3331,My Tutor (1983),Drama
+3334,Key Largo (1948),Crime|Drama|Film-Noir|Thriller
+3338,For All Mankind (1989),Documentary
+3339,Cross of Iron (1977),War
+3340,Bride of the Monster (1955),Horror|Sci-Fi
+3341,Born Yesterday (1950),Comedy
+3342,Birdy (1984),Drama|War
+3343,And God Created Woman (1988),Comedy|Drama|Romance
+3344,Blood Feast (1963),Horror
+3347,Never Cry Wolf (1983),Adventure|Drama
+3349,"Perils of Pauline, The (1947)",Comedy
+3350,"Raisin in the Sun, A (1961)",Drama
+3351,Two Thousand Maniacs! (1964),Horror
+3354,Mission to Mars (2000),Sci-Fi
+3355,"Ninth Gate, The (1999)",Fantasy|Horror|Mystery|Thriller
+3357,East-West (Est-ouest) (1999),Drama|Romance
+3358,Defending Your Life (1991),Comedy|Drama|Fantasy|Romance
+3359,Breaking Away (1979),Comedy|Drama
+3360,Hoosiers (a.k.a. Best Shot) (1986),Drama|Romance
+3361,Bull Durham (1988),Comedy|Drama|Romance
+3362,Dog Day Afternoon (1975),Crime|Drama
+3363,American Graffiti (1973),Comedy|Drama
+3364,"Asphalt Jungle, The (1950)",Crime|Film-Noir
+3365,"Searchers, The (1956)",Drama|Western
+3368,"Big Country, The (1958)",Romance|Western
+3370,Betrayed (1988),Drama|Thriller
+3371,Bound for Glory (1976),Drama
+3377,Hangmen Also Die! (1943),Drama|War
+3379,On the Beach (1959),Drama
+3380,Railroaded! (1947),Film-Noir
+3384,"Taking of Pelham One Two Three, The (1974)",Action|Crime
+3385,Volunteers (1985),Comedy
+3386,JFK (1991),Drama|Mystery|Thriller
+3387,Who's Harry Crumb? (1989),Comedy|Mystery
+3388,Harry and the Hendersons (1987),Children|Comedy
+3390,Shanghai Surprise (1986),Adventure|Crime|Drama|Romance
+3391,Who's That Girl? (1987),Comedy
+3392,She-Devil (1989),Comedy
+3393,Date with an Angel (1987),Comedy|Fantasy|Romance
+3394,Blind Date (1987),Comedy|Romance
+3395,Nadine (1987),Comedy
+3396,"Muppet Movie, The (1979)",Adventure|Children|Comedy|Musical
+3397,"Great Muppet Caper, The (1981)",Children|Comedy
+3398,"Muppets Take Manhattan, The (1984)",Children|Comedy|Musical
+3399,Sesame Street Presents Follow That Bird (1985),Children|Comedy
+3400,We're Back! A Dinosaur's Story (1993),Adventure|Animation|Children|Fantasy
+3401,Baby... Secret of the Lost Legend (1985),Adventure|Sci-Fi
+3402,Turtle Diary (1985),Comedy|Drama|Romance
+3404,Titanic (1953),Action|Drama
+3405,"Night to Remember, A (1958)",Action|Drama
+3406,Captain Horatio Hornblower R.N. (1951),Action|Adventure|Drama|War
+3408,Erin Brockovich (2000),Drama
+3409,Final Destination (2000),Drama|Thriller
+3412,"Bear, The (Ours, L') (1988)",Adventure|Children|Drama
+3414,Love Is a Many-Splendored Thing (1955),Drama|Romance|War
+3415,"Mirror, The (Zerkalo) (1975)",Drama
+3417,"Crimson Pirate, The (1952)",Adventure|Comedy
+3418,Thelma & Louise (1991),Adventure|Crime|Drama
+3420,...And Justice for All (1979),Drama|Thriller
+3421,Animal House (1978),Comedy
+3422,She's Gotta Have It (1986),Comedy|Romance
+3423,School Daze (1988),Drama
+3424,Do the Right Thing (1989),Drama
+3425,Mo' Better Blues (1990),Drama|Musical
+3426,Jungle Fever (1991),Drama|Romance
+3427,Coogan's Bluff (1968),Crime
+3428,"Champ, The (1979)",Drama
+3429,Creature Comforts (1989),Animation|Comedy
+3430,Death Wish (1974),Action|Crime|Drama
+3431,Death Wish 2 (1982),Action|Drama
+3432,Death Wish 3 (1985),Action|Drama
+3434,Death Wish 5: The Face of Death (1994),Action|Drama
+3435,Double Indemnity (1944),Crime|Drama|Film-Noir
+3436,Dying Young (1991),Drama|Romance
+3437,Cool as Ice (1991),Drama
+3438,Teenage Mutant Ninja Turtles (1990),Action|Children|Comedy|Fantasy|Sci-Fi
+3439,Teenage Mutant Ninja Turtles II: The Secret of the Ooze (1991),Action|Children|Fantasy
+3440,Teenage Mutant Ninja Turtles III (1993),Action|Adventure|Children|Comedy|Fantasy
+3441,Red Dawn (1984),Action|Drama|War
+3442,Band of the Hand (1986),Action|Crime|Drama
+3444,Bloodsport (1988),Action
+3445,Eyes of Laura Mars (1978),Mystery|Thriller
+3446,Funny Bones (1995),Comedy|Drama
+3447,"Good Earth, The (1937)",Drama
+3448,"Good Morning, Vietnam (1987)",Comedy|Drama|War
+3449,"Good Mother, The (1988)",Drama
+3450,Grumpy Old Men (1993),Comedy
+3451,Guess Who's Coming to Dinner (1967),Drama
+3452,Romeo Must Die (2000),Action|Crime|Romance|Thriller
+3453,Here on Earth (2000),Drama|Romance
+3454,Whatever It Takes (2000),Comedy|Romance
+3456,"Color of Paradise, The (Rang-e khoda) (1999)",Drama
+3457,Waking the Dead (2000),Drama|Thriller
+3459,Gothic (1986),Drama|Horror
+3460,Hillbillys in a Haunted House (1967),Comedy
+3461,Lord of the Flies (1963),Adventure|Drama|Thriller
+3462,Modern Times (1936),Comedy|Drama|Romance
+3463,Last Resort (National Lampoon's Last Resort) (1994),Comedy
+3465,That's Life! (1986),Drama
+3466,Heart and Souls (1993),Comedy|Fantasy
+3467,Hud (1963),Drama|Western
+3468,"Hustler, The (1961)",Drama
+3469,Inherit the Wind (1960),Drama
+3470,Dersu Uzala (1975),Adventure|Drama
+3471,Close Encounters of the Third Kind (1977),Adventure|Drama|Sci-Fi
+3474,Retroactive (1997),Sci-Fi|Thriller
+3475,"Place in the Sun, A (1951)",Drama|Romance
+3476,Jacob's Ladder (1990),Horror|Mystery
+3477,Empire Records (1995),Comedy|Drama
+3478,"Bamba, La (1987)",Drama
+3479,Ladyhawke (1985),Adventure|Fantasy|Romance
+3480,Lucas (1986),Drama|Romance
+3481,High Fidelity (2000),Comedy|Drama|Romance
+3483,"Road to El Dorado, The (2000)",Animation|Children
+3484,"Skulls, The (2000)",Thriller
+3487,El Dorado (1966),Western
+3489,Hook (1991),Adventure|Comedy|Fantasy
+3490,Horror Express (1972),Horror
+3491,My Chauffeur (1986),Comedy
+3492,"Son of the Sheik, The (1926)",Adventure|Comedy|Romance
+3494,True Grit (1969),Adventure|Drama|Western
+3495,Roadside Prophets (1992),Comedy|Drama
+3496,Madame Sousatzka (1988),Drama
+3497,Max Dugan Returns (1983),Comedy
+3498,Midnight Express (1978),Drama
+3499,Misery (1990),Drama|Horror|Thriller
+3500,Mr. Saturday Night (1992),Comedy|Drama
+3501,Murphy's Romance (1985),Comedy|Romance
+3502,My Life (1993),Drama
+3503,Solaris (Solyaris) (1972),Drama|Mystery|Sci-Fi
+3504,Network (1976),Comedy|Drama
+3505,No Way Out (1987),Drama|Mystery|Thriller
+3506,North Dallas Forty (1979),Comedy|Drama
+3507,"Odd Couple, The (1968)",Comedy
+3508,"Outlaw Josey Wales, The (1976)",Action|Adventure|Drama|Thriller|Western
+3509,Black and White (1999),Drama
+3510,Frequency (2000),Drama|Thriller
+3511,Ready to Rumble (2000),Comedy
+3512,Return to Me (2000),Drama|Romance
+3513,Rules of Engagement (2000),Drama|Thriller
+3515,Me Myself I (2000),Comedy|Romance
+3516,"Bell, Book and Candle (1958)",Comedy|Fantasy|Romance
+3518,"End of Violence, The (1997)",Drama|Thriller
+3519,Force 10 from Navarone (1978),Action|Drama|War
+3520,How to Stuff a Wild Bikini (1965),Comedy
+3521,Mystery Train (1989),Comedy|Drama
+3522,Sacco and Vanzetti (Sacco e Vanzetti) (1971),Drama
+3524,Arthur (1981),Comedy|Romance
+3525,Bachelor Party (1984),Comedy
+3526,Parenthood (1989),Comedy|Drama
+3527,Predator (1987),Action|Sci-Fi|Thriller
+3528,"Prince of Tides, The (1991)",Drama|Romance
+3529,"Postman Always Rings Twice, The (1981)",Crime|Thriller
+3531,All the Vermeers in New York (1990),Comedy|Drama|Romance
+3534,28 Days (2000),Drama
+3535,American Psycho (2000),Crime|Horror|Mystery|Thriller
+3536,Keeping the Faith (2000),Comedy|Drama|Romance
+3537,Where the Money Is (2000),Comedy|Drama
+3538,East is East (1999),Comedy
+3539,"Filth and the Fury, The (2000)",Documentary
+3540,Passion of Mind (2000),Drama|Mystery|Romance
+3543,Diner (1982),Comedy|Drama
+3544,Shakes the Clown (1992),Comedy
+3545,Cabaret (1972),Drama|Musical
+3546,What Ever Happened to Baby Jane? (1962),Drama|Horror|Thriller
+3547,Prick Up Your Ears (1987),Comedy|Drama
+3548,Auntie Mame (1958),Comedy|Drama
+3549,Guys and Dolls (1955),Comedy|Musical|Romance
+3550,The Hunger (1983),Horror
+3551,Marathon Man (1976),Crime|Drama|Thriller
+3552,Caddyshack (1980),Comedy
+3553,Gossip (2000),Drama|Thriller
+3554,Love and Basketball (2000),Drama|Romance
+3555,U-571 (2000),Action|Thriller|War
+3556,"Virgin Suicides, The (1999)",Drama|Romance
+3557,Jennifer 8 (1992),Mystery|Thriller
+3559,Limelight (1952),Comedy|Drama|Romance
+3560,Empire of Passion (a.k.a. In the Realm of Passion) (a.k.a. Phantom Love) (Ai No Borei) (1978),Crime|Drama|Romance
+3563,"Crow: Salvation, The (2000)",Action|Horror
+3564,"Flintstones in Viva Rock Vegas, The (2000)",Children|Comedy
+3565,Where the Heart Is (2000),Comedy|Drama
+3566,"Big Kahuna, The (2000)",Comedy|Drama
+3567,Bossa Nova (2000),Comedy|Drama|Romance
+3568,Smiling Fish and Goat on Fire (1999),Comedy|Romance
+3569,"Idiots, The (Idioterne) (1998)",Comedy|Drama
+3571,Time Code (2000),Comedy|Drama
+3572,Carnosaur (1993),Horror|Sci-Fi
+3573,Carnosaur 2 (1995),Horror|Sci-Fi
+3574,Carnosaur 3: Primal Species (1996),Horror|Sci-Fi
+3575,Defying Gravity (1997),Drama
+3576,"Hidden, The (1987)",Action|Horror|Sci-Fi
+3577,Two Moon Junction (1988),Drama|Romance
+3578,Gladiator (2000),Action|Adventure|Drama
+3579,I Dreamed of Africa (2000),Drama
+3580,Up at the Villa (2000),Drama
+3581,Human Traffic (1999),Comedy
+3584,Breathless (1983),Action|Drama|Romance|Thriller
+3587,Inferno (1980),Horror
+3588,"King of Marvin Gardens, The (1972)",Crime|Drama
+3590,"Lords of Flatbush, The (1974)",Comedy|Drama
+3591,Mr. Mom (1983),Comedy|Drama
+3593,Battlefield Earth (2000),Action|Sci-Fi
+3594,Center Stage (2000),Drama|Musical
+3596,Screwed (2000),Comedy
+3598,Hamlet (2000),Crime|Drama|Romance|Thriller
+3599,Anchors Aweigh (1945),Comedy|Musical
+3600,Blue Hawaii (1961),Comedy|Musical
+3602,G.I. Blues (1960),Comedy|Musical|Romance
+3604,Gypsy (1962),Musical
+3605,King Creole (1958),Crime|Drama|Musical
+3606,On the Town (1949),Comedy|Musical|Romance
+3608,Pee-wee's Big Adventure (1985),Adventure|Comedy
+3609,Regret to Inform (1998),Documentary
+3611,Saludos Amigos (1943),Animation|Children|Comedy
+3612,The Slipper and the Rose: The Story of Cinderella (1976),Adventure|Children|Fantasy|Musical|Romance
+3613,Things Change (1988),Comedy
+3614,Honeymoon in Vegas (1992),Comedy|Romance
+3615,Dinosaur (2000),Adventure|Animation|Children
+3616,Loser (2000),Comedy|Romance
+3617,Road Trip (2000),Comedy
+3618,Small Time Crooks (2000),Comedy|Crime
+3619,"Hollywood Knights, The (1980)",Comedy
+3620,"Myth of Fingerprints, The (1997)",Comedy|Drama
+3621,Possession (1981),Drama|Horror
+3622,"Twelve Chairs, The (1970)",Comedy
+3623,Mission: Impossible II (2000),Action|Adventure|Thriller
+3624,Shanghai Noon (2000),Action|Adventure|Comedy|Western
+3626,8 ½ Women (a.k.a. 8 1/2 Women) (a.k.a. Eight and a Half Women) (1999),Comedy
+3627,Carnival of Souls (1962),Horror|Thriller
+3628,Flying Tigers (1942),Action|Drama|Romance|War
+3629,"Gold Rush, The (1925)",Adventure|Comedy|Romance
+3632,Monsieur Verdoux (1947),Comedy|Crime
+3633,On Her Majesty's Secret Service (1969),Action|Adventure|Romance|Thriller
+3634,Seven Days in May (1964),Thriller
+3635,"Spy Who Loved Me, The (1977)",Action|Adventure|Thriller
+3637,Vagabond (Sans toit ni loi) (1985),Drama
+3638,Moonraker (1979),Action|Adventure|Sci-Fi|Thriller
+3639,"Man with the Golden Gun, The (1974)",Action|Adventure|Thriller
+3640,"King in New York, A (1957)",Comedy|Drama
+3643,"Fighting Seabees, The (1944)",Action|Drama|War
+3646,Big Momma's House (2000),Comedy
+3649,American Gigolo (1980),Drama
+3653,"Endless Summer, The (1966)",Documentary
+3654,"Guns of Navarone, The (1961)",Action|Adventure|Drama|War
+3655,Blow-Out (La grande bouffe) (1973),Drama
+3656,Lured (1947),Crime|Film-Noir|Mystery|Thriller
+3657,Pandora and the Flying Dutchman (1951),Drama
+3658,Quatermass and the Pit (1967),Horror|Sci-Fi
+3659,Quatermass 2 (Enemy from Space) (1957),Sci-Fi|Thriller
+3660,Puppet Master (1989),Horror|Sci-Fi|Thriller
+3661,Puppet Master II (1991),Horror|Sci-Fi|Thriller
+3662,Puppet Master III: Toulon's Revenge (1991),Horror|Sci-Fi|Thriller
+3663,Puppet Master 4 (1993),Horror|Sci-Fi|Thriller
+3664,Puppet Master 5: The Final Chapter (1994),Horror|Sci-Fi|Thriller
+3665,Curse of the Puppet Master (Puppet Master 6: The Curse) (1998),Horror|Sci-Fi|Thriller
+3668,Romeo and Juliet (1968),Drama|Romance
+3669,Stay Tuned (1992),Comedy
+3671,Blazing Saddles (1974),Comedy|Western
+3672,Benji (1974),Adventure|Children
+3673,Benji the Hunted (1987),Adventure|Children
+3674,For the Love of Benji (1977),Adventure|Children|Comedy|Drama
+3675,White Christmas (1954),Comedy|Musical|Romance
+3676,Eraserhead (1977),Drama|Horror
+3677,Baraka (1992),Documentary
+3678,"Man with the Golden Arm, The (1955)",Drama
+3679,"Decline of Western Civilization, The (1981)",Documentary|Musical
+3680,"Decline of Western Civilization Part II: The Metal Years, The (1988)",Documentary
+3681,For a Few Dollars More (Per qualche dollaro in più) (1965),Action|Drama|Thriller|Western
+3682,Magnum Force (1973),Action|Crime|Drama|Thriller
+3683,Blood Simple (1984),Crime|Drama|Film-Noir
+3684,"Fabulous Baker Boys, The (1989)",Drama|Romance
+3685,Prizzi's Honor (1985),Comedy|Drama|Romance
+3686,Flatliners (1990),Horror|Sci-Fi|Thriller
+3687,Light Years (Gandahar) (1988),Adventure|Animation|Fantasy|Sci-Fi
+3688,Porky's (1982),Comedy
+3689,Porky's II: The Next Day (1983),Comedy
+3690,Porky's Revenge (1985),Comedy
+3691,Private School (1983),Comedy
+3692,Class of Nuke 'Em High (1986),Comedy|Horror
+3693,"Toxic Avenger, The (1985)",Comedy|Horror
+3694,"Toxic Avenger, Part II, The (1989)",Comedy|Horror
+3695,"Toxic Avenger Part III: The Last Temptation of Toxie, The (1989)",Comedy|Horror
+3696,Night of the Creeps (1986),Comedy|Horror|Sci-Fi|Thriller
+3697,Predator 2 (1990),Action|Sci-Fi|Thriller
+3698,"Running Man, The (1987)",Action|Sci-Fi
+3699,Starman (1984),Adventure|Drama|Romance|Sci-Fi
+3700,"Brother from Another Planet, The (1984)",Drama|Sci-Fi
+3701,Alien Nation (1988),Crime|Drama|Sci-Fi|Thriller
+3702,Mad Max (1979),Action|Adventure|Sci-Fi
+3703,"Road Warrior, The (Mad Max 2) (1981)",Action|Adventure|Sci-Fi|Thriller
+3704,Mad Max Beyond Thunderdome (1985),Action|Adventure|Sci-Fi
+3705,Bird on a Wire (1990),Action|Comedy|Romance
+3706,Angel Heart (1987),Film-Noir|Horror|Mystery|Thriller
+3707,9 1/2 Weeks (Nine 1/2 Weeks) (1986),Drama|Romance
+3708,Firestarter (1984),Horror|Thriller
+3709,Sleepwalkers (1992),Horror
+3710,Action Jackson (1988),Action|Comedy|Crime|Thriller
+3712,Soapdish (1991),Comedy
+3713,"Long Walk Home, The (1990)",Drama
+3714,Clara's Heart (1988),Drama
+3715,Burglar (1987),Comedy|Crime
+3716,Fatal Beauty (1987),Action|Comedy|Crime|Drama
+3717,Gone in 60 Seconds (2000),Action|Crime
+3718,American Pimp (1999),Documentary
+3719,Love's Labour's Lost (2000),Comedy|Romance
+3720,Sunshine (1999),Drama
+3721,Trixie (2000),Comedy|Crime|Mystery
+3723,Hamlet (1990),Drama
+3724,Coming Home (1978),Drama|War
+3725,American Pop (1981),Animation|Musical
+3726,Assault on Precinct 13 (1976),Action|Thriller
+3727,Near Dark (1987),Horror|Western
+3728,One False Move (1992),Crime|Drama|Film-Noir|Thriller
+3729,Shaft (1971),Action|Crime|Drama|Thriller
+3730,"Conversation, The (1974)",Drama|Mystery
+3731,Cutter's Way (1981),Drama|Thriller
+3732,"Fury, The (1978)",Horror
+3733,"Paper Chase, The (1973)",Drama
+3734,Prince of the City (1981),Drama
+3735,Serpico (1973),Crime|Drama
+3736,"Ace in the Hole (Big Carnival, The) (1951)",Drama
+3737,Lonely Are the Brave (1962),Drama|Western
+3738,"Sugarland Express, The (1974)",Drama
+3739,Trouble in Paradise (1932),Comedy|Romance
+3740,Big Trouble in Little China (1986),Action|Adventure|Comedy|Fantasy
+3741,Badlands (1973),Crime|Drama|Thriller
+3742,Battleship Potemkin (1925),Drama|War
+3743,Boys and Girls (2000),Comedy|Romance
+3744,Shaft (2000),Action|Crime|Thriller
+3745,Titan A.E. (2000),Action|Adventure|Animation|Children|Sci-Fi
+3746,Butterfly (La lengua de las mariposas) (1999),Drama
+3747,Jesus' Son (1999),Drama
+3751,Chicken Run (2000),Animation|Children|Comedy
+3752,"Me, Myself & Irene (2000)",Adventure|Comedy
+3753,"Patriot, The (2000)",Action|Drama|War
+3754,"Adventures of Rocky and Bullwinkle, The (2000)",Adventure|Animation|Children|Comedy|Fantasy
+3755,"Perfect Storm, The (2000)",Drama|Thriller
+3757,Asylum (1972),Horror
+3758,Communion (1989),Drama|Sci-Fi|Thriller
+3759,Fun and Fancy Free (1947),Animation|Children|Musical
+3760,"Kentucky Fried Movie, The (1977)",Comedy
+3761,"Blood In, Blood Out (1993)",Action|Crime|Drama|Thriller
+3763,F/X (1986),Action|Crime|Thriller
+3764,F/X2 (a.k.a. F/X 2 - The Deadly Art of Illusion) (1991),Action|Crime|Thriller
+3765,"Hot Spot, The (1990)",Crime|Drama|Romance
+3766,Missing in Action (1984),Action|War
+3768,Braddock: Missing in Action III (1988),Action|War
+3769,Thunderbolt and Lightfoot (1974),Action
+3770,Dreamscape (1984),Horror|Sci-Fi|Thriller
+3771,The Golden Voyage of Sinbad (1973),Action|Adventure|Fantasy
+3773,House Party (1990),Comedy
+3774,House Party 2 (1991),Comedy|Drama|Romance
+3775,Make Mine Music (1946),Animation|Children|Musical
+3777,Nekromantik (1987),Comedy|Horror
+3780,Rocketship X-M (1950),Sci-Fi
+3783,Croupier (1998),Crime|Drama
+3784,"Kid, The (2000)",Comedy|Fantasy
+3785,Scary Movie (2000),Comedy|Horror
+3786,But I'm a Cheerleader (1999),Comedy
+3787,Shower (Xizao) (1999),Comedy
+3788,Blow-Up (Blowup) (1966),Drama|Mystery
+3789,"Pawnbroker, The (1964)",Drama
+3790,Groove (2000),Drama
+3791,Footloose (1984),Drama
+3792,Duel in the Sun (1946),Drama|Romance|Western
+3793,X-Men (2000),Action|Adventure|Sci-Fi
+3794,Chuck & Buck (2000),Comedy|Drama
+3795,"Five Senses, The (1999)",Drama
+3798,What Lies Beneath (2000),Drama|Horror|Mystery
+3799,Pokémon the Movie 2000 (2000),Animation|Children
+3800,Criminal Lovers (1999),Crime|Drama|Romance|Thriller
+3801,Anatomy of a Murder (1959),Drama|Mystery
+3802,Freejack (1992),Action|Sci-Fi
+3804,H.O.T.S. (1979),Comedy
+3805,Knightriders (1981),Action|Adventure|Drama
+3806,Mackenna's Gold (1969),Western
+3807,Sinbad and the Eye of the Tiger (1977),Adventure|Fantasy
+3809,What About Bob? (1991),Comedy
+3810,White Sands (1992),Drama|Thriller
+3811,Breaker Morant (1980),Drama|War
+3812,Everything You Always Wanted to Know About Sex * But Were Afraid to Ask (1972),Comedy
+3813,Interiors (1978),Drama
+3814,Love and Death (1975),Comedy
+3816,"Official Story, The (La historia oficial) (1985)",Drama
+3819,Tampopo (1985),Comedy
+3820,Thomas and the Magic Railroad (2000),Children
+3821,Nutty Professor II: The Klumps (2000),Comedy
+3822,"Girl on the Bridge, The (Fille sur le pont, La) (1999)",Drama|Romance
+3823,Wonderland (1999),Drama
+3824,Autumn in New York (2000),Drama|Romance
+3825,Coyote Ugly (2000),Comedy|Drama|Romance
+3826,Hollow Man (2000),Horror|Sci-Fi|Thriller
+3827,Space Cowboys (2000),Action|Adventure|Comedy|Sci-Fi
+3829,Mad About Mambo (2000),Comedy|Romance
+3831,Saving Grace (2000),Comedy
+3832,"Black Sabbath (Tre volti della paura, I) (1963)",Horror
+3833,"Brain That Wouldn't Die, The (1962)",Horror|Sci-Fi
+3834,Bronco Billy (1980),Adventure|Drama|Romance
+3835,"Crush, The (1993)",Thriller
+3836,Kelly's Heroes (1970),Action|Comedy|War
+3837,Phantasm II (1988),Action|Fantasy|Horror|Sci-Fi|Thriller
+3838,Phantasm III: Lord of the Dead (1994),Horror
+3839,Phantasm IV: Oblivion (1998),Horror
+3840,Pumpkinhead (1988),Horror
+3841,Air America (1990),Action|Comedy
+3843,Sleepaway Camp (1983),Horror
+3844,Steel Magnolias (1989),Drama
+3845,And God Created Woman (Et Dieu... créa la femme) (1956),Drama
+3846,Easy Money (1983),Comedy
+3847,"Ilsa, She Wolf of the SS (1974)",Horror
+3848,Silent Fall (1994),Drama|Thriller
+3849,The Spiral Staircase (1945),Horror|Mystery|Thriller
+3851,I'm the One That I Want (2000),Comedy
+3852,"Tao of Steve, The (2000)",Comedy
+3854,Aimée & Jaguar (1999),Drama|Romance|War
+3855,"Affair of Love, An (Liaison pornographique, Une) (1999)",Drama|Romance
+3857,Bless the Child (2000),Thriller
+3858,Cecil B. DeMented (2000),Comedy
+3859,"Eyes of Tammy Faye, The (2000)",Documentary
+3860,"Opportunists, The (2000)",Comedy|Crime|Drama
+3861,"Replacements, The (2000)",Comedy
+3863,"Cell, The (2000)",Drama|Horror|Thriller
+3864,Godzilla 2000 (Gojira ni-sen mireniamu) (1999),Action|Adventure|Sci-Fi
+3865,"Original Kings of Comedy, The (2000)",Comedy|Documentary
+3868,"Naked Gun: From the Files of Police Squad!, The (1988)",Action|Comedy|Crime|Romance
+3869,"Naked Gun 2 1/2: The Smell of Fear, The (1991)",Comedy
+3870,Our Town (1940),Drama
+3871,Shane (1953),Drama|Western
+3872,"Suddenly, Last Summer (1959)",Drama
+3873,Cat Ballou (1965),Comedy|Western
+3875,"Devil Rides Out, The (1968)",Horror
+3877,Supergirl (1984),Action|Adventure|Fantasy
+3879,"Art of War, The (2000)",Action|Thriller
+3880,"Ballad of Ramblin' Jack, The (2000)",Documentary
+3882,Bring It On (2000),Comedy
+3883,Catfish in Black Bean Sauce (2000),Comedy|Drama
+3885,Love & Sex (2000),Comedy|Drama|Romance
+3886,Steal This Movie! (2000),Drama
+3889,Highlander: Endgame (Highlander IV) (2000),Action|Adventure|Fantasy
+3890,Back Stage (2000),Documentary
+3891,Turn It Up (2000),Crime|Drama
+3892,Anatomy (Anatomie) (2000),Horror
+3893,Nurse Betty (2000),Comedy|Crime|Drama|Romance|Thriller
+3895,"Watcher, The (2000)",Crime|Thriller
+3896,"Way of the Gun, The (2000)",Crime|Thriller
+3897,Almost Famous (2000),Drama
+3900,Crime and Punishment in Suburbia (2000),Comedy|Drama
+3901,Duets (2000),Comedy|Drama
+3902,Goya in Bordeaux (Goya en Burdeos) (1999),Drama
+3903,Urbania (2000),Drama
+3905,"Specials, The (2000)",Comedy
+3906,Under Suspicion (2000),Crime|Thriller
+3908,Urban Legends: Final Cut (2000),Horror
+3909,Woman on Top (2000),Comedy|Romance
+3910,Dancer in the Dark (2000),Drama|Musical
+3911,Best in Show (2000),Comedy
+3913,Barenaked in America (1999),Documentary
+3914,"Broken Hearts Club, The (2000)",Drama
+3915,Girlfight (2000),Drama
+3916,Remember the Titans (2000),Drama
+3917,Hellraiser (1987),Horror
+3918,Hellbound: Hellraiser II (1988),Horror
+3919,Hellraiser III: Hell on Earth (1992),Horror
+3920,"Faraway, So Close (In weiter Ferne, so nah!) (1993)",Drama|Fantasy|Mystery|Romance
+3921,Beach Party (1963),Comedy
+3922,Bikini Beach (1964),Comedy
+3923,Return of the Fly (1959),Horror|Sci-Fi
+3924,Pajama Party (1964),Comedy
+3925,Stranger Than Paradise (1984),Comedy|Drama
+3926,Voyage to the Bottom of the Sea (1961),Adventure|Sci-Fi
+3927,Fantastic Voyage (1966),Adventure|Sci-Fi
+3928,Abbott and Costello Meet Frankenstein (1948),Comedy|Horror
+3929,"Bank Dick, The (1940)",Comedy
+3930,"Creature from the Black Lagoon, The (1954)",Adventure|Horror|Sci-Fi
+3932,"Invisible Man, The (1933)",Horror|Sci-Fi
+3933,"Killer Shrews, The (1959)",Horror|Sci-Fi
+3934,Kronos (1957),Sci-Fi
+3936,Phantom of the Opera (1943),Horror|Musical|Thriller
+3937,Runaway (1984),Sci-Fi|Thriller
+3938,"Slumber Party Massacre, The (1982)",Horror
+3939,Slumber Party Massacre II (1987),Horror
+3940,Slumber Party Massacre III (1990),Horror
+3941,Sorority House Massacre (1986),Horror
+3942,Sorority House Massacre II (1990),Horror
+3943,Bamboozled (2000),Comedy
+3945,Digimon: The Movie (2000),Adventure|Animation|Children
+3946,Get Carter (2000),Action|Drama|Thriller
+3947,Get Carter (1971),Action|Crime|Drama|Thriller
+3948,Meet the Parents (2000),Comedy
+3949,Requiem for a Dream (2000),Drama
+3950,Tigerland (2000),Drama
+3951,Two Family House (2000),Drama
+3952,"Contender, The (2000)",Drama|Thriller
+3953,Dr. T and the Women (2000),Comedy|Romance
+3955,"Ladies Man, The (2000)",Comedy
+3956,Lost Souls (2000),Drama|Horror|Thriller
+3957,Billy Jack (1971),Action|Drama
+3959,"Time Machine, The (1960)",Action|Adventure|Sci-Fi
+3960,Haunted (1995),Drama|Thriller
+3961,Ghoulies (1985),Horror
+3962,Ghoulies II (1987),Comedy|Horror
+3963,"Unsinkable Molly Brown, The (1964)",Musical
+3964,"Adventures of Ichabod and Mr. Toad, The (1949)",Animation|Children
+3965,"Strange Love of Martha Ivers, The (1946)",Drama|Film-Noir
+3966,Detour (1945),Crime|Film-Noir
+3967,Billy Elliot (2000),Drama
+3968,Bedazzled (2000),Comedy
+3969,Pay It Forward (2000),Drama
+3970,"Beyond, The (E tu vivrai nel terrore - L'aldilà) (1981)",Horror
+3971,"Private Eyes, The (1981)",Comedy|Mystery
+3972,"Legend of Drunken Master, The (Jui kuen II) (1994)",Action|Comedy
+3973,Book of Shadows: Blair Witch 2 (2000),Crime|Horror|Mystery|Thriller
+3975,Lucky Numbers (2000),Comedy|Drama
+3976,Stardom (2000),Comedy|Drama
+3977,Charlie's Angels (2000),Action|Comedy
+3978,"Legend of Bagger Vance, The (2000)",Drama|Romance
+3979,Little Nicky (2000),Comedy
+3980,Men of Honor (2000),Drama
+3981,Red Planet (2000),Action|Sci-Fi|Thriller
+3983,You Can Count on Me (2000),Drama|Romance
+3984,Diamonds Are Forever (1971),Action|Adventure|Thriller
+3985,"Eagle Has Landed, The (1976)",Drama|War
+3986,"6th Day, The (2000)",Action|Sci-Fi|Thriller
+3987,Bounce (2000),Drama|Romance
+3988,How the Grinch Stole Christmas (a.k.a. The Grinch) (2000),Children|Comedy|Fantasy
+3989,One Day in September (1999),Documentary
+3990,Rugrats in Paris: The Movie (2000),Animation|Children|Comedy
+3991,102 Dalmatians (2000),Children|Comedy
+3992,Malèna (2000),Drama|Romance|War
+3993,Quills (2000),Drama|Romance
+3994,Unbreakable (2000),Drama|Sci-Fi
+3996,"Crouching Tiger, Hidden Dragon (Wo hu cang long) (2000)",Action|Drama|Romance
+3997,Dungeons & Dragons (2000),Action|Adventure|Comedy|Fantasy
+3998,Proof of Life (2000),Drama
+3999,Vertical Limit (2000),Action|Adventure
+4000,"Bounty, The (1984)",Adventure|Drama
+4001,Code of Silence (1985),Action
+4002,"Planes, Trains & Automobiles (1987)",Comedy
+4003,She's Having a Baby (1988),Comedy
+4005,"Living Daylights, The (1987)",Action|Adventure|Thriller
+4006,Transformers: The Movie (1986),Adventure|Animation|Children|Sci-Fi
+4007,Wall Street (1987),Drama
+4008,Born on the Fourth of July (1989),Drama|War
+4009,Talk Radio (1988),Drama
+4010,Brewster's Millions (1985),Comedy
+4011,Snatch (2000),Comedy|Crime|Thriller
+4012,Punchline (1988),Comedy|Drama
+4014,Chocolat (2000),Drama|Romance
+4015,"Dude, Where's My Car? (2000)",Comedy|Sci-Fi
+4016,"Emperor's New Groove, The (2000)",Adventure|Animation|Children|Comedy|Fantasy
+4017,Pollock (2000),Drama
+4018,What Women Want (2000),Comedy|Romance
+4019,Finding Forrester (2000),Drama
+4020,"Gift, The (2000)",Thriller
+4021,Before Night Falls (2000),Drama
+4022,Cast Away (2000),Drama
+4023,"Family Man, The (2000)",Comedy|Drama|Romance
+4024,"House of Mirth, The (2000)",Romance
+4025,Miss Congeniality (2000),Comedy|Crime
+4026,Nowhere to Hide (Injeong sajeong bol geot eobtda) (1999),Action|Comedy|Crime|Thriller
+4027,"O Brother, Where Art Thou? (2000)",Adventure|Comedy|Crime
+4029,State and Main (2000),Comedy|Drama
+4030,Dracula 2000 (2000),Horror
+4031,All the Pretty Horses (2000),Drama|Romance|Western
+4033,Thirteen Days (2000),Drama|Thriller|War
+4034,Traffic (2000),Crime|Drama|Thriller
+4035,"Claim, The (2000)",Romance|Western
+4036,Shadow of the Vampire (2000),Drama|Horror
+4037,House of Games (1987),Crime|Film-Noir|Mystery|Thriller
+4039,Annie (1982),Children|Musical
+4040,Don't Tell Mom the Babysitter's Dead (1991),Comedy
+4041,"Officer and a Gentleman, An (1982)",Drama|Romance
+4042,"Alamo, The (1960)",Action|Drama|War|Western
+4043,At Close Range (1986),Crime|Drama
+4045,Breakheart Pass (1975),Western
+4046,Friendly Persuasion (1956),Drama
+4047,Gettysburg (1993),Drama|War
+4048,Imaginary Crimes (1994),Drama
+4051,Horrors of Spider Island (Ein Toter Hing im Netz) (1960),Horror|Sci-Fi
+4052,Antitrust (2001),Crime|Drama|Thriller
+4053,Double Take (2001),Action|Comedy
+4054,Save the Last Dance (2001),Drama|Romance
+4055,Panic (2000),Drama
+4056,"Pledge, The (2001)",Crime|Drama|Mystery|Thriller
+4060,Love Field (1992),Drama
+4061,The Man in the Moon (1991),Drama|Romance
+4062,Mystic Pizza (1988),Comedy|Drama|Romance
+4063,Prelude to a Kiss (1992),Comedy|Drama|Romance
+4066,I'm Gonna Git You Sucka (1988),Action|Comedy
+4067,Untamed Heart (1993),Drama|Romance
+4068,Sugar & Spice (2001),Comedy
+4069,"Wedding Planner, The (2001)",Comedy|Romance
+4073,"Invisible Circus, The (2001)",Drama|Romance
+4076,Two Ninas (1999),Comedy|Romance
+4077,"With a Friend Like Harry... (Harry, un ami qui vous veut du bien) (2000)",Drama|Thriller
+4079,Amazon Women on the Moon (1987),Comedy|Sci-Fi
+4080,Baby Boom (1987),Comedy
+4081,Back to the Beach (1987),Comedy
+4082,Barfly (1987),Comedy|Drama|Romance
+4084,Beverly Hills Cop II (1987),Action|Comedy|Crime|Thriller
+4085,Beverly Hills Cop (1984),Action|Comedy|Crime|Drama
+4086,"Big Easy, The (1987)",Action|Crime|Mystery|Romance|Thriller
+4088,"Big Town, The (1987)",Drama|Romance|Thriller
+4089,Born in East L.A. (1987),Comedy
+4090,"Brave Little Toaster, The (1987)",Animation|Children
+4091,Can't Buy Me Love (1987),Comedy|Romance
+4092,Cherry 2000 (1987),Romance|Sci-Fi
+4095,Cry Freedom (1987),Drama
+4098,"Dead, The (1987)",Drama
+4101,Dogs in Space (1987),Drama
+4102,Eddie Murphy Raw (1987),Comedy|Documentary
+4103,Empire of the Sun (1987),Action|Adventure|Drama|War
+4104,Ernest Goes to Camp (1987),Comedy
+4105,"Evil Dead, The (1981)",Fantasy|Horror|Thriller
+4106,Extreme Prejudice (1987),Action|Crime|Drama|Thriller|Western
+4108,Five Corners (1987),Drama
+4109,Flowers in the Attic (1987),Drama|Thriller
+4111,Gardens of Stone (1987),Drama|War
+4114,"Good Morning, Babylon (1987)",Drama
+4115,Hiding Out (1987),Comedy
+4116,Hollywood Shuffle (1987),Comedy
+4117,Hope and Glory (1987),Drama
+4121,Innerspace (1987),Action|Adventure|Comedy|Sci-Fi
+4122,Ironweed (1987),Drama
+4123,Ishtar (1987),Comedy
+4124,Jaws: The Revenge (1987),Horror|Thriller
+4126,Less Than Zero (1987),Drama
+4128,"Lost Boys, The (1987)",Comedy|Horror|Thriller
+4130,Maid to Order (1987),Comedy|Fantasy
+4131,Making Mr. Right (1987),Comedy|Romance|Sci-Fi
+4132,Mannequin (1987),Comedy|Romance
+4133,Masters of the Universe (1987),Action|Adventure|Fantasy|Sci-Fi
+4135,"Monster Squad, The (1987)",Adventure|Comedy|Horror
+4136,"Month in the Country, A (1987)",Drama
+4139,No Man's Land (1987),Crime|Drama
+4140,North Shore (1987),Drama|Romance
+4141,Head Over Heels (2001),Comedy|Romance
+4142,Left Behind: The Movie (2000),Action|Adventure|Drama|Thriller
+4143,Valentine (2001),Horror|Mystery
+4144,In the Mood For Love (Fa yeung nin wa) (2000),Drama|Romance
+4146,"Million Dollar Hotel, The (2001)",Drama|Mystery|Romance
+4148,Hannibal (2001),Horror|Thriller
+4149,Saving Silverman (Evil Woman) (2001),Comedy|Romance
+4151,"Taste of Others, The (Le goût des autres) (2000)",Comedy|Drama|Romance
+4153,Down to Earth (2001),Comedy|Fantasy|Romance
+4155,Sweet November (2001),Drama|Romance
+4156,Company Man (2000),Comedy
+4158,Monkeybone (2001),Animation|Comedy|Fantasy
+4159,3000 Miles to Graceland (2001),Action|Thriller
+4161,"Mexican, The (2001)",Action|Comedy
+4162,See Spot Run (2001),Comedy
+4166,Series 7: The Contenders (2001),Action|Drama
+4167,15 Minutes (2001),Thriller
+4168,Get Over It (2001),Comedy|Romance
+4169,Blow Dry (a.k.a. Never Better) (2001),Comedy
+4171,Long Night's Journey Into Day (2000),Documentary
+4173,When Brendan Met Trudy (2000),Comedy|Romance
+4174,Avalon (1990),Drama
+4175,Gray's Anatomy (1996),Comedy|Drama
+4177,"Mirror Crack'd, The (1980)",Crime|Mystery|Thriller
+4178,Of Mice and Men (1939),Drama
+4179,Pixote (1981),Drama
+4180,Reform School Girls (1986),Action|Drama
+4181,Tapeheads (1988),Comedy
+4183,"Unbelievable Truth, The (1989)",Comedy|Drama
+4184,"Bishop's Wife, The (1947)",Comedy|Drama|Romance
+4185,Elvis: That's the Way It Is (1970),Documentary
+4186,"Fortune Cookie, The (1966)",Comedy|Drama|Romance
+4187,Lilies of the Field (1963),Drama
+4188,Hans Christian Andersen (1952),Children|Musical
+4189,"Greatest Story Ever Told, The (1965)",Drama
+4190,Elmer Gantry (1960),Drama
+4191,Alfie (1966),Comedy|Drama|Romance
+4194,I Know Where I'm Going! (1945),Drama|Romance|War
+4195,"Abominable Dr. Phibes, The (1971)",Horror|Mystery
+4197,Real Life (1979),Comedy
+4198,Battle Beyond the Stars (1980),Sci-Fi
+4200,Double Impact (1991),Action
+4201,"End, The (1978)",Comedy
+4203,Harley Davidson and the Marlboro Man (1991),Action|Crime|Drama
+4205,Mermaids (1990),Comedy|Drama|Romance
+4207,Navy Seals (1990),Action|Adventure|War
+4208,Unmade Beds (1997),Documentary
+4210,Manhunter (1986),Action|Crime|Drama|Horror|Thriller
+4211,Reversal of Fortune (1990),Drama
+4212,Death on the Nile (1978),Crime|Mystery
+4213,Deepstar Six (1989),Horror|Sci-Fi|Thriller
+4214,Revenge of the Nerds (1984),Comedy
+4215,Revenge of the Nerds II: Nerds in Paradise (1987),Comedy
+4216,Longtime Companion (1990),Drama
+4217,4 Little Girls (1997),Documentary
+4218,River's Edge (1986),Crime|Drama
+4219,Girls Just Want to Have Fun (1985),Comedy
+4220,"Longest Yard, The (1974)",Comedy
+4221,Necessary Roughness (1991),Comedy
+4222,C.H.U.D. (1984),Horror
+4223,Enemy at the Gates (2001),Drama|War
+4224,Exit Wounds (2001),Action|Thriller
+4225,"Dish, The (2001)",Comedy
+4226,Memento (2000),Mystery|Thriller
+4228,Heartbreakers (2001),Comedy|Crime|Romance
+4229,Say It Isn't So (2001),Comedy|Romance
+4231,Someone Like You (2001),Comedy|Romance
+4232,Spy Kids (2001),Action|Adventure|Children|Comedy
+4233,Tomcats (2001),Comedy
+4234,"Tailor of Panama, The (2001)",Drama|Thriller
+4235,Amores Perros (Love's a Bitch) (2000),Drama|Thriller
+4236,Keep the River on Your Right: A Modern Cannibal Tale (2000),Documentary
+4237,"Gleaners & I, The (Les glaneurs et la glaneuse) (2000)",Documentary
+4238,Along Came a Spider (2001),Action|Crime|Mystery|Thriller
+4239,Blow (2001),Crime|Drama
+4241,Pokémon 3: The Movie (2001),Animation|Children
+4246,Bridget Jones's Diary (2001),Comedy|Drama|Romance
+4247,Joe Dirt (2001),Adventure|Comedy|Mystery|Romance
+4248,Josie and the Pussycats (2001),Comedy
+4251,Chopper (2000),Drama|Thriller
+4252,"Circle, The (Dayereh) (2000)",Drama
+4254,Crocodile Dundee in Los Angeles (2001),Comedy|Drama
+4255,Freddy Got Fingered (2001),Comedy
+4262,Scarface (1983),Action|Crime|Drama
+4263,Days of Wine and Roses (1962),Drama
+4265,Driven (2001),Action|Thriller
+4266,"Forsaken, The (2001)",Horror
+4267,One Night at McCool's (2001),Comedy
+4268,Town & Country (2001),Comedy
+4270,"Mummy Returns, The (2001)",Action|Adventure|Comedy|Thriller
+4271,Eureka (Yurîka) (2000),Drama
+4273,Under the Sand (2000),Drama
+4274,Cleopatra (1963),Drama|Romance
+4275,Krull (1983),Action|Adventure|Fantasy|Sci-Fi
+4276,Lost in America (1985),Comedy
+4277,"Lost World, The (1925)",Adventure|Sci-Fi
+4278,Triumph of the Will (Triumph des Willens) (1934),Documentary
+4279,True Believer (1989),Crime
+4280,"World According to Garp, The (1982)",Comedy|Drama|Romance
+4281,Candy (1968),Comedy
+4282,Fellini Satyricon (1969),Drama|Fantasy
+4284,Frankie and Johnny (1966),Comedy
+4290,For the Boys (1991),Comedy|Drama|Musical
+4291,Nine to Five (a.k.a. 9 to 5) (1980),Comedy|Crime
+4292,Norma Rae (1979),Drama
+4293,Summer Rental (1985),Comedy
+4294,"5,000 Fingers of Dr. T, The (1953)",Children|Fantasy|Musical
+4296,Love Story (1970),Drama|Romance
+4297,Pelle the Conqueror (Pelle erobreren) (1987),Drama
+4298,Rififi (Du rififi chez les hommes) (1955),Crime|Film-Noir|Thriller
+4299,"Knight's Tale, A (2001)",Action|Comedy|Romance
+4300,Bread and Roses (2000),Drama
+4302,"King Is Alive, The (2000)",Drama
+4304,Startup.com (2001),Documentary
+4305,Angel Eyes (2001),Romance|Thriller
+4306,Shrek (2001),Adventure|Animation|Children|Comedy|Fantasy|Romance
+4308,Moulin Rouge (2001),Drama|Musical|Romance
+4310,Pearl Harbor (2001),Action|Drama|Romance|War
+4312,Himalaya (Himalaya - l'enfance d'un chef) (1999),Adventure|Drama
+4316,Ice Castles (1978),Drama
+4317,Love Potion #9 (1992),Comedy|Romance
+4318,Postcards From the Edge (1990),Comedy|Drama
+4319,Apache (1954),Western
+4321,City Slickers (1991),Comedy|Western
+4322,Eight Men Out (1988),Drama
+4324,"Kentuckian, The (1955)",Drama|Western
+4326,Mississippi Burning (1988),Crime|Drama|Thriller
+4327,"Magnificent Seven, The (1960)",Adventure|Western
+4329,Rio Bravo (1959),Western
+4332,Suspect (1987),Crime|Drama|Thriller
+4333,Throw Momma from the Train (1987),Comedy|Crime
+4334,Yi Yi (2000),Drama
+4337,"Sand Pebbles, The (1966)",Drama|Romance|War
+4338,Twelve O'Clock High (1949),Drama|War
+4339,Von Ryan's Express (1965),Action|Adventure|Drama|War
+4340,"Animal, The (2001)",Comedy
+4342,Big Eden (2000),Drama|Romance
+4343,Evolution (2001),Comedy|Sci-Fi
+4344,Swordfish (2001),Action|Crime|Drama
+4345,"Anniversary Party, The (2001)",Drama
+4347,Divided We Fall (Musíme si pomáhat) (2000),Comedy|Drama
+4349,Catch-22 (1970),Comedy|War
+4350,Forgotten Silver (1996),Comedy|Documentary
+4351,Point Break (1991),Action|Crime|Thriller
+4352,Shag (1989),Comedy|Drama
+4353,Uncommon Valor (1983),Action|War
+4354,Unlawful Entry (1992),Crime|Thriller
+4355,Youngblood (1986),Action|Drama
+4356,Gentlemen Prefer Blondes (1953),Comedy|Musical|Romance
+4357,How to Marry a Millionaire (1953),Comedy|Drama|Romance
+4359,"Seven Year Itch, The (1955)",Comedy
+4360,There's No Business Like Show Business (1954),Musical
+4361,Tootsie (1982),Comedy|Romance
+4366,Atlantis: The Lost Empire (2001),Adventure|Animation|Children|Fantasy
+4367,Lara Croft: Tomb Raider (2001),Action|Adventure
+4368,Dr. Dolittle 2 (2001),Comedy
+4369,"Fast and the Furious, The (2001)",Action|Crime|Thriller
+4370,A.I. Artificial Intelligence (2001),Adventure|Drama|Sci-Fi
+4371,Baby Boy (2001),Crime|Drama
+4372,Crazy/Beautiful (2001),Drama|Romance
+4375,"Adventures of Felix, The (a.k.a. Funny Felix) (Drôle de Félix) (2000)",Comedy|Drama
+4378,Sexy Beast (2000),Crime|Drama
+4380,"Princess and the Warrior, The (Krieger und die Kaiserin, Der) (2000)",Drama|Romance
+4381,"Closet, The (Placard, Le) (2001)",Comedy
+4383,"Crimson Rivers, The (Rivières pourpres, Les) (2000)",Crime|Drama|Mystery|Thriller
+4384,Lumumba (2000),Drama
+4386,Cats & Dogs (2001),Children|Comedy
+4387,Kiss of the Dragon (2001),Action
+4388,Scary Movie 2 (2001),Comedy
+4389,Lost and Delirious (2001),Drama
+4390,Rape Me (Baise-moi) (2000),Crime|Drama|Thriller
+4391,"Vertical Ray of the Sun, The (Mua he chieu thang dung) (2000)",Drama
+4392,Alice (1990),Comedy|Drama|Fantasy|Romance
+4394,Beach Blanket Bingo (1965),Comedy|Musical
+4396,"Cannonball Run, The (1981)",Action|Comedy
+4397,Cannonball Run II (1984),Action|Comedy
+4399,"Diary of a Chambermaid (Journal d'une femme de chambre, Le) (1964)",Comedy|Drama
+4401,Donovan's Reef (1963),Action|Comedy|Romance
+4402,Dr. Goldfoot and the Bikini Machine (1965),Comedy
+4403,"Fall of the House of Usher, The (House of Usher) (1960)",Horror
+4404,Faust (1926),Drama|Fantasy|Horror
+4405,"Last Laugh, The (Letzte Mann, Der) (1924)",Drama
+4406,"Man Who Shot Liberty Valance, The (1962)",Crime|Drama|Western
+4407,Salvador (1986),Drama|Thriller|War
+4409,Shadows and Fog (1991),Comedy|Drama|Mystery|Thriller
+4410,Something Wild (1986),Comedy|Crime|Drama
+4411,Sons of Katie Elder (1965),Western
+4414,X: The Man with the X-Ray Eyes (1963),Sci-Fi|Thriller
+4415,Cheech & Chong's Nice Dreams (1981),Comedy
+4417,"House by the Cemetery, The (Quella villa accanto al cimitero) (1981)",Horror
+4420,"Barefoot Contessa, The (1954)",Drama
+4422,Cries and Whispers (Viskningar och rop) (1972),Drama
+4424,"Garden of the Finzi-Continis, The (Giardino dei Finzi-Contini, Il) (1970)",Drama
+4426,Kiss Me Deadly (1955),Film-Noir
+4427,"Lion in Winter, The (1968)",Drama
+4428,"Misfits, The (1961)",Comedy|Drama|Romance|Western
+4432,Sweet Smell of Success (1957),Drama|Film-Noir
+4433,Written on the Wind (1956),Drama
+4437,Suspiria (1977),Horror
+4438,"Fist of Fury (Chinese Connection, The) (Jing wu men) (1972)",Action|Drama|Romance|Thriller
+4440,"Big Boss, The (Fists of Fury) (Tang shan da xiong) (1971)",Action|Thriller
+4441,Game of Death (1978),Action
+4442,"Last Dragon, The (1985)",Action|Comedy|Drama
+4443,Outland (1981),Action|Sci-Fi|Thriller
+4444,"Way of the Dragon, The (a.k.a. Return of the Dragon) (Meng long guo jiang) (1972)",Action|Crime
+4445,T-Rex: Back to the Cretaceous (1998),Adventure|Documentary|IMAX
+4446,Final Fantasy: The Spirits Within (2001),Adventure|Animation|Fantasy|Sci-Fi
+4447,Legally Blonde (2001),Comedy|Romance
+4448,"Score, The (2001)",Action|Drama
+4450,Bully (2001),Crime|Drama|Thriller
+4451,Jump Tomorrow (2001),Comedy|Drama|Romance
+4452,Made (2001),Comedy
+4453,Michael Jordan to the Max (2000),Documentary|IMAX
+4454,More (1998),Animation|Drama|Sci-Fi|IMAX
+4458,Africa: The Serengeti (1994),Documentary|IMAX
+4459,Alaska: Spirit of the Wild (1997),Documentary|IMAX
+4462,18 Again! (1988),Comedy|Fantasy
+4464,"Accidental Tourist, The (1988)",Comedy|Drama|Romance
+4465,"Accused, The (1988)",Drama
+4466,Above the Law (1988),Action|Crime|Drama
+4467,"Adventures of Baron Munchausen, The (1988)",Adventure|Comedy|Fantasy
+4469,Appointment with Death (1988),Crime|Mystery
+4470,Ariel (1988),Drama
+4471,Arthur 2: On the Rocks (1988),Comedy|Romance
+4473,Bat*21 (1988),Drama|War
+4474,Beaches (1988),Comedy|Drama|Musical
+4475,"Beast of War, The (Beast, The) (1988)",Drama|War
+4477,Big Top Pee-Wee (1988),Adventure|Children|Comedy
+4478,Biloxi Blues (1988),Comedy|Drama
+4479,Bird (1988),Drama|Musical
+4480,"Blob, The (1988)",Horror|Sci-Fi
+4482,"Bright Lights, Big City (1988)",Drama
+4483,Caddyshack II (1988),Comedy
+4486,Clean and Sober (1988),Drama
+4487,Cocktail (1988),Drama|Romance
+4488,Colors (1988),Action|Crime|Drama
+4489,Coming to America (1988),Comedy|Romance
+4490,"Couch Trip, The (1988)",Comedy
+4491,Criminal Law (1988),Thriller
+4492,Critters (1986),Comedy|Sci-Fi
+4493,Critters 2: The Main Course (1988),Comedy|Horror|Sci-Fi
+4495,Crossing Delancey (1988),Comedy|Romance
+4496,D.O.A. (1988),Film-Noir|Mystery|Thriller
+4498,"Dead Pool, The (1988)",Action|Crime|Thriller
+4499,Dirty Rotten Scoundrels (1988),Comedy
+4500,Drowning by Numbers (1988),Comedy|Drama
+4501,"Elvira, Mistress of the Dark (1988)",Comedy|Horror
+4502,Ernest Saves Christmas (1988),Children|Comedy
+4503,Everybody's All-American (1988),Romance
+4506,Frantic (1988),Crime|Mystery|Thriller
+4508,Gorillas in the Mist (1988),Drama
+4509,"Great Outdoors, The (1988)",Comedy
+4511,High Spirits (1988),Comedy
+4515,Imagine: John Lennon (1988),Documentary
+4516,Johnny Be Good (1988),Comedy
+4518,The Lair of the White Worm (1988),Comedy|Horror
+4519,"Land Before Time, The (1988)",Adventure|Animation|Children|Fantasy
+4520,License to Drive (1988),Comedy
+4521,Little Nikita (1988),Drama
+4522,Masquerade (1988),Mystery|Romance|Thriller
+4523,Milagro Beanfield War (1988),Comedy|Drama|Fantasy
+4524,Moon Over Parador (1988),Comedy
+4526,My Stepmother Is an Alien (1988),Comedy|Romance|Sci-Fi
+4527,"Night in the Life of Jimmy Reardon, A (1988)",Comedy|Romance
+4528,Off Limits (1988),Action|Thriller|War
+4529,Bagdad Cafe (Out of Rosenheim) (1987),Comedy|Drama
+4531,Red Heat (1988),Action
+4532,Return of the Living Dead Part II (1988),Comedy|Horror
+4533,"Return of the Living Dead, The (1985)",Comedy|Horror|Sci-Fi
+4534,Return to Snowy River (a.k.a. The Man From Snowy River II) (1988),Adventure|Drama|Western
+4535,"Man from Snowy River, The (1982)",Drama|Romance|Western
+4537,Running on Empty (1988),Drama
+4538,Salome's Last Dance (1988),Comedy|Drama
+4539,Salsa (1988),Musical|Romance
+4541,"Serpent and the Rainbow, The (1988)",Horror
+4543,Shoot to Kill (1988),Action|Adventure
+4544,Short Circuit 2 (1988),Comedy|Sci-Fi
+4545,Short Circuit (1986),Comedy|Sci-Fi
+4546,"Vanishing, The (Spoorloos) (1988)",Drama|Thriller
+4550,Switching Channels (1988),Comedy
+4552,"Tetsuo, the Ironman (Tetsuo) (1988)",Action|Horror|Sci-Fi|Thriller
+4553,They Live (1988),Action|Sci-Fi|Thriller
+4555,Torch Song Trilogy (1988),Comedy|Drama|Romance
+4557,Tucker: The Man and His Dream (1988),Drama
+4558,Twins (1988),Comedy
+4559,Vice Versa (1988),Comedy
+4560,Watchers (1988),Horror|Sci-Fi
+4561,Waxwork (1988),Comedy|Horror
+4562,Without a Clue (1988),Comedy|Mystery
+4563,Young Einstein (1988),Comedy
+4564,Always (1989),Drama|Fantasy|Romance
+4565,American Ninja (1985),Action|Adventure
+4566,American Ninja 2: The Confrontation (1987),Action|Adventure
+4567,American Ninja 3: Blood Hunt (1989),Action|Adventure
+4568,Best of the Best (1989),Action
+4569,Best of the Best 2 (1993),Action
+4570,"Big Picture, The (1989)",Comedy|Drama
+4571,Bill & Ted's Excellent Adventure (1989),Adventure|Comedy|Sci-Fi
+4572,Black Rain (1989),Action|Crime|Drama
+4573,Blaze (1989),Comedy|Drama
+4577,Casualties of War (1989),Drama|War
+4578,Chances Are (1989),Comedy|Romance
+4584,Dream a Little Dream (1989),Comedy|Drama|Romance
+4585,"Dream Team, The (1989)",Comedy
+4587,Earth Girls Are Easy (1988),Comedy|Musical|Sci-Fi
+4589,Eddie and the Cruisers (1983),Drama|Musical|Mystery
+4590,Enemies: A Love Story (1989),Drama
+4591,Erik the Viking (1989),Adventure|Comedy|Fantasy
+4592,"Experts, The (1989)",Comedy
+4593,Family Business (1989),Comedy
+4600,Gross Anatomy (a.k.a. A Cut Above) (1989),Comedy|Drama
+4602,Harlem Nights (1989),Comedy|Crime|Romance
+4603,Her Alibi (1989),Comedy|Romance
+4605,How to Get Ahead in Advertising (1989),Comedy|Fantasy
+4606,Immediate Family (1989),Drama
+4608,"Innocent Man, An (1989)",Crime|Drama
+4610,"January Man, The (1989)",Comedy|Crime|Mystery|Thriller
+4612,Jesus of Montreal (Jésus de Montréal) (1989),Drama
+4614,Kickboxer (1989),Action
+4615,Last Exit to Brooklyn (1989),Drama
+4616,Lean on Me (1989),Drama
+4617,Let It Ride (1989),Comedy
+4618,Leviathan (1989),Horror|Sci-Fi|Thriller
+4619,Little Monsters (1989),Comedy
+4621,Look Who's Talking (1989),Comedy|Romance
+4622,Loverboy (1989),Comedy
+4623,Major League (1989),Comedy
+4624,Meet the Feebles (1989),Animation|Comedy|Musical
+4625,Millennium (1989),Drama|Sci-Fi|Thriller
+4626,Miracle Mile (1989),Drama|Romance|Sci-Fi
+4627,Miss Firecracker (1989),Comedy
+4628,New York Stories (1989),Comedy|Drama
+4629,Next of Kin (1989),Action|Crime|Thriller
+4630,No Holds Barred (1989),Action
+4632,"Package, The (1989)",Action|Thriller
+4634,Penn & Teller Get Killed (1989),Adventure|Comedy
+4636,"Punisher, The (1989)",Action
+4638,Jurassic Park III (2001),Action|Adventure|Sci-Fi|Thriller
+4639,America's Sweethearts (2001),Comedy|Romance
+4640,Brother (2000),Action|Crime|Thriller
+4641,Ghost World (2001),Comedy|Drama
+4642,Hedwig and the Angry Inch (2000),Comedy|Drama|Musical
+4643,Planet of the Apes (2001),Action|Adventure|Drama|Sci-Fi
+4644,Bread and Tulips (Pane e tulipani) (2000),Comedy|Drama|Romance
+4645,Cure (1997),Crime|Horror|Thriller
+4649,Wet Hot American Summer (2001),Comedy
+4652,"Return of Swamp Thing, The (1989)",Comedy|Horror|Sci-Fi
+4654,Road House (1989),Action|Drama
+4655,Romero (1989),Drama
+4658,Santa Sangre (1989),Drama|Horror|Mystery|Thriller
+4659,Scandal (1989),Drama
+4660,Scenes from the Class Struggle in Beverly Hills (1989),Comedy
+4661,Sea of Love (1989),Crime|Drama|Thriller
+4662,"See No Evil, Hear No Evil (1989)",Comedy|Crime
+4663,She's Out of Control (1989),Comedy
+4664,Shirley Valentine (1989),Comedy|Romance
+4666,Skin Deep (1989),Comedy
+4667,Slaves of New York (1989),Drama
+4670,"Stepfather, The (1987)",Horror|Thriller
+4673,Tango & Cash (1989),Action|Comedy|Crime|Thriller
+4674,Tap (1989),Drama
+4675,Three Fugitives (1989),Action|Comedy
+4676,Troop Beverly Hills (1989),Comedy
+4677,Turner & Hooch (1989),Comedy|Crime
+4678,UHF (1989),Comedy
+4679,Uncle Buck (1989),Comedy
+4680,Vampire's Kiss (1989),Comedy|Fantasy|Horror
+4681,"War of the Roses, The (1989)",Comedy|Drama
+4682,Warlock (1989),Action|Horror
+4684,Worth Winning (1989),Comedy
+4686,Weekend at Bernie's II (1993),Adventure|Comedy
+4687,Billy Liar (1963),Comedy
+4688,Black Robe (1991),Adventure|Drama
+4690,"Cotton Club, The (1984)",Crime|Musical
+4691,Def-Con 4 (1985),Action|Sci-Fi
+4692,"Hotel New Hampshire, The (1984)",Drama
+4696,"Zorro, the Gay Blade (1981)",Comedy
+4697,Basket Case (1982),Comedy|Horror
+4698,Orphans (1997),Comedy|Drama
+4699,Original Sin (2001),Drama|Romance|Thriller
+4700,"Princess Diaries, The (2001)",Children|Comedy|Romance
+4701,Rush Hour 2 (2001),Action|Comedy
+4703,Chocolat (1988),Drama
+4704,Hatari! (1962),Adventure|Comedy
+4705,"Cage aux Folles, La (1978)",Comedy
+4706,"Cage aux Folles II, La (1980)",Comedy
+4709,Paint Your Wagon (1969),Comedy|Musical|Western
+4710,"Shootist, The (1976)",Drama|Western
+4711,Theremin: An Electronic Odyssey (1993),Documentary
+4712,"Wild Child, The (Enfant sauvage, L') (1970)",Drama
+4713,Altered States (1980),Drama|Sci-Fi
+4714,Any Which Way You Can (1980),Comedy
+4716,Bad Timing: A Sensual Obsession (1980),Drama
+4717,"Battle Creek Brawl (Big Brawl, The) (1980)",Action|Comedy
+4718,American Pie 2 (2001),Comedy
+4719,Osmosis Jones (2001),Action|Animation|Comedy|Crime|Drama|Romance|Thriller
+4720,"Others, The (2001)",Drama|Horror|Mystery|Thriller
+4721,American Outlaws (2001),Action|Comedy|Western
+4722,All Over the Guy (2001),Comedy
+4723,"Deep End, The (2001)",Drama
+4724,On the Edge (2001),Drama
+4725,Session 9 (2001),Horror|Thriller
+4727,Captain Corelli's Mandolin (2001),Drama|Romance|War
+4728,Rat Race (2001),Comedy
+4731,Innocence (2000),Drama
+4732,Bubble Boy (2001),Comedy
+4733,"Curse of the Jade Scorpion, The (2001)",Comedy
+4734,Jay and Silent Bob Strike Back (2001),Adventure|Comedy
+4735,Ghosts of Mars (2001),Horror|Sci-Fi|Thriller
+4736,Summer Catch (2001),Comedy|Drama|Romance
+4737,"American Rhapsody, An (2001)",Drama
+4738,Happy Accidents (2000),Romance|Sci-Fi
+4740,Maybe Baby (2000),Comedy|Romance
+4741,Together (Tillsammans) (2000),Comedy|Drama|Romance
+4743,Tortilla Soup (2001),Comedy|Romance
+4744,Jeepers Creepers (2001),Horror
+4745,O (2001),Drama
+4748,3 Ninjas (1992),Action|Children|Comedy
+4749,3 Ninjas Kick Back (1994),Action|Children|Comedy
+4750,3 Ninjas Knuckle Up (1995),Action|Children
+4751,"Hunter, The (1980)",Action|Thriller
+4752,Maniac (1980),Horror
+4753,Vamp (1986),Comedy|Horror
+4754,"Wicker Man, The (1973)",Drama|Horror|Mystery|Thriller
+4755,Wish Upon a Star (1996),Comedy
+4756,"Musketeer, The (2001)",Action|Adventure|Drama|Romance
+4757,Rock Star (2001),Comedy|Drama|Musical
+4761,Diamond Men (2001),Drama
+4763,"Iron Ladies, The (Satree lek) (2000)",Comedy
+4765,L.I.E. (2001),Drama
+4766,"Our Lady of the Assassins (Virgen de los sicarios, La) (2000)",Crime|Drama|Romance
+4767,Abbott and Costello Meet the Mummy (1955),Comedy|Horror
+4768,"Dr. Mabuse: The Gambler (Dr. Mabuse, der Spieler) (1922)",Crime|Mystery|Thriller
+4769,Into the Arms of Strangers: Stories of the Kindertransport (2000),Documentary
+4770,"Glass House, The (2001)",Thriller
+4771,Hardball (2001),Drama
+4772,Dinner Rush (2000),Drama
+4774,Big Trouble (2002),Comedy|Crime
+4775,Glitter (2001),Drama|Musical|Romance
+4776,Training Day (2001),Crime|Drama|Thriller
+4782,Sidewalks of New York (2001),Comedy|Romance
+4783,"Endurance: Shackleton's Legendary Antarctic Expedition, The (2000)",Documentary
+4784,"French Lieutenant's Woman, The (1981)",Drama
+4787,Little Man Tate (1991),Drama
+4789,Phantom of the Paradise (1974),Comedy|Fantasy|Horror|Musical|Thriller
+4792,13 Ghosts (1960),Horror
+4795,Father Goose (1964),Adventure|Comedy|Romance|War
+4796,"Grass Is Greener, The (1960)",Comedy|Romance
+4798,Indiscreet (1958),Comedy|Romance
+4799,"It's a Mad, Mad, Mad, Mad World (1963)",Action|Adventure|Comedy|Crime
+4800,King Solomon's Mines (1937),Action|Adventure|Drama|Romance|Thriller
+4801,"Little Foxes, The (1941)",Drama
+4802,Operation Petticoat (1959),Action|Comedy|Romance|War
+4803,Play Misty for Me (1971),Drama|Thriller
+4804,Pocketful of Miracles (1961),Comedy|Drama
+4806,"Shop on Main Street, The (Obchod na korze) (1965)",Drama
+4809,Silkwood (1983),Drama
+4810,I Never Promised You a Rose Garden (1977),Drama
+4811,Quadrophenia (1979),Drama|Musical
+4812,SpaceCamp (1986),Adventure|Sci-Fi
+4814,Don't Say a Word (2001),Thriller
+4815,Hearts in Atlantis (2001),Drama
+4816,Zoolander (2001),Comedy
+4818,Extreme Days (2001),Action|Adventure|Comedy|Drama
+4821,Joy Ride (2001),Adventure|Thriller
+4822,Max Keeble's Big Move (2001),Children|Comedy
+4823,Serendipity (2001),Comedy|Romance
+4826,"Big Red One, The (1980)",Action|Adventure|Drama|War
+4830,Brubaker (1980),Crime|Drama
+4831,Can't Stop the Music (1980),Comedy|Musical
+4832,Carny (1980),Drama
+4833,"Changeling, The (1980)",Horror|Mystery|Thriller
+4834,Cheech & Chong's Next Movie (1980),Comedy
+4835,Coal Miner's Daughter (1980),Drama
+4836,"Competition, The (1980)",Drama|Romance
+4837,Cruising (1980),Crime|Drama|Thriller
+4840,"Last Metro, The (Dernier métro, Le) (1980)",Drama|Romance
+4842,"Dogs of War, The (1980)",Drama|War
+4844,Bandits (2001),Comedy|Crime|Romance
+4846,Iron Monkey (Siu nin Wong Fei-hung ji: Tit Ma Lau) (1993),Action|Comedy
+4848,Mulholland Drive (2001),Crime|Drama|Film-Noir|Mystery|Thriller
+4849,My First Mister (2001),Comedy|Drama
+4851,Things Behind the Sun (2001),Drama
+4854,Clambake (1967),Musical
+4855,Dirty Harry (1971),Action|Crime|Thriller
+4857,Fiddler on the Roof (1971),Drama|Musical
+4859,Kansas (1988),Crime|Drama
+4861,Mission to Mir (1997),Documentary|IMAX
+4862,Not Without My Daughter (1991),Drama
+4863,Female Trouble (1975),Comedy|Crime
+4865,From Hell (2001),Crime|Horror|Mystery|Thriller
+4866,"Last Castle, The (2001)",Action
+4867,Riding in Cars with Boys (2001),Comedy|Drama
+4873,Waking Life (2001),Animation|Drama|Fantasy
+4874,K-PAX (2001),Drama|Fantasy|Mystery|Sci-Fi
+4875,On the Line (2001),Comedy|Romance
+4876,Thirteen Ghosts (a.k.a. Thir13en Ghosts) (2001),Horror|Thriller
+4878,Donnie Darko (2001),Drama|Mystery|Sci-Fi|Thriller
+4880,Life as a House (2001),Drama
+4881,"Man Who Wasn't There, The (2001)",Crime|Drama
+4885,Domestic Disturbance (2001),Thriller
+4886,"Monsters, Inc. (2001)",Adventure|Animation|Children|Comedy|Fantasy
+4887,"One, The (2001)",Action|Sci-Fi|Thriller
+4888,Tape (2001),Drama
+4889,Heist (2001),Crime|Drama
+4890,Shallow Hal (2001),Comedy|Fantasy|Romance
+4893,When a Stranger Calls (1979),Horror|Thriller
+4895,"Wash, The (2001)",Comedy
+4896,Harry Potter and the Sorcerer's Stone (a.k.a. Harry Potter and the Philosopher's Stone) (2001),Adventure|Children|Fantasy
+4897,"Fluffer, The (2001)",Drama|Romance
+4898,Novocaine (2001),Comedy|Crime|Mystery|Thriller
+4899,Black Knight (2001),Adventure|Comedy|Fantasy
+4901,Spy Game (2001),Action|Crime|Drama|Thriller
+4902,"Devil's Backbone, The (Espinazo del diablo, El) (2001)",Drama|Fantasy|Horror|Thriller|War
+4903,In the Bedroom (2001),Drama
+4911,Jabberwocky (1977),Adventure|Comedy|Fantasy
+4912,Funny Girl (1968),Drama|Musical|Romance
+4914,Breathless (À bout de souffle) (1960),Crime|Drama|Romance
+4915,"Beastmaster, The (1982)",Action|Adventure|Fantasy
+4920,"Now, Voyager (1942)",Drama|Romance
+4921,Little Women (1933),Drama|Romance
+4923,Guadalcanal Diary (1943),Action|War
+4925,"Cheap Detective, The (1978)",Comedy
+4927,"Last Wave, The (1977)",Fantasy|Mystery|Thriller
+4928,That Obscure Object of Desire (Cet obscur objet du désir) (1977),Drama
+4929,"Toy, The (1982)",Comedy
+4930,Funeral in Berlin (1966),Action|Drama|Thriller
+4932,Dressed to Kill (1980),Mystery|Thriller
+4933,"Earthling, The (1980)",Adventure|Drama
+4936,Fame (1980),Drama|Musical
+4941,Flash Gordon (1980),Action|Adventure|Sci-Fi
+4945,"Enforcer, The (1976)",Crime
+4947,"Gauntlet, The (1977)",Action
+4948,I Bury the Living (1958),Horror
+4949,Invasion U.S.A. (1985),Action|Thriller
+4951,Lord of the Flies (1990),Adventure|Drama|Thriller
+4952,Morons From Outer Space (1985),Comedy|Sci-Fi
+4954,Ocean's Eleven (a.k.a. Ocean's 11) (1960),Comedy|Crime
+4956,"Stunt Man, The (1980)",Action|Adventure|Comedy|Drama|Romance|Thriller
+4957,Sudden Impact (1983),Crime|Thriller
+4958,Behind Enemy Lines (2001),Action|Drama|War
+4960,"Independent, The (2000)",Comedy
+4961,Pornstar: The Legend of Ron Jeremy (2001),Documentary
+4963,Ocean's Eleven (2001),Crime|Thriller
+4964,Baran (2001),Adventure|Drama|Romance
+4965,"Business of Strangers, The (2001)",Action|Drama|Thriller
+4967,No Man's Land (2001),Drama|War
+4968,Piñero (2001),Drama
+4969,And Then There Were None (1945),Crime|Mystery
+4970,"Blue Angel, The (Blaue Engel, Der) (1930)",Drama
+4971,Moscow on the Hudson (1984),Comedy|Drama
+4972,"Owl and the Pussycat, The (1970)",Comedy
+4973,"Amelie (Fabuleux destin d'Amélie Poulain, Le) (2001)",Comedy|Romance
+4974,Not Another Teen Movie (2001),Comedy
+4975,Vanilla Sky (2001),Mystery|Romance|Sci-Fi|Thriller
+4976,Iris (2001),Drama
+4977,Kandahar (Safar e Ghandehar) (2001),Drama
+4978,Lantana (2001),Drama|Mystery|Thriller
+4979,"Royal Tenenbaums, The (2001)",Comedy|Drama
+4980,Bill & Ted's Bogus Journey (1991),Adventure|Comedy|Fantasy|Sci-Fi
+4981,Clockwise (1986),Comedy
+4984,Morgan! (1966),Comedy|Drama|Fantasy
+4987,Spacehunter: Adventures in the Forbidden Zone (1983),Action|Adventure|Sci-Fi
+4988,White Water Summer (1987),Adventure
+4989,How High (2001),Comedy
+4990,Jimmy Neutron: Boy Genius (2001),Adventure|Animation|Children|Comedy
+4992,Kate & Leopold (2001),Comedy|Romance
+4993,"Lord of the Rings: The Fellowship of the Ring, The (2001)",Adventure|Fantasy
+4994,"Majestic, The (2001)",Comedy|Drama|Romance
+4995,"Beautiful Mind, A (2001)",Drama|Romance
+4996,Little Otik (Otesánek) (2000),Comedy|Drama|Fantasy
+4998,"Defiant Ones, The (1958)",Adventure|Crime|Drama|Thriller
+4999,Dodsworth (1936),Drama|Romance

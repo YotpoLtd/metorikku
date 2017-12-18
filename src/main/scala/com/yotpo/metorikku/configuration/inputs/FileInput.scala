@@ -1,5 +1,5 @@
 package com.yotpo.metorikku.configuration.inputs
 
-import com.yotpo.metorikku.utils.TableType.TableType
-
-case class FileInput(name: String, path: String) {}
+case class FileInput(name: String, path: String) extends Input {
+  override def getSequence: Seq[String] = Seq(path)
+}
