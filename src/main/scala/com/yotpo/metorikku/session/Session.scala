@@ -3,7 +3,6 @@ package com.yotpo.metorikku.session
 import com.yotpo.metorikku.configuration.{Configuration, Output}
 import com.yotpo.metorikku.configuration.inputs.{Input}
 import com.yotpo.metorikku.exceptions.MetorikkuException
-import com.yotpo.metorikku.input.InputTableReader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
@@ -60,7 +59,7 @@ object Session {
       inputs.foreach(input => {
         log.info(s"Registering ${input.name} table")
         val tablePaths: Seq[String] = input.getSequence
-        val reader = InputTableReader(tablePaths)
+        val reader = input.getReader(tablePaths)
         val df = reader.read(tablePaths)
         df.createOrReplaceTempView(input.name)
       })
