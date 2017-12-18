@@ -1,6 +1,6 @@
 # !MANDATORY! Metrics and Metrics directories be executed
 metrics:
-  - examples/movies.jsonl
+  - examples/movies.json
 
 inputs:
  movies: examples/inputs/movies.csv
@@ -8,7 +8,7 @@ inputs:
 
 # Set custom variables that would be accessible from the SQL
 variables:
- myFavoriteMovie: "Aladdin (1992)"
+ myFavoriteMovie: "Peter Pan (1960)"
 
 output:
   file:
