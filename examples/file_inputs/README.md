@@ -54,8 +54,12 @@ Here's our example configuration:
 metrics:
   - movies.jsonl
 inputs:
- movies: examples/inputs/movies.csv
- ratings: examples/inputs/ratings.csv
+ movies:
+  type: file
+  path: examples/inputs/movies.csv
+ ratings:
+  type: file
+  path: examples/inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:

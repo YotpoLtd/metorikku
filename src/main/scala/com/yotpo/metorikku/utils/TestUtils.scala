@@ -2,7 +2,8 @@ package com.yotpo.metorikku.utils
 
 import java.io.File
 
-import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
+import com.yotpo.metorikku.configuration.inputs.FileInput
+import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -32,7 +33,6 @@ object TestUtils {
                                             metricTestSettings: MetricTesterDefinitions.TestSettings,
                                             previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
-    configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
@@ -40,9 +40,9 @@ object TestUtils {
     configuration
   }
 
-  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
+  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[FileInput] = {
     val mockFiles = mocks.map(mock => {
-      Input(mock.name, new File(testDir, mock.path).getCanonicalPath)
+      FileInput(mock.name, new File(testDir, mock.path).getCanonicalPath)
     })
     mockFiles
   }
