@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.session
 
-import com.yotpo.metorikku.configuration.{Configuration, DateRange, Input, Output}
+import com.yotpo.metorikku.configuration.{Configuration, DateRange, Output}
+import com.yotpo.metorikku.configuration.inputs.FileInput
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.input.InputTableReader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
@@ -54,7 +55,7 @@ object Session {
     })
   }
 
-  def registerDataframes(inputs: Seq[Input], dateRange: Map[String, DateRange]): Unit = {
+  def registerDataframes(inputs: Seq[FileInput], dateRange: Map[String, DateRange]): Unit = {
     if (inputs.nonEmpty) {
       inputs.foreach(input => {
         log.info(s"Registering ${input.name} table")
