@@ -6,17 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.configuration.ConfigurationParser.ConfigFileName
-import org.apache.log4j.LogManager
+import org.apache.log4j.{LogManager, Logger}
 
 object YAMLConfigurationParser {
-  val log = LogManager.getLogger(this.getClass)
+  val log: Logger = LogManager.getLogger(this.getClass)
 
   def parse(args: Array[String]): YAMLConfiguration = {
     log.info("Starting Metorikku - Parsing configuration")
 
-    return ConfigurationParser.parser.parse(args, ConfigFileName()) match {
-      case Some(args) =>
-        parseYAMLFile(args.filename)
+    ConfigurationParser.parser.parse(args, ConfigFileName()) match {
+      case Some(arguments) =>
+        parseYAMLFile(arguments.filename)
     }
   }
 
@@ -26,6 +26,4 @@ object YAMLConfigurationParser {
     val config: YAMLConfiguration = mapper.readValue(new FileReader(fileName), classOf[YAMLConfiguration])
     config
   }
-
-
 }

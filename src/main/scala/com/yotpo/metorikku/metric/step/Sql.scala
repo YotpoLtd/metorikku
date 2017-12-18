@@ -24,7 +24,7 @@ class Sql(step: Any, metricDir: File) extends MetricStep {
     * if the metric step contains the actual query string to run, it is returned (key "sql")
     * Otherwise, a path to a file that contains the query is expected (key "file")
     **/
-  def getSqlQueryStringFromStepsMap(): String = {
+  def getSqlQueryStringFromStepsMap: String = {
     val stepType = stepConfig.keys.filter(StepType.isStepType(_))
     if (stepType.isEmpty) {
       throw new MetorikkuException(s"Not Supported Step type $stepType")
@@ -40,9 +40,6 @@ class Sql(step: Any, metricDir: File) extends MetricStep {
     val file = Value("file")
     val sql = Value("sql")
 
-    def isStepType(s: String) = values.exists(_.toString == s)
-
+    def isStepType(s: String): Boolean = values.exists(_.toString == s)
   }
-
-
 }

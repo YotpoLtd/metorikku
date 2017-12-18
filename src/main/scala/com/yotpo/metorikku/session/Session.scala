@@ -24,8 +24,12 @@ object Session {
   }
 
   private def setSparkLogLevel(logLevel: String) {
-    if (logLevel != null)
+    //TODO Remove the usage of null in this class
+    // scalastyle:off null
+    if (logLevel != null) {
       getSparkSession.sparkContext.setLogLevel(logLevel)
+    }
+    // scalastyle:on null
   }
 
   def getConfiguration: Configuration = {
