@@ -50,8 +50,12 @@ So for example a simple config.yaml file should be as follows:
 metrics:
   - /full/path/to/your/MQL/file.json
 inputs:
-  input_1: parquet/input_1.parquet
-  input_2: parquet/input_2.parquet
+  input_1:
+    type: file
+    path: parquet/input_1.parquet
+  input_2:
+    type: file
+    path: parquet/input_2.parquet
 output:
     file:
         dir: /path/to/parquet/output

@@ -1,0 +1,31 @@
+# !MANDATORY! Metrics and Metrics directories be executed
+metrics:
+  - examples/file_inputs/movies.json
+
+inputs:
+ movies:
+  type: file
+  path: examples/file_inputs/inputs/movies.csv
+ ratings:
+  type: file
+  path: examples/file_inputs/inputs/ratings.csv
+
+# Set custom variables that would be accessible from the SQL
+variables:
+ myFavoriteMovie: 'Princess Bride, The (1987)'
+
+output:
+  file:
+    dir: examples/file_inputs/output
+
+# If set to true, triggers Explain before saving
+explain: true
+
+# Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+logLevel: WARN
+
+# Set Application Name to have app name prefix in spark instrumentation counters
+appName: moviesApp
+
+# Shows a Preview of the output
+showPreviewLines: 100
