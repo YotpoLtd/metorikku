@@ -1,7 +1,6 @@
 ![Metorikku Logo](https://raw.githubusercontent.com/wiki/yotpoltd/metorikku/metorikku.png)
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
-[![codecov](https://codecov.io/gh/YotpoLtd/metorikku/branch/master/graph/badge.svg)](https://codecov.io/gh/YotpoLtd/metorikku)
 
 Metorikku is a library that simplifies writing and executing ELTs on top of [Apache Spark](http://spark.apache.org/).
 A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.

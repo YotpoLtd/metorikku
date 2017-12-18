@@ -12,9 +12,7 @@ script: echo "Skipping default sbt test"
 jobs:
   include:
   - stage: unit tests
-    script: sbt clean coverage test coverageReport scalastyle
-    after_success:
-    - bash <(curl -s https://codecov.io/bash)
+    script: sbt clean test scalastyle
   - stage: deploy snapshot to repository
     if: branch = master OR tag =~ ^v
     deploy:
