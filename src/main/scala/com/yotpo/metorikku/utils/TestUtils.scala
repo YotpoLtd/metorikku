@@ -31,7 +31,6 @@ object TestUtils {
 
   def createMetorikkuConfigFromTestSettings(settings: String, metricTestSettings: MetricTesterDefinitions.TestSettings, previewLines: Int) = {
     val configuration = new DefaultConfiguration
-    configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
