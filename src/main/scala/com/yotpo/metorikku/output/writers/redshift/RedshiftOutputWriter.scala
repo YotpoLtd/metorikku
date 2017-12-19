@@ -33,7 +33,8 @@ class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], red
             case _ if !dbOptions.maxStringSize.isEmpty => dbOptions.maxStringSize.toInt
             case _ =>  df.agg(max(length(df(f.name)))).as[Int].first
           }
-          df = df.withColumn(f.name, df(f.name).as(f.name, new MetadataBuilder().putLong(dbOptions.maxStringSize, maxlength).build()))
+          val varcharMetaData = new MetadataBuilder().putLong("maxlength", maxlength).build()
+          df = df.withColumn(f.name, df(f.name).as(f.name, varcharMetaData))
         })
 
         log.info(s"Writing dataframe to Redshift' table ${props("dbTable")}")
