@@ -13,9 +13,10 @@ class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outp
 
   val log = LogManager.getLogger(this.getClass)
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
+  val partitionBy = props.getOrElse("partitionBy",Seq.empty).asInstanceOf[Seq[String]]
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
                                                      props("path"),
-                                                     props.getOrElse("partitionBy",Seq[String]()))
+                                                     partitionBy)
 
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
