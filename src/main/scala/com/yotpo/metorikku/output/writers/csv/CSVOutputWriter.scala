@@ -9,13 +9,22 @@ import scala.collection.mutable
 
 class CSVOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
 
-  case class CSVOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean, csvOptions: Map[String, String])
+  case class CSVOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean, csvOptions: Map[String,String])
 
   val log = LogManager.getLogger(this.getClass)
+
   val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val coalesce = props.getOrElse("coalesce", true).asInstanceOf[Boolean]
-  val csvOptions = props.getOrElse("csvOptions", Map("escape" -> "\"", "quoteAll" -> "true", "header" -> "true")).asInstanceOf[Map[String, String]]
-  val csvOutputOptions = CSVOutputProperties(SaveMode.valueOf(props("saveMode")), props("path"), coalesce, csvOptions)
+
+  val defaultCSVOptions = Map("escape" -> "\"", "quoteAll" -> "true", "header" -> "true")
+  val metricCSVOptions = props.getOrElse("csvOptions", Map.empty).asInstanceOf[Map[String, String]]
+  val csvWriterOptions = defaultCSVOptions ++ metricCSVOptions
+
+  val csvOutputOptions = CSVOutputProperties(SaveMode.valueOf(props("saveMode")),
+                                             props("path"),
+                                             coalesce,
+                                             csvWriterOptions)
+
 
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
@@ -24,7 +33,7 @@ class CSVOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFi
         log.info(s"Writing CSV Dataframe to ${outputPath}")
 
         val df = if (csvOutputOptions.coalesce) dataFrame.coalesce(1) else dataFrame
-        df.write.mode(csvOutputOptions.saveMode).options(csvOptions).csv(outputPath)
+        df.write.mode(csvOutputOptions.saveMode).options(csvOutputOptions.csvOptions).csv(outputPath)
       case None => log.error(s"CSV file configuration were not provided")
     }
   }
