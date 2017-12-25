@@ -1,3 +1,5 @@
 package com.yotpo.metorikku.metric
 
-case class MetricConfig(steps: List[Map[String, String]], output: List[Map[String, Any]])
+import com.yotpo.metorikku.metric.config.Step
+
+case class MetricConfig(steps: List[Step], output: List[Map[String, Any]])

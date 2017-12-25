@@ -1,6 +1,12 @@
 package com.yotpo.metorikku.metric
 
+import java.io.FileReader
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.calculators.SqlStepCalculator
+import com.yotpo.metorikku.configuration.YAMLConfiguration
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.session.Session
@@ -28,11 +34,19 @@ class MetricSet(metricSet: String) {
 
   val metrics: Seq[Metric] = parseMetrics(metricSet)
 
+  //TODO delete
+  def parseJsonFile(fileName: String): MetricConfig = {
+    val mapper = new ObjectMapper()
+    mapper.registerModule(DefaultScalaModule)
+    val config: MetricConfig = mapper.readValue(new FileReader(fileName), classOf[MetricConfig])
+    config
+  }
+
   def parseMetrics(metricSet: String): Seq[Metric] = {
     log.info(s"Starting to parse metricSet")
     val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
     metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
-      val metricConfig = FileUtils.jsonFileToObject[MetricConfig](metricFile)
+      val metricConfig = parseJsonFile(metricFile.getAbsolutePath)
       log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
       new Metric(metricConfig, metricFile.getParentFile, FilenameUtils.removeExtension(metricFile.getName))
     })

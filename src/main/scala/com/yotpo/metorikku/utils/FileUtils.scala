@@ -14,7 +14,7 @@ object FileUtils {
     } else if (d.isFile) {
       List(d)
     } else {
-        throw new FileNotFoundException(s"No Files to Run ${dir}")
+      throw new FileNotFoundException(s"No Files to Run ${dir}")
     }
   }
 
