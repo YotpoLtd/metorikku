@@ -1,12 +1,15 @@
-package com.yotpo.metorikku.configuration.inputs
+package com.yotpo.metorikku.configuration.input
 
-import com.yotpo.metorikku.configuration.InputOption
+import com.yotpo.metorikku.input.readers.file.{FilesInput, FileInput}
+import com.yotpo.metorikku.input.readers.jdbc.JdbcInput
+import com.yotpo.metorikku.input.{Input}
 
 object InputFactory {
   def getInput(name: String, inputOption: InputOption): Input = {
+    if InputOption
     return inputOption.inputType match {
       case "file" => FileInput(name, inputOption.path)
-      case "file_date_range" => FileDateRangeInput(name, inputOption.template, inputOption.dateRange)
+      case "file_date_range" => FilesInput(name, inputOption.template, inputOption.dateRange)
       case "jdbc" => JdbcInput(name, inputOption.connection, inputOption.dbTable)
       case _ => throw new UnknownInputTypeArgumentException(inputOption.inputType)
     }

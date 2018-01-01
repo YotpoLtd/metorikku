@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.output.writers.redis
 
 import com.redislabs.provider.redis._
-import com.yotpo.metorikku.configuration.outputs.Redis
+import com.yotpo.metorikku.configuration.output.types.Redis
 import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
 import org.apache.log4j.LogManager
 import com.yotpo.metorikku.session.Session

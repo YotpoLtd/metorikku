@@ -3,7 +3,7 @@ package com.yotpo.metorikku.output.writers.segment
 import com.google.gson.Gson
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
-import com.yotpo.metorikku.configuration.outputs.Segment
+import com.yotpo.metorikku.configuration.output.types.Segment
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.DataFrame

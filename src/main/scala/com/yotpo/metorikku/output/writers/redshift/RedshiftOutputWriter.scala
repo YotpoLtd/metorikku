@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.output.writers.redshift
 
-import com.yotpo.metorikku.configuration.outputs.Redshift
+import com.yotpo.metorikku.configuration.output.types.Redshift
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.functions._

@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.configuration.outputs
+package com.yotpo.metorikku.configuration.output.types
 
 import com.fasterxml.jackson.annotation.JsonProperty
 

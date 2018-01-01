@@ -3,9 +3,19 @@ metrics:
   - examples/file_inputs/movies.json
 
 inputs:
+ pipis: asdasd.csv
+ kakies:
+  file:
+    path: asdasd.csv
  movies:
-  type: file
-  path: examples/file_inputs/inputs/movies.csv
+  jdbc:
+    url: jdbc:mysql://127.0.0.1:3306/movies_db?zeroDateTimeBehavior=convertToNull
+    driver: com.mysql.jdbc.Driver
+    username: root
+    password: vladopen
+    table: movies
+
+
  ratings:
   type: file
   path: examples/file_inputs/inputs/ratings.csv

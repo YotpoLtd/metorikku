@@ -1,14 +1,16 @@
 package com.yotpo.metorikku.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.yotpo.metorikku.configuration.inputs.{Input, InputFactory}
+import com.yotpo.metorikku.configuration.input.{InputFactory, InputOption}
+import com.yotpo.metorikku.configuration.output.Output
+import com.yotpo.metorikku.input.Input
 
 import scala.collection.immutable.HashMap
 
 
 class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("explain") _explain: Boolean,
-                        @JsonProperty("inputs") _inputs: HashMap[String, InputOption],
+                        @JsonProperty("inputs") _inputs: HashMap[String, Any],
                         @JsonProperty("logLevel") _logLevel: String,
                         @JsonProperty("variables") _variables: HashMap[String, String],
                         @JsonProperty("output") _output: Output,
@@ -19,7 +21,7 @@ class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
   val metrics: Seq[String] = Option(_metrics).getOrElse(Seq())
   val showPreviewLines: Int = _showPreviewLines
   val explain: Boolean = _explain
-  val inputs: Seq[Input] = Option(_inputs.map { case (name, input) => InputFactory.getInput(name, input) }.toSeq).getOrElse(Seq())
+  val inputs: Seq[Input] = Option(_inputs.map { case (name, input) => input.getInput() }.toSeq).getOrElse(Seq())
   val logLevel: String = Option(_logLevel).getOrElse("WARN")
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())
   val output: Output = Option(_output).getOrElse(Output())

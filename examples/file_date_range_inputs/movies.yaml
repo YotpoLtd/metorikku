@@ -4,9 +4,8 @@ metrics:
 
 inputs:
  movies:
-  type: file_date_range
-  template: examples/file_date_range_inputs/inputs/%s/movies.csv
   dateRange:
+    template: examples/file_date_range_inputs/inputs/%s/movies.csv
     format: yyyy/MM/dd
     startDate: 2017/09/01
     endDate: 2017/09/03

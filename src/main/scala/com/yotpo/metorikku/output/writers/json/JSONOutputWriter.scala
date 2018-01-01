@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.output.writers.json
 
-import com.yotpo.metorikku.configuration.outputs.File
+import com.yotpo.metorikku.configuration.output.types.File
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}

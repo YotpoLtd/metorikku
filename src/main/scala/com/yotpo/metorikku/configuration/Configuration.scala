@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.configuration
 
-import com.yotpo.metorikku.configuration.inputs.Input
+import com.yotpo.metorikku.configuration.output.Output
+import com.yotpo.metorikku.input.Input
 
 trait Configuration {
   def metrics: Seq[String]

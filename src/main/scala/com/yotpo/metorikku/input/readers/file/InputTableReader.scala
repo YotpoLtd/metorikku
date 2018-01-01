@@ -1,7 +1,8 @@
-package com.yotpo.metorikku.input
+package com.yotpo.metorikku.input.readers.file
 
 import java.nio.file.{Files, Paths}
 
+import SchemaConverter
 import com.yotpo.metorikku.session.Session.getSparkSession
 import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
