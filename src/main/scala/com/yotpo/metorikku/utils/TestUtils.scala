@@ -100,12 +100,12 @@ object TestUtils {
   }
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
+    // scalastyle:off null
     for (expectedRowCandidate <- metricExpectedResultRows) {
       if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
         return expectedRowCandidate
       }
     }
-    // scalastyle:off null
     //TODO Avoid using nulls
     null
     // scalastyle:on null
