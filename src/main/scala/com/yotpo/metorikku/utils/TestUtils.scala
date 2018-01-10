@@ -102,7 +102,7 @@ object TestUtils {
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
     for (expectedRowCandidate <- metricExpectedResultRows) {
       if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
-        expectedRowCandidate
+        return expectedRowCandidate
       }
     }
     // scalastyle:off null
