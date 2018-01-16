@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.metric.config.MetricConfig
+import com.yotpo.metorikku.exceptions
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import org.apache.commons.io.FilenameUtils
-import org.apache.log4j.LogManager
+import org.apache.log4j.{LogManager, Logger}
 
 object MetricFile {
   val validExtensions = Seq("json", "yaml")
@@ -20,14 +22,22 @@ object MetricFile {
 }
 
 class MetricFile(path: File) {
-  val log = LogManager.getLogger(this.getClass)
+  val log: Logger = LogManager.getLogger(this.getClass)
 
-  val metricConfig = parseFile(path)
-  val metricDir = path.getParentFile
-  val fileName = path.getName
+  val fileName: String = path.getName
+  val metricDir: File = path.getParentFile
 
-  log.info(s"Initializing Metric $fileName")
-  val metric = new Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
+  log.info(s"Initializing Metric file $fileName")
+  val metric: Metric = getMetric
+
+  private def getMetric = {
+    try {
+      val metricConfig = parseFile(path)
+      new Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
+    } catch {
+      case e: Exception => throw MetorikkuInvalidMetricFileException(s"Failed to parse metric file $fileName", e)
+    }
+  }
 
   def parseFile(path: File): MetricConfig = {
     getMapper(path) match {
