@@ -7,12 +7,11 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-class RedshiftOutputWriter(metricOutputOptions: Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
+class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
 
   case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, extraCopyOptions: String, postActions: String, maxStringSize: String)
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")),
                                            props("dbTable"),
                                            props.getOrElse("extraCopyOptions",""),

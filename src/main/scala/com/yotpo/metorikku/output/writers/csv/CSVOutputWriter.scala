@@ -5,13 +5,12 @@ import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-class CSVOutputWriter(metricOutputOptions: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class CSVOutputWriter(props: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
 
   case class CSVOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean, csvOptions: Map[String,String])
 
   val log = LogManager.getLogger(this.getClass)
 
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val coalesce = props.getOrElse("coalesce", true).asInstanceOf[Boolean]
 
   val defaultCSVOptions = Map("escape" -> "\"", "quoteAll" -> "true", "header" -> "true")

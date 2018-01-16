@@ -5,6 +5,7 @@ import java.io.{File, FileReader}
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.yotpo.metorikku.metric.config.MetricConfig
 import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.LogManager
 
@@ -25,14 +26,14 @@ class MetricFile(path: File) {
   val metricDir = path.getParentFile
   val fileName = path.getName
 
-  log.info(s"Initializing Metric ${fileName}")
+  log.info(s"Initializing Metric $fileName")
   val metric = new Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
 
   def parseFile(path: File): MetricConfig = {
     getMapper(path) match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(new FileReader(fileName), classOf[MetricConfig])
+        mapper.readValue(new FileReader(path), classOf[MetricConfig])
       }
     }
   }

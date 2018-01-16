@@ -19,12 +19,11 @@ object CassandraOutputWriter extends MetricOutputSession {
   }
 }
 
-class CassandraOutputWriter(metricOutputOptions: Map[String, String]) extends MetricOutputWriter {
+class CassandraOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
 
   case class CassandraOutputProperties(saveMode: SaveMode, dbKeySpace: String, dbTable: String)
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dbOptions = CassandraOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbKeySpace"), props("dbTable"))
 
   override def write(dataFrame: DataFrame): Unit = {

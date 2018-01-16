@@ -18,12 +18,11 @@ object RedisOutputWriter extends MetricOutputSession {
   }
 }
 
-class RedisOutputWriter(metricOutputOptions: Map[String, String]) extends MetricOutputWriter {
+class RedisOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
 
   case class RedisOutputProperties(keyColumn: String)
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val redisOutputOptions = RedisOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
