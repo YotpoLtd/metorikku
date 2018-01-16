@@ -78,6 +78,18 @@ object TestUtils {
     metricExpectedTests.keys.foreach(tableName => {
 
       val metricActualResultRows = sparkSession.table(tableName).collect()
+
+      val metricActualResultRowsDF = sparkSession.table(tableName)
+      val schema = metricActualResultRowsDF.schema
+
+      val expectedDF = Session.getSparkSession.read.format("json").schema(schema).
+        load("/Users/ofirventura-mbp/Development/metrical-query-language/calculations/clickstream/metrics/tests/test_settings_expected.jsonl")
+
+      val columns = metricActualResultRowsDF.schema.fields.map(_.name)
+      val selectiveDifferences = columns.map(col => metricActualResultRowsDF.select(col).except(expectedDF.select(col)))
+      selectiveDifferences.map(diff => {if(diff.count > 0) diff.show})
+
+
       var metricExpectedResultRows = metricExpectedTests(tableName)
       //TODO(etrabelsi@yotpo.com) Logging
       if (metricExpectedResultRows.length == metricActualResultRows.length) {
