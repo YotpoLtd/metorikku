@@ -21,5 +21,4 @@ object Metorikku extends App {
       metricSet.run()
     })
   }
-
 }

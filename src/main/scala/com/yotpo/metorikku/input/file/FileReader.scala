@@ -40,7 +40,7 @@ object FileReader {
 
   private object ParquetTableReader extends FileReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
-      getSparkSession.read.parquet(tablePaths: _*)//By default on read spark fail with legit error
+      getSparkSession.read.parquet(tablePaths: _*) //By default on read spark fail with legit error
     }
   }
 
@@ -50,6 +50,7 @@ object FileReader {
     val reader = tableType match {
       case TableType.json | TableType.jsonl => JSONTableReader
       case TableType.csv => CSVTableReader
+      case TableType.stream => InputSteamReader
       case _ => ParquetTableReader
     }
     reader
@@ -58,4 +59,20 @@ object FileReader {
   private def getSchemaPath(path: String): String = {
     FilenameUtils.removeExtension(path) + "_schema.json"
   }
+
+  private object InputSteamReader extends InputTableReader {
+    val spark = getSparkSession
+
+    override def read(tablePaths: Seq[String]): DataFrame = {
+      val ds1 = spark
+        .readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "1.eventbus-kf.yotpo.com:9092")
+        .option("subscribe", "feature_system_events")
+        .load()
+
+      ds1
+    }
+  }
+
 }

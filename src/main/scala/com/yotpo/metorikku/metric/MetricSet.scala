@@ -63,23 +63,38 @@ class MetricSet(metricSet: String) {
       val sparkSession = Session.getSparkSession
       val dataFrameName = output.outputConfig.dataFrameName
       val dataFrame = sparkSession.table(dataFrameName)
-      dataFrame.cache()
+      if (!dataFrame.isStreaming) {
+        dataFrame.cache()
+      }
 
       lazy val counterNames = Array(metric.name, dataFrameName, output.outputConfig.outputType.toString, "counter")
       lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
-      dfCounter.set(dataFrame.count())
+
+      if (!dataFrame.isStreaming) {
+        dfCounter.set(dataFrame.count())
+      }
 
       log.info(s"Starting to Write results of ${dataFrameName}")
       try {
-
-        output.writer.write(dataFrame)
-      } catch {
+        if (dataFrame.isStreaming) {
+          val query = dataFrame.writeStream
+            .outputMode("complete")
+            .format("console")
+            .start()
+          query.awaitTermination()
+        }
+        else {
+          output.writer.write(dataFrame)
+        }
+      }
+      catch {
         case ex: Exception => {
           throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
             s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}", ex)
         }
       }
-    })
+    }
+    )
 
   }
 
