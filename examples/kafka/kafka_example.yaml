@@ -1,0 +1,23 @@
+# The MQL file path
+metrics:
+  - examples/kafka/kafka2kafka.yaml
+
+inputs:
+  testStream:
+    kafka:
+      servers:
+        - 127.0.0.1:9092
+      topic: test
+
+output:
+  kafka:
+    servers:
+      - 127.0.0.1:9092
+    checkpointLocation: /tmp/checkpoint
+    compressionType: gzip
+  file:
+    dir: /tmp
+    checkpointLocation: /tmp/checkpoint/parquet/
+
+# Set Application Name to have app name prefix in spark instrumentation counters
+appName: kafkaApp
