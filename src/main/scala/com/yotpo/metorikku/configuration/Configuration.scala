@@ -1,5 +1,5 @@
 package com.yotpo.metorikku.configuration
-import com.yotpo.metorikku.input.{Input => ReadableInput}
+import com.yotpo.metorikku.input.ReadableInput
 
 trait Configuration {
   def metrics: Seq[String]
@@ -9,8 +9,6 @@ trait Configuration {
   def explain: Boolean
 
   def inputs: Seq[ReadableInput]
-
-  def dateRange: Map[String, DateRange]
 
   def logLevel: String
 

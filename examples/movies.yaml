@@ -4,11 +4,15 @@ metrics:
 
 inputs:
   movies:
-    file:
-      path: examples/inputs/movies.csv
+    file_date_range:
+      template: examples/file_date_range_inputs/%s/movies.csv
+      date_range:
+        format: yyyy/MM/dd
+        startDate: 2017/09/01
+        endDate: 2017/09/03
   ratings:
     file:
-      path: examples/inputs/ratings.csv
+      path: examples/file_inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:
