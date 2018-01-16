@@ -1,8 +1,8 @@
 package com.yotpo.metorikku.session
 
-import com.yotpo.metorikku.configuration.{Configuration, DateRange, Input, Output}
+import com.yotpo.metorikku.configuration.{Configuration, DateRange, Output}
 import com.yotpo.metorikku.exceptions.MetorikkuException
-import com.yotpo.metorikku.input.InputTableReader
+import com.yotpo.metorikku.input.{Input, InputTableReader}
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
@@ -19,6 +19,7 @@ object Session {
     spark = Some(createSparkSession(config.appName, config.output))
     setSparkLogLevel(config.logLevel)
     registerVariables(config.variables)
+    log.info(s"these are the config inputs: ${config.inputs}")
     registerDataframes(config.inputs, config.dateRange)
     configuration = Some(config)
   }
