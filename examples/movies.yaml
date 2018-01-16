@@ -1,4 +1,4 @@
-# !MANDATORY! Metrics and Metrics directories be executed
+# The MQL file path
 metrics:
   - examples/movies_metric_example.yaml
 

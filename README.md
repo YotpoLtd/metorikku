@@ -2,41 +2,35 @@
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
-Metorikku is a library that simplifies writing and executing ELTs on top of [Apache Spark](http://spark.apache.org/).
-A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
+Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
+A user needs to write a simple YAML configuration file that includes SQL queries and run Metorikku on a spark cluster.
 The platform also includes a way to write tests for metrics using MetorikkuTester.
 
 ### Getting started
 To run Metorikku you must first define 2 files.
 
 ##### MQL file
-An MQL (Metorikku Query Language) file defines the steps and queries of the ELT as well as where and what to output.
+An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
 
-For example a simple configuration JSON should be as follows:
-```json
-{
-    "steps": [
-        {
-            "sql": "SELECT * from input_1 where id > 100",
-            "dataFrameName": "df1"
-        },
-        {
-            "sql": "SELECT * from df1 where id < 1000",
-            "dataFrameName": "df2"   
-        }
-    ],
-    "output": [
-        {
-            "dataFrameName": "df2",
-            "outputType": "Parquet",
-            "outputOptions":
-            {
-                "saveMode": "Overwrite",
-                "path": "df2.parquet"
-            }
-        }
-    ]
-}
+For example a simple configuration YAML should be as follows:
+```yaml
+steps:
+- dataFrameName: df1
+  sql: 
+    SELECT *
+    FROM input_1
+    WHERE id > 100
+- dataFrameName: df2
+  sql: 
+    SELECT *
+    FROM df1
+    WHERE id < 1000
+output:
+- dataFrameName: df2
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: df2.parquet
 ```
 Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/master/examples) for further configuration examples.
 
@@ -47,7 +41,7 @@ This file will include **input sources**, **output destinations** and the locati
 So for example a simple config.yaml file should be as follows:
 ```yaml
 metrics:
-  - /full/path/to/your/MQL/file.json
+  - /full/path/to/your/MQL/file.yaml
 inputs:
   input_1: parquet/input_1.parquet
   input_2: parquet/input_2.parquet
