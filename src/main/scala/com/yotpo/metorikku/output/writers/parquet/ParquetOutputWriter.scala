@@ -5,9 +5,7 @@ import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import scala.collection.mutable
-
-class ParquetOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class ParquetOutputWriter(metricOutputOptions: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String])
 

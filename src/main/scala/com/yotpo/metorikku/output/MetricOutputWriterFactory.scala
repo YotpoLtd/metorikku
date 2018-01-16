@@ -14,9 +14,9 @@ import com.yotpo.metorikku.session.Session
 import scala.collection.mutable
 
 object MetricOutputWriterFactory {
-  def get(outputType: String, metricOutputOptions: mutable.Map[String, String], metricName: String): MetricOutputWriter = {
+  def get(outputType: OutputType.Value, metricOutputOptions: Map[String, String], metricName: String): MetricOutputWriter = {
     val output = Session.getConfiguration.output
-    val metricOutputWriter = OutputType.withName(outputType) match {
+    val metricOutputWriter = outputType match {
       case OutputType.Cassandra => new CassandraOutputWriter(metricOutputOptions) //TODO add here cassandra from session
       case OutputType.Redshift => new RedshiftOutputWriter(metricOutputOptions, output.redshift)
       case OutputType.Redis => new RedisOutputWriter(metricOutputOptions) //TODO add here redis from session

@@ -7,9 +7,7 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import scala.collection.mutable
-
-class RedshiftOutputWriter(metricOutputOptions: mutable.Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
+class RedshiftOutputWriter(metricOutputOptions: Map[String, String], redshiftDBConf: Option[Redshift]) extends MetricOutputWriter {
 
   case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, extraCopyOptions: String, postActions: String, maxStringSize: String)
 

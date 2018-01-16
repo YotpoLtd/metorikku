@@ -13,7 +13,7 @@ trait MetricOutputWriter extends Serializable{
     this.mandatoryArguments = mandatoryArgs
   }
 
-  def validateMandatoryArguments(options: mutable.Map[String, String]): Unit = {
+  def validateMandatoryArguments(options: Map[String, String]): Unit = {
     val outputOptions = options("outputOptions").asInstanceOf[Map[String, String]]
     this.mandatoryArguments.foreach {arg =>
       if (!outputOptions.contains(arg)) throw new MissingWriterArgumentException(s"Missing argument $arg for writer ${this.getClass.toString}")

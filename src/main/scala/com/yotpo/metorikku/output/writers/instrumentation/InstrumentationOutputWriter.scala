@@ -7,12 +7,10 @@ import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.groupon.metrics.SparkGauge
 import org.apache.spark.sql.DataFrame
 
-import scala.collection.mutable
-
 //TODO Remove the usage of null in this class
 // scalastyle:off null
 
-class InstrumentationOutputWriter(metricOutputOptions: mutable.Map[String, String], metricName: String) extends MetricOutputWriter {
+class InstrumentationOutputWriter(metricOutputOptions: Map[String, String], metricName: String) extends MetricOutputWriter {
   @transient lazy val log: Logger = LogManager.getLogger(this.getClass)
 
   case class InstrumentationOutputProperties(keyColumn: String)

@@ -5,9 +5,7 @@ import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import scala.collection.mutable
-
-class JSONOutputWriter(metricOutputOptions: mutable.Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class JSONOutputWriter(metricOutputOptions: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
 
   case class JSONOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean)
 

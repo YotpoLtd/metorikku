@@ -1,19 +1,12 @@
 package com.yotpo.metorikku.metric
 
-import java.io.FileReader
-
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.calculators.SqlStepCalculator
-import com.yotpo.metorikku.configuration.YAMLConfiguration
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
-import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.LogManager
-import org.apache.spark.groupon.metrics.{SparkGauge, UserMetricsSystem}
+import org.apache.spark.groupon.metrics.SparkGauge
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -34,22 +27,10 @@ class MetricSet(metricSet: String) {
 
   val metrics: Seq[Metric] = parseMetrics(metricSet)
 
-  //TODO delete
-  def parseJsonFile(fileName: String): MetricConfig = {
-    val mapper = new ObjectMapper()
-    mapper.registerModule(DefaultScalaModule)
-    val config: MetricConfig = mapper.readValue(new FileReader(fileName), classOf[MetricConfig])
-    config
-  }
-
   def parseMetrics(metricSet: String): Seq[Metric] = {
     log.info(s"Starting to parse metricSet")
     val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
-    metricsToCalculate.filter(_.getName.endsWith("json")).map(metricFile => {
-      val metricConfig = parseJsonFile(metricFile.getAbsolutePath)
-      log.info(s"Initialize Metric ${metricFile.getName} Logical Plan ")
-      new Metric(metricConfig, metricFile.getParentFile, FilenameUtils.removeExtension(metricFile.getName))
-    })
+    metricsToCalculate.filter(MetricFile.isValidFile(_)).map(new MetricFile(_).metric)
   }
 
   def run() {
@@ -80,11 +61,11 @@ class MetricSet(metricSet: String) {
   def write(metric: Metric) {
     metric.outputs.foreach(output => {
       val sparkSession = Session.getSparkSession
-      val dataFrameName = output.dataFrameName
+      val dataFrameName = output.outputConfig.dataFrameName
       val dataFrame = sparkSession.table(dataFrameName)
       dataFrame.cache()
 
-      lazy val counterNames = Array(metric.name, dataFrameName, output.outputType, "counter")
+      lazy val counterNames = Array(metric.name, dataFrameName, output.outputConfig.outputType.toString, "counter")
       lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
       dfCounter.set(dataFrame.count())
 
@@ -94,7 +75,8 @@ class MetricSet(metricSet: String) {
         output.writer.write(dataFrame)
       } catch {
         case ex: Exception => {
-          throw MetorikkuWriteFailedException(s"Failed to write dataFrame: ${dataFrameName} to output: ${output.outputType} on metric: ${metric.name}", ex)
+          throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
+            s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}", ex)
         }
       }
     })

@@ -7,7 +7,6 @@ import org.apache.log4j.LogManager
 import com.yotpo.metorikku.session.Session
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
-import scala.collection.mutable
 import scala.util.parsing.json.JSONObject
 
 object RedisOutputWriter extends MetricOutputSession {
@@ -19,7 +18,7 @@ object RedisOutputWriter extends MetricOutputSession {
   }
 }
 
-class RedisOutputWriter(metricOutputOptions: mutable.Map[String, String]) extends MetricOutputWriter {
+class RedisOutputWriter(metricOutputOptions: Map[String, String]) extends MetricOutputWriter {
 
   case class RedisOutputProperties(keyColumn: String)
 
