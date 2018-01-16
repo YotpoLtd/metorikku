@@ -1,0 +1,41 @@
+steps:
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT userid,
+           movies.movieid,
+           rating,
+           timestamp,
+           title,
+           genres
+    FROM ratings
+    JOIN movies ON ratings.movieid = movies.movieid
+- dataFrameName: fantasyMoviesWithRatings
+  sql:
+    SELECT movieId,
+           cast(rating AS float) AS rating,
+           timestamp,
+           title,
+           genres
+    FROM moviesWithRatings
+    WHERE genres LIKE '%Fantasy%'
+- dataFrameName: topFantasyMovies
+  sql:
+    SELECT movieId,
+           title,
+           avg(rating) AS averageRating
+    FROM fantasyMoviesWithRatings
+    GROUP BY movieId,
+             title
+    ORDER BY averageRating DESC
+    LIMIT 100
+- dataFrameName: myFavoriteMovieRated
+  sql:
+    SELECT *
+    FROM topFantasyMovies
+    WHERE title = ${myFavoriteMovie};
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: moviesWithRatings.parquet
