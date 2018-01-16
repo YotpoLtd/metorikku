@@ -32,7 +32,7 @@ steps:
   sql:
     SELECT *
     FROM topFantasyMovies
-    WHERE title = ${myFavoriteMovie};
+    WHERE title = ${myFavoriteMovie}
 output:
 - dataFrameName: moviesWithRatings
   outputType: Parquet
