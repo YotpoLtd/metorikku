@@ -217,7 +217,7 @@ We are running each step sequentially and here are the results:
 ## Testing our metric
 Metorikku also supports testing your logic, using MetorikkuTester.
 
-Metorikku Tester expects a test-settings json file
+Metorikku Tester expects a test-settings json file:
 
 ```json
 {
