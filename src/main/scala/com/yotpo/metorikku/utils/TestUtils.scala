@@ -112,15 +112,17 @@ object TestUtils {
   }
 
   private def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
+    // scalastyle:off
     for (key <- expectedRowCandidate.keys) {
       val expectedValue = Option(expectedRowCandidate.get(key))
       val actualValue = Option(actualRow.get(key))
       // TODO: support nested Objects and Arrays
       if (expectedValue.toString != actualValue.toString) {
-        false
+        return false
       }
     }
     true
+    // scalastyle:on
   }
 }
 
