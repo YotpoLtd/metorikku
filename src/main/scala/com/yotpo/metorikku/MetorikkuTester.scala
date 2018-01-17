@@ -1,9 +1,9 @@
-package com.yotpo.metorikku.test
+package com.yotpo.metorikku
 
 import java.nio.file.{Files, Paths}
 
+import com.yotpo.metorikku.TesterConfigurationParser.MetorikkuTesterArgs
 import com.yotpo.metorikku.session.Session
-import com.yotpo.metorikku.test.TesterConfigurationParser.MetorikkuTesterArgs
 import com.yotpo.metorikku.utils.TestUtils
 import org.apache.log4j.LogManager
 import scopt.OptionParser

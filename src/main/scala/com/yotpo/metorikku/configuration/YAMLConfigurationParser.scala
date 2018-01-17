@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.configuration.ConfigurationParser.ConfigFileName
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{LogManager, Logger}
 
 object YAMLConfigurationParser {
@@ -17,6 +18,7 @@ object YAMLConfigurationParser {
     ConfigurationParser.parser.parse(args, ConfigFileName()) match {
       case Some(arguments) =>
         parseYAMLFile(arguments.filename)
+      case None => throw new MetorikkuException("Failed to parse config file")
     }
   }
 
