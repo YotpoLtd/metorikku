@@ -23,8 +23,9 @@ object MetorikkuTester extends App {
 }
 
 object TesterConfigurationParser {
+  val NumberOfPreviewLines = 10
 
-  case class MetorikkuTesterArgs(settings: Seq[String] = Seq(), preview: Int = 10)
+  case class MetorikkuTesterArgs(settings: Seq[String] = Seq(), preview: Int = NumberOfPreviewLines)
 
   val parser: OptionParser[MetorikkuTesterArgs] = new scopt.OptionParser[MetorikkuTesterArgs]("MetorikkuTester") {
     head("MetorikkuTesterRunner", "1.0")
@@ -32,8 +33,14 @@ object TesterConfigurationParser {
       .valueName("<test-setting1>,<test-setting2>...")
       .action((x, c) => c.copy(settings = x))
       .text("test settings for each metric set")
-      .validate(x => if (x.exists(f => !Files.exists(Paths.get(f)))) failure("One of the file is not found")
-      else success)
+      .validate(x => {
+        if (x.exists(f => !Files.exists(Paths.get(f)))) {
+          failure("One of the file is not found")
+        }
+        else {
+          success
+        }
+      })
       .required()
     opt[Int]('p', "preview").action((x, c) =>
       c.copy(preview = x)).text("number of preview lines for each step")

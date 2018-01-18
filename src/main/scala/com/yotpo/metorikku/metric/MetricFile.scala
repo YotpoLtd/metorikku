@@ -45,6 +45,7 @@ class MetricFile(path: File) {
         mapper.registerModule(DefaultScalaModule)
         mapper.readValue(new FileReader(path), classOf[MetricConfig])
       }
+      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file ${path.getName}")
     }
   }
 
