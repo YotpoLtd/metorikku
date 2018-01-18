@@ -1,6 +1,9 @@
 package com.yotpo.metorikku.test
 
 import java.io.{File, FileNotFoundException}
+
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
+import com.yotpo.metorikku.runners.Metorikku
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -46,11 +49,9 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Test Metorikku should Fail on invalid Writer") {
-    val thrown = intercept[Exception] {
+    assertThrows[MetorikkuInvalidMetricFileException] {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-writer.yaml"))
     }
-    assert(thrown.getMessage.startsWith("No value found for"))
-
   }
 
   //TODO(etrabelsi@yotpo.com) add Test Metorikku should Fail on invalid Writer query fail gracefully
@@ -64,10 +65,8 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
 
 
   test("Test Metorikku should Fail on invalid step type") {
-    val thrown = intercept[Exception] {
+    assertThrows[MetorikkuInvalidMetricFileException] {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-step-type.yaml"))
     }
-    assert(thrown.getCause.getMessage.startsWith("Not Supported Step type"))
-
   }
 }

@@ -1,7 +1,11 @@
 # Examples
-Let's analyze a small movie lens data set!
+
+### Running the example
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c examples/movies.yaml`
 
 ### The Data
+Let's analyze a small movie lens data set!
+
 We have our movies.csv in our inputs folder 
 ```
 +-------+-------------------------------------------------------------------------------+-------------------------------------------+
@@ -50,9 +54,10 @@ and also our ratings.csv:
 We are registering our data sources, our variables and our output configurations  
 Here's our example configuration:
 ```yaml
-# !MANDATORY! Metrics and Metrics directories be executed
+# The MQL file path
 metrics:
-  - movies.jsonl
+  - examples/movies_metric.yaml
+
 inputs:
  movies: examples/inputs/movies.csv
  ratings: examples/inputs/ratings.csv
@@ -76,41 +81,51 @@ appName: moviesApp
 
 # Shows a Preview of the output
 showPreviewLines: 100
-
 ```
 ### The Metric
-Our metric files is as follows:
-```json
-{
-  "steps": [
-    {
-      "sql": "SELECT userId, movies.movieId, rating, timestamp, title, genres from ratings join movies on ratings.movieId = movies.movieId",
-      "dataFrameName": "moviesWithRatings"
-    },
-    {
-      "sql": "SELECT movieId,cast(rating as float) as rating,timestamp,title,genres from moviesWithRatings where genres like '%Fantasy%'",
-      "dataFrameName": "fantasyMoviesWithRatings"
-    },
-    {
-      "sql": "SELECT movieId,title,avg(rating) as averageRating from fantasyMoviesWithRatings group by movieId,title order by averageRating desc limit 100",
-      "dataFrameName": "topFantasyMovies"
-    },
-    {
-      "sql": "SELECT * from topFantasyMovies where title = ${myFavoriteMovie}",
-      "dataFrameName": "myFavoriteMovieRated"
-    }
-  ],
-  "output": [
-    {
-      "dataFrameName": "moviesWithRatings",
-      "outputType": "Parquet",
-      "outputOptions": {
-        "saveMode": "Overwrite",
-        "path": "moviesWithRatings.parquet"
-      }
-    }
-  ]
-}
+Our metric file is as follows:
+```yaml
+steps:
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT userid,
+           movies.movieid,
+           rating,
+           timestamp,
+           title,
+           genres
+    FROM ratings
+    JOIN movies ON ratings.movieid = movies.movieid
+- dataFrameName: fantasyMoviesWithRatings
+  sql:
+    SELECT movieId,
+           cast(rating AS float) AS rating,
+           timestamp,
+           title,
+           genres
+    FROM moviesWithRatings
+    WHERE genres LIKE '%Fantasy%'
+- dataFrameName: topFantasyMovies
+  sql:
+    SELECT movieId,
+           title,
+           avg(rating) AS averageRating
+    FROM fantasyMoviesWithRatings
+    GROUP BY movieId,
+             title
+    ORDER BY averageRating DESC
+    LIMIT 100
+- dataFrameName: myFavoriteMovieRated
+  sql:
+    SELECT *
+    FROM topFantasyMovies
+    WHERE title = ${myFavoriteMovie}
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: moviesWithRatings.parquet
 ```
 ### Results
 We are running each step sequentially and here are the results:   
@@ -200,38 +215,29 @@ We are running each step sequentially and here are the results:
 ```
 
 ## Testing our metric
+
+### Running the test
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester -t examples/movies_test.yaml`
+
 Metorikku also supports testing your logic, using MetorikkuTester.
 
-Metorikku Tester expects a test-settings json file
+Metorikku Tester expects a test-settings YAML file:
 
-```json
-{
-  "metric": "movies.json",
-  "mocks": [
-    {
-      "name": "movies",
-      "path": "mocks/movies.jsonl"
-    },
-    {
-      "name": "ratings",
-      "path": "mocks/ratings.jsonl"
-    }
-  ],
-  "params": {
-    "variables": {
-      "myFavoriteMovie": "Lord of the Rings, The (1978)"
-    }
-  },
-  "tests": {
-    "myFavoriteMovieRated": [
-      {
-        "movieId": 1,
-        "title": "Lord of the Rings, The (1978)",
-        "averageRating": 2.5
-      }
-    ]
-  }
-}
+```yaml
+metric: movies_metric.yaml
+mocks:
+- name: movies
+  path: mocks/movies.jsonl
+- name: ratings
+  path: mocks/ratings.jsonl
+params:
+  variables:
+    myFavoriteMovie: Lord of the Rings, The (1978)
+tests:
+  myFavoriteMovieRated:
+  - movieId: 1
+    title: Lord of the Rings, The (1978)
+    averageRating: 2.5
 ``` 
 A test settings file consists of the following:
 * Our metric file which has our business logic
@@ -239,4 +245,4 @@ A test settings file consists of the following:
 * A set of variables if needed to be used inside our SQL queries
 * A set of expected results
 
-You can run MetoriikuTester as a stand alone application or a spark application
+You can run MetorikkuTester as a stand alone application or a spark application

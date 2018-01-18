@@ -9,12 +9,11 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 import scala.collection.mutable
 
 
-class JDBCOutputWriter(metricOutputOptions: mutable.Map[String, String], jdbcConf: Option[JDBC]) extends MetricOutputWriter {
+class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) extends MetricOutputWriter {
 
   case class JDBCOutputProperties(saveMode: SaveMode, dbTable: String)
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dbOptions = JDBCOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"))
 
   override def write(dataFrame: DataFrame): Unit = {
