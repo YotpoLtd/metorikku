@@ -57,7 +57,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC**<br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -67,6 +67,10 @@ There are currently 3 options to run Metorikku.
 * Download the [last released JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
 * Run the following command:
      `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+
+#### *JDBC writer
+When using the JDBC writer, provide the path of the driver jar in both jars and driver-class-path params. For example for Mysql:
+    `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
