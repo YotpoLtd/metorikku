@@ -12,7 +12,7 @@ To run Metorikku you must first define 2 files.
 ##### MQL file
 An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
 
-For example a simple configuration YAML should be as follows:
+For example a simple configuration YAML (JSON is also supported) should be as follows:
 ```yaml
 steps:
 - dataFrameName: df1
@@ -38,7 +38,7 @@ Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/ma
 Metorikku uses a YAML file to describe the run configuration.
 This file will include **input sources**, **output destinations** and the location of the **metric config** files.
 
-So for example a simple config.yaml file should be as follows:
+So for example a simple YAML (JSON is also supported) should be as follows:
 ```yaml
 metrics:
   - /full/path/to/your/MQL/file.yaml
@@ -92,29 +92,18 @@ In order to test and fully automate the deployment of MQLs (Metorikku query lang
 A test is comprised of 2 files:
 ##### Test settings
 This defines what to test and where to get the mocked data.
-For example, a simple `test_settings.json` file will be:
-```json
-{
-  "metric": "/path/to/metric",
-  "mocks": [
-    {
-      "name": "table_1",
-      "path": "mocks/table_1.jsonl"
-    }
-  ],
-  "tests": {
-    "df2": [
-      {
-        "id": 200,
-        "name": "test"
-      },
-      {
-        "id": 300,
-        "name": "test2"
-      }
-    ]
-  }
-}
+For example, a simple test YAML (JSON is also supported) will be:
+```yaml
+metric: "/path/to/metric"
+mocks:
+- name: table_1
+  path: mocks/table_1.jsonl
+tests:
+  df2:
+  - id: 200
+    name: test
+  - id: 300
+    name: test2
 ```
 
 And the corresponding `mocks/table_1.jsonl`:

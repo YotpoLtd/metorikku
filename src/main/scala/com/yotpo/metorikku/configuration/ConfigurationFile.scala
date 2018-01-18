@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import scala.collection.immutable.HashMap
 
 
-class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
+class ConfigurationFile(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("explain") _explain: Boolean,
                         @JsonProperty("inputs") _inputs: HashMap[String, String],
                         @JsonProperty("dateRange") _dateRange: Map[String, DateRange],

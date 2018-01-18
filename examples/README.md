@@ -56,7 +56,7 @@ Here's our example configuration:
 ```yaml
 # The MQL file path
 metrics:
-  - examples/movies_metric_example.yaml
+  - examples/movies_metric.yaml
 
 inputs:
  movies: examples/inputs/movies.csv
@@ -215,38 +215,29 @@ We are running each step sequentially and here are the results:
 ```
 
 ## Testing our metric
+
+### Running the test
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester -t examples/movies_test.yaml`
+
 Metorikku also supports testing your logic, using MetorikkuTester.
 
-Metorikku Tester expects a test-settings json file:
+Metorikku Tester expects a test-settings YAML file:
 
-```json
-{
-  "metric": "movies.json",
-  "mocks": [
-    {
-      "name": "movies",
-      "path": "mocks/movies.jsonl"
-    },
-    {
-      "name": "ratings",
-      "path": "mocks/ratings.jsonl"
-    }
-  ],
-  "params": {
-    "variables": {
-      "myFavoriteMovie": "Lord of the Rings, The (1978)"
-    }
-  },
-  "tests": {
-    "myFavoriteMovieRated": [
-      {
-        "movieId": 1,
-        "title": "Lord of the Rings, The (1978)",
-        "averageRating": 2.5
-      }
-    ]
-  }
-}
+```yaml
+metric: movies_metric.yaml
+mocks:
+- name: movies
+  path: mocks/movies.jsonl
+- name: ratings
+  path: mocks/ratings.jsonl
+params:
+  variables:
+    myFavoriteMovie: Lord of the Rings, The (1978)
+tests:
+  myFavoriteMovieRated:
+  - movieId: 1
+    title: Lord of the Rings, The (1978)
+    averageRating: 2.5
 ``` 
 A test settings file consists of the following:
 * Our metric file which has our business logic
@@ -254,4 +245,4 @@ A test settings file consists of the following:
 * A set of variables if needed to be used inside our SQL queries
 * A set of expected results
 
-You can run MetoriikuTester as a stand alone application or a spark application
+You can run MetorikkuTester as a stand alone application or a spark application

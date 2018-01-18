@@ -1,27 +1,33 @@
 package com.yotpo.metorikku.configuration
 
-import java.nio.file.{Files, Paths}
+import java.io.FileReader
 
-import scopt.OptionParser
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.yotpo.metorikku.configuration.CLIConfigurationParser.ConfigFileName
+import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
+import com.yotpo.metorikku.utils.FileUtils
+import org.apache.log4j.{LogManager, Logger}
 
 object ConfigurationParser {
+  val log: Logger = LogManager.getLogger(this.getClass)
 
-  val parser: OptionParser[ConfigFileName] = new scopt.OptionParser[ConfigFileName]("Metorikku") {
-    head("Metorikku", "1.0")
-    opt[String]('c', "config")
-      .text("The YAML file that defines the Metorikku arguments")
-      .action((x, c) => c.copy(filename = x))
-      .validate(x => {
-        if (Files.exists(Paths.get(x))) {
-          success
-        }
-        else {
-          failure("Supplied YAML file not found")
-        }
-      }).required()
-    help("help") text "use command line arguments to specify the YAML configuration file path"
+  def parse(args: Array[String]): ConfigurationFile = {
+    log.info("Starting Metorikku - Parsing configuration")
+
+    CLIConfigurationParser.parser.parse(args, ConfigFileName()) match {
+      case Some(arguments) =>
+        parseConfigurationFile(arguments.filename)
+      case None => throw new MetorikkuException("Failed to parse config file")
+    }
   }
 
-  case class ConfigFileName(filename: String = "")
-
+  def parseConfigurationFile(fileName: String): ConfigurationFile = {
+    FileUtils.getObjectMapperByExtension(fileName) match {
+      case Some(mapper) => {
+        mapper.registerModule(DefaultScalaModule)
+        mapper.readValue(new FileReader(fileName), classOf[ConfigurationFile])
+      }
+      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+    }
+  }
 }

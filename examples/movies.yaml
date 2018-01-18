@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - examples/movies_metric_example.yaml
+  - examples/movies_metric.yaml
 
 inputs:
  movies: examples/inputs/movies.csv

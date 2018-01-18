@@ -1,8 +1,10 @@
 package com.yotpo.metorikku.utils
 
-import java.io.File
+import java.io.{File, FileReader}
 
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -23,9 +25,14 @@ object TestUtils {
     var previewLines: Int = 0
   }
 
-  def getTestSettings(metricTestSettings: String): MetricTesterDefinitions.TestSettings = {
-    val settings = FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](new File(metricTestSettings))
-    settings
+  def getTestSettings(fileName: String): MetricTesterDefinitions.TestSettings = {
+    FileUtils.getObjectMapperByExtension(fileName) match {
+      case Some(mapper) => {
+        mapper.registerModule(DefaultScalaModule)
+        mapper.readValue(new FileReader(fileName), classOf[MetricTesterDefinitions.TestSettings])
+      }
+      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+    }
   }
 
   def createMetorikkuConfigFromTestSettings(settings: String,
