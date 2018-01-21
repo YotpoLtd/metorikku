@@ -20,7 +20,7 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
     jdbcConf match {
       case Some(jdbcConf) =>
         val connectionProperties = new Properties()
-        connectionProperties.put("user", jdbcConf.connectionUrl)
+        connectionProperties.put("user", jdbcConf.user)
         connectionProperties.put("password", jdbcConf.password)
 
         var df = dataFrame

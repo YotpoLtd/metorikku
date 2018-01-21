@@ -20,7 +20,7 @@ object TestUtils {
 
     case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
 
-    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
+    case class TestSettings(metric: String, mocks: List[Mock], params: Option[Params], tests: Map[String, List[Map[String, Any]]])
 
     var previewLines: Int = 0
   }
@@ -39,9 +39,10 @@ object TestUtils {
                                             metricTestSettings: MetricTesterDefinitions.TestSettings,
                                             previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
-    configuration.dateRange = metricTestSettings.params.dateRange.getOrElse(Map[String, DateRange]())
+    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None, None))
+    configuration.dateRange = params.dateRange.getOrElse(Map[String, DateRange]())
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
-    configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
+    configuration.variables = params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
     configuration.showPreviewLines = previewLines
     configuration

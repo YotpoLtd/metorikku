@@ -5,7 +5,7 @@ import com.yotpo.metorikku.metric.config.Output
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
-import com.yotpo.metorikku.output.writers.jdbc.JDBCOutputWriter
+import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
 import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
@@ -28,6 +28,7 @@ object MetricOutputWriterFactory {
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
       case OutputType.Instrumentation => new InstrumentationOutputWriter(metricOutputOptions, outputConfig.dataFrameName, metricName)
       case OutputType.JDBC => new JDBCOutputWriter(metricOutputOptions, output.jdbc)
+      case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions, output.jdbc)
       case _ => throw new MetorikkuException(s"Not Supported Writer $outputType") //TODO(etrabelsi@yotpo.com) exception thrown before
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions)
@@ -45,4 +46,5 @@ object OutputType extends Enumeration {
   val Segment: OutputType.Value = Value("Segment")
   val Instrumentation: OutputType.Value = Value("Instrumentation")
   val JDBC: OutputType.Value = Value("JDBC")
+  val JDBCQuery: OutputType.Value = Value("JDBCQuery")
 }
