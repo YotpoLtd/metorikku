@@ -72,6 +72,20 @@ There are currently 3 options to run Metorikku.
 When using the JDBC writer, provide the path of the driver jar in both jars and driver-class-path params. For example for Mysql:
     `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
+#### JDBC query
+The JDBC query allow you to run a manually query for each record in a DataFrame.
+
+##### Mandatory parameters:
+* `query` - defines a SQL query to execute.
+In the query you can address the column of the DataFrame by their location using the dollar sign ($) following by the column index for example:
+```sql
+INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...);
+```
+##### Optional Parameters:
+* **maxBatchSize** - The maximum size of queries to execute against the DB in one commit.
+* **minPartitions** - Minimum partitions in the DataFrame - may cause repartition.
+* **maxPartitions** - Maximum partitions in the DataFrame - may cause coalesce.
+
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
 * Download the [last released Standalone JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
