@@ -31,25 +31,7 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
           partition.grouped(options.maxBatchSize).foreach(batch => {
             batch.foreach(row => {
               for (i <- 1 to row.size) {
-                val v = row.get(i-1)
-                v match {
-                  case v: Boolean => stmt.setBoolean(i, v.asInstanceOf[Boolean])
-                  case v: Byte => stmt.setByte(i, v.asInstanceOf[Byte])
-                  case v: Short => stmt.setShort(i, v.asInstanceOf[Short])
-                  case v: Int => stmt.setInt(i, v.asInstanceOf[Int])
-                  case v: Float => stmt.setFloat(i, v.asInstanceOf[Float])
-                  case v: Double => stmt.setDouble(i, v.asInstanceOf[Double])
-                  case v: String => stmt.setString(i, v.asInstanceOf[String])
-                  case v: BigDecimal => stmt.setBigDecimal(i, v.asInstanceOf[java.math.BigDecimal])
-                  case v: Date => stmt.setDate(i, v.asInstanceOf[Date])
-                  case v: Timestamp => stmt.setTimestamp(i, v.asInstanceOf[Timestamp])
-                  case v: BinaryType => stmt.setBytes(i, v.asInstanceOf[Array[Byte]])
-                  case v: ArrayType => stmt.setString(i, v.asInstanceOf[ArrayType].json)
-                  case v: MapType => stmt.setString(i, v.asInstanceOf[MapType].json)
-                  case v: StructType => stmt.setString(i, v.asInstanceOf[StructType].json)
-                  // NULLs
-                  case _ => stmt.setObject(i, v)
-                }
+                addValueToStatement(row.get(i-1), stmt, i)
               }
               stmt.addBatch()
             })
@@ -59,6 +41,27 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
           conn.close()
         })
       case None => log.error("JDBC QUERY file configuration were not provided")
+    }
+  }
+
+  def addValueToStatement(v: Any, stmt: PreparedStatement, i: Int): Unit = {
+    v match {
+      case v: Boolean => stmt.setBoolean(i, v.asInstanceOf[Boolean])
+      case v: Byte => stmt.setByte(i, v.asInstanceOf[Byte])
+      case v: Short => stmt.setShort(i, v.asInstanceOf[Short])
+      case v: Int => stmt.setInt(i, v.asInstanceOf[Int])
+      case v: Float => stmt.setFloat(i, v.asInstanceOf[Float])
+      case v: Double => stmt.setDouble(i, v.asInstanceOf[Double])
+      case v: String => stmt.setString(i, v.asInstanceOf[String])
+      case v: BigDecimal => stmt.setBigDecimal(i, v.asInstanceOf[java.math.BigDecimal])
+      case v: Date => stmt.setDate(i, v.asInstanceOf[Date])
+      case v: Timestamp => stmt.setTimestamp(i, v.asInstanceOf[Timestamp])
+      case v: BinaryType => stmt.setBytes(i, v.asInstanceOf[Array[Byte]])
+      case v: ArrayType => stmt.setString(i, v.asInstanceOf[ArrayType].json)
+      case v: MapType => stmt.setString(i, v.asInstanceOf[MapType].json)
+      case v: StructType => stmt.setString(i, v.asInstanceOf[StructType].json)
+      // NULLs
+      case _ => stmt.setObject(i, v)
     }
   }
 
