@@ -73,11 +73,11 @@ When using the JDBC writer, provide the path of the driver jar in both jars and 
     `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
 #### JDBC query
-The JDBC query allow you to run a manually query for each record in a DataFrame.
+JDBC query output allows running a query for each record in the dataframe.
 
 ##### Mandatory parameters:
-* `query` - defines a SQL query to execute.
-In the query you can address the column of the DataFrame by their location using the dollar sign ($) following by the column index for example:
+* **query** - defines the SQL query.
+In the query you can address the column of the DataFrame by their location using the dollar sign ($) followed by the column index. For example:
 ```sql
 INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...);
 ```
