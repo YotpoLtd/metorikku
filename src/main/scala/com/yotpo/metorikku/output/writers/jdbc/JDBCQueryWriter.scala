@@ -44,6 +44,7 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
     }
   }
 
+  // scalastyle:off cyclomatic.complexity
   def addValueToStatement(v: Any, stmt: PreparedStatement, i: Int): Unit = {
     v match {
       case v: Boolean => stmt.setBoolean(i, v.asInstanceOf[Boolean])
@@ -64,6 +65,7 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
       case _ => stmt.setObject(i, v)
     }
   }
+  // scalastyle:on cyclomatic.complexity
 
   def alignPartitions(dataFrame: DataFrame, minPartitions: Option[Int], maxPartitions: Option[Int] ): DataFrame = {
     val current = dataFrame.rdd.getNumPartitions
