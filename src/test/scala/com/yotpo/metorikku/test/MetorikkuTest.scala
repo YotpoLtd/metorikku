@@ -62,11 +62,4 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     assert(thrown.getCause.getMessage.startsWith("cannot resolve '`non_existing_column`'"))
   }
-
-
-  test("Test Metorikku should Fail on invalid step type") {
-    assertThrows[MetorikkuInvalidMetricFileException] {
-      Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-step-type.yaml"))
-    }
-  }
 }

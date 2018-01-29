@@ -2,7 +2,7 @@ package com.yotpo.metorikku.utils
 
 import java.io.{File, FileNotFoundException}
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.commons.io.FilenameUtils
@@ -41,8 +41,8 @@ object FileUtils {
   def getObjectMapperByExtension(fileName: String): Option[ObjectMapper] = {
     val extension = FilenameUtils.getExtension(fileName)
     extension match {
-      case "json" => Option(new ObjectMapper())
-      case "yaml" => Option(new ObjectMapper(new YAMLFactory()))
+      case "json" => Option(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
+      case "yaml" | "yml" | _ => Option(new ObjectMapper(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
     }
   }
 }
