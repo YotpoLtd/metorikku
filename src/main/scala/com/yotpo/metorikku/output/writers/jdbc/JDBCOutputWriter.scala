@@ -2,18 +2,17 @@ package com.yotpo.metorikku.output.writers.jdbc
 
 import java.util.Properties
 
-import com.yotpo.metorikku.configuration.outputs.{JDBC, Redshift}
+import com.yotpo.metorikku.configuration.outputs.JDBC
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
-import scala.collection.mutable
 
 
 class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) extends MetricOutputWriter {
 
   case class JDBCOutputProperties(saveMode: SaveMode, dbTable: String)
 
-  val log = LogManager.getLogger(this.getClass)
+  @transient lazy val log = LogManager.getLogger(this.getClass)
   val dbOptions = JDBCOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"))
 
   override def write(dataFrame: DataFrame): Unit = {
