@@ -13,7 +13,7 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
 
   case class JDBCQueryProperties(query: String, maxBatchSize: Int, minPartitions: Option[Int], maxPartitions: Option[Int])
 
-  val log = LogManager.getLogger(this.getClass)
+  @transient lazy val log = LogManager.getLogger(this.getClass)
 
   val defaultMaxBatchSize = 500
   val options = JDBCQueryProperties(props("query"),
