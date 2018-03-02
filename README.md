@@ -2,41 +2,35 @@
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
-Metorikku is a library that simplifies writing and executing ELTs on top of [Apache Spark](http://spark.apache.org/).
-A user needs to write a simple JSON configuration file that includes SQL queries and run Metorikku on a spark cluster.
+Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
+A user needs to write a simple YAML configuration file that includes SQL queries and run Metorikku on a spark cluster.
 The platform also includes a way to write tests for metrics using MetorikkuTester.
 
 ### Getting started
 To run Metorikku you must first define 2 files.
 
 ##### MQL file
-An MQL (Metorikku Query Language) file defines the steps and queries of the ELT as well as where and what to output.
+An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
 
-For example a simple configuration JSON should be as follows:
-```json
-{
-    "steps": [
-        {
-            "sql": "SELECT * from input_1 where id > 100",
-            "dataFrameName": "df1"
-        },
-        {
-            "sql": "SELECT * from df1 where id < 1000",
-            "dataFrameName": "df2"   
-        }
-    ],
-    "output": [
-        {
-            "dataFrameName": "df2",
-            "outputType": "Parquet",
-            "outputOptions":
-            {
-                "saveMode": "Overwrite",
-                "path": "df2.parquet"
-            }
-        }
-    ]
-}
+For example a simple configuration YAML (JSON is also supported) should be as follows:
+```yaml
+steps:
+- dataFrameName: df1
+  sql: 
+    SELECT *
+    FROM input_1
+    WHERE id > 100
+- dataFrameName: df2
+  sql: 
+    SELECT *
+    FROM df1
+    WHERE id < 1000
+output:
+- dataFrameName: df2
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: df2.parquet
 ```
 Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/master/examples) for further configuration examples.
 
@@ -44,10 +38,10 @@ Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/ma
 Metorikku uses a YAML file to describe the run configuration.
 This file will include **input sources**, **output destinations** and the location of the **metric config** files.
 
-So for example a simple config.yaml file should be as follows:
+So for example a simple YAML (JSON is also supported) should be as follows:
 ```yaml
 metrics:
-  - /full/path/to/your/MQL/file.json
+  - /full/path/to/your/MQL/file.yaml
 inputs:
   input_1: parquet/input_1.parquet
   input_2: parquet/input_2.parquet
@@ -63,7 +57,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC**<br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -73,6 +67,24 @@ There are currently 3 options to run Metorikku.
 * Download the [last released JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
 * Run the following command:
      `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+
+#### *JDBC writer
+When using the JDBC writer, provide the path of the driver jar in both jars and driver-class-path params. For example for Mysql:
+    `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+
+#### JDBC query
+JDBC query output allows running a query for each record in the dataframe.
+
+##### Mandatory parameters:
+* **query** - defines the SQL query.
+In the query you can address the column of the DataFrame by their location using the dollar sign ($) followed by the column index. For example:
+```sql
+INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...);
+```
+##### Optional Parameters:
+* **maxBatchSize** - The maximum size of queries to execute against the DB in one commit.
+* **minPartitions** - Minimum partitions in the DataFrame - may cause repartition.
+* **maxPartitions** - Maximum partitions in the DataFrame - may cause coalesce.
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
@@ -94,29 +106,18 @@ In order to test and fully automate the deployment of MQLs (Metorikku query lang
 A test is comprised of 2 files:
 ##### Test settings
 This defines what to test and where to get the mocked data.
-For example, a simple `test_settings.json` file will be:
-```json
-{
-  "metric": "/path/to/metric",
-  "mocks": [
-    {
-      "name": "table_1",
-      "path": "mocks/table_1.jsonl"
-    }
-  ],
-  "tests": {
-    "df2": [
-      {
-        "id": 200,
-        "name": "test"
-      },
-      {
-        "id": 300,
-        "name": "test2"
-      }
-    ]
-  }
-}
+For example, a simple test YAML (JSON is also supported) will be:
+```yaml
+metric: "/path/to/metric"
+mocks:
+- name: table_1
+  path: mocks/table_1.jsonl
+tests:
+  df2:
+  - id: 200
+    name: test
+  - id: 300
+    name: test2
 ```
 
 And the corresponding `mocks/table_1.jsonl`:

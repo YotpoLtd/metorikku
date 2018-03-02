@@ -1,10 +1,13 @@
 package com.yotpo.metorikku.utils
 
-import java.io.File
+import java.io.{File, FileReader}
 
 import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration}
 import com.yotpo.metorikku.input.ReadableInput
 import com.yotpo.metorikku.input.types.FileInput
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration}
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -20,22 +23,28 @@ object TestUtils {
 
     case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
 
-    case class TestSettings(metric: String, mocks: List[Mock], params: Params, tests: Map[String, List[Map[String, Any]]])
+    case class TestSettings(metric: String, mocks: List[Mock], params: Option[Params], tests: Map[String, List[Map[String, Any]]])
 
     var previewLines: Int = 0
   }
 
-  def getTestSettings(metricTestSettings: String): MetricTesterDefinitions.TestSettings = {
-    val settings = FileUtils.jsonFileToObject[MetricTesterDefinitions.TestSettings](new File(metricTestSettings))
-    settings
+  def getTestSettings(fileName: String): MetricTesterDefinitions.TestSettings = {
+    FileUtils.getObjectMapperByExtension(fileName) match {
+      case Some(mapper) => {
+        mapper.registerModule(DefaultScalaModule)
+        mapper.readValue(new FileReader(fileName), classOf[MetricTesterDefinitions.TestSettings])
+      }
+      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+    }
   }
 
   def createMetorikkuConfigFromTestSettings(settings: String,
                                             metricTestSettings: MetricTesterDefinitions.TestSettings,
                                             previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
+    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None, None))
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
-    configuration.variables = metricTestSettings.params.variables.getOrElse(Map[String, String]())
+    configuration.variables = params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
     configuration.showPreviewLines = previewLines
     configuration

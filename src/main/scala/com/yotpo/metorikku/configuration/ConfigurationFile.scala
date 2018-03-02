@@ -7,7 +7,7 @@ import com.yotpo.metorikku.input.ReadableInput
 import scala.collection.immutable.HashMap
 
 
-class YAMLConfiguration(@JsonProperty("metrics") _metrics: Seq[String],
+class ConfigurationFile(@JsonProperty("metrics") _metrics: Seq[String],
                         @JsonProperty("explain") _explain: Boolean,
                         @JsonProperty("inputs") _inputs: HashMap[String, InputCollection],
                         @JsonProperty("logLevel") _logLevel: String,

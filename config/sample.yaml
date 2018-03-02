@@ -45,6 +45,12 @@ output:
   # Output file directory
   file:
     dir: /path/to/parquet/output
+  # JDBC database
+  jdbc:
+    connectionUrl: "jdbc:postgresql://localhost:5432/databasename"
+    user: username
+    password: password
+    driver: "org.postgresql.Driver"
 
 # If set to true, triggers Explain before saving
 explain: true

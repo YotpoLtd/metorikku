@@ -7,8 +7,6 @@ import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
-import scala.collection.mutable
-
 object CassandraOutputWriter extends MetricOutputSession {
   val host = "spark.cassandra.connection.host"
   val username = "spark.cassandra.auth.username"
@@ -21,12 +19,11 @@ object CassandraOutputWriter extends MetricOutputSession {
   }
 }
 
-class CassandraOutputWriter(metricOutputOptions: mutable.Map[String, String]) extends MetricOutputWriter {
+class CassandraOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
 
   case class CassandraOutputProperties(saveMode: SaveMode, dbKeySpace: String, dbTable: String)
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val dbOptions = CassandraOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbKeySpace"), props("dbTable"))
 
   override def write(dataFrame: DataFrame): Unit = {

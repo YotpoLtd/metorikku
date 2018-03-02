@@ -1,6 +1,6 @@
 package com.yotpo.metorikku
 
-import com.yotpo.metorikku.configuration.{Configuration, YAMLConfigurationParser}
+import com.yotpo.metorikku.configuration.{Configuration, ConfigurationParser}
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -11,7 +11,7 @@ import org.apache.log4j.LogManager
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
-  val config: Configuration = YAMLConfigurationParser.parse(args)
+  val config: Configuration = ConfigurationParser.parse(args)
   Session.init(config)
   runMetrics
 

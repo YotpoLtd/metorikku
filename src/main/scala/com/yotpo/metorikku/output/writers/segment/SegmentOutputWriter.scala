@@ -8,12 +8,9 @@ import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
 import org.apache.spark.sql.DataFrame
 
-import scala.collection.mutable
-
-class SegmentOutputWriter(metricOutputOptions: mutable.Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
+class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
 
   case class SegmentOutputProperties(eventType: String, keyColumn: String, eventName: String)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val eventType = props.getOrElse("eventType", "identify")
   val eventName = props.getOrElse("eventName", "")
   val keyColumn = props.getOrElse("keyColumn", "")
