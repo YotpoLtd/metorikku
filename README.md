@@ -54,7 +54,7 @@ You can check out a full example file for all possible values in the [sample YAM
 ##### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet**
+**CSV, JSON, parquet, JDBC**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC**<br />
@@ -68,9 +68,12 @@ There are currently 3 options to run Metorikku.
 * Run the following command:
      `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
-#### *JDBC writer
-When using the JDBC writer, provide the path of the driver jar in both jars and driver-class-path params. For example for Mysql:
-    `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+#### Using JDBC
+When using JDBC writer or input you must provide a path to the driver JAR.
+For example to run with spark-submit with a mysql driver:
+`spark-submit --driver-class-path mysql-connector-java-5.1.45.jar --jars mysql-connector-java-5.1.45.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+If you want to run this with the standalone JAR:
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar:mysql-connector-java-5.1.45.jar -c config.yaml`
 
 #### JDBC query
 JDBC query output allows running a query for each record in the dataframe.

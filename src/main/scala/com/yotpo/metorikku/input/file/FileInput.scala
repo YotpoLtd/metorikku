@@ -1,6 +1,6 @@
-package com.yotpo.metorikku.input.types
+package com.yotpo.metorikku.input.file
 
-import com.yotpo.metorikku.input.{ReadableInput}
+import com.yotpo.metorikku.input.ReadableInput
 import org.apache.spark.sql.DataFrame
 
 case class FileInput(_name: String, path: String) extends ReadableInput {

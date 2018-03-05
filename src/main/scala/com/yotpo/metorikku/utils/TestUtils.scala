@@ -2,12 +2,11 @@ package com.yotpo.metorikku.utils
 
 import java.io.{File, FileReader}
 
-import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration}
 import com.yotpo.metorikku.input.ReadableInput
-import com.yotpo.metorikku.input.types.FileInput
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration}
+import com.yotpo.metorikku.configuration.DefaultConfiguration
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
+import com.yotpo.metorikku.input.file.FileInput
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -21,7 +20,7 @@ object TestUtils {
 
     case class Mock(name: String, path: String)
 
-    case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
+    case class Params(variables: Option[Map[String, String]])
 
     case class TestSettings(metric: String, mocks: List[Mock], params: Option[Params], tests: Map[String, List[Map[String, Any]]])
 
@@ -42,7 +41,7 @@ object TestUtils {
                                             metricTestSettings: MetricTesterDefinitions.TestSettings,
                                             previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
-    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None, None))
+    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None))
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)

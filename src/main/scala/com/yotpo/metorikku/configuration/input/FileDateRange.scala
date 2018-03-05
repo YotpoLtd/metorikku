@@ -1,10 +1,18 @@
-package com.yotpo.metorikku.configuration
+package com.yotpo.metorikku.configuration.input
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.joda.time.format._
+import com.yotpo.metorikku.configuration.Input
+import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.file.FilesInput
+import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.joda.time.{DateTime, Period}
 
 import scala.collection.mutable
+
+case class FileDateRange(@JsonProperty("template") template: String,
+                         @JsonProperty("date_range") dateRange: DateRange) extends Input {
+  override def getReader(name: String): ReadableInput = FilesInput(name, dateRange.replace(template))
+}
 
 class DateRange(@JsonProperty("format") _format: String,
                 @JsonProperty("startDate") _startDate: String,

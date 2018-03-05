@@ -5,7 +5,7 @@ metrics:
   - /path/to/metric-1
   - /path/to/metric-2
 
-# Parquet or JSON Tables files paths
+# Input configuration
 inputs:
   input_1:
     file:
@@ -16,6 +16,12 @@ inputs:
   input_3:
     file:
       path: parquet/input_3.parquet
+  input_4:
+    jdbc:
+      connectionUrl: jdbc:mysql://localhost/db
+      user: user
+      password: pass
+      table: some_table
 
 # Set custom variables that would be accessible from the SQL
 variables:

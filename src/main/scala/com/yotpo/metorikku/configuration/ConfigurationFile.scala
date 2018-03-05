@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.yotpo.metorikku.configuration.input.InputCollection
 import com.yotpo.metorikku.input.ReadableInput
 
 import scala.collection.immutable.HashMap
