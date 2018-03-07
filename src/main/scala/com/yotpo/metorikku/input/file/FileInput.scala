@@ -1,9 +1,8 @@
 package com.yotpo.metorikku.input.file
 
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.DataFrame
 
-case class FileInput(_name: String, path: String) extends ReadableInput {
-  var name = _name
+case class FileInput(val name: String, path: String) extends Reader {
   def read(): DataFrame = FilesInput(name, Seq(path)).read()
 }

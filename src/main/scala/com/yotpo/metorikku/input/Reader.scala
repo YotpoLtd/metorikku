@@ -2,7 +2,7 @@ package com.yotpo.metorikku.input
 
 import org.apache.spark.sql.DataFrame
 
-trait ReadableInput {
-  var name: String
+trait Reader {
+  val name: String
   def read(): DataFrame
 }

@@ -1,27 +1,23 @@
 package com.yotpo.metorikku.input.jdbc
 
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 import com.yotpo.metorikku.session.Session.getSparkSession
 import org.apache.spark.sql.DataFrame
 
-case class JDBCInput(var name: String, connectionUrl: String, user: String,
-                     password: String, driver: Option[String], table: String,
-                     partitionColumn: Option[String], numberOfPartitions: Option[Int]) extends ReadableInput {
+case class JDBCInput(val name: String, connectionUrl: String, user: String,
+                     password: String, table: String,
+                     options: Option[Map[String, String]]) extends Reader {
   def read(): DataFrame = {
-    val url = connectionUrl + "?zeroDateTimeBehavior=convertToNull"
-    var baseDBOptions = Map("url" -> url,
+    val url = connectionUrl
+    val baseDBOptions = Map(
+      "url" -> url,
       "user" -> user,
       "password" -> password,
-      "table" -> table)
+      "dbTable" -> table)
 
-    partitionColumn.foreach(col => baseDBOptions = baseDBOptions + ("partitionColumn" -> col))
-    numberOfPartitions.foreach(num => baseDBOptions = baseDBOptions + ("numPartitions" -> num.toString))
-    driver.foreach(d => baseDBOptions = baseDBOptions + ("driver" -> d))
+    val DBOptions = baseDBOptions ++ options.getOrElse(Map())
 
-
-    val dbTable = getSparkSession.read.format("jdbc").options(baseDBOptions +
-      ( "dbtable" -> table))
-    val dFrame = dbTable.load()
-    return dFrame
+    val dbTable = getSparkSession.read.format("jdbc").options(DBOptions)
+    dbTable.load()
   }
 }

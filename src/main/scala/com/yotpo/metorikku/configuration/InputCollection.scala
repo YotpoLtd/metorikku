@@ -2,7 +2,7 @@ package com.yotpo.metorikku.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.yotpo.metorikku.configuration.input.{File, FileDateRange, JDBC}
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 
 case class InputCollection(@JsonProperty("file") fileInput: Option[File],
                            @JsonProperty("file_date_range") fileDateRangeInput: Option[FileDateRange],
@@ -18,9 +18,5 @@ case class UnknownInputTypeException(private val message: String = "",
                                      private val cause: Throwable = None.orNull) extends Exception(message, cause) {}
 
 case class Empty() extends Input {
-  override def getReader(name: String): ReadableInput = throw new UnknownInputTypeException()
-}
-
-trait Input {
-  def getReader(name: String): ReadableInput
+  override def getReader(name: String): Reader = throw new UnknownInputTypeException()
 }

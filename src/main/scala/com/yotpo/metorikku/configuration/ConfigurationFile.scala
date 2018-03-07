@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.configuration
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 
 import scala.collection.immutable.HashMap
 
@@ -19,7 +19,7 @@ class ConfigurationFile(@JsonProperty("metrics") _metrics: Seq[String],
   val metrics: Seq[String] = Option(_metrics).getOrElse(Seq())
   val showPreviewLines: Int = _showPreviewLines
   val explain: Boolean = _explain
-  val inputs: Seq[ReadableInput] = Option(_inputs.map {
+  val inputs: Seq[Reader] = Option(_inputs.map {
     case (name, inputCollection) => inputCollection.getInput.getReader(name) }.toSeq).getOrElse(Seq())
   val logLevel: String = Option(_logLevel).getOrElse("WARN")
   val variables: Map[String, String] = Option(_variables).getOrElse(Map())

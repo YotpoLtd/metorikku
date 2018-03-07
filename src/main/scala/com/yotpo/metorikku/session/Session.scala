@@ -2,7 +2,7 @@ package com.yotpo.metorikku.session
 
 import com.yotpo.metorikku.configuration.{Configuration, Output}
 import com.yotpo.metorikku.exceptions.MetorikkuException
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
@@ -59,7 +59,7 @@ object Session {
     })
   }
 
-  def registerDataframes(inputs: Seq[ReadableInput]): Unit = {
+  def registerDataframes(inputs: Seq[Reader]): Unit = {
     if (inputs.nonEmpty) {
       inputs.foreach(input => {
         log.info(s"Registering ${input.name} table")

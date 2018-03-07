@@ -18,10 +18,14 @@ inputs:
       path: parquet/input_3.parquet
   input_4:
     jdbc:
-      connectionUrl: jdbc:mysql://localhost/db
+      connectionUrl: jdbc:mysql://localhost/db?zeroDateTimeBehavior=convertToNull
       user: user
       password: pass
       table: some_table
+      # You can optionally add here any supported option from https://spark.apache.org/docs/latest/sql-programming-guide.html#jdbc-to-other-databases
+      options:
+        numPartitions: 100
+        driver: com.mysql.jdbc.Driver
 
 # Set custom variables that would be accessible from the SQL
 variables:

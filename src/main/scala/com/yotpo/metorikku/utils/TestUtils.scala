@@ -2,7 +2,7 @@ package com.yotpo.metorikku.utils
 
 import java.io.{File, FileReader}
 
-import com.yotpo.metorikku.input.ReadableInput
+import com.yotpo.metorikku.input.Reader
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.configuration.DefaultConfiguration
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
@@ -49,7 +49,7 @@ object TestUtils {
     configuration
   }
 
-  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[ReadableInput] = {
+  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Reader] = {
     val mockFiles = mocks.map(mock => {
       FileInput(mock.name, new File(testDir, mock.path).getCanonicalPath)
     })
