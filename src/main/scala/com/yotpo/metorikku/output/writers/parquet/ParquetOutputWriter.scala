@@ -10,10 +10,10 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String])
 
   val log = LogManager.getLogger(this.getClass)
-  val partitionBy = props.getOrElse("partitionBy",Seq.empty).asInstanceOf[Seq[String]]
-  val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
-                                                     props("path"),
-                                                     partitionBy)
+  val partitionBy = props.getOrElse("partitionBy", Seq.empty).asInstanceOf[Seq[String]]
+  val path = props.getOrElse("path", "")
+  val saveMode = props.getOrElse("saveMode", "Append")
+  val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(saveMode), path, partitionBy)
 
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
