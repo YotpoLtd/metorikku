@@ -93,8 +93,7 @@ class MetricSet(metricSet: String) {
             s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}", ex)
         }
       }
-    }
-    )
+    })
 
   }
 

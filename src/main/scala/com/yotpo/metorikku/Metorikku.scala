@@ -13,7 +13,7 @@ object Metorikku extends App {
   log.info("Starting Metorikku - Parsing configuration")
   val config: Configuration = ConfigurationParser.parse(args)
   Session.init(config)
-  runMetrics
+  runMetrics()
 
   def runMetrics(): Unit = {
     Session.getConfiguration.metrics.foreach(metricSetPath => {

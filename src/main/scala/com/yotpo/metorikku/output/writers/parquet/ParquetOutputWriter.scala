@@ -11,7 +11,8 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String])
 
   val log = LogManager.getLogger(this.getClass)
-  val partitionBy = props.getOrElse("partitionBy",Seq.empty).asInstanceOf[Seq[String]]
+  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
+  val partitionBy = props.getOrElse("partitionBy", Seq.empty).asInstanceOf[Seq[String]]
   val repartitionValue = props.getOrElse("repartition",NO_REPARTITION).asInstanceOf[Integer]
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
                                                      props("path"),
@@ -27,8 +28,24 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
         if (parquetOutputOptions.partitionBy.nonEmpty) {
           writer = writer.partitionBy(parquetOutputOptions.partitionBy: _*)
         }
-        writer.mode(parquetOutputOptions.saveMode).parquet(outputPath)
+        if (!dataFrame.isStreaming) {
+          log.info(s"Writing Parquet Dataframe to ${outputPath}")
+          var writer = dataFrame.write
+          if (parquetOutputOptions.partitionBy.nonEmpty) {
+            writer = writer.partitionBy(parquetOutputOptions.partitionBy: _*)
+          }
+          writer.mode(parquetOutputOptions.saveMode).parquet(outputPath)
+        }
+        else {
+          val writeStream = dataFrame.writeStream
+            .format("console")
+            .option("checkpointLocation", "/tmp/checkpoint")
+            .option("path", outputPath)
+            .outputMode("complete")
+            .start()
 
+          writeStream.awaitTermination()
+        }
       case None => log.error(s"Parquet file configuration were not provided")
     }
 
