@@ -44,7 +44,7 @@ libraryDependencies ++= Seq(
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
-dependencyOverrides += "com.databricks" %% "spark-avro" % "3.2.0"
+dependencyOverrides += "com.databricks" %% "spark-avro" % "4.0.0"
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("public"),
