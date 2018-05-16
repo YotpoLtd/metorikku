@@ -9,9 +9,10 @@ case class Output(@JsonProperty("cassandra") cassandra: Option[Cassandra],
                   @JsonProperty("segment") segment: Option[Segment],
                   @JsonProperty("jdbc") jdbc: Option[JDBC],
                   @JsonProperty("jdbcquery") jdbcquery: Option[JDBC],
-                  @JsonProperty("file") file: Option[File]
+                  @JsonProperty("file") file: Option[File],
+                  @JsonProperty("kafka") kafka: Option[Kafka]
                  ) {}
 
 object Output {
-  def apply(): Output = new Output(None ,None, None, None, None, None, None)
+  def apply(): Output = new Output(None, None, None, None, None, None, None, None)
 }
