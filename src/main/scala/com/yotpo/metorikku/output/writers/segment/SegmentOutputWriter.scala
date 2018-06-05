@@ -80,6 +80,8 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
     analytics.flush()
     blockingFlush.block()
     analytics.shutdown()
-    Thread.sleep(segmentOutputOptions.sleep)
+    if (segmentOutputOptions.sleep > 0) {
+      Thread.sleep(segmentOutputOptions.sleep)
+    }
   }
 }
