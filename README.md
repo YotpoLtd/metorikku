@@ -57,7 +57,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet, JDBC**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -88,6 +88,23 @@ INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...)
 * **maxBatchSize** - The maximum size of queries to execute against the DB in one commit.
 * **minPartitions** - Minimum partitions in the DataFrame - may cause repartition.
 * **maxPartitions** - Maximum partitions in the DataFrame - may cause coalesce.
+
+
+#### Kafka output
+Kafka output allows writing batch operations to kafka
+
+##### Mandatory parameters:
+* **topic** - defines the topic in kafka which the data will be written to.
+currently supported only one topic
+
+* **valueColumn** - defines the values which will be written to the Kafka topic, 
+Usually a json version of data, For example:
+```sql
+SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
+```
+##### Optional Parameters:
+* **keyColumn** - key that can be used to perform de-duplication when reading 
+
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*

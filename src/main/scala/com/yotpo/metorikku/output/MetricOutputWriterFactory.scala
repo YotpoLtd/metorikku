@@ -7,6 +7,7 @@ import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
 import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
+import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
 import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
@@ -40,6 +41,8 @@ object MetricOutputWriterFactory {
         .asInstanceOf[Map[String, String]], output.jdbc)
       case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions
         .asInstanceOf[Map[String, String]], output.jdbc)
+      case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions
+        .asInstanceOf[Map[String, String]], output.kafka)
       case _ => throw new MetorikkuException(s"Not Supported Writer $outputType")
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions.asInstanceOf[Map[String, String]])
@@ -58,4 +61,5 @@ object OutputType extends Enumeration {
   val Instrumentation: OutputType.Value = Value("Instrumentation")
   val JDBC: OutputType.Value = Value("JDBC")
   val JDBCQuery: OutputType.Value = Value("JDBCQuery")
+  val Kafka: OutputType.Value = Value("Kafka")
 }
