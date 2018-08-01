@@ -2,9 +2,11 @@ package com.yotpo.metorikku.utils
 
 import java.io.{File, FileReader}
 
+import com.yotpo.metorikku.input.Reader
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.configuration.{DateRange, DefaultConfiguration, Input}
+import com.yotpo.metorikku.configuration.DefaultConfiguration
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
+import com.yotpo.metorikku.input.file.FileInput
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -18,7 +20,7 @@ object TestUtils {
 
     case class Mock(name: String, path: String)
 
-    case class Params(variables: Option[Map[String, String]], dateRange: Option[Map[String, DateRange]])
+    case class Params(variables: Option[Map[String, String]])
 
     case class TestSettings(metric: String, mocks: List[Mock], params: Option[Params], tests: Map[String, List[Map[String, Any]]])
 
@@ -39,8 +41,7 @@ object TestUtils {
                                             metricTestSettings: MetricTesterDefinitions.TestSettings,
                                             previewLines: Int): DefaultConfiguration = {
     val configuration = new DefaultConfiguration
-    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None, None))
-    configuration.dateRange = params.dateRange.getOrElse(Map[String, DateRange]())
+    val params = metricTestSettings.params.getOrElse(new MetricTesterDefinitions.Params(None))
     configuration.inputs = getMockFilesFromDir(metricTestSettings.mocks, new File(settings).getParentFile)
     configuration.variables = params.variables.getOrElse(Map[String, String]())
     configuration.metrics = getMetricFromDir(metricTestSettings.metric, new File(settings).getParentFile)
@@ -48,9 +49,9 @@ object TestUtils {
     configuration
   }
 
-  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Input] = {
+  def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Reader] = {
     val mockFiles = mocks.map(mock => {
-      Input(mock.name, new File(testDir, mock.path).getCanonicalPath)
+      FileInput(mock.name, new File(testDir, mock.path).getCanonicalPath)
     })
     mockFiles
   }
