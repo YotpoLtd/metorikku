@@ -10,8 +10,8 @@ import com.yotpo.metorikku.input.file.FileInput
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.{Row, SparkSession}
-import org.apache.spark.sql.types.{StringType, StructField, StructType, TimestampType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.types._
 
 import scala.collection.Seq
 
@@ -118,46 +118,64 @@ object TestUtils {
     val aggregatedErrorRows = errorsIndex.map(index => metricActualResultRows(index))
     val actualSchema = aggregatedErrorRows.head.schema
 
-    val expectedValuesSeq = metricExpectedResultRows.map(expectedRes => expectedRes.values)
-    val expectedValuesRows = expectedValuesSeq.map(value => Row.fromSeq(value.toSeq))
+    val expectedValuesRows = metricExpectedResultRows.map(expectedRes => {
+      Row.fromSeq(expectedRes.values.toSeq)
+    })
 
-    val expectedSchemaKeys = metricExpectedResultRows.head.keys
-    var expectedStructFields = Seq[StructField]()
-    var expectedArrayStructFields = Seq[String]()
-    for(key <- expectedSchemaKeys){
-      val currFieldType = actualSchema.filter(_.name == key).head.dataType
-      val fieldType = if(isTypeValidForTest(currFieldType)) currFieldType else StringType
-      if(currFieldType.toString.contains("Array")) expectedArrayStructFields = expectedArrayStructFields :+ key
-      expectedStructFields = expectedStructFields :+ StructField(key, fieldType , true)
-    }
-    val expectedSchema = StructType(expectedStructFields)
+    val expectedSchema = getExpectedSchema(metricExpectedResultRows.head.keys, actualSchema)
+    val expectedArrayStructFields = getExpectedArrayFields(metricExpectedResultRows.head.keys, actualSchema)
 
     val actualRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(aggregatedErrorRows), actualSchema)
     val expectedRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(expectedValuesRows), expectedSchema)
     val columns = expectedSchema.fields.map(_.name).filter(x => !expectedArrayStructFields.contains(x))
 
-    // scalastyle:off
-    println("These are the Actual rows with no Expected match:")
+    log.info("These are the Actual rows with no Expected match:")
     actualRowsDF.show(false)
-    println("These are the Expected rows with no Actual match:")
+
+    log.info("These are the Expected rows with no Actual match:")
     expectedRowsDF.show(false)
-    if(expectedArrayStructFields.nonEmpty) println("Notice that array typed object will not be compared to find discrepancies")
-    val selectiveDifferencesActual = columns.map(col => actualRowsDF.select(col).except(expectedRowsDF.select(col)))
-    println("These are Actual columns with discrepancy with Expected Results:")
-    selectiveDifferencesActual.map(diff => {if(diff.count > 0) diff.show(false)})
-    val actualDiffCounter = selectiveDifferencesActual.count(_.count() > 0)
-    val selectiveDifferencesExpected = columns.map(col => expectedRowsDF.select(col).except(actualRowsDF.select(col)))
-    println("These are Expected columns with discrepancy with Actual results:")
-    selectiveDifferencesExpected.map(diff => {if(diff.count > 0) diff.show(false)})
-    val expectedDiffCounter = selectiveDifferencesActual.count(_.count() > 0)
-    if(actualDiffCounter == 0 && expectedDiffCounter == 0) println(
+
+    if(expectedArrayStructFields.nonEmpty) log.warn("Notice that array typed object will not be compared to find discrepancies")
+
+    log.info("These are Actual columns with discrepancy with Expected Results:")
+    val actualDiffCounter = printColumnDiff(actualRowsDF, expectedRowsDF, columns)
+    log.info("These are Expected columns with discrepancy with Actual results:")
+    val expectedDiffCounter = printColumnDiff(expectedRowsDF, actualRowsDF, columns)
+
+    if(actualDiffCounter == 0 && expectedDiffCounter == 0) log.info(
       "No discrepancies were printed because each column was a match on the column level and a miss on the row level, compare the rows themselves"
     )
-    // scalastyle:on
   }
 
-  def isTypeValidForTest(currFieldType: Any): Boolean = {
-    if(currFieldType == TimestampType || currFieldType.toString.contains("Array") || currFieldType.toString.contains("Object")) false else true
+  private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String]): Int ={
+    val selectiveDifferencesActual = columns.map(col => mainDF.select(col).except(subtractDF.select(col)))
+    selectiveDifferencesActual.foreach(diff => {if(diff.count > 0) diff.show(false)})
+    selectiveDifferencesActual.count(_.count() > 0)
+  }
+
+  private def getExpectedSchema(expectedSchemaKeys:Iterable[String], actualSchema:StructType): StructType = {
+    var expectedStructFields = Seq[StructField]()
+    for(key <- expectedSchemaKeys){
+      val currFieldType = actualSchema.filter(_.name == key).head.dataType
+      val fieldType = getExpectedSchemaFieldType(currFieldType)
+      expectedStructFields = expectedStructFields :+ StructField(key, fieldType , true)
+    }
+    StructType(expectedStructFields)
+  }
+
+  private def getExpectedArrayFields(expectedSchemaKeys:Iterable[String], actualSchema:StructType): Seq[String] = {
+    var expectedArrayStructFields = Seq[String]()
+    for(key <- expectedSchemaKeys){
+      val currFieldType = actualSchema.filter(_.name == key).head.dataType
+      if(currFieldType.toString.contains("Array")) expectedArrayStructFields = expectedArrayStructFields :+ key
+    }
+    expectedArrayStructFields
+  }
+
+  private def getExpectedSchemaFieldType(currFieldType: DataType): DataType = {
+    val isValid = if(currFieldType == TimestampType || currFieldType.toString.contains("Array") || currFieldType.toString.contains("Object")) false else true
+    val fieldResult = if(isValid) currFieldType else StringType
+    fieldResult
   }
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
