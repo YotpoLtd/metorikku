@@ -78,7 +78,8 @@ class MetricSet(metricSet: String) {
       try {
         if (dataFrame.isStreaming) {
           val query = dataFrame.writeStream
-            .outputMode("complete")
+            .outputMode("append")
+            .option("truncate", false)
             .format("console")
             .start()
           query.awaitTermination()

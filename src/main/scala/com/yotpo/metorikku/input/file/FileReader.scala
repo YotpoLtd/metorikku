@@ -5,7 +5,8 @@ import java.nio.file.{Files, Paths}
 import com.yotpo.metorikku.session.Session.getSparkSession
 import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import com.yotpo.metorikku.input.Reader
 
 trait FileReader {
   def read(tablePaths: Seq[String]): DataFrame
@@ -60,8 +61,8 @@ object FileReader {
     FilenameUtils.removeExtension(path) + "_schema.json"
   }
 
-  private object InputSteamReader extends InputTableReader {
-    val spark = getSparkSession
+  private object InputSteamReader extends FileReader {
+    val spark: SparkSession = getSparkSession
 
     override def read(tablePaths: Seq[String]): DataFrame = {
       val ds1 = spark

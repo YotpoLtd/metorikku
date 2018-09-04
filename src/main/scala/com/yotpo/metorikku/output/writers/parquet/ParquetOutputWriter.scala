@@ -11,7 +11,6 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
   case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String])
 
   val log = LogManager.getLogger(this.getClass)
-  val props = metricOutputOptions("outputOptions").asInstanceOf[Map[String, String]]
   val partitionBy = props.getOrElse("partitionBy", Seq.empty).asInstanceOf[Seq[String]]
   val repartitionValue = props.getOrElse("repartition",NO_REPARTITION).asInstanceOf[Integer]
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
