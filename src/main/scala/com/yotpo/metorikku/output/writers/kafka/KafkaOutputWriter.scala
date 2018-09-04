@@ -49,5 +49,24 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     selectExpression
   }
 
-  override def supportsStreaming(): Boolean = true
+  override def writeStream(dataFrame: DataFrame): Unit = {
+    config match {
+      case Some(kafkaConfig) =>
+        val bootstrapServers = kafkaConfig.servers.mkString(",")
+        log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
+        val df: DataFrame = selectedColumnsDataframe(dataFrame)
+        val stream = df.writeStream.format("kafka")
+          .option("kafka.bootstrap.servers", bootstrapServers)
+          .option("checkpointLocation", kafkaConfig.checkpointLocation.get)
+          .option("topic", kafkaOptions.topic)
+        if (kafkaConfig.compressionType.nonEmpty) {
+          stream.option("kafka.compression.type", kafkaConfig.compressionType.get)}
+
+        val query = stream.start()
+        query.awaitTermination()
+
+      case None =>
+    }
+  }
+
 }

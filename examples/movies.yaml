@@ -26,6 +26,12 @@ variables:
 output:
   file:
     dir: examples/output
+  kafka:
+    servers:
+      - 127.0.0.1:9092
+    checkpointLocation: /tmp/checkpoint
+    compressionType: gzip
+
 
 # If set to true, triggers Explain before saving
 explain: true

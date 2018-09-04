@@ -62,17 +62,7 @@ class MetricSet(metricSet: String) {
 
   def writeStream(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
-    def writer = output.writer
-    if (!writer.supportsStreaming())
-      throw MetorikkuWriterStreamingUnsupported(s"writer doesn't support streaming yet: " +
-        s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}")
-
-    val query = dataFrame.writeStream
-      .outputMode("append")
-      .option("truncate", false)
-      .format("console")
-      .start()
-    query.awaitTermination()
+    output.writer.writeStream(dataFrame)
   }
 
   def writeBatch(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {

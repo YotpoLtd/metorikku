@@ -6,6 +6,7 @@ output:
 - dataFrameName: moviesWithRatings
   outputType: Kafka
   outputOptions:
-    topic: test1
+    topic: lool
     valueColumn: value
+
 
