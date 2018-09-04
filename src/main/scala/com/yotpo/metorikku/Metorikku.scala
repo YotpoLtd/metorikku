@@ -1,6 +1,7 @@
 package com.yotpo.metorikku
 
 import com.yotpo.metorikku.configuration.{Configuration, ConfigurationParser}
+import com.yotpo.metorikku.instrumentation.Listener
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
@@ -13,6 +14,7 @@ object Metorikku extends App {
   log.info("Starting Metorikku - Parsing configuration")
   val config: Configuration = ConfigurationParser.parse(args)
   Session.init(config)
+  Listener.init("Metorikku", Session.getSparkSession)
   runMetrics()
 
   def runMetrics(): Unit = {
