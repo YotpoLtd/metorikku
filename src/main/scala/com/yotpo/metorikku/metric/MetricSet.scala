@@ -1,12 +1,14 @@
 package com.yotpo.metorikku.metric
 
 import com.yotpo.metorikku.calculators.SqlStepCalculator
-import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
+import com.yotpo.metorikku.exceptions.{MetorikkuWriteFailedException, MetorikkuWriterStreamingUnsupported}
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
+import com.yotpo.metorikku.output.MetricOutput
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
 import org.apache.spark.groupon.metrics.SparkGauge
+import org.apache.spark.sql.DataFrame
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -58,45 +60,52 @@ class MetricSet(metricSet: String) {
     }
   }
 
+  def writeStream(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {
+    log.info(s"Starting to write streaming results of ${dataFrameName}")
+    def writer = output.writer
+    if (!writer.supportsStreaming())
+      throw MetorikkuWriterStreamingUnsupported(s"writer doesn't support streaming yet: " +
+        s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}")
+
+    val query = dataFrame.writeStream
+      .outputMode("append")
+      .option("truncate", false)
+      .format("console")
+      .start()
+    query.awaitTermination()
+  }
+
+  def writeBatch(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {
+    dataFrame.cache()
+    lazy val counterNames = Array(metric.name, dataFrameName, output.outputConfig.outputType.toString, "counter")
+    lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
+
+    dfCounter.set(dataFrame.count())
+
+    log.info(s"Starting to Write results of ${dataFrameName}")
+    try {
+      output.writer.write(dataFrame)
+    }
+    catch {
+      case ex: Exception => {
+        throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
+          s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}", ex)
+      }
+    }
+  }
+
   def write(metric: Metric) {
     metric.outputs.foreach(output => {
       val sparkSession = Session.getSparkSession
       val dataFrameName = output.outputConfig.dataFrameName
       val dataFrame = sparkSession.table(dataFrameName)
-      if (!dataFrame.isStreaming) {
-        dataFrame.cache()
-      }
 
-      lazy val counterNames = Array(metric.name, dataFrameName, output.outputConfig.outputType.toString, "counter")
-      lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
-
-      if (!dataFrame.isStreaming) {
-        dfCounter.set(dataFrame.count())
+      if (dataFrame.isStreaming) {
+        writeStream(dataFrame, dataFrameName, output, metric)
       }
-
-      log.info(s"Starting to Write results of ${dataFrameName}")
-      try {
-        if (dataFrame.isStreaming) {
-          val query = dataFrame.writeStream
-            .outputMode("append")
-            .option("truncate", false)
-            .format("console")
-            .start()
-          query.awaitTermination()
-        }
-        else {
-          output.writer.write(dataFrame)
-        }
-      }
-      catch {
-        case ex: Exception => {
-          throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
-            s"$dataFrameName to output: ${output.outputConfig.outputType} on metric: ${metric.name}", ex)
-        }
+      else {
+        writeBatch(dataFrame, dataFrameName, output, metric)
       }
     })
-
   }
-
-
 }

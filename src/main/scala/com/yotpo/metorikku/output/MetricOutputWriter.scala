@@ -19,6 +19,8 @@ trait MetricOutputWriter extends Serializable{
     }
   }
 
+  def supportsStreaming(): Boolean = false
+
   case class MissingWriterArgumentException(private val message: String = "",
                                             private val cause: Throwable = None.orNull)
     extends Exception(message, cause)

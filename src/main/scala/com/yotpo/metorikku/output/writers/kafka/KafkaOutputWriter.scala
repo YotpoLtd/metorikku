@@ -48,4 +48,6 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     }
     selectExpression
   }
+
+  override def supportsStreaming(): Boolean = true
 }
