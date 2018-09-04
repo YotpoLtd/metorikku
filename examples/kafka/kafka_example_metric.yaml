@@ -1,0 +1,10 @@
+steps:
+- dataFrameName: testTopic1
+  sql:
+    SELECT * from testStream
+output:
+- dataFrameName: testTopic1
+  outputType: Kafka
+  outputOptions:
+    topic: testTopic2
+    valueColumn: value
