@@ -4,7 +4,7 @@ import org.apache.commons.io.FilenameUtils
 
 object TableType extends Enumeration {
   type TableType = Value
-  val parquet, json, jsonl, csv, stream = Value
+  val parquet, json, jsonl, csv = Value
 
   def isTableType(s: String): Boolean = values.exists(_.toString == s)
 
