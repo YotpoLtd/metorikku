@@ -35,7 +35,15 @@ steps:
     WHERE title = ${myFavoriteMovie}
 output:
 - dataFrameName: moviesWithRatings
+  outputType: Kafka
+  outputOptions:
+    topic: lool
+    valueColumn: value
+- dataFrameName: moviesWithRatings
   outputType: Parquet
   outputOptions:
     saveMode: Overwrite
     path: moviesWithRatings.parquet
+
+
+
