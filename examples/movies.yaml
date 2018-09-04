@@ -26,6 +26,7 @@ variables:
 output:
   file:
     dir: examples/output
+    checkpointLocation: /tmp/checkpoint
   kafka:
     servers:
       - 127.0.0.1:9092
