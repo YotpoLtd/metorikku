@@ -8,10 +8,4 @@ output:
   outputOptions:
     topic: lool
     valueColumn: value
-- dataFrameName: moviesWithRatings
-  outputType: Parquet
-  outputOptions:
-    path: lool.parquet
-    saveMode: Append
-
 

@@ -26,11 +26,11 @@ variables:
 output:
   file:
     dir: examples/output
-    checkpointLocation: /tmp/checkpoint
+    checkpointLocation: /tmp/checkpoint/file
   kafka:
     servers:
       - 127.0.0.1:9092
-    checkpointLocation: /tmp/checkpoint
+    checkpointLocation: /tmp/checkpoint/kafka
     compressionType: gzip
 
 
