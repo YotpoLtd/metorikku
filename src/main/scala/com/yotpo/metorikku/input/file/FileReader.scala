@@ -50,7 +50,6 @@ object FileReader {
     val reader = tableType match {
       case TableType.json | TableType.jsonl => JSONTableReader
       case TableType.csv => CSVTableReader
-      case TableType.stream => InputSteamReader
       case _ => ParquetTableReader
     }
     reader
