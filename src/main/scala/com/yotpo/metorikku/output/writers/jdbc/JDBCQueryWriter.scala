@@ -17,9 +17,9 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
 
   val defaultMaxBatchSize = 500
   val options = JDBCQueryProperties(props("query"),
-    allCatch.opt{props("maxBatchSize").toInt}.getOrElse(defaultMaxBatchSize),
-    allCatch.opt{props("minPartitions").toInt},
-    allCatch.opt{props("maxPartitions").toInt})
+    props.getOrElse("maxBatchSize", defaultMaxBatchSize).asInstanceOf[Int],
+    props.get("minPartitions").asInstanceOf[Option[Int]],
+    props.get("maxPartitions").asInstanceOf[Option[Int]])
 
   override def write(dataFrame: DataFrame): Unit = {
     config match {
