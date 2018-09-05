@@ -59,7 +59,7 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
           .option("kafka.bootstrap.servers", bootstrapServers)
           .option("checkpointLocation", kafkaConfig.checkpointLocation.get)
           .option("topic", kafkaOptions.topic)
-          .option("outputMode", kafkaOptions.outputMode)
+          .outputMode(kafkaOptions.outputMode)
         if (kafkaConfig.compressionType.nonEmpty) {
           stream.option("kafka.compression.type", kafkaConfig.compressionType.get)}
 

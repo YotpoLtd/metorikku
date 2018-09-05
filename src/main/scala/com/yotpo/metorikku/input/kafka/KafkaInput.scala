@@ -14,7 +14,6 @@ case class KafkaInput(name: String, servers: Seq[String], topic: String,
     if (options.nonEmpty) {
       inputStream.options(options.get)
     }
-
-    inputStream.load().selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+    inputStream.load()
   }
 }

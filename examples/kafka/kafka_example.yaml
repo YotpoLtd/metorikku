@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - examples/kafka/kafka_example_metric.yaml
+  - examples/kafka/kafka_example_metric_1.yaml
 
 inputs:
   testStream:

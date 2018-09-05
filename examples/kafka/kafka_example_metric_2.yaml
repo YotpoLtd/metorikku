@@ -1,0 +1,14 @@
+steps:
+- dataFrameName: castedInputStream
+  sql:
+    SELECT CAST(key AS STRING), CAST(value AS STRING) from testStream
+- dataFrameName: testCompleteOutputMode
+  sql:
+    SELECT key, count(*) as count from castedInputStream group by key
+output:
+- dataFrameName: testCompleteOutputMode
+  outputType: Kafka
+  outputOptions:
+    topic: testCompleteOutputMode
+    valueColumn: count
+    outputMode: Complete
