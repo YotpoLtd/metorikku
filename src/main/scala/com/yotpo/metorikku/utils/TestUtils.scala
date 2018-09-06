@@ -10,8 +10,10 @@ import com.yotpo.metorikku.input.file.FileInput
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.apache.spark.sql.types._
 
+import scala.collection.Seq
 
 object TestUtils {
   val log = LogManager.getLogger(this.getClass)
@@ -83,17 +85,17 @@ object TestUtils {
   private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
                                       metricName: String, sparkSession: SparkSession): Array[String] = {
     var errors = Array[String]()
-    //TODO(etrabelsi@yotpo.com) Logging
+    var errorsIndexArr = Seq[Int]()
     metricExpectedTests.keys.foreach(tableName => {
 
       val metricActualResultRows = sparkSession.table(tableName).collect()
       var metricExpectedResultRows = metricExpectedTests(tableName)
-      //TODO(etrabelsi@yotpo.com) Logging
       if (metricExpectedResultRows.length == metricActualResultRows.length) {
         for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
           val mapOfActualRow = metricActualResultRow.getValuesMap(metricActualResultRow.schema.fieldNames)
           val matchingExpectedMetric = matchExpectedRow(mapOfActualRow, metricExpectedResultRows)
           if (Option(matchingExpectedMetric).isEmpty) {
+            errorsIndexArr = errorsIndexArr :+ rowIndex
             errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: " +
               s"Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
           }
@@ -101,11 +103,85 @@ object TestUtils {
             metricExpectedResultRows = metricExpectedResultRows.filter(_ != matchingExpectedMetric)
           }
         }
+        if(errorsIndexArr.nonEmpty) compareErrorAndExpectedDataFrames(metricActualResultRows, metricExpectedResultRows, errorsIndexArr)
       } else {
         errors = errors :+ s"[$metricName - $tableName] number of rows was ${metricActualResultRows.length} while expected ${metricExpectedResultRows.length}"
       }
     })
     errors
+  }
+
+  private def compareErrorAndExpectedDataFrames(metricActualResultRows: Seq[Row],
+                                                metricExpectedResultRows: List[Map[String, Any]],
+                                                errorsIndex: Seq[Int]): Unit = {
+    val spark = SparkSession.builder().getOrCreate()
+    val aggregatedErrorRows = errorsIndex.map(index => metricActualResultRows(index))
+    val actualSchema = aggregatedErrorRows.head.schema
+
+    val expectedValuesRows = metricExpectedResultRows.map(expectedRes => {
+      Row.fromSeq(expectedRes.values.toSeq)
+    })
+
+    val expectedSchema = getExpectedSchema(metricExpectedResultRows.head.keys, actualSchema)
+    val expectedArrayStructFields = getExpectedArrayFields(metricExpectedResultRows.head.keys, actualSchema)
+
+    val actualRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(aggregatedErrorRows), actualSchema)
+    val expectedRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(expectedValuesRows), expectedSchema)
+    val columns = expectedSchema.fields.map(_.name).filter(x => !expectedArrayStructFields.contains(x))
+
+    log.info("These are the Actual rows with no Expected match:")
+    actualRowsDF.show(false)
+
+    log.info("These are the Expected rows with no Actual match:")
+    expectedRowsDF.show(false)
+
+    if(expectedArrayStructFields.nonEmpty) log.warn("Notice that array typed object will not be compared to find discrepancies")
+
+    log.info("These are Actual columns with discrepancy with Expected Results:")
+    val actualDiffCounter = printColumnDiff(actualRowsDF, expectedRowsDF, columns)
+    log.info("These are Expected columns with discrepancy with Actual results:")
+    val expectedDiffCounter = printColumnDiff(expectedRowsDF, actualRowsDF, columns)
+
+    if(actualDiffCounter == 0 && expectedDiffCounter == 0) log.info(
+      "No discrepancies were printed because each column was a match on the column level and a miss on the row level, compare the rows themselves"
+    )
+  }
+
+  private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String]): Int ={
+    val selectiveDifferencesActual = columns.map(col => mainDF.select(col).except(subtractDF.select(col)))
+    selectiveDifferencesActual.foreach(diff => {if(diff.count > 0) diff.show(false)})
+    selectiveDifferencesActual.count(_.count() > 0)
+  }
+
+  private def getExpectedSchema(expectedSchemaKeys:Iterable[String], actualSchema:StructType): StructType = {
+    var expectedStructFields = Seq[StructField]()
+    for(key <- expectedSchemaKeys){
+      val structFieldMatch = actualSchema.filter(_.name == key)
+      if(structFieldMatch.nonEmpty){
+        val currFieldType = structFieldMatch.head.dataType
+        val fieldType = getExpectedSchemaFieldType(currFieldType)
+        expectedStructFields = expectedStructFields :+ StructField(key, fieldType , true)
+      } else {
+        log.info(s"The expected schema key : $key doesnt exist in the actual schema, the test will fail because of it")
+      }
+    }
+    StructType(expectedStructFields)
+  }
+
+  private def getExpectedArrayFields(expectedSchemaKeys:Iterable[String], actualSchema:StructType): Seq[String] = {
+    var expectedArrayStructFields = Seq[String]()
+    for(key <- expectedSchemaKeys){
+      val currFieldType = actualSchema.filter(_.name == key).head.dataType
+      if(currFieldType.toString.contains("Array")) expectedArrayStructFields = expectedArrayStructFields :+ key
+    }
+    expectedArrayStructFields
+  }
+
+  private def getExpectedSchemaFieldType(currFieldType: DataType): DataType = {
+    val isValid = if(currFieldType == TimestampType || currFieldType.toString.contains("Array") || currFieldType.toString.contains("Object")) false else true
+    val usedField = if(currFieldType == LongType) IntegerType else currFieldType
+    val fieldResult = if(isValid) usedField else StringType
+    fieldResult
   }
 
   private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
@@ -115,7 +191,7 @@ object TestUtils {
         return expectedRowCandidate
       }
     }
-    //TODO Avoid using nulls and return 
+    //TODO Avoid using nulls and return
     null
     // scalastyle:on
   }
