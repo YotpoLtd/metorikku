@@ -41,7 +41,9 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
-  "com.groupon.dse" % "spark-metrics" % "2.0.0"
+  "com.groupon.dse" % "spark-metrics" % "2.0.0",
+  "mysql" % "mysql-connector-java" % "5.1.42",
+  "org.postgresql" % "postgresql" % "42.2.1"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
