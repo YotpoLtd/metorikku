@@ -14,7 +14,7 @@ object Metorikku extends App {
   log.info("Starting Metorikku - Parsing configuration")
   val config: Configuration = ConfigurationParser.parse(args)
   Session.init(config)
-  Listener.init(config.appName, Session.getSparkSession)
+  Listener.init(config.appName)
   runMetrics()
 
   def runMetrics(): Unit = {

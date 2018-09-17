@@ -7,7 +7,8 @@ import org.apache.spark.sql.SparkSession
 object Listener {
   val log: Logger = LogManager.getLogger(this.getClass)
 
-  def init(appName: String, ss: SparkSession) {
+  def init(appName: String) {
+    val ss = SparkSession.builder().getOrCreate()
     val listener = new StreamingQueryMetricsListener()
     UserMetricsSystem.initialize(ss.sparkContext, s"%sMetrics".format(appName))
     ss.streams.addListener(listener)
