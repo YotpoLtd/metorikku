@@ -54,7 +54,7 @@ You can check out a full example file for all possible values in the [sample YAM
 ##### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC**
+**CSV, JSON, parquet, JDBC, Kafka**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
@@ -105,6 +105,16 @@ SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
 ##### Optional Parameters:
 * **keyColumn** - key that can be used to perform de-duplication when reading 
 
+#### Kafka Input
+Kafka input allows reading messages from topics
+```yaml
+inputs:
+  testStream:
+    kafka:
+      servers:
+        - 127.0.0.1:9092
+      topic: test
+```
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
