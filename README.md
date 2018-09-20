@@ -116,8 +116,8 @@ inputs:
         - 127.0.0.1:9092
       topic: test
 ```
-Using Kafa input will convert your application to a streaming application build on top of Spark Structured Streaming. <br />
-Please not the following while using streaming applications:
+Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming. <br />
+Please note the following while using streaming applications:
 
 * Multiple streaming aggregations (i.e. a chain of aggregations on a streaming DF) are not yet supported on streaming Datasets.
 
