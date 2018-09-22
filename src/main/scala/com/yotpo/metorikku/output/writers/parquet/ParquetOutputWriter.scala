@@ -3,7 +3,7 @@ package com.yotpo.metorikku.output.writers.parquet
 import com.yotpo.metorikku.configuration.outputs.File
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 

@@ -21,7 +21,6 @@ variables:
 output:
   file:
     dir: examples/output
-    checkpointLocation: /tmp/checkpoint/file
 
 # If set to true, triggers Explain before saving
 explain: true
