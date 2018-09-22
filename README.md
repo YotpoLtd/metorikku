@@ -58,7 +58,7 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
-***NOTE: If your are using Kafka as input note that the only supported outputs are currently Kafka and Parquet***<br />
+***NOTE: If your are using Kafka as input note that the only supported outputs are currently Kafka and Parquet and currently you can use just one output for streaming metrics*** <br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku

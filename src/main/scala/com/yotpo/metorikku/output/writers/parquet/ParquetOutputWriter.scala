@@ -3,7 +3,7 @@ package com.yotpo.metorikku.output.writers.parquet
 import com.yotpo.metorikku.configuration.outputs.File
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.streaming.{OutputMode, Trigger}
+import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
@@ -21,9 +21,9 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
 
   override def write(dataFrame: DataFrame): Unit = {
     outputFile match {
-      case Some(outputFile) =>
-        val outputPath = outputFile.dir + "/" + parquetOutputOptions.path
-        log.info(s"Writing Parquet Dataframe to ${outputPath}")
+      case Some(file) =>
+        val outputPath = file.dir + "/" + parquetOutputOptions.path
+        log.info(s"Writing Parquet Dataframe to $outputPath")
 
         var writer = if (repartitionValue == NO_REPARTITION) dataFrame.write else dataFrame.repartition(repartitionValue).write
         if (parquetOutputOptions.partitionBy.nonEmpty) {

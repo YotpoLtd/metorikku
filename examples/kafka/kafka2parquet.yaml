@@ -1,0 +1,13 @@
+steps:
+- dataFrameName: castedInputStream
+  sql:
+    SELECT CAST(key AS STRING), CAST(value AS STRING) from testStream
+- dataFrameName: testAppendOutputMode
+  sql:
+    SELECT key, value from castedInputStream
+output:
+- dataFrameName: testAppendOutputMode
+  outputType: Parquet
+  outputOptions:
+    path: testAppendOutputMode.parquet
+    saveMode: Append

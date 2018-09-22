@@ -13,11 +13,6 @@ inputs:
   ratings:
     file:
       path: examples/file_inputs/ratings.csv
-  inputStream:
-    kafka:
-      servers:
-        - 127.0.0.1:9092
-      topic: test
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -27,12 +22,6 @@ output:
   file:
     dir: examples/output
     checkpointLocation: /tmp/checkpoint/file
-  kafka:
-    servers:
-      - 127.0.0.1:9092
-    checkpointLocation: /tmp/checkpoint/kafka
-    compressionType: gzip
-
 
 # If set to true, triggers Explain before saving
 explain: true
