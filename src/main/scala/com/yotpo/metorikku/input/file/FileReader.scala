@@ -40,7 +40,7 @@ object FileReader {
 
   private object ParquetTableReader extends FileReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
-      getSparkSession.read.parquet(tablePaths: _*)//By default on read spark fail with legit error
+      getSparkSession.read.parquet(tablePaths: _*) //By default on read spark fail with legit error
     }
   }
 
@@ -59,3 +59,4 @@ object FileReader {
     FilenameUtils.removeExtension(path) + "_schema.json"
   }
 }
+

@@ -30,6 +30,11 @@ inputs:
       options:
         numPartitions: 100
         driver: com.mysql.jdbc.Driver
+  input_5:
+      kafka:
+        servers:
+          - localhost:9092
+        topic: some_topic
 
 # Set custom variables that would be accessible from the SQL
 variables:
