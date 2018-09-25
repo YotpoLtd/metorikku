@@ -129,32 +129,35 @@ object TestUtils {
     val expectedRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(expectedValuesRows), expectedSchema)
     val columns = expectedSchema.fields.map(_.name).filter(x => !expectedArrayStructFields.contains(x))
 
-    printDataFrameOutputInLog(actualRowsDF, "These are the Actual rows with no Expected match:")
-    printDataFrameOutputInLog(expectedRowsDF, "These are the Expected rows with no Actual match:")
+    val actualDataFrameString = dataFrameShowToString(actualRowsDF)
+    log.warn(s"These are the Actual rows with no Expected match:\n$actualDataFrameString")
+    val expectedDataFrameString = dataFrameShowToString(expectedRowsDF)
+    log.warn(s"These are the Expected rows with no Actual match:\n$expectedDataFrameString")
     if(expectedArrayStructFields.nonEmpty) log.warn("Notice that array typed object will not be compared to find discrepancies")
 
-    log.info("These are Actual columns with discrepancy with Expected Results:")
-    val actualDiffCounter = printColumnDiff(actualRowsDF, expectedRowsDF, columns)
-    log.info("These are Expected columns with discrepancy with Actual results:")
-    val expectedDiffCounter = printColumnDiff(expectedRowsDF, actualRowsDF, columns)
+    //log.warn("These are Actual columns with discrepancy with Expected Results:")
+    val actualDiffCounter = printColumnDiff(actualRowsDF, expectedRowsDF, columns, "These are Actual columns with discrepancy with Expected Results:")
+    //log.warn("These are Expected columns with discrepancy with Actual results:")
+    val expectedDiffCounter = printColumnDiff(expectedRowsDF, actualRowsDF, columns, "These are Expected columns with discrepancy with Actual results:")
 
     if(actualDiffCounter == 0 && expectedDiffCounter == 0) log.info(
       "No discrepancies were printed because each column was a match on the column level and a miss on the row level, compare the rows themselves"
     )
   }
 
-  private def printDataFrameOutputInLog(dataFrame: DataFrame, message: String = ""): Unit = {
+  private def dataFrameShowToString(dataFrame: DataFrame): String = {
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = new java.io.PrintStream(outputStream, true)
     Console.withOut(out) {dataFrame.show(false) }
-    val dataFrameString = outputStream.toString()
-    log.info(s"$message\n$dataFrameString")
+    outputStream.toString()
   }
 
-  private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String]): Int ={
+  private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String], logMessage: String): Int ={
     val selectiveDifferencesActual = columns.map(col => mainDF.select(col).except(subtractDF.select(col)))
-    selectiveDifferencesActual.foreach(diff => {if(diff.count > 0) printDataFrameOutputInLog(diff)})
-    selectiveDifferencesActual.count(_.count() > 0)
+    val diffsArr: Array[String] = selectiveDifferencesActual.filter(d => d.count() > 0).map(diff => dataFrameShowToString(diff))
+    val diffsCount = selectiveDifferencesActual.count(_.count() > 0)
+    if(diffsCount > 0) log.warn(logMessage + "\n" + diffsArr.mkString("\n"))
+    diffsCount
   }
 
   private def getExpectedSchema(expectedSchemaKeys:Iterable[String], actualSchema:StructType): StructType = {
