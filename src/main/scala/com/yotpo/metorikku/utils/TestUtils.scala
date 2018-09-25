@@ -129,12 +129,8 @@ object TestUtils {
     val expectedRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(expectedValuesRows), expectedSchema)
     val columns = expectedSchema.fields.map(_.name).filter(x => !expectedArrayStructFields.contains(x))
 
-    log.info("These are the Actual rows with no Expected match:")
-    actualRowsDF.show(false)
-
-    log.info("These are the Expected rows with no Actual match:")
-    expectedRowsDF.show(false)
-
+    printDataFrameOutputInLog(actualRowsDF, "These are the Actual rows with no Expected match:")
+    printDataFrameOutputInLog(expectedRowsDF, "These are the Expected rows with no Actual match:")
     if(expectedArrayStructFields.nonEmpty) log.warn("Notice that array typed object will not be compared to find discrepancies")
 
     log.info("These are Actual columns with discrepancy with Expected Results:")
@@ -147,9 +143,17 @@ object TestUtils {
     )
   }
 
+  private def printDataFrameOutputInLog(dataFrame: DataFrame, message: String = ""): Unit = {
+    val outputStream = new java.io.ByteArrayOutputStream()
+    val out = new java.io.PrintStream(outputStream, true)
+    Console.withOut(out) {dataFrame.show(false) }
+    val dataFrameString = outputStream.toString()
+    log.info(s"$message\n$dataFrameString")
+  }
+
   private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String]): Int ={
     val selectiveDifferencesActual = columns.map(col => mainDF.select(col).except(subtractDF.select(col)))
-    selectiveDifferencesActual.foreach(diff => {if(diff.count > 0) diff.show(false)})
+    selectiveDifferencesActual.foreach(diff => {if(diff.count > 0) printDataFrameOutputInLog(diff)})
     selectiveDifferencesActual.count(_.count() > 0)
   }
 
@@ -162,7 +166,7 @@ object TestUtils {
         val fieldType = getExpectedSchemaFieldType(currFieldType)
         expectedStructFields = expectedStructFields :+ StructField(key, fieldType , true)
       } else {
-        log.info(s"The expected schema key : $key doesnt exist in the actual schema, the test will fail because of it")
+        log.warn(s"The expected schema key : $key doesnt exist in the actual schema, the test will fail because of it")
       }
     }
     StructType(expectedStructFields)
@@ -178,9 +182,14 @@ object TestUtils {
   }
 
   private def getExpectedSchemaFieldType(currFieldType: DataType): DataType = {
-    val isValid = if(currFieldType == TimestampType || currFieldType.toString.contains("Array") || currFieldType.toString.contains("Object")) false else true
-    val usedField = if(currFieldType == LongType) IntegerType else currFieldType
-    val fieldResult = if(isValid) usedField else StringType
+    // switch case to mitigate changes between json infer interpretation to actual dataframe result
+    val fieldResult = currFieldType match {
+      case x if x == TimestampType => StringType
+      case x if x == LongType => IntegerType
+      case x if x.toString.contains("Array") => StringType
+      case x if x.toString.contains("Object") => StringType
+      case x => x
+    }
     fieldResult
   }
 
