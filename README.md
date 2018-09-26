@@ -93,6 +93,9 @@ INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...)
 
 #### Kafka output
 Kafka output allows writing batch operations to kafka
+We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look like so:
+
+```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.2.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
 ##### Mandatory parameters:
 * **topic** - defines the topic in kafka which the data will be written to.
