@@ -1,3 +1,7 @@
 package com.yotpo.metorikku.configuration
 
-case class Input(name: String, path: String) {}
+import com.yotpo.metorikku.input.Reader
+
+trait Input {
+  def getReader(name: String): Reader
+}

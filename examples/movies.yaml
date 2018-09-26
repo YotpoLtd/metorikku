@@ -3,8 +3,16 @@ metrics:
   - examples/movies_metric.yaml
 
 inputs:
- movies: examples/inputs/movies.csv
- ratings: examples/inputs/ratings.csv
+  movies:
+    file_date_range:
+      template: examples/file_date_range_inputs/%s/movies.csv
+      date_range:
+        format: yyyy/MM/dd
+        startDate: 2017/09/01
+        endDate: 2017/09/03
+  ratings:
+    file:
+      path: examples/file_inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:

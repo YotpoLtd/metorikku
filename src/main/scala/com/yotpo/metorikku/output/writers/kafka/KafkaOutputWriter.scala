@@ -9,7 +9,7 @@ import org.apache.spark.sql.DataFrame
 
 class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) extends MetricOutputWriter {
 
-  case class KafkaOutputProperties(topic: String, keyColumn: String, valueColumn: String)
+  case class KafkaOutputProperties(topic: String, keyColumn: String, valueColumn: String, outputMode: String)
 
   val log: Logger = LogManager.getLogger(this.getClass)
 
@@ -23,7 +23,7 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     case None => throw MetorikkuException("valueColumn is mandatory of KafkaOutputWriter")
   }
 
-  val kafkaOptions = KafkaOutputProperties(topic, props.getOrElse("keyColumn", ""), valueColumn)
+  val kafkaOptions = KafkaOutputProperties(topic, props.getOrElse("keyColumn", ""), valueColumn, props.getOrElse("outputMode", "append"))
 
   override def write(dataFrame: DataFrame): Unit = {
     config match {
@@ -48,4 +48,26 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     }
     selectExpression
   }
+
+  override def writeStream(dataFrame: DataFrame): Unit = {
+    config match {
+      case Some(kafkaConfig) =>
+        val bootstrapServers = kafkaConfig.servers.mkString(",")
+        log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
+        val df: DataFrame = selectedColumnsDataframe(dataFrame)
+        val stream = df.writeStream.format("kafka")
+          .option("kafka.bootstrap.servers", bootstrapServers)
+          .option("checkpointLocation", kafkaConfig.checkpointLocation.get)
+          .option("topic", kafkaOptions.topic)
+          .outputMode(kafkaOptions.outputMode)
+        if (kafkaConfig.compressionType.nonEmpty) {
+          stream.option("kafka.compression.type", kafkaConfig.compressionType.get)}
+
+        val query = stream.start()
+        query.awaitTermination()
+
+      case None =>
+    }
+  }
+
 }

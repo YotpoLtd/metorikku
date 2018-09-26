@@ -5,23 +5,36 @@ metrics:
   - /path/to/metric-1
   - /path/to/metric-2
 
-# Parquet or JSON Tables files paths
+# Input configuration
 inputs:
- input_1: parquet/input_1.parquet
- input_2: parquet/input_2.parquet
- input_3: parquet/input_3.parquet
-
-# dateRange section allows defining dynamic date range for multiple folder names
-# in case a dynamic date parameter was defined in 'inputs' section as '%s' , for example- userAggregatedData: /path/to/data/%s/
-dateRange:
   input_1:
-    format: yyyy/MM/dd
-    startDate: 2017/09/01
-    endDate: 2017/09/20
+    file:
+      path: parquet/input_1.parquet
   input_2:
-    format: yyyy/MM/dd
-    startDate: 2017/09/01
-    endDate: 2017/09/20
+    file:
+      path: parquet/input_2.parquet
+  input_3:
+      file_date_range:
+        template: parquet/%s/input_1.parquet
+        date_range:
+         format: yyyy/MM/dd
+         startDate: 2017/09/01
+         endDate: 2017/09/03
+  input_4:
+    jdbc:
+      connectionUrl: jdbc:mysql://localhost/db?zeroDateTimeBehavior=convertToNull
+      user: user
+      password: pass
+      table: some_table
+      # You can optionally add here any supported option from https://spark.apache.org/docs/latest/sql-programming-guide.html#jdbc-to-other-databases
+      options:
+        numPartitions: 100
+        driver: com.mysql.jdbc.Driver
+  input_5:
+      kafka:
+        servers:
+          - localhost:9092
+        topic: some_topic
 
 # Set custom variables that would be accessible from the SQL
 variables:

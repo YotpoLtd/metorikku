@@ -1,4 +1,4 @@
-package com.yotpo.metorikku.input
+package com.yotpo.metorikku.input.file
 
 import java.nio.file.{Files, Paths}
 
@@ -7,13 +7,13 @@ import com.yotpo.metorikku.utils.TableType
 import org.apache.commons.io.FilenameUtils
 import org.apache.spark.sql.DataFrame
 
-trait InputTableReader {
+trait FileReader {
   def read(tablePaths: Seq[String]): DataFrame
 }
 
-object InputTableReader {
+object FileReader {
 
-  private object JSONTableReader extends InputTableReader {
+  private object JSONTableReader extends FileReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
       val firstTablePath = tablePaths.head
       val schemaPath = getSchemaPath(firstTablePath)
@@ -26,7 +26,7 @@ object InputTableReader {
     }
   }
 
-  private object CSVTableReader extends InputTableReader {
+  private object CSVTableReader extends FileReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
       getSparkSession.read
         .option("quote", "\"")
@@ -38,21 +38,19 @@ object InputTableReader {
     }
   }
 
-  private object ParquetTableReader extends InputTableReader {
+  private object ParquetTableReader extends FileReader {
     override def read(tablePaths: Seq[String]): DataFrame = {
-      getSparkSession.read.parquet(tablePaths: _*)//By default on read spark fail with legit error
+      getSparkSession.read.parquet(tablePaths: _*) //By default on read spark fail with legit error
     }
   }
 
-  def apply(tablePaths: Seq[String]): InputTableReader = {
+  def apply(tablePaths: Seq[String]): FileReader = {
     val firstTablePath = tablePaths.head
     val tableType = TableType.getTableType(firstTablePath)
     val reader = tableType match {
       case TableType.json | TableType.jsonl => JSONTableReader
       case TableType.csv => CSVTableReader
       case _ => ParquetTableReader
-      //TODO(etrabelsi@yotpo.com) exception handling eneded
-
     }
     reader
   }
@@ -61,3 +59,4 @@ object InputTableReader {
     FilenameUtils.removeExtension(path) + "_schema.json"
   }
 }
+

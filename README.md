@@ -54,10 +54,11 @@ You can check out a full example file for all possible values in the [sample YAM
 ##### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet**
+**CSV, JSON, parquet, JDBC, Kafka**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
+***NOTE: If your are using Kafka as input note that the only supported outputs are currently Kafka and Parquet and currently you can use just one output for streaming metrics*** <br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -68,9 +69,12 @@ There are currently 3 options to run Metorikku.
 * Run the following command:
      `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
-#### *JDBC writer
-When using the JDBC writer, provide the path of the driver jar in both jars and driver-class-path params. For example for Mysql:
-    `spark-submit --driver-class-path mysql-connector-java-5.0.8-bin.jar --jars mysql-connector-java-5.0.8-bin.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+#### Using JDBC
+When using JDBC writer or input you must provide a path to the driver JAR.
+For example to run with spark-submit with a mysql driver:
+`spark-submit --driver-class-path mysql-connector-java-5.1.45.jar --jars mysql-connector-java-5.1.45.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+If you want to run this with the standalone JAR:
+`java -Dspark.master=local[*] -cp metorikku-standalone.jar:mysql-connector-java-5.1.45.jar -c config.yaml`
 
 #### JDBC query
 JDBC query output allows running a query for each record in the dataframe.
@@ -105,6 +109,30 @@ SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
 ##### Optional Parameters:
 * **keyColumn** - key that can be used to perform de-duplication when reading 
 
+#### Kafka Input
+Kafka input allows reading messages from topics
+```yaml
+inputs:
+  testStream:
+    kafka:
+      servers:
+        - 127.0.0.1:9092
+      topic: test
+```
+Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming. <br />
+Please note the following while using streaming applications:
+
+* Multiple streaming aggregations (i.e. a chain of aggregations on a streaming DF) are not yet supported on streaming Datasets.
+
+* Limit and take first N rows are not supported on streaming Datasets.
+
+* Distinct operations on streaming Datasets are not supported.
+
+* Sorting operations are supported on streaming Datasets only after an aggregation and in Complete Output Mode.
+
+* Make sure to add the relevant [Output Mode](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes) to your Metric as seen in the Examples
+
+* For more information please go to [Spark Structured Streaming WIKI](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html)
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*

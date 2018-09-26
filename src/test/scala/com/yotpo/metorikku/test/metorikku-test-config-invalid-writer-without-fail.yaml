@@ -1,7 +1,9 @@
 metrics:
   - src/test/calculations/invalid_metric_test_with_continue/
 inputs:
- employees: src/test/tables/employees.parquet
+ employees:
+  file:
+    path: src/test/tables/employees.parquet
 output:
  file:
   dir: src/test/out/
