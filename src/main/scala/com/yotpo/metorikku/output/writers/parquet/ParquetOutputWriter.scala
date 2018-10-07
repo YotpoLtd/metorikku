@@ -9,12 +9,12 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
   val NO_REPARTITION = 0
-  case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String], ProcessingTime: Long)
+  case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String], triggerDuration: String)
 
   val log = LogManager.getLogger(this.getClass)
   val partitionBy = props.getOrElse("partitionBy", Seq.empty).asInstanceOf[Seq[String]]
   val repartitionValue = props.getOrElse("repartition",NO_REPARTITION).asInstanceOf[Integer]
-  val processingTime = props.getOrElse("processingTime", 0L).asInstanceOf[Long]
+  val processingTime = props.getOrElse("triggerDuration", "10 seconds")
   val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
                                                      props("path"),
                                                      partitionBy, processingTime)
@@ -43,7 +43,7 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
         log.info(s"Writing Dataframe to parquet $outputPath")
         val stream = dataFrame.writeStream
           .format("parquet")
-          .trigger(Trigger.ProcessingTime(parquetOutputOptions.ProcessingTime))
+          .trigger(Trigger.ProcessingTime(parquetOutputOptions.triggerDuration))
           .option("path", outputPath)
           .option("checkpointLocation", fileConfig.checkpointLocation.get)
           .outputMode(parquetOutputOptions.saveMode.toString)

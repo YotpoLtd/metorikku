@@ -11,3 +11,4 @@ output:
   outputOptions:
     path: testAppendOutputMode.parquet
     saveMode: Append
+    triggerDuration: 15 seconds

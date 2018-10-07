@@ -12,3 +12,5 @@ output:
     topic: testAppendOutputMode
     valueColumn: value
     outputMode: append
+    triggerType: ProcessingTime
+    triggerDuration: 15 seconds
