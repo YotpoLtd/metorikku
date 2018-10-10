@@ -52,9 +52,9 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
 
   private def selectedColumnsDataframe(dataFrame: DataFrame) = {
     val selectExpression = kafkaOptions.keyColumn match {
-      case _ =>
+      case None =>
         dataFrame.selectExpr(s"${kafkaOptions.valueColumn} as value")
-      case column =>
+      case Some(column) =>
         dataFrame.selectExpr(s"CAST($column AS STRING) AS key", s"${kafkaOptions.valueColumn} as value")
     }
     selectExpression
@@ -62,7 +62,7 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
 
   private def withTrigger(outputStream: DataStreamWriter[_]) = {
     val withTrigger = kafkaOptions.triggerType match {
-      case _ => outputStream
+      case None => outputStream
       case Some(triggerType) =>
         val trigger = triggerType match {
           case "ProcessingTime" => Trigger.ProcessingTime(kafkaOptions.triggerDuration)
