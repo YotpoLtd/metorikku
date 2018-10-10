@@ -30,10 +30,10 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
   }
 
   val kafkaOptions = KafkaOutputProperties(topic,
-    props.getOrElse("keyColumn", "").asInstanceOf[Option[String]],
+    props.get("keyColumn"),
     valueColumn,
     props.getOrElse("outputMode", "append"),
-    props.getOrElse("triggerType", "").asInstanceOf[Option[String]],
+    props.get("triggerType"),
     props.getOrElse("triggerDuration", "10 seconds"))
 
   override def write(dataFrame: DataFrame): Unit = {
