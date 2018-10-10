@@ -132,6 +132,8 @@ Please note the following while using streaming applications:
 
 * Make sure to add the relevant [Output Mode](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes) to your Metric as seen in the Examples
 
+* Make sure to add the relevant [Triggers](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#triggers) to your Metric if needed as seen in the Examples
+
 * For more information please go to [Spark Structured Streaming WIKI](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html)
 
 ##### Run locally

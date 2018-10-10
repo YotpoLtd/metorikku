@@ -17,7 +17,7 @@ developers := List(
 
 scalaVersion := "2.11.11"
 val jacksonVersion = "2.8.9"
-val sparkVersion = "2.2.0"
+val sparkVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
