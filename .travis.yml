@@ -1,3 +1,6 @@
+sudo: required
+services:
+  - docker
 cache:
   directories:
   - "$HOME/.ivy2/cache"
@@ -13,16 +16,27 @@ jobs:
   include:
   - stage: unit tests
     script: sbt clean test scalastyle
-  - stage: deploy snapshot to repository
+  - stage: deploy to repository
     if: branch = master OR tag =~ ^v
     deploy:
       provider: script
       script: sbt publishSigned sonatypeReleaseAll
       on:
         all_branches: true
-  - stage: deploy github
+  - stage: deploy docker and github
     if: tag =~ ^v
-    before_deploy: sbt assembly test:assembly
+    before_script: sbt assembly test:assembly
+    env:
+      - SPARK_VERSION=2.3.2
+      - HADOOP_VERSION=2.7
+    script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker pull metorikku/spark:latest
+      - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
+      - docker push metorikku/spark
+      - docker pull metorikku/metorikku:latest
+      - docker build -t metorikku/metorikku:$TRAVIS_TAG -t metorikku/metorikku:latest --build-arg METORIKKU_JAR=target/scala-2.11/metorikku.jar -f docker/metorikku/Dockerfile .
+      - docker push metorikku/metorikku
     deploy:
       provider: releases
       api_key:
