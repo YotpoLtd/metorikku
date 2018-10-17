@@ -22,7 +22,10 @@ if [ $SPARK_NODE = "master" ] ; then
 		exit 1
 
 	else
-		echo -e "\nspark.master spark://$SPARK_HOST:$SPARK_PORT\n" >> /spark/conf/spark-defaults.conf
+	    SPARK_UI_PORT=${SPARK_UI_PORT:="4040"}
+		echo -e "
+spark.master spark://$SPARK_HOST:$SPARK_PORT
+spark.ui.port $SPARK_UI_PORT" >> /spark/conf/spark-defaults.conf
 		echo "Running command $SUBMIT_COMMAND"
 		$SUBMIT_COMMAND
 	fi
