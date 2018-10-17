@@ -71,7 +71,9 @@ class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: Str
       val keyColumnValueFromConf = InstrumentationOutputProperties(props("keyColumn"))
       keyColumnValueFromConf.keyColumn
     }
-    null
+    else {
+      null
+    }
   }
 
   def getIndexOfKeyColumn(dataFrame: DataFrame): Option[Int] = {
