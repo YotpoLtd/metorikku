@@ -2,16 +2,6 @@
 . "/spark/sbin/spark-config.sh"
 . "/spark/bin/load-spark-env.sh"
 
-if [ -z $SPARK_NODE ] \
-    || [ -z $SPARK_HOST ] \
-    || [ -z $SPARK_PORT ] \
-    || [ -z $SPARK_WEBUI_PORT ] \
-    || [ -z $SPARK_MASTER ] \
-    || [ -z $SUBMIT_COMMAND ] ; then
-    echo "Missing args - stopping"
-    exit 1
-fi
-
 if [ $SPARK_NODE = "master" ] ; then
 	/spark/sbin/../bin/spark-class org.apache.spark.deploy.master.Master \
 	    --ip $SPARK_HOST --port $SPARK_PORT --webui-port $SPARK_WEBUI_PORT &
