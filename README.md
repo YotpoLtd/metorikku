@@ -118,6 +118,7 @@ inputs:
       servers:
         - 127.0.0.1:9092
       topic: test
+      consumerGroup: testConsumerGroupID
 ```
 Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming. <br />
 Please note the following while using streaming applications:
@@ -125,7 +126,6 @@ Please note the following while using streaming applications:
 * Multiple streaming aggregations (i.e. a chain of aggregations on a streaming DF) are not yet supported on streaming Datasets.
 
 * Limit and take first N rows are not supported on streaming Datasets.
-
 * Distinct operations on streaming Datasets are not supported.
 
 * Sorting operations are supported on streaming Datasets only after an aggregation and in Complete Output Mode.
@@ -135,6 +135,11 @@ Please note the following while using streaming applications:
 * Make sure to add the relevant [Triggers](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#triggers) to your Metric if needed as seen in the Examples
 
 * For more information please go to [Spark Structured Streaming WIKI](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html)
+
+* In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input. <br />
+This will commit the offsets to kafka, as a new dummy consumer group.
+
+
 
 ##### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
