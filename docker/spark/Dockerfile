@@ -1,8 +1,8 @@
 FROM openjdk:8-jre
 
 # BASE
-ARG SPARK_VERSION
-ARG HADOOP_VERSION
+ARG SPARK_VERSION=2.3.2
+ARG HADOOP_VERSION=2.7
 
 RUN wget -q http://apache.mirror.iphh.net/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
     && tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
@@ -16,6 +16,11 @@ RUN apt-get update \
     && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3 get-pip.py 'pip==9.0.1' \
     && rm get-pip.py
+
+RUN wget -q http://central.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar -P /spark/jars/
+RUN wget -q http://central.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar -P /spark/jars/
+
+ADD log4j.json.properties /spark/conf/
 
 ENV PYTHONHASHSEED 1
 ENV SPARK_HOME /spark
