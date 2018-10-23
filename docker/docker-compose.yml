@@ -15,6 +15,9 @@ services:
     - SPARK_WEBUI_PORT=8080
     - SPARK_UI_PORT=4040
     - NUM_WORKERS=1
+    - JSON_LOG=true
+    - GRAPHITE_HOST=graphite.local
+    - GRAPHITE_PORT=3001
     - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
   spark-worker-1:
     image: metorikku/metorikku
@@ -28,3 +31,4 @@ services:
       - SPARK_NODE=worker
       - SPARK_PORT=7078
       - SPARK_WEBUI_PORT=8080
+      - JSON_LOG=true
