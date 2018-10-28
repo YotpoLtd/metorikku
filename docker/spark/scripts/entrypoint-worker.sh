@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Logs
-init-logs.sh
+/scripts/init-logs-metrics.sh
 
 . "/spark/sbin/spark-config.sh"
 . "/spark/bin/load-spark-env.sh"

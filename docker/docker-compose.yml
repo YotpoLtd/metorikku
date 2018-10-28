@@ -11,12 +11,17 @@ services:
       - SPARK_WEBUI_PORT=8080
       - SPARK_UI_PORT=4040
       - NUM_WORKERS=2
+      - MAX_RETRIES=300
+      - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
       - JSON_LOG=true
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
-      - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
+#      - KILL_NOMAD_JOB_ON_COMPLETE=true
+#      - NOMAD_SECRET_KEY=<secret>
+#      - NOMAD_URL=nomad.local:4646
+#      - NOMAD_JOB_NAME=<job name>
     entrypoint:
-      - /entrypoint-submit.sh
+      - /scripts/entrypoint-submit.sh
   spark-master:
     image: metorikku/metorikku
     container_name: spark-master
@@ -32,7 +37,7 @@ services:
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
     entrypoint:
-      - /entrypoint-master.sh
+      - /scripts/entrypoint-master.sh
   spark-worker-1:
     image: metorikku/metorikku
     container_name: spark-worker-1
@@ -47,7 +52,7 @@ services:
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
     entrypoint:
-      - /entrypoint-worker.sh
+      - /scripts/entrypoint-worker.sh
   spark-worker-2:
       image: metorikku/metorikku
       container_name: spark-worker-2
@@ -62,4 +67,4 @@ services:
         - GRAPHITE_HOST=graphite.local
         - GRAPHITE_PORT=3001
       entrypoint:
-        - /entrypoint-worker.sh
+        - /scripts/entrypoint-worker.sh

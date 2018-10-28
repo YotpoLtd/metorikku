@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Logs
-init-logs.sh
+/scripts/init-logs-metrics.sh
 
 # Wait until cluster is up
 URL="http://${SPARK_MASTER_HOST}:${SPARK_WEBUI_PORT}"
@@ -30,4 +30,4 @@ spark.ui.port $SPARK_UI_PORT
 echo "Running command: ${SUBMIT_COMMAND}"
 ${SUBMIT_COMMAND}
 
-finish-submit.sh
+/scripts/finish-submit.sh

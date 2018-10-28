@@ -29,7 +29,5 @@ ENV PYTHONHASHSEED 1
 ENV SPARK_HOME /spark
 ENV PATH="/spark/bin:${PATH}"
 
-ADD entrypoint* /
-ADD finish-submit.sh /
-ADD init-logs.sh /
-ENTRYPOINT ["/entrypoint-master.sh"]
+ADD scripts /scripts
+ENTRYPOINT ["/scripts/entrypoint-master.sh"]

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # SUPPORT FOR NOMAD
-if [[ "${KILL_JOB_ON_COMPLETE}" == true ]] ; then
+if [[ "${KILL_NOMAD_JOB_ON_COMPLETE}" == true ]] ; then
     cmd="curl --header \"X-Nomad-Token: ${NOMAD_SECRET_KEY}\"  --request DELETE ${NOMAD_URL}/v1/job/${NOMAD_JOB_NAME}"
     echo "Running command: ${cmd}"
     eval ${cmd}
@@ -11,5 +11,5 @@ if [[ "${KILL_JOB_ON_COMPLETE}" == true ]] ; then
         exit ${rc}
     fi
 fi
-echo -e "\nJob completed"
+echo -e "\nJob completed\n"
 
