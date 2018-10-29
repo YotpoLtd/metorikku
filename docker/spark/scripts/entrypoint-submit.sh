@@ -10,7 +10,7 @@ NUM_WORKERS=${NUM_WORKERS:=1}
 active_workers=0
 until [[ ${active_workers} -eq ${NUM_WORKERS} ]] || [[ ${MAX_RETRIES} -eq 0 ]] ; do
     sleep 1s
-    active_workers=`curl -s ${URL}/json/ | jq '.workers | length'`
+    active_workers=`curl -s ${URL}/json/ | jq '.aliveworkers'`
     ((MAX_RETRIES--))
 done
 
