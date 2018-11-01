@@ -1,4 +1,4 @@
-from metorikku/spark
+FROM metorikku/spark
 
 ARG METORIKKU_JAR
 
