@@ -11,8 +11,7 @@ RUN wget -q http://apache.mirror.iphh.net/spark/spark-${SPARK_VERSION}/spark-${S
     && cd /
 
 RUN apt-get update \
-    && apt-get install -y jq \
-    && apt-get install -y python3 python3-setuptools \
+    && apt-get install -y coreutils jq less inotify-tools python3 python3-setuptools \
     && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3 get-pip.py 'pip==9.0.1' \
     && rm get-pip.py

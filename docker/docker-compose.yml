@@ -43,28 +43,32 @@ services:
     container_name: spark-worker-1
     ports:
       - "7078:7078"
+      - "8081:8081"
     environment:
       - SPARK_MASTER_HOST=spark-master
       - SPARK_MASTER_PORT=7077
       - SPARK_WORKER_PORT=7078
-      - SPARK_WEBUI_PORT=8080
+      - SPARK_WORKER_WEBUI_PORT=8081
+      - OUTPUT_EXECUTOR_LOGS_TO_STDOUT=true
       - JSON_LOG=true
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
     entrypoint:
       - /scripts/entrypoint-worker.sh
   spark-worker-2:
-      image: metorikku/metorikku
-      container_name: spark-worker-2
-      ports:
-        - "7079:7079"
-      environment:
-        - SPARK_MASTER_HOST=spark-master
-        - SPARK_MASTER_PORT=7077
-        - SPARK_WORKER_PORT=7079
-        - SPARK_WEBUI_PORT=8080
-        - JSON_LOG=true
-        - GRAPHITE_HOST=graphite.local
-        - GRAPHITE_PORT=3001
-      entrypoint:
-        - /scripts/entrypoint-worker.sh
+    image: metorikku/metorikku
+    container_name: spark-worker-2
+    ports:
+      - "7079:7079"
+      - "8082:8082"
+    environment:
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_WORKER_PORT=7079
+      - SPARK_WORKER_WEBUI_PORT=8082
+      - OUTPUT_EXECUTOR_LOGS_TO_STDOUT=true
+      - JSON_LOG=true
+      - GRAPHITE_HOST=graphite.local
+      - GRAPHITE_PORT=3001
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
