@@ -10,7 +10,7 @@ services:
       - SPARK_MASTER_PORT=7077
       - SPARK_WEBUI_PORT=8080
       - SPARK_UI_PORT=4040
-      - NUM_WORKERS=2
+      - MIN_WORKERS=2
       - MAX_RETRIES=300
       - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
       - JSON_LOG=true

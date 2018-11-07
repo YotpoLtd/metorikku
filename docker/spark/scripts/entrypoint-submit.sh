@@ -6,9 +6,9 @@
 # Wait until cluster is up
 URL="http://${SPARK_MASTER_HOST}:${SPARK_WEBUI_PORT}"
 MAX_RETRIES=${MAX_RETRIES:=300}
-NUM_WORKERS=${NUM_WORKERS:=1}
+MIN_WORKERS=${MIN_WORKERS:=1}
 active_workers=0
-until [[ ${active_workers} -eq ${NUM_WORKERS} ]] || [[ ${MAX_RETRIES} -eq 0 ]] ; do
+until [[ ${active_workers} -ge ${MIN_WORKERS} ]] || [[ ${MAX_RETRIES} -eq 0 ]] ; do
     sleep 1s
     active_workers=`curl -s ${URL}/json/ | jq '.aliveworkers'`
     ((MAX_RETRIES--))
