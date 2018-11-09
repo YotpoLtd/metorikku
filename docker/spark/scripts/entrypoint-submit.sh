@@ -8,9 +8,11 @@ URL="http://${SPARK_MASTER_HOST}:${SPARK_WEBUI_PORT}"
 MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 active_workers=0
+echo "Checking if master ${URL} have minimum workers ${MIN_WORKERS}"
 until [[ ${active_workers} -ge ${MIN_WORKERS} ]] || [[ ${MAX_RETRIES} -eq 0 ]] ; do
     sleep 1s
-    active_workers=`curl -s ${URL}/json/ | jq '.aliveworkers'`
+    active_workers=`curl --connect-timeout 10 --max-time 10 -s ${URL}/json/ | jq '.aliveworkers'`
+    echo "waiting for ${URL}, to have minimum workers: ${MIN_WORKERS}, active workers: ${active_workers}"
     ((MAX_RETRIES--))
 done
 
