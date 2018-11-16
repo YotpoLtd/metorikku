@@ -25,7 +25,7 @@ object ConfigurationParser {
     FileUtils.getObjectMapperByExtension(fileName) match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(new FileReader(fileName), classOf[ConfigurationFile])
+        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[ConfigurationFile])
       }
       case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
     }

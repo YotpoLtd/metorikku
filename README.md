@@ -186,5 +186,9 @@ And the corresponding `mocks/table_1.jsonl`:
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
 The main class changes from `com.yotpo.metorikku.Metorikku` to `com.yotpo.metorikku.MetorikkuTester`
 
+##### Variable interpolation
+All configuration files support variable interpolation from environment variables and system properties using the following format:
+`${variable_name}`
+
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
