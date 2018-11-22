@@ -6,8 +6,13 @@ import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.commons.io.FilenameUtils
+import org.apache.commons.text.StringSubstitutor
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods
+
+import scala.io.Source
+
+import scala.collection.JavaConverters._
 
 object FileUtils {
   def getListOfFiles(dir: String): List[File] = {
@@ -44,5 +49,11 @@ object FileUtils {
       case "json" => Option(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
       case "yaml" | "yml" | _ => Option(new ObjectMapper(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
     }
+  }
+
+  def readConfigurationFile(path: String): String = {
+    val fileContents = Source.fromFile(path).getLines.mkString("\n")
+    val interpolationMap = System.getProperties().asScala ++= System.getenv().asScala
+    StringSubstitutor.replace(fileContents, interpolationMap.asJava)
   }
 }

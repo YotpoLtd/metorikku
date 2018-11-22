@@ -41,7 +41,7 @@ class MetricFile(path: File) {
     FileUtils.getObjectMapperByExtension(fileName) match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(new FileReader(fileName), classOf[MetricConfig])
+        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[MetricConfig])
       }
       case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
     }
