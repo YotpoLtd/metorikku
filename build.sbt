@@ -29,7 +29,8 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "2.0.3",
+  "io.netty" % "netty-all" % "4.1.32.Final",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "2.3.2",
   "com.google.guava" % "guava" % "16.0.1",
   "com.typesafe.play" %% "play-json" % "2.6.2",
   "com.databricks" %% "spark-redshift" % "3.0.0-preview1",
@@ -56,7 +57,6 @@ resolvers ++= Seq(
 )
 
 fork := true
-//TODO(etrabelsi@yotpo.com) doesnt work
 javaOptions in Test ++= Seq("-Dspark.master=local[*]")
 
 // Assembly settings

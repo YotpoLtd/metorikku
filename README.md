@@ -54,7 +54,7 @@ You can check out a full example file for all possible values in the [sample YAM
 ##### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC, Kafka**
+**CSV, JSON, parquet, JDBC, Kafka, Cassandra**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />

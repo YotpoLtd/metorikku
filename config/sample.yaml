@@ -35,6 +35,15 @@ inputs:
         servers:
           - localhost:9092
         topic: some_topic
+  input_6:
+    cassandra:
+      host: 127.0.0.1
+      user: user
+      password: password
+      table: table
+      keySpace: keySpace
+      options:
+        ....
 
 # Set custom variables that would be accessible from the SQL
 variables:
