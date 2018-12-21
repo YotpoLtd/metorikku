@@ -37,5 +37,8 @@ spark.ui.port $SPARK_UI_PORT
 
 echo "Running command: ${SUBMIT_COMMAND}"
 ${SUBMIT_COMMAND}
+EXIT_CODE=$?
 
 /scripts/finish-submit.sh
+
+exit $EXIT_CODE

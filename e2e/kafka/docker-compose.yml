@@ -1,0 +1,59 @@
+# docker-compose up --exit-code-from kafka_consume
+version: '3'
+services:
+  spark-submit:
+    image: metorikku/metorikku
+    container_name: spark-submit
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example.yaml
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - kafka
+  spark-master:
+    image: metorikku/metorikku
+    container_name: spark-master
+    entrypoint:
+      - /scripts/entrypoint-master.sh
+  spark-worker:
+    image: metorikku/metorikku
+    container_name: spark-worker
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
+  zookeeper:
+    image: wurstmeister/zookeeper
+  kafka:
+    image: wurstmeister/kafka
+    environment:
+      KAFKA_CREATE_TOPICS: "test:1:1,testAppendOutputMode:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: OUTSIDE://kafka:9092
+      KAFKA_LISTENERS: OUTSIDE://:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: OUTSIDE
+    depends_on:
+      - zookeeper
+  kafka_seed:
+    image: wurstmeister/kafka
+    volumes:
+      - ./scripts:/scripts
+      - ./mocks:/mocks
+    command: /scripts/kafka_seed.sh
+    environment:
+      TOPIC: test
+      SLEEP_FOREVER: 1
+      SEED_FILE: /mocks/movies.jsonl
+    depends_on:
+      - kafka
+  kafka_consume:
+    image: wurstmeister/kafka
+    volumes:
+      - ./scripts:/scripts
+      - ./mocks:/mocks
+    command: /scripts/consumer_test.sh
+    environment:
+      TOPIC: testAppendOutputMode
+      NUMBER_OF_EXPECTED_MESSAGES: 5
+      MOCK_OUTPUT: /mocks/movies.jsonl
+    depends_on:
+      - kafka

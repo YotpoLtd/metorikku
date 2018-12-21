@@ -6,14 +6,16 @@ inputs:
   testStream:
     kafka:
       servers:
-        - 127.0.0.1:9092
+        - kafka:9092
       topic: test
       consumerGroup: kafkaAppConsumerGroup
+      options:
+        startingOffsets: earliest
 
 output:
   kafka:
     servers:
-      - 127.0.0.1:9092
+      - kafka:9092
     checkpointLocation: /tmp/checkpoint
     compressionType: gzip
   file:
