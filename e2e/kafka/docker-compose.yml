@@ -3,7 +3,6 @@ version: '3'
 services:
   spark-submit:
     image: metorikku/metorikku
-    container_name: spark-submit
     environment:
       - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.2 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example.yaml
     entrypoint:
@@ -11,13 +10,11 @@ services:
     depends_on:
       - kafka
   spark-master:
-    image: metorikku/metorikku
-    container_name: spark-master
+    image: metorikku/spark
     entrypoint:
       - /scripts/entrypoint-master.sh
   spark-worker:
-    image: metorikku/metorikku
-    container_name: spark-worker
+    image: metorikku/spark
     entrypoint:
       - /scripts/entrypoint-worker.sh
   zookeeper:
@@ -27,10 +24,8 @@ services:
     environment:
       KAFKA_CREATE_TOPICS: "test:1:1,testAppendOutputMode:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: OUTSIDE:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: OUTSIDE://kafka:9092
-      KAFKA_LISTENERS: OUTSIDE://:9092
-      KAFKA_INTER_BROKER_LISTENER_NAME: OUTSIDE
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
     depends_on:
       - zookeeper
   kafka_seed:
