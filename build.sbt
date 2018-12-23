@@ -15,9 +15,9 @@ developers := List(
   Developer(id="shirbr", name="Shir Bromberg", email="sbromberg@yotpo.com", url=url("http://www.yotpo.com"))
 )
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.11.12"
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.3.2")
 val jacksonVersion = "2.8.9"
-val sparkVersion = "2.3.2"
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -25,12 +25,12 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
-  "com.holdenkarau" %% "spark-testing-base" % "2.2.0_0.7.4" % "test",
+  "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
+  "com.holdenkarau" %% "spark-testing-base" % "2.3.1_0.10.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
   "io.netty" % "netty-all" % "4.1.32.Final",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "2.3.2",
   "com.google.guava" % "guava" % "16.0.1",
   "com.typesafe.play" %% "play-json" % "2.6.2",
   "com.databricks" %% "spark-redshift" % "3.0.0-preview1",

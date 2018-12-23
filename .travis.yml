@@ -1,16 +1,14 @@
 sudo: required
+language: scala
 services:
   - docker
+jdk:
+  - oraclejdk8
 cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
   - "$HOME/.sbt/launchers/"
-language: scala
-scala:
-- 2.11.8
-jdk:
-- oraclejdk8
 env:
   global:
     - SPARK_VERSION=2.3.2
@@ -19,7 +17,7 @@ before_script:
   - docker pull metorikku/spark:latest
   - docker pull metorikku/metorikku:latest
 script:
-  - sbt scalastyle assembly "set test in (Test, assembly) := {}" test:assembly
+  - sbt -DsparkVersion=$SPARK_VERSION scalastyle assembly "set test in (Test, assembly) := {}" test:assembly
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
   - docker build -t metorikku/metorikku:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg METORIKKU_JAR=target/scala-2.11/metorikku.jar -f docker/metorikku/Dockerfile .
