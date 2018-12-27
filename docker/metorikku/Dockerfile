@@ -1,4 +1,6 @@
-FROM metorikku/spark
+ARG SPARK_VERSION
+
+FROM metorikku/spark:$SPARK_VERSION
 
 ARG METORIKKU_JAR
 

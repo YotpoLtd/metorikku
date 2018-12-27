@@ -1,49 +1,47 @@
 sudo: required
+language: scala
 services:
   - docker
+jdk:
+  - oraclejdk8
 cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
   - "$HOME/.sbt/launchers/"
-language: scala
-scala:
-- 2.11.8
-jdk:
-- oraclejdk8
-script: echo "Skipping default sbt test"
-jobs:
-  include:
-  - stage: unit tests
-    script: sbt clean test scalastyle
-  - stage: deploy to repository
-    if: branch = master OR tag =~ ^v
-    deploy:
-      provider: script
-      script: sbt publishSigned sonatypeReleaseAll
-      on:
-        all_branches: true
-  - stage: deploy docker and github
-    if: tag =~ ^v
-    before_script: sbt assembly test:assembly
-    env:
-      - SPARK_VERSION=2.3.2
-      - HADOOP_VERSION=2.7
+env:
+  global:
+    - SPARK_VERSION=2.3.2
+    - HADOOP_VERSION=2.7
+before_script:
+  - docker pull metorikku/spark:latest
+  - docker pull metorikku/metorikku:latest
+script:
+  - sbt -DsparkVersion=$SPARK_VERSION scalastyle assembly "set test in (Test, assembly) := {}" test:assembly
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
+  - docker build -t metorikku/metorikku:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg METORIKKU_JAR=target/scala-2.11/metorikku.jar -f docker/metorikku/Dockerfile .
+  - docker-compose -f e2e/kafka/docker-compose.yml up --exit-code-from kafka_consume
+deploy:
+  - provider: script
     script:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - docker pull metorikku/spark:latest
-      - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
+      - sbt publishSigned sonatypeReleaseAll
+    on:
+      branch: master
+  - provider: script
+    script:
+      - docker tag metorikku/metorikku metorikku/metorikku:$TRAVIS_TAG_spark_$SPARK_VERSION
       - docker push metorikku/spark
-      - docker pull metorikku/metorikku:latest
-      - docker build -t metorikku/metorikku:$TRAVIS_TAG -t metorikku/metorikku:latest --build-arg METORIKKU_JAR=target/scala-2.11/metorikku.jar -f docker/metorikku/Dockerfile .
       - docker push metorikku/metorikku
-    deploy:
-      provider: releases
-      api_key:
-        secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
-      file_glob: true
-      file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
-      skip_cleanup: true
-      on:
-        tags: true
-        branch: master
+    on:
+      tags: true
+      branch: master
+  - provider: releases
+    api_key:
+      secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
+    file_glob: true
+    file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
+    skip_cleanup: true
+    on:
+      tags: true
+      branch: master
