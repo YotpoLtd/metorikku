@@ -33,9 +33,14 @@ steps:
     SELECT *
     FROM topFantasyMovies
     WHERE title = ${myFavoriteMovie}
+- dataFrameName: influxTest
+  sql:
+    SELECT count(*) as mook_count from myFavoriteMovieRated
 output:
 - dataFrameName: moviesWithRatings
   outputType: Parquet
   outputOptions:
     saveMode: Overwrite
     path: moviesWithRatings.parquet
+- dataFrameName: influxTest
+  outputType: Instrumentation

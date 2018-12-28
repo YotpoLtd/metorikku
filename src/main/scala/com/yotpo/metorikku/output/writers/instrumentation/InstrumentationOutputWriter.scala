@@ -1,90 +1,78 @@
 package com.yotpo.metorikku.output.writers.instrumentation
 
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
-import com.yotpo.metorikku.instrumentation.InstrumentationUtils
+import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.MetricOutputWriter
 import org.apache.log4j.{LogManager, Logger}
-import org.apache.spark.groupon.metrics.SparkGauge
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 
-//TODO Remove the usage of null in this class
-// scalastyle:off null
 
+// TODO: add to readme + example + sample config
 class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: String, metricName: String) extends MetricOutputWriter {
   @transient lazy val log: Logger = LogManager.getLogger(this.getClass)
 
-  case class InstrumentationOutputProperties(keyColumn: String)
-
-  val keyColumnProperty: String = getKeyColumnProperty()
-
+  val keyColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("keyColumn")
+  val timeColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("timeColumn")
 
   override def write(dataFrame: DataFrame): Unit = {
-    val counterNames = Array(metricName, dataFrameName)
     val columns = dataFrame.schema.fields.zipWithIndex
-    val indexOfKeyCol = getIndexOfKeyColumn(dataFrame)
+    val indexOfKeyCol = keyColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
+    val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
-    dataFrame.foreach(row => {
+    val iter = dataFrame.toLocalIterator()
+    while (iter.hasNext) {
+      val row = iter.next
+
       for ((column, i) <- columns) {
         try {
-          val valueOfRowAtCurrentCol = row.get(i)
-          if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass())) {
-            val doubleValue = valueOfRowAtCurrentCol.asInstanceOf[Number].doubleValue()
-            if (indexOfKeyCol.isDefined && column.name != keyColumnProperty) {
-              // Key column defined
-              val valueOfRowAtKeyCol = row.get(indexOfKeyCol.get)
-              if (valueOfRowAtKeyCol != null) {
-                val counterTitles = counterNames :+ column.name :+ keyColumnProperty :+
-                  valueOfRowAtKeyCol.asInstanceOf[AnyVal].toString
-                lazy val fieldCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterTitles)
-                fieldCounter.set(doubleValue)
+          // Don't write key/time column to metric
+          if ((!indexOfKeyCol.isDefined || i != indexOfKeyCol.get) && (!indexOfTimeCol.isDefined || i != indexOfTimeCol.get)) {
+            val valueOfRowAtCurrentCol = row.get(i)
+            // Only if value is numeric
+            if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass)) {
+              val longValue = valueOfRowAtCurrentCol.asInstanceOf[Number].longValue()
+              val keyColumnTags = getTagsForKeyColumn(indexOfKeyCol, row)
+              val time = getTime(indexOfTimeCol, row)
+              val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++ keyColumnTags
 
-              } else {
-                log.warn(s"Key column value:$valueOfRowAtKeyCol is null or the requested column does not exist. " +
-                  s"Skipped instrumentation of value in metric:$metricName  " +
-                  s"dataframe:$dataFrameName row ${row.toString()} on column: ${column.name}")
-              }
-
+              InstrumentationProvider.client.gauge(name = column.name, value = longValue, tags = tags, time = time)
             } else {
-              // Key Column not defined
-              lazy val columnCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames :+ column.name)
-              columnCounter.set(doubleValue)
+              throw MetorikkuWriteFailedException("Value column doesn't contain a number")
             }
-          } else {
-            log.warn(s"Instrumented Value:$valueOfRowAtCurrentCol is null or non numeric. " +
-              s"Skipped instrumentation for this value in metric:$metricName " +
-              s"dataframe:$dataFrameName on column: ${column.name}")
           }
-
         } catch {
-          case ex: Throwable => {
+          case ex: Throwable =>
             throw MetorikkuWriteFailedException(s"failed to write instrumentation on data frame: $dataFrameName " +
               s"for row: ${row.toString()} on column: ${column.name}", ex)
-          }
         }
       }
-    })
-  }
-
-  def getKeyColumnProperty(): String = {
-    if (props != null && props.get("keyColumn").isDefined) {
-      val keyColumnValueFromConf = InstrumentationOutputProperties(props("keyColumn"))
-      keyColumnValueFromConf.keyColumn
-    }
-    else {
-      null
     }
   }
 
-  def getIndexOfKeyColumn(dataFrame: DataFrame): Option[Int] = {
-    if (keyColumnProperty != null) {
-      Option(dataFrame.schema.fieldNames.indexOf(keyColumnProperty))
+  def getTagsForKeyColumn(indexOfKeyCol: Option[Int], row: Row): Map[String, String] = {
+    if (indexOfKeyCol.isDefined) {
+      if (!row.isNullAt(indexOfKeyCol.get)) {
+        return Map(keyColumnProperty.get -> row.get(indexOfKeyCol.get).asInstanceOf[AnyVal].toString)
+      } else {
+        throw MetorikkuWriteFailedException("Defined key column is null for row")
+      }
     }
-    else {
-      None
+    Map()
+  }
+
+  def getTime(indexOfTimeCol: Option[Int], row: Row): Long = {
+    if (indexOfTimeCol.isDefined) {
+      if (!row.isNullAt(indexOfTimeCol.get)) {
+        val timeColValue = row.get(indexOfTimeCol.get)
+        if (!classOf[Number].isAssignableFrom(timeColValue.getClass)) {
+          throw MetorikkuWriteFailedException("Defined time column is not a number")
+        }
+        return row.get(indexOfTimeCol.get).asInstanceOf[Number].longValue()
+      } else {
+        throw MetorikkuWriteFailedException("Defined time column is null for row")
+      }
     }
+    System.currentTimeMillis()
   }
 }
-
-// scalastyle:on null
-

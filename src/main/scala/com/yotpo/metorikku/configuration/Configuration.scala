@@ -19,4 +19,6 @@ trait Configuration {
   def appName: String
 
   def continueOnFailedStep: Boolean
+
+  def instrumentation: Instrumentation
 }

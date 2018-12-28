@@ -91,3 +91,11 @@ logLevel: WARN
 
 # Set Application Name to have app name prefix in spark instrumentation counters
 appName: appName
+
+# Set instrumentation writer (default is spark metrics)
+instrumentation:
+  influxdb:
+    url: http://localhost:8086
+    username: username
+    password: password
+    dbName: test

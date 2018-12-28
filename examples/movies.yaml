@@ -33,3 +33,8 @@ appName: moviesApp
 
 # Shows a Preview of the output
 showPreviewLines: 100
+
+instrumentation:
+  influxdb:
+    url: http://localhost:8086
+    dbName: test

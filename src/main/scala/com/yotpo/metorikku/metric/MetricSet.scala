@@ -1,13 +1,12 @@
 package com.yotpo.metorikku.metric
 
 import com.yotpo.metorikku.calculators.SqlStepCalculator
-import com.yotpo.metorikku.exceptions.{MetorikkuWriteFailedException, MetorikkuWriterStreamingUnsupported}
-import com.yotpo.metorikku.instrumentation.InstrumentationUtils
+import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
+import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.MetricOutput
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
-import org.apache.spark.groupon.metrics.SparkGauge
 import org.apache.spark.sql.DataFrame
 
 object MetricSet {
@@ -42,7 +41,6 @@ class MetricSet(metricSet: String) {
     }
 
     metrics.foreach(metric => {
-      lazy val timer = InstrumentationUtils.createNewGauge(Array(metric.name, "timer"))
       val startTime = System.nanoTime()
 
       val calculator = new SqlStepCalculator(metric)
@@ -51,7 +49,8 @@ class MetricSet(metricSet: String) {
 
       val endTime = System.nanoTime()
       val elapsedTimeInNS = (endTime - startTime)
-      timer.set(elapsedTimeInNS)
+      InstrumentationProvider.client.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.name))
+
     })
 
     MetricSet.afterRun match {
@@ -67,11 +66,8 @@ class MetricSet(metricSet: String) {
 
   def writeBatch(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {
     dataFrame.cache()
-    lazy val counterNames = Array(metric.name, dataFrameName, output.outputConfig.outputType.toString, "counter")
-    lazy val dfCounter: SparkGauge = InstrumentationUtils.createNewGauge(counterNames)
-
-    dfCounter.set(dataFrame.count())
-
+    val tags = Map("metric" -> metric.name, "dataframe" -> dataFrameName, "output_type" -> output.outputConfig.outputType.toString)
+    InstrumentationProvider.client.count(name="counter", value=dataFrame.count(), tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
     try {
       output.writer.write(dataFrame)
