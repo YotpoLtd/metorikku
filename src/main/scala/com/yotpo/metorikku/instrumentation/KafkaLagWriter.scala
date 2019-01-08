@@ -24,9 +24,10 @@ class KafkaLagWriter(kafkaConsumer: KafkaConsumer[String, String], topic: String
   def onQueryProgress(event: QueryProgressEvent): Unit = {
     log.info(s"using consumer group to commit offsets for topic $topic")
     val om = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+      .configure(DeserializationFeature.USE_LONG_FOR_INTS, true)
     om.registerModule(DefaultScalaModule)
     event.progress.sources.foreach(source => {
-      val jsonOffsets = om.readValue(source.endOffset, classOf[Map[String, Map[String, Int]]])
+      val jsonOffsets = om.readValue(source.endOffset, classOf[Map[String, Map[String, Long]]])
       jsonOffsets.keys.filter(key => key == topic)
         .foreach(topic => {
           log.debug(s"committing offsets for topic $topic")
@@ -36,7 +37,7 @@ class KafkaLagWriter(kafkaConsumer: KafkaConsumer[String, String], topic: String
             case Some(topicOffsetData) =>
               topicOffsetData.keys.foreach(partition => {
                 val tp = new TopicPartition(topic, partition.toInt)
-                val oam = new OffsetAndMetadata(topicOffsetData(partition).toLong)
+                val oam = new OffsetAndMetadata(topicOffsetData(partition))
                 topicPartitionMap.put(tp, oam)
               })
             case _ =>
