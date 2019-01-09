@@ -188,6 +188,46 @@ Please note the following while using streaming applications:
 * In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input. <br />
 This will commit the offsets to kafka, as a new dummy consumer group.
 
+#### Instrumentation
+One of the most useful features in Metorikku is it's instrumentation capabilities.
+
+Instrumentation metrics are written by default to what's configured in [spark-metrics](https://spark.apache.org/docs/latest/monitoring.html#metrics).
+
+Metorikku sends automatically on top of what spark is already sending the following:
+
+* Number of rows written to each output
+
+* Number of successful steps per metric
+
+* Number of failed steps per metric
+ 
+* In streaming: records per second
+
+* In streaming: number of processed records in batch
+
+You can also send any information you like to the instrumentation output within a metric.
+For example:
+```yaml
+steps:
+- dataFrameName: df
+  sql:
+    SELECT unix_timestamp(date) * 1000 as date_ts,
+           genre,
+           count(*) as number_of_ratings 
+           FROM ratings 
+           GROUP BY unix_timestamp(to_date(from_unixtime(timestamp))), 
+                    genre
+output:
+- dataFrameName: df
+  outputType: Instrumentation
+  outputOptions:
+    # Optional
+    timeColumn: date_ts
+    # Optional
+    keyColumn: genre
+```
+This will write a new metric: app_name.metric.metric.dataframe.metric.df.genre.
+
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/u/metorikku/metorikku).
 

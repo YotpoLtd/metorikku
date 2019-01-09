@@ -36,5 +36,7 @@ showPreviewLines: 100
 
 instrumentation:
   influxdb:
-    url: http://localhost:8086
+    url: http://influxdb:8086
     dbName: test
+    username: user
+    password: pass

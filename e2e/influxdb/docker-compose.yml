@@ -1,0 +1,27 @@
+# docker-compose up --exit-code-from kafka_consume
+version: '3'
+services:
+  spark-submit:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - influxdb
+  spark-master:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-master.sh
+  spark-worker:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
+  influxdb:
+    image: influxdb
+    environment:
+      - INFLUXDB_ADMIN_USER=user
+      - INFLUXDB_ADMIN_PASSWORD=pass
+      - INFLUXDB_DB=test
+      - INFLUXDB_HTTP_ENABLED=true
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
