@@ -30,7 +30,7 @@ deploy:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: docker tag metorikku/metorikku metorikku/metorikku:$TRAVIS_TAG_spark_$SPARK_VERSION && docker push metorikku/spark && docker push metorikku/metorikku
+    script: docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/metorikku
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*

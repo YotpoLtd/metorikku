@@ -189,7 +189,7 @@ Please note the following while using streaming applications:
 This will commit the offsets to kafka, as a new dummy consumer group.
 
 #### Docker
-Metorikku is provided with a [docker image](https://hub.docker.com/u/metorikku/metorikku).
+Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).
 
 You can use this docker to deploy metorikku in container based environments (we're using [Nomad by HashiCorp](https://www.nomadproject.io/)).
 
