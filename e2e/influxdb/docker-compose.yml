@@ -1,10 +1,12 @@
-# docker-compose up --exit-code-from kafka_consume
+# docker-compose up --exit-code-from influxdb_tester
 version: '3'
 services:
   spark-submit:
     image: metorikku/metorikku
     environment:
       - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
+    volumes:
+      - ./scripts/finish_submit.sh:/scripts/finish-submit.sh
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
@@ -13,10 +15,14 @@ services:
     image: metorikku/metorikku
     entrypoint:
       - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
   spark-worker:
     image: metorikku/metorikku
     entrypoint:
       - /scripts/entrypoint-worker.sh
+    logging:
+      driver: none
   influxdb:
     image: influxdb
     environment:
@@ -25,3 +31,14 @@ services:
       - INFLUXDB_DB=test
       - INFLUXDB_HTTP_ENABLED=true
       - INFLUXDB_HTTP_AUTH_ENABLED=true
+    logging:
+      driver: none
+  influxdb_tester:
+    image: buildpack-deps:stretch-curl
+    volumes:
+      - ./scripts:/scripts
+      - ./mocks:/mocks
+    command: /scripts/influx_test.sh
+    environment:
+      - MOCK_OUTPUT=/mocks/ratings.json
+      - QUERY=SELECT time, genre, metric, number_of_ratings FROM moviesApp WHERE genre != ''

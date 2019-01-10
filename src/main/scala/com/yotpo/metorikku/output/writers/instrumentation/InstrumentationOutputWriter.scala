@@ -7,7 +7,6 @@ import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{DataFrame, Row}
 
 
-// TODO: E2E + add to readme + example + sample config
 class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: String, metricName: String) extends MetricOutputWriter {
   @transient lazy val log: Logger = LogManager.getLogger(this.getClass)
 
