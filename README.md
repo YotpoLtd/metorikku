@@ -226,27 +226,14 @@ Metorikku sends automatically on top of what spark is already sending the follow
 * In streaming: number of processed records in batch
 
 You can also send any information you like to the instrumentation output within a metric.
-For example:
-```yaml
-steps:
-- dataFrameName: df
-  sql:
-    SELECT unix_timestamp(date) * 1000 as date_ts,
-           genre,
-           count(*) as number_of_ratings 
-           FROM ratings 
-           GROUP BY unix_timestamp(to_date(from_unixtime(timestamp))), 
-                    genre
-output:
-- dataFrameName: df
-  outputType: Instrumentation
-  outputOptions:
-    # Optional
-    timeColumn: date_ts
-    # Optional
-    keyColumn: genre
-```
-This will write a new metric: app_name.metric.metric.dataframe.metric.df.genre.
+
+Check out the [example](https://github.com/YotpoLtd/metorikku/blob/master/examples/movies_metric.yaml) for further details.
+
+##### using InfluxDB
+
+You can also send metric directly to InfluxDB (gaining the ability to use tags and time field).
+
+Check out the [configuration example](https://github.com/YotpoLtd/metorikku/blob/master/examples/movies.yaml) and also the [InfluxDB E2E test](https://github.com/YotpoLtd/metorikku/blob/master/e2e/influxdb) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).

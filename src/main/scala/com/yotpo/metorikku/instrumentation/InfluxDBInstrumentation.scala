@@ -14,8 +14,10 @@ class InfluxDBInstrumentation(measurement: String, config: InfluxDBConfig, sc: S
   var influxDB: InfluxDB = _
 
   config.username match {
+    // scalastyle:off null
     case Some(username) => influxDB = InfluxDBFactory.connect(config.url, username, config.password.getOrElse(null))
     case None =>  influxDB = InfluxDBFactory.connect(config.url)
+    // scalastyle:on null
   }
 
   influxDB
@@ -28,15 +30,15 @@ class InfluxDBInstrumentation(measurement: String, config: InfluxDBConfig, sc: S
     }
   })
 
-  def count(name: String, value: Long, tags: Map[String, String] = Map(), time: Long) = {
+  def count(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
     writeToInflux(time, name, value, tags)
   }
 
-  def gauge(name: String, value: Long, tags: Map[String, String] = Map(), time: Long) = {
+  def gauge(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
     writeToInflux(time, name, value, tags)
   }
 
-  private def writeToInflux(time: Long, name: String, value: Long, tags: Map[String, String] = Map()) = {
+  private def writeToInflux(time: Long, name: String, value: Long, tags: Map[String, String] = Map()): Unit = {
     influxDB.write(Point.measurement(measurement)
       .time(time, TimeUnit.MILLISECONDS)
       .addField(name, value)

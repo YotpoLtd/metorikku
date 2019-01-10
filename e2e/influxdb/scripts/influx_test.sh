@@ -1,35 +1,60 @@
 #!/bin/bash
-
-INFLUXDB=${INFLUXDB:=localhost:8086}
+INFLUXDB=${INFLUXDB:=influxdb:8086}
 DB=${DB:=test}
+MAX_RETRIES=${MAX_RETRIES:=60}
+INFLUX_USER=${INFLUX_USER:=user}
+INFLUX_PASSWORD=${INFLUX_PASSOWRD:=pass}
 
-/scripts/wait_for_influx.sh
-
-set -e
-
-runQuery() {
+# Wait for influxdb
+fetchStatus() {
   curl \
-    -u user:pass \
-    "http://${INFLUXDB}/query?db=${DB}&pretty=true" \
-    --data-urlencode "q=${QUERY}"
+    -o /dev/null \
+    --silent \
+    --head \
+    --write-out '%{http_code}' \
+    ${INFLUXDB}/ping
 }
 
-query=$(runQuery)
-until [ $(echo "$query" | wc -l) = 2960 ]; do
+urlStatus=$(fetchStatus)
+until [[ "$urlStatus" = 204 ]]; do
   sleep 2s
   echo "Waiting for influxdb to be ready..."
-  urlstatus=$(fetchstatus)
+  urlStatus=$(fetchStatus)
 done
 echo "influxDB is ready"
 
-curl -u user:pass "http://${INFLUXDB}/query?db=${DB}&pretty=true" --data-urlencode "q=${QUERY}" > /tmp/test_results
-echo "completed consuming from topic ${TOPIC}, results:"
+set -e
 
-cat
+# Wait for query
+runQuery() {
+  curl \
+    -u ${INFLUX_USER}:${INFLUX_PASSWORD} --silent \
+    "${INFLUXDB}/query?db=${DB}&pretty=true" \
+    --data-urlencode "q=${QUERY}"
+}
 
+num_of_expected_rows=$(cat ${MOCK_OUTPUT} | wc -l)
+echo "Waiting for influxdb to respond to query with ${num_of_expected_rows} lines"
 
-kafka-console-consumer.sh --bootstrap-server ${KAFKA_BROKER} --from-beginning --topic ${TOPIC} --max-messages ${NUMBER_OF_EXPECTED_MESSAGES} --timeout-ms ${KAFKA_CONSUME_TIMEOUT} > /tmp/test_results
-echo "completed consuming from topic ${TOPIC}, results:"
-cat /tmp/test_results
+results=$(runQuery)
+num_retries=0
+until [[ $(echo "$results" | wc -l) = ${num_of_expected_rows} || num_retries = ${MAX_RETRIES} ]]; do
+  sleep 2s
+  if [[ ! -z ${DEBUG} ]]; then
+    echo -e "Current results:\n$results"
+  fi
+  results=$(runQuery)
+  num_retries=$((num_retries + 1))
+done
 
-diff -w <(sort ${MOCK_OUTPUT}) <(sort /tmp/test_results)
+if [[ num_retries -eq ${MAX_RETRIES} ]]; then
+    echo "Failed to obtain proper results within ${MAX_RETRIES} retries, exiting"
+    exit 1
+fi
+echo "influxDB query matches mock in the number of lines"
+
+# Compare results
+echo -e "Results:\n$results"
+echo "$results" > /tmp/test_results
+
+diff -w ${MOCK_OUTPUT} /tmp/test_results
