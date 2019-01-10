@@ -17,7 +17,7 @@ object MetorikkuTester extends App {
     val metricTestSettings = TestUtils.getTestSettings(settings)
     val config = TestUtils.createMetorikkuConfigFromTestSettings(settings, metricTestSettings, metorikkuTesterArgs.preview)
     Session.init(config)
-    TestUtils.runTests(metricTestSettings.tests)
+    TestUtils.runTests(metricTestSettings)
   })
 
 }
