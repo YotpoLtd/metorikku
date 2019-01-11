@@ -10,31 +10,12 @@ import org.influxdb.{BatchOptions, InfluxDB, InfluxDBFactory}
 
 import scala.collection.JavaConverters.mapAsJavaMapConverter
 
-class InfluxDBInstrumentation(measurement: String, config: InfluxDBConfig, sc: SparkContext) extends InstrumentationProvider {
-  var influxDB: InfluxDB = _
-
-  config.username match {
-    // scalastyle:off null
-    case Some(username) => influxDB = InfluxDBFactory.connect(config.url, username, config.password.getOrElse(null))
-    case None =>  influxDB = InfluxDBFactory.connect(config.url)
-    // scalastyle:on null
-  }
-
-  influxDB
-    .setDatabase(config.dbName)
-    .enableBatch(BatchOptions.DEFAULTS)
-
-  sc.addSparkListener(new SparkListener() {
-    override def onJobEnd(taskEnd: SparkListenerJobEnd): Unit = {
-      close()
-    }
-  })
-
-  def count(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
+class InfluxDBInstrumentation(val influxDB: InfluxDB, val measurement: String) extends InstrumentationProvider {
+  override def count(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
     writeToInflux(time, name, value, tags)
   }
 
-  def gauge(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
+  override def gauge(name: String, value: Long, tags: Map[String, String] = Map(), time: Long): Unit = {
     writeToInflux(time, name, value, tags)
   }
 
@@ -46,7 +27,31 @@ class InfluxDBInstrumentation(measurement: String, config: InfluxDBConfig, sc: S
       .build())
   }
 
-  def close(): Unit = {
+  override def close(): Unit = {
     influxDB.close()
+  }
+}
+
+class InfluxDBInstrumentationFactory(val measurement: String, val config: InfluxDBConfig) extends InstrumentationFactory {
+  val JITTER_DURATION = 500
+
+  override def create(): InstrumentationProvider = {
+    // scalastyle:off null
+    var influxDB: InfluxDB = null
+
+    config.username match {
+
+      case Some(username) => influxDB = InfluxDBFactory.connect(config.url, username, config.password.getOrElse(null))
+      case None =>  influxDB = InfluxDBFactory.connect(config.url)
+
+    }
+    // scalastyle:on null
+
+    influxDB
+      .setDatabase(config.dbName)
+      .enableBatch(BatchOptions.DEFAULTS.jitterDuration(JITTER_DURATION))
+      .enableGzip()
+
+    new InfluxDBInstrumentation(influxDB, measurement)
   }
 }

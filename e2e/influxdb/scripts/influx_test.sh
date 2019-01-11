@@ -54,7 +54,10 @@ fi
 echo "influxDB query matches mock in the number of lines"
 
 # Compare results
-echo -e "Results:\n$results"
+if [[ ! -z ${DEBUG} ]]; then
+    echo -e "Results:\n$results"
+fi
 echo "$results" > /tmp/test_results
 
+echo "Comparing mock and test output..."
 diff -w ${MOCK_OUTPUT} /tmp/test_results

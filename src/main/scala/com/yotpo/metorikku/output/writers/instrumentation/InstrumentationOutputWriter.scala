@@ -19,34 +19,38 @@ class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: Str
     val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
-    val iter = dataFrame.toLocalIterator()
-    while (iter.hasNext) {
-      val row = iter.next
+    val cf = InstrumentationProvider.factory
+    dataFrame.foreachPartition(p => {
+      val client = cf.create()
 
-      for ((column, i) <- columns) {
-        try {
-          // Don't write key/time column to metric
-          if ((!indexOfKeyCol.isDefined || i != indexOfKeyCol.get) && (!indexOfTimeCol.isDefined || i != indexOfTimeCol.get)) {
-            val valueOfRowAtCurrentCol = row.get(i)
-            // Only if value is numeric
-            if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass)) {
-              val longValue = valueOfRowAtCurrentCol.asInstanceOf[Number].longValue()
-              val keyColumnTags = getTagsForKeyColumn(indexOfKeyCol, row)
-              val time = getTime(indexOfTimeCol, row)
-              val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++ keyColumnTags
+      p.foreach(row => {
+        for ((column, i) <- columns) {
+          try {
+            // Don't write key/time column to metric
+            if ((!indexOfKeyCol.isDefined || i != indexOfKeyCol.get) && (!indexOfTimeCol.isDefined || i != indexOfTimeCol.get)) {
+              val valueOfRowAtCurrentCol = row.get(i)
+              // Only if value is numeric
+              if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass)) {
+                val longValue = valueOfRowAtCurrentCol.asInstanceOf[Number].longValue()
+                val keyColumnTags = getTagsForKeyColumn(indexOfKeyCol, row)
+                val time = getTime(indexOfTimeCol, row)
+                val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++ keyColumnTags
 
-              InstrumentationProvider.client.gauge(name = column.name, value = longValue, tags = tags, time = time)
-            } else {
-              throw MetorikkuWriteFailedException("Value column doesn't contain a number")
+                client.gauge(name = column.name, value = longValue, tags = tags, time = time)
+              } else {
+                throw MetorikkuWriteFailedException("Value column doesn't contain a number")
+              }
             }
+          } catch {
+            case ex: Throwable =>
+              throw MetorikkuWriteFailedException(s"failed to write instrumentation on data frame: $dataFrameName " +
+                s"for row: ${row.toString()} on column: ${column.name}", ex)
           }
-        } catch {
-          case ex: Throwable =>
-            throw MetorikkuWriteFailedException(s"failed to write instrumentation on data frame: $dataFrameName " +
-              s"for row: ${row.toString()} on column: ${column.name}", ex)
         }
-      }
-    }
+      })
+
+      client.close()
+    })
   }
 
   def getTagsForKeyColumn(indexOfKeyCol: Option[Int], row: Row): Map[String, String] = {

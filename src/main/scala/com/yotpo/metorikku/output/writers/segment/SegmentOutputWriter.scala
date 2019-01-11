@@ -50,7 +50,10 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
   private def writeEvents(segmentApiKey: String, partition: Iterator[String]): Unit = {
     val blockingFlush = BlockingFlush.create
     val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
+    val cf = InstrumentationProvider.factory
+
     partition.foreach(row => {
+      val instrumentationClient = cf.create()
       val eventTraits = new Gson().fromJson(row, classOf[util.Map[String, Object]])
       val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[Double].toInt
       eventTraits.remove(segmentOutputOptions.keyColumn)
@@ -68,10 +71,10 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
               .traits(eventTraits)
             )
         }
-        InstrumentationProvider.client.count(name="segmentWriterSuccess", value=1)
+        instrumentationClient.count(name="segmentWriterSuccess", value=1)
       } catch {
         case exception: Throwable => {
-          InstrumentationProvider.client.count(name="segmentWriterFailure", value=1)
+          instrumentationClient.count(name="segmentWriterFailure", value=1)
         }
       }
     })

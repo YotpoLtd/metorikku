@@ -49,7 +49,7 @@ class MetricSet(metricSet: String) {
 
       val endTime = System.nanoTime()
       val elapsedTimeInNS = (endTime - startTime)
-      InstrumentationProvider.client.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.name))
+      InstrumentationProvider.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.name))
 
     })
 
@@ -67,7 +67,7 @@ class MetricSet(metricSet: String) {
   def writeBatch(dataFrame: DataFrame, dataFrameName: String, output: MetricOutput, metric: Metric): Unit = {
     dataFrame.cache()
     val tags = Map("metric" -> metric.name, "dataframe" -> dataFrameName, "output_type" -> output.outputConfig.outputType.toString)
-    InstrumentationProvider.client.count(name="counter", value=dataFrame.count(), tags=tags)
+    InstrumentationProvider.count(name="counter", value=dataFrame.count(), tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
     try {
       output.writer.write(dataFrame)

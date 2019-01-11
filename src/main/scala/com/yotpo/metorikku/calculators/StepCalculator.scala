@@ -29,11 +29,11 @@ class StepCalculator(metric: Metric) extends Calculator {
         else {
           throw MetorikkuFailedStepException("Type of step is unknown, failing")
         }
-        InstrumentationProvider.client.count(name="successfulSteps", value=1, tags=tags)
+        InstrumentationProvider.count(name="successfulSteps", value=1, tags=tags)
       } catch {
         case ex: Exception => {
           val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metric.name}"
-          InstrumentationProvider.client.count(name="failedSteps", value=1, tags=tags)
+          InstrumentationProvider.count(name="failedSteps", value=1, tags=tags)
           if (Session.getConfiguration.continueOnFailedStep) {
             log.error(errorMessage, ex)
           } else {

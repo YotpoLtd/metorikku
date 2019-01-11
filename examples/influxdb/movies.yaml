@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - examples/movies_metric.yaml
+  - examples/influxdb/movies_metric.yaml
 
 inputs:
   movies:
@@ -14,14 +14,6 @@ inputs:
     file:
       path: examples/file_inputs/ratings.csv
 
-# Set custom variables that would be accessible from the SQL
-variables:
- myFavoriteMovie: 'Princess Bride, The (1987)'
-
-output:
-  file:
-    dir: examples/output
-
 # If set to true, triggers Explain before saving
 explain: true
 
@@ -29,7 +21,14 @@ explain: true
 logLevel: WARN
 
 # Set Application Name to have app name prefix in spark instrumentation counters
-appName: moviesApp
+appName: moviesAppInflux
 
 # Shows a Preview of the output
-showPreviewLines: 100
+showPreviewLines: 10
+
+instrumentation:
+  influxdb:
+    url: http://influxdb:8086
+    dbName: test
+    username: user
+    password: pass

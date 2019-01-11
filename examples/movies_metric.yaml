@@ -33,29 +33,9 @@ steps:
     SELECT *
     FROM topFantasyMovies
     WHERE title = ${myFavoriteMovie}
-- dataFrameName: ratingsWithGenre
-  sql:
-    SELECT explode(split(genres, "\\|")) AS genre,
-           trunc(from_unixtime(timestamp), "MONTH") AS month
-    FROM moviesWithRatings
-
-- dataFrameName: dramaComediesRatingsPerMonthPerGenre
-  sql:
-    SELECT unix_timestamp(month) * 1000 AS month_ts,
-           genre,
-           COUNT(*) AS number_of_ratings
-    FROM ratingsWithGenre
-    WHERE genre IN("Drama", "Comedy")
-    GROUP BY genre,
-             month
 output:
 - dataFrameName: moviesWithRatings
   outputType: Parquet
   outputOptions:
     saveMode: Overwrite
     path: moviesWithRatings.parquet
-- dataFrameName: dramaComediesRatingsPerMonthPerGenre
-  outputType: Instrumentation
-  outputOptions:
-    timeColumn: month_ts
-    keyColumn: genre
