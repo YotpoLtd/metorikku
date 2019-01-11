@@ -1,0 +1,12 @@
+metric: kafka2kafka_aggregations.yaml
+mocks:
+- name: testStream
+  path: mocks/testStream.jsonl
+  streaming: true
+outputMode: complete
+tests:
+  testCompleteOutputMode:
+  - key: key1
+    count: 2
+  - key: key2
+    count: 1

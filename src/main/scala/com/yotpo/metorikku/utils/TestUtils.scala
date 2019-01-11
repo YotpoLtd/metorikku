@@ -9,9 +9,14 @@ import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import com.yotpo.metorikku.input.file.FileInput
 import com.yotpo.metorikku.metric.MetricSet
 import com.yotpo.metorikku.session.Session
+import com.yotpo.metorikku.utils.TestUtils.MetricTesterDefinitions.TestSettings
 import org.apache.log4j.LogManager
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
+import org.apache.spark.sql.execution.streaming.MemoryStream
+import org.apache.spark.sql.streaming.OutputMode
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types._
+import org.apache.spark.sql.functions.current_timestamp
 
 import scala.collection.Seq
 
@@ -20,11 +25,14 @@ object TestUtils {
 
   object MetricTesterDefinitions {
 
-    case class Mock(name: String, path: String)
+    case class Mock(name: String, path: String, streaming: Boolean = false)
 
     case class Params(variables: Option[Map[String, String]])
 
-    case class TestSettings(metric: String, mocks: List[Mock], params: Option[Params], tests: Map[String, List[Map[String, Any]]])
+    case class TestSettings(metric: String, mocks: List[Mock],
+                            params: Option[Params],
+                            tests: Map[String, List[Map[String, Any]]],
+                            outputMode: String = "append")
 
     var previewLines: Int = 0
   }
@@ -53,7 +61,23 @@ object TestUtils {
 
   def getMockFilesFromDir(mocks: List[MetricTesterDefinitions.Mock], testDir: File): Seq[Reader] = {
     val mockFiles = mocks.map(mock => {
-      FileInput(mock.name, new File(testDir, mock.path).getCanonicalPath)
+      val input = FileInput(mock.name, new File(testDir, mock.path).getCanonicalPath)
+      mock.streaming match {
+        case true => {
+          new Reader() {
+            override val name: String = mock.name
+            override def read(): DataFrame = {
+              val df = input.read()
+              implicit val encoder = RowEncoder(df.schema)
+              implicit val sqlContext = Session.getSparkSession.sqlContext
+              val stream = MemoryStream[Row]
+              stream.addData(df.collect())
+              stream.toDF()
+            }
+          }
+        }
+        case false => input
+      }
     })
     mockFiles
   }
@@ -62,14 +86,14 @@ object TestUtils {
     Seq(new File(testDir, metric).getCanonicalPath)
   }
 
-  def runTests(tests: Map[String, List[Map[String, Any]]]): Any = {
+  def runTests(metricTestSettings: TestSettings): Any = {
     var errors = Array[String]()
     val sparkSession = Session.getSparkSession
     Session.getConfiguration.metrics.foreach(metric => {
       val metricSet = new MetricSet(metric)
       metricSet.run()
       log.info(s"Starting testing ${metric}")
-      errors = errors ++ compareActualToExpected(tests, metric, sparkSession)
+      errors = errors ++ compareActualToExpected(metricTestSettings, metric, sparkSession)
     })
 
     sparkSession.stop()
@@ -81,14 +105,31 @@ object TestUtils {
     }
   }
 
+  private def extractTableContents(sparkSession: SparkSession, tableName: String, outputMode: String): Array[Row] = {
+    val df = sparkSession.table(tableName)
+    df.isStreaming match {
+      case true => {
+        val outputTableName = s"${tableName}_output"
+        df.writeStream
+          .format("memory")
+          .queryName(outputTableName)
+          .outputMode(outputMode)
+          .start()
+          .processAllAvailable()
+        sparkSession.table(outputTableName).collect()
+      }
+      case false => df.collect()
+    }
+  }
 
-  private def compareActualToExpected(metricExpectedTests: Map[String, List[Map[String, Any]]],
+  private def compareActualToExpected(metricTestSettings: TestSettings,
                                       metricName: String, sparkSession: SparkSession): Array[String] = {
     var errors = Array[String]()
     var errorsIndexArr = Seq[Int]()
-    metricExpectedTests.keys.foreach(tableName => {
+    val metricExpectedTests = metricTestSettings.tests
 
-      val metricActualResultRows = sparkSession.table(tableName).collect()
+    metricExpectedTests.keys.foreach(tableName => {
+      val metricActualResultRows = extractTableContents(sparkSession, tableName, metricTestSettings.outputMode)
       var metricExpectedResultRows = metricExpectedTests(tableName)
       if (metricExpectedResultRows.length == metricActualResultRows.length) {
         for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
