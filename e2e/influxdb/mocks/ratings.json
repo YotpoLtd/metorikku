@@ -4,7 +4,7 @@
             "statement_id": 0,
             "series": [
                 {
-                    "name": "moviesApp",
+                    "name": "moviesAppInflux",
                     "columns": [
                         "time",
                         "genre",

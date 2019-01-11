@@ -4,7 +4,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/influxdb/movies.yaml
     volumes:
       - ./scripts/finish_submit.sh:/scripts/finish-submit.sh
     entrypoint:
@@ -41,4 +41,4 @@ services:
     command: /scripts/influx_test.sh
     environment:
       - MOCK_OUTPUT=/mocks/ratings.json
-      - QUERY=SELECT time, genre, metric, number_of_ratings FROM moviesApp WHERE genre != ''
+      - QUERY=SELECT time, genre, metric, number_of_ratings FROM moviesAppInflux WHERE genre != ''

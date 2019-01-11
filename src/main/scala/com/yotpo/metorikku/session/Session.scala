@@ -3,11 +3,12 @@ package com.yotpo.metorikku.session
 import com.yotpo.metorikku.configuration.{Configuration, Instrumentation, Output}
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.input.Reader
-import com.yotpo.metorikku.instrumentation.{InfluxDBInstrumentation, InstrumentationProvider}
+import com.yotpo.metorikku.instrumentation.{InfluxDBInstrumentationFactory, InstrumentationProvider, SparkInstrumentationFactory}
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.groupon.metrics.UserMetricsSystem
+import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
 import org.apache.spark.sql.SparkSession
 
 object Session {
@@ -85,13 +86,23 @@ object Session {
 
   private def initInstrumentation(appName: String, instrumentation: Instrumentation): Unit = {
     val sc = getSparkSession.sparkContext
-    UserMetricsSystem.initialize(sc, "Metorikku")
 
     instrumentation.influxdb match {
       case Some(influxDB) => {
-        InstrumentationProvider.client = new InfluxDBInstrumentation(appName, influxDB, sc)
+        InstrumentationProvider.factory = new InfluxDBInstrumentationFactory(appName, influxDB)
       }
-      case None =>
+      case None => {
+        InstrumentationProvider.factory = new SparkInstrumentationFactory()
+        UserMetricsSystem.initialize(sc, "Metorikku")
+      }
     }
+
+    InstrumentationProvider.client = InstrumentationProvider.factory.create()
+
+    sc.addSparkListener(new SparkListener() {
+      override def onJobEnd(taskEnd: SparkListenerJobEnd): Unit = {
+        InstrumentationProvider.client.close()
+      }
+    })
   }
 }

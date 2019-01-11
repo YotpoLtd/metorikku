@@ -213,7 +213,7 @@ Check out the [example](https://github.com/YotpoLtd/metorikku/blob/master/exampl
 
 You can also send metric directly to InfluxDB (gaining the ability to use tags and time field).
 
-Check out the [configuration example](https://github.com/YotpoLtd/metorikku/blob/master/examples/movies.yaml) and also the [InfluxDB E2E test](https://github.com/YotpoLtd/metorikku/blob/master/e2e/influxdb) for further details.
+Check out the [example](https://github.com/YotpoLtd/metorikku/blob/master/examples/influxdb) and also the [InfluxDB E2E test](https://github.com/YotpoLtd/metorikku/blob/master/e2e/influxdb) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).
