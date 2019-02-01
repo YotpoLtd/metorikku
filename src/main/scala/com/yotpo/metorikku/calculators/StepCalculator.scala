@@ -3,21 +3,34 @@ package com.yotpo.metorikku.calculators
 import com.yotpo.metorikku.exceptions.MetorikkuFailedStepException
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.metric.Metric
+import com.yotpo.metorikku.metric.step.{Code, Sql, StepAction}
 import com.yotpo.metorikku.session.Session
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
 
-class SqlStepCalculator(metric: Metric) extends Calculator {
+class StepCalculator(metric: Metric) extends Calculator {
   val log = LogManager.getLogger(this.getClass)
   val tags = Map("metric" -> metric.name)
 
-  override def calculate(): DataFrame = {
+  override def calculate(): Unit = {
+    val ss = Session.getSparkSession
     val sqlContext = Session.getSparkSession.sqlContext
     var stepResult = sqlContext.emptyDataFrame
     for (step <- metric.steps) {
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
-        stepResult = step.actOnDataFrame(sqlContext)
+        if (step.isInstanceOf[Sql]) {
+          val sqlStep = step.asInstanceOf[Sql]
+          stepResult = sqlStep.run(ss)
+          printStep(stepResult, step.dataFrameName)
+        }
+        else if (step.isInstanceOf[Code]) {
+          val codeStep = step.asInstanceOf[Code]
+          codeStep.run(ss)
+        }
+        else {
+          throw MetorikkuFailedStepException("Type of step is unknown, failing")
+        }
         InstrumentationProvider.client.count(name="successfulSteps", value=1, tags=tags)
       } catch {
         case ex: Exception => {
@@ -30,9 +43,7 @@ class SqlStepCalculator(metric: Metric) extends Calculator {
           }
         }
       }
-      printStep(stepResult, step.dataFrameName)
     }
-    stepResult
   }
 
   private def printStep(stepResult: DataFrame, stepName: String): Unit = {

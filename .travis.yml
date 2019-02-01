@@ -21,6 +21,9 @@ script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile .
+  - cd examples/udf && sbt package && cd -
+  # Test UDF example
+  - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml"
   # Kafka 2 Kafka E2E
   - docker-compose -f e2e/kafka/docker-compose.yml up --exit-code-from kafka_consume
   # File to InfluxDB E2E

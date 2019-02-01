@@ -1,13 +1,13 @@
 package com.yotpo.metorikku.metric
 
-import com.yotpo.metorikku.calculators.SqlStepCalculator
+import com.yotpo.metorikku.calculators.StepCalculator
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.MetricOutput
 import com.yotpo.metorikku.session.Session
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -43,7 +43,7 @@ class MetricSet(metricSet: String) {
     metrics.foreach(metric => {
       val startTime = System.nanoTime()
 
-      val calculator = new SqlStepCalculator(metric)
+      val calculator = new StepCalculator(metric)
       calculator.calculate()
       write(metric)
 

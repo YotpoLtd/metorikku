@@ -1,0 +1,13 @@
+steps:
+- dataFrameName: z_prefix
+  classpath: com.yotpo.udf.test.TestUDF
+- dataFrameName: zEmployees
+  sql:
+    SELECT z_prefix(name) as z
+    FROM employees
+output:
+  - dataFrameName: zEmployees
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: zEmployees.parquet

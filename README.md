@@ -227,5 +227,32 @@ Currently the image only supports running metorikku in a spark cluster mode with
 The image can also be used to run E2E tests of a metorikku job.
 Check out an example of running a kafka 2 kafka E2E with docker-compose [here](https://github.com/YotpoLtd/metorikku/blob/master/e2e/kafka/docker-compose.yml)
 
+#### UDF
+Metorikku supports adding custom code as a step.
+This requires creating a JAR with the custom code.
+Check out the [UDF examples directory](examples/udf) for a very simple example of such a JAR.
+
+The only thing important in this JAR is that you have an object with the following method:
+```scala
+object SomeObject {
+  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String): Unit = {}
+}
+```
+Inside the run function do whatever you feel like, in the example folder you'll see that we registered a new UDF.
+Once you have a proper scala file and a ```build.sbt``` file you can run ```sbt package``` to create the JAR.
+
+When you have the newly created JAR (should be in the target folder), copy it to the spark cluster (you can of course also deploy it to your favorite repo).
+
+You must now include this JAR in your spark-submit command by using the ```--jars``` flag, or if you're using java to run add it to the ```-cp``` flag.
+
+Now all that's left is to add it as a new step in your metric:
+```yaml
+- dataFrameName: dataframe
+  classpath: com.example.SomeObject
+```
+This will trigger your ```run``` method with the above dataFrameName.
+
+*NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
+
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
