@@ -18,6 +18,11 @@ before_script:
   - docker pull metorikku/metorikku:latest
 script:
   - sbt -DsparkVersion=$SPARK_VERSION scalastyle assembly "set test in (Test, assembly) := {}" test:assembly
+  # Metorikku main test example
+  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml
+  # Metorikku kafka test example
+  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml
+  # Create all relevant docker images
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
   - docker build -t metorikku/metorikku:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg METORIKKU_JAR=target/scala-2.11/metorikku.jar -f docker/metorikku/Dockerfile .

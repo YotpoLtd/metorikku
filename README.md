@@ -113,6 +113,26 @@ And the corresponding `mocks/table_1.jsonl`:
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
 The main class changes from `com.yotpo.metorikku.Metorikku` to `com.yotpo.metorikku.MetorikkuTester`
 
+##### Testing streaming metrics
+In Spark some behaviors are different when writing queries for streaming sources (for example kafka).
+In order to make sure the test behaves the same as the real life queries, you can configure a mock to behave like a streaming input by writing the following:
+```yaml
+metric: "/path/to/metric"
+mocks:
+- name: table_1
+  path: mocks/table_1.jsonl
+  # default is false
+  streaming: true
+# default is append output mode
+outputMode: update
+tests:
+  df2:
+  - id: 200
+    name: test
+  - id: 300
+    name: test2
+```
+
 ### Notes
 
 #### Variable interpolation
