@@ -37,6 +37,7 @@ libraryDependencies ++= Seq(
   "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001",
   "com.segment.analytics.java" % "analytics" % "2.0.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
+  "org.scala-lang" % "scala-compiler" % "2.11.12",
   "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,

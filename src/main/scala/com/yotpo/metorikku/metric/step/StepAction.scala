@@ -1,8 +1,8 @@
 package com.yotpo.metorikku.metric.step
 
-import org.apache.spark.sql.{DataFrame, SQLContext}
+import org.apache.spark.sql.{SparkSession}
 
-trait StepAction {
+trait StepAction[A] {
   def dataFrameName: String
-  def actOnDataFrame(sqlContext: SQLContext): DataFrame
+  def run(sparkSession: SparkSession): A
 }

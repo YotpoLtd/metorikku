@@ -1,0 +1,7 @@
+metric: udf_metric.yaml
+mocks:
+- name: employees
+  path: employees.jsonl
+tests:
+  zEmployees:
+  - z: Zsomeone

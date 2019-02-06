@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.metric
 
-import com.yotpo.metorikku.calculators.SqlStepCalculator
-import com.yotpo.metorikku.exceptions.{MetorikkuWriteFailedException, MetorikkuWriterStreamingUnsupported}
+import com.yotpo.metorikku.calculators.StepCalculator
+import com.yotpo.metorikku.exceptions.{MetorikkuWriteFailedException}
 import com.yotpo.metorikku.instrumentation.InstrumentationUtils
 import com.yotpo.metorikku.output.MetricOutput
 import com.yotpo.metorikku.session.Session
@@ -45,7 +45,7 @@ class MetricSet(metricSet: String) {
       lazy val timer = InstrumentationUtils.createNewGauge(Array(metric.name, "timer"))
       val startTime = System.nanoTime()
 
-      val calculator = new SqlStepCalculator(metric)
+      val calculator = new StepCalculator(metric)
       calculator.calculate()
       write(metric)
 

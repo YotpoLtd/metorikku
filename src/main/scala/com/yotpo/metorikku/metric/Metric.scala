@@ -8,7 +8,7 @@ import com.yotpo.metorikku.output.MetricOutput
 
 class Metric(metricConfig: MetricConfig, metricDir: File, metricName: String) {
   val name: String = metricName
-  val steps: List[StepAction] = metricConfig.steps.map(stepConfig => Sql(stepConfig.getSqlQuery(metricDir), stepConfig.dataFrameName))
+  val steps: List[StepAction[_]] = metricConfig.steps.map(stepConfig => stepConfig.getAction(metricDir, metricName))
   val outputs: List[MetricOutput] = metricConfig.output.map(MetricOutput(_, name))
 }
 
