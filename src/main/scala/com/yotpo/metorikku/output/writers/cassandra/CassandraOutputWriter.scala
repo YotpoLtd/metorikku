@@ -1,13 +1,13 @@
 package com.yotpo.metorikku.output.writers.cassandra
 
-import com.yotpo.metorikku.configuration.outputs.Cassandra
+import com.yotpo.metorikku.Session
+import com.yotpo.metorikku.configuration.job.output.Cassandra
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.host
-import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
-import com.yotpo.metorikku.session.Session
+import com.yotpo.metorikku.output.{WriterSessionRegistration, Writer}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
 
-object CassandraOutputWriter extends MetricOutputSession {
+object CassandraOutputWriter extends WriterSessionRegistration {
   val host = "spark.cassandra.connection.host"
   val username = "spark.cassandra.auth.username"
   val password = "spark.cassandra.auth.password"
@@ -19,7 +19,7 @@ object CassandraOutputWriter extends MetricOutputSession {
   }
 }
 
-class CassandraOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
+class CassandraOutputWriter(props: Map[String, String], sparkSession: SparkSession) extends Writer {
 
   case class CassandraOutputProperties(saveMode: SaveMode, dbKeySpace: String, dbTable: String)
 
@@ -39,5 +39,5 @@ class CassandraOutputWriter(props: Map[String, String]) extends MetricOutputWrit
     }
   }
 
-  private def isCassandraConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"$host").isDefined
+  private def isCassandraConfExist(): Boolean = sparkSession.conf.getOption(s"$host").isDefined
 }

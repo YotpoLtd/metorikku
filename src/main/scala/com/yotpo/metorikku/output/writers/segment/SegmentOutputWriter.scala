@@ -5,13 +5,13 @@ import java.util
 import com.google.gson.Gson
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
-import com.yotpo.metorikku.configuration.outputs.Segment
-import com.yotpo.metorikku.instrumentation.InstrumentationProvider
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.configuration.job.output.Segment
+import com.yotpo.metorikku.instrumentation.InstrumentationFactory
+import com.yotpo.metorikku.output.Writer
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
+class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment], instrumentationFactory: InstrumentationFactory) extends Writer {
 
   case class SegmentOutputProperties(eventType: String, keyColumn: String, eventName: String, sleep: Int, batchSize: Int)
   val eventType: String = props.getOrElse("eventType", "identify")
@@ -50,10 +50,9 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
   private def writeEvents(segmentApiKey: String, partition: Iterator[String]): Unit = {
     val blockingFlush = BlockingFlush.create
     val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
-    val cf = InstrumentationProvider.factory
 
     partition.foreach(row => {
-      val instrumentationClient = cf.create()
+      val instrumentationClient = instrumentationFactory.create()
       val eventTraits = new Gson().fromJson(row, classOf[util.Map[String, Object]])
       val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[Double].toInt
       eventTraits.remove(segmentOutputOptions.keyColumn)

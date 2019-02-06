@@ -1,50 +1,21 @@
 package com.yotpo.metorikku.instrumentation
 
-import org.apache.spark.groupon.metrics.UserMetricsSystem
-import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
-import org.apache.spark.sql.SparkSession
+import com.yotpo.metorikku.configuration.job.Instrumentation
+import com.yotpo.metorikku.instrumentation.influxdb.InfluxDBInstrumentationFactory
+import com.yotpo.metorikku.instrumentation.spark.SparkInstrumentationFactory
 
-object InstrumentationProvider extends InstrumentationProvider {
-  private var client: InstrumentationProvider = _
-  var factory: InstrumentationFactory = _
-
-  import com.yotpo.metorikku.configuration.Instrumentation
-
-  def init(appName: String, instrumentation: Instrumentation, sparkSession: SparkSession): Unit = {
-    val sc = sparkSession.sparkContext
-
-    instrumentation.influxdb match {
-      case Some(influxDB) => {
-        factory = new InfluxDBInstrumentationFactory(appName, influxDB)
+object InstrumentationProvider {
+  def getInstrumentationFactory(appName: Option[String], instrumentation: Option[Instrumentation]): InstrumentationFactory = {
+    instrumentation match {
+      case Some(inst) => inst.influxdb match {
+        case Some(influxDB) => {
+          new InfluxDBInstrumentationFactory(appName.get, influxDB)
+        }
+        case None => new SparkInstrumentationFactory()
       }
-      case None => {
-        factory = new SparkInstrumentationFactory()
-        UserMetricsSystem.initialize(sc, "Metorikku")
-      }
+      case None => new SparkInstrumentationFactory()
     }
-
-    client = factory.create()
-
-    sc.addSparkListener(new SparkListener() {
-      override def onJobEnd(taskEnd: SparkListenerJobEnd): Unit = {
-        client.close()
-      }
-    })
   }
-
-  override def count(name: String,
-                     value: Long,
-                     tags: Map[String, String] = Map(),
-                     time: Long = System.currentTimeMillis()): Unit =
-    client.count(name,value,tags,time)
-
-  override def gauge(name: String,
-                     value: Long,
-                     tags: Map[String, String] = Map(),
-                     time: Long = System.currentTimeMillis()): Unit =
-    client.gauge(name,value,tags,time)
-
-  override def close(): Unit = client.close()
 }
 
 trait InstrumentationProvider extends Serializable{

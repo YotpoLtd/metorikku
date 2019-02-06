@@ -1,13 +1,16 @@
 package com.yotpo.metorikku.output.writers.instrumentation
 
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
-import com.yotpo.metorikku.instrumentation.InstrumentationProvider
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.instrumentation.InstrumentationFactory
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{DataFrame, Row}
 
 
-class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: String, metricName: String) extends MetricOutputWriter {
+class InstrumentationOutputWriter(props: Map[String, String],
+                                  dataFrameName: String,
+                                  metricName: String,
+                                  instrumentationFactory: InstrumentationFactory) extends Writer {
   @transient lazy val log: Logger = LogManager.getLogger(this.getClass)
 
   val keyColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("keyColumn")
@@ -19,9 +22,8 @@ class InstrumentationOutputWriter(props: Map[String, String], dataFrameName: Str
     val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
-    val cf = InstrumentationProvider.factory
     dataFrame.foreachPartition(p => {
-      val client = cf.create()
+      val client = instrumentationFactory.create()
 
       p.foreach(row => {
         for ((column, i) <- columns) {

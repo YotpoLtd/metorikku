@@ -79,6 +79,9 @@ assemblyShadeRules in (Test, assembly) := Seq(
 assemblyJarName in assembly := "metorikku.jar"
 assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
 
+logLevel in assembly := Level.Error
+logLevel in (Test, assembly) := Level.Error
+
 // Publish settings
 publishMavenStyle := true
 

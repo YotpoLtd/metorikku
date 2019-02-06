@@ -2,8 +2,8 @@ package com.yotpo.metorikku.test
 
 import java.io.{File, FileNotFoundException}
 
+import com.yotpo.metorikku.Metorikku
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
-import com.yotpo.metorikku.runners.Metorikku
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -14,13 +14,14 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Test Metorikku should load a table and filter") {
-    val sparkSession = SparkSession.builder.getOrCreate()
 
     Metorikku.main(Array(
       "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config.yaml"))
 
     assert(new File("src/test/out/metric_test/metric/testOutput/._SUCCESS.crc").exists)
     assert(new File("src/test/out/metric_test/metric/filteredOutput/._SUCCESS.crc").exists)
+
+    val sparkSession = SparkSession.builder.getOrCreate()
 
     val testOutput = sparkSession.table("testOutput")
     val filterOutput = sparkSession.table("filteredOutput")
@@ -53,8 +54,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-writer.yaml"))
     }
   }
-
-  //TODO(etrabelsi@yotpo.com) add Test Metorikku should Fail on invalid Writer query fail gracefully
 
   test("Test Metorikku should Fail on invalid query without fail non gracefully") {
     val thrown = intercept[Exception] {

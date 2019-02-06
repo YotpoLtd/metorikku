@@ -1,15 +1,15 @@
 package com.yotpo.metorikku.output.writers.redis
 
 import com.redislabs.provider.redis._
-import com.yotpo.metorikku.configuration.outputs.Redis
-import com.yotpo.metorikku.output.{MetricOutputSession, MetricOutputWriter}
+import com.yotpo.metorikku.Session
+import com.yotpo.metorikku.configuration.job.output.Redis
+import com.yotpo.metorikku.output.{WriterSessionRegistration, Writer}
 import org.apache.log4j.LogManager
-import com.yotpo.metorikku.session.Session
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.util.parsing.json.JSONObject
 
-object RedisOutputWriter extends MetricOutputSession {
+object RedisOutputWriter extends WriterSessionRegistration {
   def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, redisConf: Redis): Unit = {
     sparkSessionBuilder.config(s"redis.host", redisConf.host)
     redisConf.port.foreach(_port => sparkSessionBuilder.config(s"redis.port", _port))
@@ -18,7 +18,7 @@ object RedisOutputWriter extends MetricOutputSession {
   }
 }
 
-class RedisOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
+class RedisOutputWriter(props: Map[String, String], sparkSession: SparkSession) extends Writer {
 
   case class RedisOutputProperties(keyColumn: String)
 
@@ -42,5 +42,5 @@ class RedisOutputWriter(props: Map[String, String]) extends MetricOutputWriter {
     }
   }
 
-  private def isRedisConfExist(): Boolean = Session.getSparkSession.conf.getOption(s"redis.host").isDefined
+  private def isRedisConfExist(): Boolean = sparkSession.conf.getOption(s"redis.host").isDefined
 }

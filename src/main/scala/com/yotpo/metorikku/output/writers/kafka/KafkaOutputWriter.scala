@@ -1,14 +1,14 @@
 package com.yotpo.metorikku.output.writers.kafka
 
-import com.yotpo.metorikku.configuration.outputs.Kafka
+import com.yotpo.metorikku.configuration.job.output.Kafka
 import com.yotpo.metorikku.exceptions.MetorikkuException
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.streaming.{DataStreamWriter, Trigger}
 
 
-class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) extends MetricOutputWriter {
+class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) extends Writer {
 
   case class KafkaOutputProperties(topic: String,
                                    keyColumn: Option[String],

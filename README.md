@@ -32,7 +32,7 @@ output:
     saveMode: Overwrite
     path: df2.parquet
 ```
-Take a look at the [examples file](https://github.com/YotpoLtd/metorikku/blob/master/examples) for further configuration examples.
+Take a look at the [examples](examples) for further configuration examples.
 
 #### Run configuration file
 Metorikku uses a YAML file to describe the run configuration.
@@ -49,7 +49,7 @@ output:
     file:
         dir: /path/to/parquet/output
 ```
-You can check out a full example file for all possible values in the [sample YAML configuration file](https://github.com/YotpoLtd/metorikku/blob/master/config/sample.yaml).
+You can check out a full example file for all possible values in the [sample YAML configuration file](config/job_config_sample.yaml).
 
 #### Supported input/output:
 
@@ -227,25 +227,25 @@ Metorikku sends automatically on top of what spark is already sending the follow
 
 You can also send any information you like to the instrumentation output within a metric.
 
-Check out the [example](https://github.com/YotpoLtd/metorikku/blob/master/examples/movies_metric.yaml) for further details.
+Check out the [example](examples/movies_metric.yaml) for further details.
 
 ##### using InfluxDB
 
 You can also send metric directly to InfluxDB (gaining the ability to use tags and time field).
 
-Check out the [example](https://github.com/YotpoLtd/metorikku/blob/master/examples/influxdb) and also the [InfluxDB E2E test](https://github.com/YotpoLtd/metorikku/blob/master/e2e/influxdb) for further details.
+Check out the [example](examples/influxdb) and also the [InfluxDB E2E test](e2e/influxdb) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).
 
 You can use this docker to deploy metorikku in container based environments (we're using [Nomad by HashiCorp](https://www.nomadproject.io/)).
 
-Check out this [docker-compose](https://github.com/YotpoLtd/metorikku/blob/master/docker/docker-compose.yml) for a full example of all the different parameters available and how to set up a cluster.
+Check out this [docker-compose](docker/docker-compose.yml) for a full example of all the different parameters available and how to set up a cluster.
 
 Currently the image only supports running metorikku in a spark cluster mode with the standalone scheduler.
 
 The image can also be used to run E2E tests of a metorikku job.
-Check out an example of running a kafka 2 kafka E2E with docker-compose [here](https://github.com/YotpoLtd/metorikku/blob/master/e2e/kafka/docker-compose.yml)
+Check out an example of running a kafka 2 kafka E2E with docker-compose [here](e2e/kafka/docker-compose.yml)
 
 #### UDF
 Metorikku supports adding custom code as a step.

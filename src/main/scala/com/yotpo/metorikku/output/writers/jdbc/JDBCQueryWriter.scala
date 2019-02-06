@@ -2,14 +2,15 @@ package com.yotpo.metorikku.output.writers.jdbc
 
 import java.sql.{Date, DriverManager, PreparedStatement, Timestamp}
 
+import com.yotpo.metorikku.configuration.job.output.JDBC
+
 import util.control.Exception._
-import com.yotpo.metorikku.configuration.outputs.JDBC
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{ArrayType, BinaryType, MapType, StructType}
 
-class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends MetricOutputWriter {
+class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends Writer {
 
   case class JDBCQueryProperties(query: String, maxBatchSize: Int, minPartitions: Option[Int], maxPartitions: Option[Int])
 
