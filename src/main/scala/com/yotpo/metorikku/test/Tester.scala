@@ -2,7 +2,7 @@ package com.yotpo.metorikku.test
 
 import java.io.File
 
-import com.yotpo.metorikku.Session
+import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.{Configuration, Input}
 import com.yotpo.metorikku.configuration.test.ConfigurationParser.TesterConfig
 import com.yotpo.metorikku.configuration.test.{Mock, Params}
@@ -17,7 +17,7 @@ import scala.collection.Seq
 case class Tester(config: TesterConfig) {
   val log = LogManager.getLogger(this.getClass)
   val metricConfig = createMetorikkuConfigFromTestSettings()
-  val session = Session(metricConfig)
+  val session = Job(metricConfig)
 
   def run(): Unit = {
     var errors = Array[String]()

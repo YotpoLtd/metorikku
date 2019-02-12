@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.metric
 
-import com.yotpo.metorikku.Session
+import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.metric.ConfigurationParser
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
@@ -30,14 +30,14 @@ class MetricSet(metricSet: String) {
     metricsToCalculate.filter(ConfigurationParser.isValidFile(_)).map(ConfigurationParser.parse(_))
   }
 
-  def run(session: Session) {
+  def run(job: Job) {
     MetricSet.beforeRun match {
       case Some(callback) => callback(metricSet)
       case None =>
     }
 
     metrics.foreach(metric => {
-      metric.run(session)
+      metric.run(job)
     })
 
     MetricSet.afterRun match {

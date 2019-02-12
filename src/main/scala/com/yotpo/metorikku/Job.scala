@@ -11,7 +11,7 @@ import org.apache.spark.groupon.metrics.UserMetricsSystem
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
 import org.apache.spark.sql.SparkSession
 
-case class Session(val config: Configuration) {
+case class Job(val config: Configuration) {
   private val log = LogManager.getLogger(this.getClass)
   val sparkSession = createSparkSession(config.appName, config.output)
   val sparkContext = sparkSession.sparkContext

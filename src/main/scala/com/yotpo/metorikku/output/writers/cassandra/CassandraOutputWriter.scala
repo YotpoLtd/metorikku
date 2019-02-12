@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.output.writers.cassandra
 
-import com.yotpo.metorikku.Session
 import com.yotpo.metorikku.configuration.job.output.Cassandra
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.host
 import com.yotpo.metorikku.output.{WriterSessionRegistration, Writer}
