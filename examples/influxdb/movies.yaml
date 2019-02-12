@@ -1,0 +1,34 @@
+# The MQL file path
+metrics:
+  - examples/influxdb/movies_metric.yaml
+
+inputs:
+  movies:
+    file_date_range:
+      template: examples/file_date_range_inputs/%s/movies.csv
+      date_range:
+        format: yyyy/MM/dd
+        startDate: 2017/09/01
+        endDate: 2017/09/03
+  ratings:
+    file:
+      path: examples/file_inputs/ratings.csv
+
+# If set to true, triggers Explain before saving
+explain: true
+
+# Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+logLevel: WARN
+
+# Set Application Name to have app name prefix in spark instrumentation counters
+appName: moviesAppInflux
+
+# Shows a Preview of the output
+showPreviewLines: 10
+
+instrumentation:
+  influxdb:
+    url: http://influxdb:8086
+    dbName: test
+    username: user
+    password: pass

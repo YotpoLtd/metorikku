@@ -13,12 +13,18 @@ services:
     image: metorikku/spark
     entrypoint:
       - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
   spark-worker:
     image: metorikku/spark
     entrypoint:
       - /scripts/entrypoint-worker.sh
+    logging:
+      driver: none
   zookeeper:
     image: wurstmeister/zookeeper
+    logging:
+      driver: none
   kafka:
     image: wurstmeister/kafka
     environment:
@@ -28,6 +34,8 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092
     depends_on:
       - zookeeper
+    logging:
+      driver: none
   kafka_seed:
     image: wurstmeister/kafka
     volumes:

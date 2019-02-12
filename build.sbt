@@ -19,11 +19,13 @@ scalaVersion := "2.11.12"
 val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.3.2")
 val jacksonVersion = "2.8.9"
 
+lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
+
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided",
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
   "com.holdenkarau" %% "spark-testing-base" % "2.3.1_0.10.0" % "test",
@@ -45,7 +47,8 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
-  "org.apache.commons" % "commons-text" % "1.6"
+  "org.apache.commons" % "commons-text" % "1.6",
+  "org.influxdb" % "influxdb-java" % "2.14"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
@@ -75,6 +78,9 @@ assemblyShadeRules in (Test, assembly) := Seq(
 )
 assemblyJarName in assembly := "metorikku.jar"
 assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
+
+logLevel in assembly := Level.Error
+logLevel in (Test, assembly) := Level.Error
 
 // Publish settings
 publishMavenStyle := true

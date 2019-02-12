@@ -1,13 +1,13 @@
 package com.yotpo.metorikku.output.writers.parquet
 
-import com.yotpo.metorikku.configuration.outputs.File
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.configuration.job.output.File
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.streaming.Trigger
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
 
-class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) extends Writer {
   val NO_REPARTITION = 0
   case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String], triggerDuration: String)
 

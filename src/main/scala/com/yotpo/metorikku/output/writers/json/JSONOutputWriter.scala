@@ -1,11 +1,11 @@
 package com.yotpo.metorikku.output.writers.json
 
-import com.yotpo.metorikku.configuration.outputs.File
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.configuration.job.output.File
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-class JSONOutputWriter(props: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class JSONOutputWriter(props: Map[String, String], outputFile: Option[File]) extends Writer {
 
   case class JSONOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean)
 

@@ -1,11 +1,11 @@
 package com.yotpo.metorikku.output.writers.csv
 
-import com.yotpo.metorikku.configuration.outputs.File
-import com.yotpo.metorikku.output.MetricOutputWriter
+import com.yotpo.metorikku.configuration.job.output.File
+import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-class CSVOutputWriter(props: Map[String, String], outputFile: Option[File]) extends MetricOutputWriter {
+class CSVOutputWriter(props: Map[String, String], outputFile: Option[File]) extends Writer {
 
   case class CSVOutputProperties(saveMode: SaveMode, path: String, coalesce: Boolean, csvOptions: Map[String,String])
 

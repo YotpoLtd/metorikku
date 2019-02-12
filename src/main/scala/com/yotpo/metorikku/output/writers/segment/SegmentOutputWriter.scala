@@ -5,13 +5,13 @@ import java.util
 import com.google.gson.Gson
 import com.segment.analytics.Analytics
 import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
-import com.yotpo.metorikku.configuration.outputs.Segment
-import com.yotpo.metorikku.output.MetricOutputWriter
-import org.apache.spark.groupon.metrics.{SparkCounter, UserMetricsSystem}
+import com.yotpo.metorikku.configuration.job.output.Segment
+import com.yotpo.metorikku.instrumentation.InstrumentationFactory
+import com.yotpo.metorikku.output.Writer
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
-class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment]) extends MetricOutputWriter {
+class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment], instrumentationFactory: InstrumentationFactory) extends Writer {
 
   case class SegmentOutputProperties(eventType: String, keyColumn: String, eventName: String, sleep: Int, batchSize: Int)
   val eventType: String = props.getOrElse("eventType", "identify")
@@ -19,8 +19,6 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
   val keyColumn: String = props.getOrElse("keyColumn", "")
   val sleep: Int = props.getOrElse("sleep", 0).toString.toInt
   val batchSize: Int = props.getOrElse("batchSize", 0).toString.toInt
-  lazy val segmentWriterSuccess: SparkCounter = UserMetricsSystem.counter("segmentWriterSuccess")
-  lazy val segmentWriterFailure: SparkCounter = UserMetricsSystem.counter("segmentWriterFailure")
 
   if (eventType == "identify") setMandatoryArguments("keyColumn") else setMandatoryArguments("keyColumn", "eventName")
 
@@ -52,7 +50,9 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
   private def writeEvents(segmentApiKey: String, partition: Iterator[String]): Unit = {
     val blockingFlush = BlockingFlush.create
     val analytics: Analytics = Analytics.builder(segmentApiKey).plugin(blockingFlush.plugin).build()
+
     partition.foreach(row => {
+      val instrumentationClient = instrumentationFactory.create()
       val eventTraits = new Gson().fromJson(row, classOf[util.Map[String, Object]])
       val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[Double].toInt
       eventTraits.remove(segmentOutputOptions.keyColumn)
@@ -70,10 +70,10 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
               .traits(eventTraits)
             )
         }
-        segmentWriterSuccess.inc(1)
+        instrumentationClient.count(name="segmentWriterSuccess", value=1)
       } catch {
         case exception: Throwable => {
-          segmentWriterFailure.inc(1)
+          instrumentationClient.count(name="segmentWriterFailure", value=1)
         }
       }
     })
