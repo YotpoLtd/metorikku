@@ -2,7 +2,7 @@ package com.yotpo.metorikku.metric
 
 import java.io.File
 
-import com.yotpo.metorikku.Session
+import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.metric.Configuration
 import com.yotpo.metorikku.configuration.metric.OutputType.OutputType
 import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWriteFailedException}
@@ -14,18 +14,18 @@ import org.apache.spark.sql.DataFrame
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
-  def run(session: Session): Unit = {
+  def run(job: Job): Unit = {
     val startTime = System.nanoTime()
-    calculateSteps(session)
-    write(session)
+    calculateSteps(job)
+    write(job)
 
     val endTime = System.nanoTime()
     val elapsedTimeInNS = (endTime - startTime)
-    session.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metricName))
+    job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metricName))
 
   }
 
-  private def calculateSteps(session: Session): Unit = {
+  private def calculateSteps(session: Job): Unit = {
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
       val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, session.config.showPreviewLines.get)
@@ -74,18 +74,18 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def write(session: Session): Unit = {
+  private def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
-      val writer = WriterFactory.get(outputConfig, metricName, session.config, session)
+      val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
       val dataFrameName = outputConfig.dataFrameName
-      val dataFrame = session.sparkSession.table(dataFrameName)
+      val dataFrame = job.sparkSession.table(dataFrameName)
 
       if (dataFrame.isStreaming) {
         writeStream(dataFrame, dataFrameName, writer)
       }
       else {
         writeBatch(dataFrame, dataFrameName, writer,
-          outputConfig.outputType, session.instrumentationClient)
+          outputConfig.outputType, job.instrumentationClient)
       }
     })
   }

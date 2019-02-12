@@ -7,14 +7,14 @@ import org.apache.log4j.LogManager
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
-  val session = Session(ConfigurationParser.parse(args))
+  val session = Job(ConfigurationParser.parse(args))
   runMetrics(session)
 
-  def runMetrics(session: Session): Unit = {
-    session.config.metrics match {
+  def runMetrics(job: Job): Unit = {
+    job.config.metrics match {
       case Some(metrics) => metrics.foreach(metricSetPath => {
         val metricSet = new MetricSet(metricSetPath)
-        metricSet.run(session)
+        metricSet.run(job)
       })
       case None => log.warn("No mertics were defined, exiting")
     }
