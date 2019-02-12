@@ -255,7 +255,7 @@ Check out the [UDF examples directory](examples/udf) for a very simple example o
 The only thing important in this JAR is that you have an object with the following method:
 ```scala
 object SomeObject {
-  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String): Unit = {}
+  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {}
 }
 ```
 Inside the run function do whatever you feel like, in the example folder you'll see that we registered a new UDF.
@@ -269,8 +269,11 @@ Now all that's left is to add it as a new step in your metric:
 ```yaml
 - dataFrameName: dataframe
   classpath: com.example.SomeObject
+  params:
+    param1: value1
 ```
 This will trigger your ```run``` method with the above dataFrameName.
+Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code/steps). 
 
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
 

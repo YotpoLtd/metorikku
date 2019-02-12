@@ -4,9 +4,9 @@ import com.yotpo.metorikku.metric.StepAction
 import org.apache.spark.sql.SparkSession
 import scala.reflect.runtime.universe._
 
-case class Code(objectClassPath: String, metricName: String, dataFrameName: String) extends StepAction[Unit] {
+case class Code(objectClassPath: String, metricName: String, dataFrameName: String, params: Option[Map[String, String]]) extends StepAction[Unit] {
   type MetorikkuCustomCode = {
-    def run(sparkSession: SparkSession, metric: String, step: String): Unit
+    def run(sparkSession: SparkSession, metric: String, step: String, params: Option[Map[String, String]]): Unit
   }
 
   val rm = runtimeMirror(getClass.getClassLoader)
@@ -15,6 +15,6 @@ case class Code(objectClassPath: String, metricName: String, dataFrameName: Stri
   val obj = rm.reflectModule(module).instance.asInstanceOf[MetorikkuCustomCode]
 
   override def run(sparkSession: SparkSession): Unit = {
-    obj.run(sparkSession, metricName, dataFrameName)
+    obj.run(sparkSession, metricName, dataFrameName, params)
   }
 }
