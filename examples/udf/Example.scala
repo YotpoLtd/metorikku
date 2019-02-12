@@ -8,7 +8,7 @@ object TestUDF {
     "Z" + s
   }
 
-  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String): Unit = {
+  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
     ss.udf.register(dataFrameName, udf[String, String](addZPrefix))
   }
 

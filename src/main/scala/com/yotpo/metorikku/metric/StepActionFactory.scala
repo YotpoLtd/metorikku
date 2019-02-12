@@ -22,7 +22,7 @@ object StepFactory {
           case None => {
             configuration.classpath match {
               case Some(cp) => {
-                Code(cp, metricName, configuration.dataFrameName)
+                Code(cp, metricName, configuration.dataFrameName, configuration.params)
               }
               case None => throw MetorikkuException("Each step requires an SQL query or a path to a file (SQL/Scala)")
             }
