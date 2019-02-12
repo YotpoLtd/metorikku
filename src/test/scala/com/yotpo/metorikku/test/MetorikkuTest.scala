@@ -61,4 +61,17 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     assert(thrown.getCause.getMessage.startsWith("cannot resolve '`non_existing_column`'"))
   }
+
+  test("Test Metorikku should not fail on invalid query when ignoreOnFailures is set to true") {
+    Metorikku.main(Array(
+      "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-ignore-step.yaml"))
+
+    assert(new File("src/test/out/metric_test/metric/testOutput/._SUCCESS.crc").exists)
+
+    val sparkSession = SparkSession.builder.getOrCreate()
+    val testOutput = sparkSession.table("testOutput")
+
+    testOutput.cache
+    assert(testOutput.count === 5)
+  }
 }

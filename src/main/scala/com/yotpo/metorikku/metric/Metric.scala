@@ -37,7 +37,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
         case ex: Exception => {
           val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metricName}"
           session.instrumentationClient.count(name="failedSteps", value=1, tags=tags)
-          if (session.config.continueOnFailedStep.get) {
+          if (stepConfig.ignoreOnFailures.get || session.config.continueOnFailedStep.get) {
             log.error(errorMessage, ex)
           } else {
             throw MetorikkuFailedStepException(errorMessage, ex)

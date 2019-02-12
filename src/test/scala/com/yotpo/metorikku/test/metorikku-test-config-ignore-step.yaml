@@ -1,0 +1,9 @@
+metrics:
+  - src/test/calculations/ignore_step_metric_test/
+inputs:
+ employees:
+  file:
+    path: src/test/tables/employees.parquet
+output:
+ file:
+  dir: src/test/out/
