@@ -1,0 +1,13 @@
+steps:
+  - sql: select * from employees
+    dataFrameName: testOutput
+  - sql: create temporary view testOutput as (select * from employees)
+    ignoreOnFailures: true
+  - sql: select * from employees where name = 'ron'
+    dataFrameName: filteredOutput
+output:
+  - dataFrameName: testOutput
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: "/metric_test/metric/testOutput/"
