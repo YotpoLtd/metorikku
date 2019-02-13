@@ -5,7 +5,8 @@ import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
 
 case class Output(dataFrameName: String,
                   @JsonScalaEnumeration(classOf[OutputTypeReference]) outputType: OutputType.OutputType,
-                  outputOptions: Map[String, Any])
+                  outputOptions: Map[String, Any],
+                  hive: Option[Hive])
 
 object OutputType extends Enumeration {
   type OutputType = Value

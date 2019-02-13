@@ -1,0 +1,10 @@
+steps:
+- dataFrameName: hiveOutput
+  sql:
+    SELECT * FROM testMetorikkuHive
+output:
+- dataFrameName: hiveOutput
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: hiveOutput.parquet

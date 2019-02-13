@@ -3,7 +3,7 @@ package com.yotpo.metorikku.metric
 import java.io.File
 
 import com.yotpo.metorikku.Job
-import com.yotpo.metorikku.configuration.metric.Configuration
+import com.yotpo.metorikku.configuration.metric.{Configuration, Output}
 import com.yotpo.metorikku.configuration.metric.OutputType.OutputType
 import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWriteFailedException}
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
@@ -25,19 +25,19 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
 
   }
 
-  private def calculateSteps(session: Job): Unit = {
+  private def calculateSteps(job: Job): Unit = {
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
-      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, session.config.showPreviewLines.get)
+      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get)
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
-        step.run(session.sparkSession)
-        session.instrumentationClient.count(name="successfulSteps", value=1, tags=tags)
+        step.run(job.sparkSession)
+        job.instrumentationClient.count(name="successfulSteps", value=1, tags=tags)
       } catch {
         case ex: Exception => {
           val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metricName}"
-          session.instrumentationClient.count(name="failedSteps", value=1, tags=tags)
-          if (stepConfig.ignoreOnFailures.get || session.config.continueOnFailedStep.get) {
+          job.instrumentationClient.count(name="failedSteps", value=1, tags=tags)
+          if (stepConfig.ignoreOnFailures.get || job.config.continueOnFailedStep.get) {
             log.error(errorMessage + " - " + ex.getMessage)
           } else {
             throw MetorikkuFailedStepException(errorMessage, ex)
@@ -74,6 +74,38 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
+  private def writeToHive(job: Job, writer: Writer, outputConfig: Output) = {
+    outputConfig.hive match {
+      case Some(hiveConfig) => {
+        writer.getHivePath() match {
+          case Some(path) => {
+            hiveConfig.tableName match {
+              case Some(tableName) => {
+                // Allow overwriring
+                hiveConfig.overwrite match {
+                  case Some(overwrite) => {
+                    if (overwrite) {
+                      log.info(s"Dropping hive table ${tableName} if it's existing")
+                      job.sparkSession.sql(s"DROP TABLE IF EXISTS $tableName")
+                    }
+                  }
+                  case None =>
+                }
+                log.info(s"Writing to hive table ${tableName} with path ${path}")
+                job.sparkSession.catalog.createTable(tableName, path)
+              }
+              case None => log.error(s"Please provide a table name when using hive")
+            }
+          }
+          case None => log.error(s"Hive is not supported on output " +
+            s"${outputConfig.outputType} or there's some misconfiguration with the output " +
+            s"(missing path for example)")
+        }
+      }
+      case None =>
+    }
+  }
+
   private def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
       val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
@@ -87,6 +119,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
         writeBatch(dataFrame, dataFrameName, writer,
           outputConfig.outputType, job.instrumentationClient)
       }
+
+      writeToHive(job, writer, outputConfig)
     })
   }
 }

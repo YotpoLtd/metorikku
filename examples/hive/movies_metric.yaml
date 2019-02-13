@@ -1,0 +1,15 @@
+steps:
+- dataFrameName: comedyFantasyRomanceSciFiMovies
+  sql:
+    SELECT title
+    FROM movies
+    WHERE genres='Comedy|Fantasy|Romance|Sci-Fi'
+output:
+- dataFrameName: comedyFantasyRomanceSciFiMovies
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: comedyFantasyRomanceSciFiMovies.parquet
+  hive:
+    tableName: testMetorikkuHive
+    overwrite: true

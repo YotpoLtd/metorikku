@@ -22,6 +22,10 @@ trait Writer extends Serializable{
     throw MetorikkuWriterStreamingUnsupported(s"writer doesn't support streaming yet.")
   }
 
+  def getHivePath(): Option[String] = {
+    None
+  }
+
   case class MissingWriterArgumentException(private val message: String = "",
                                             private val cause: Throwable = None.orNull)
     extends Exception(message, cause)

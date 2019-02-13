@@ -19,19 +19,25 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
                                                      props("path"),
                                                      partitionBy, processingTime)
 
+  var outputPath: Option[String] = None
+  outputFile match {
+    case Some(file) =>
+      outputPath = Option(file.dir + "/" + parquetOutputOptions.path)
+    case None => log.error(s"Parquet file configuration was not provided")
+  }
+
   override def write(dataFrame: DataFrame): Unit = {
-    outputFile match {
-      case Some(file) =>
-        val outputPath = file.dir + "/" + parquetOutputOptions.path
-        log.info(s"Writing Parquet Dataframe to $outputPath")
+    outputPath match {
+      case Some(out) =>
+        log.info(s"Writing Parquet Dataframe to $out")
 
         var writer = if (repartitionValue == NO_REPARTITION) dataFrame.write else dataFrame.repartition(repartitionValue).write
         if (parquetOutputOptions.partitionBy.nonEmpty) {
           writer = writer.partitionBy(parquetOutputOptions.partitionBy: _*)
         }
 
-        writer.mode(parquetOutputOptions.saveMode).parquet(outputPath)
-      case None => log.error(s"Parquet file configuration were not provided")
+        writer.mode(parquetOutputOptions.saveMode).parquet(out)
+      case None =>
     }
 
   }
@@ -39,19 +45,28 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
   override def writeStream(dataFrame: DataFrame): Unit = {
     outputFile match {
       case Some(fileConfig) =>
-        val outputPath = fileConfig.dir + "/" + parquetOutputOptions.path
-        log.info(s"Writing Dataframe to parquet $outputPath")
-        val stream = dataFrame.writeStream
-          .format("parquet")
-          .trigger(Trigger.ProcessingTime(parquetOutputOptions.triggerDuration))
-          .option("path", outputPath)
-          .option("checkpointLocation", fileConfig.checkpointLocation.get)
-          .outputMode(parquetOutputOptions.saveMode.toString)
+        outputPath match {
+          case Some(out) => {
+            log.info(s"Writing Dataframe to parquet $out")
+            val stream = dataFrame.writeStream
+              .format("parquet")
+              .trigger(Trigger.ProcessingTime(parquetOutputOptions.triggerDuration))
+              .option("path", out)
+              .option("checkpointLocation", fileConfig.checkpointLocation.get)
+              .outputMode(parquetOutputOptions.saveMode.toString)
 
-        val query = stream.start()
-        query.awaitTermination()
+            val query = stream.start()
+            query.awaitTermination()
+          }
+          case None =>
+        }
+
 
       case None =>
     }
+  }
+
+  override def getHivePath(): Option[String] = {
+    outputPath
   }
 }
