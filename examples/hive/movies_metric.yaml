@@ -10,6 +10,11 @@ output:
   outputOptions:
     saveMode: Overwrite
     path: comedyFantasyRomanceSciFiMovies.parquet
-  hive:
-    tableName: testMetorikkuHive
+    tableName: testMetorikkuHiveExternal
+    overwrite: true
+- dataFrameName: comedyFantasyRomanceSciFiMovies
+  outputType: Table
+  outputOptions:
+    saveMode: Overwrite
+    tableName: testMetorikkuHiveManaged
     overwrite: true

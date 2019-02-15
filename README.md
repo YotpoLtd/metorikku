@@ -278,8 +278,8 @@ Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
 
 #### Apache Hive metastore
-Metorikku supports reading and saving tables from Apache hive metastore.
-To enable hive support via spark-submit (assuming you're using MySQL as Hive's DB) send the following configurations:
+Metorikku supports reading and saving tables with Apache hive metastore.
+To enable hive support via spark-submit (assuming you're using MySQL as Hive's DB but any backend can work) send the following configurations:
 ```bash
 spark-submit \
 --packages mysql:mysql-connector-java:5.1.75 \
@@ -287,13 +287,15 @@ spark-submit \
 --conf spark.hadoop.javax.jdo.option.ConnectionURL="jdbc:mysql://localhost:3306/hive?useSSL=false&createDatabaseIfNotExist=true" \
 --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver \
 --conf spark.hadoop.javax.jdo.option.ConnectionUserName=user \
---conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass ...
+--conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass \
+--conf spark.sql.warehouse.dir=/warehouse ...
 ```
+
 *NOTE: If you're running via the standalone metorikku you can use system properties instead (```-Dspark.hadoop...```) and you must add the MySQL connector JAR to your class path via ```-cp```*
 
 This will enable reading from the metastore.
 
-To write to the metastore you need to add the following to your metric file:
+To write an external table to the metastore you need to add the following to your metric file:
 ```yaml
 ...
 output:
@@ -302,12 +304,22 @@ output:
   outputOptions:
     saveMode: Overwrite
     path: moviesWithRatings.parquet
-  hive:
     tableName: hiveTable
-    # Optional, default is false
     overwrite: true
 ```
-Currently only parquet output is supported for saving a table path to the metastore.
+Currently only parquet output is supported for saving an external table to the metastore.
+
+To write a managed table (that will reside in the warehouse dir) add the following config:
+```yaml
+...
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Table
+  outputOptions:
+    saveMode: Overwrite
+    tableName: hiveTable
+    overwrite: true
+```
 
 Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 

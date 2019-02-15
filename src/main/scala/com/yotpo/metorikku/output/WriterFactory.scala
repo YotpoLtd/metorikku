@@ -6,6 +6,7 @@ import com.yotpo.metorikku.configuration.metric.{Output, OutputType}
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
+import com.yotpo.metorikku.output.writers.table.TableOutputWriter
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
 import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
 import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
@@ -14,7 +15,6 @@ import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
 import com.yotpo.metorikku.output.writers.segment.SegmentOutputWriter
-import org.apache.spark.sql.SparkSession
 
 object WriterFactory {
   def get(outputConfig: Output, metricName: String, configuration: Configuration, job: Job): Writer = {
@@ -35,6 +35,7 @@ object WriterFactory {
       case OutputType.JDBC => new JDBCOutputWriter(metricOutputOptions, output.jdbc)
       case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions, output.jdbc)
       case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions, output.kafka)
+      case OutputType.Table => new TableOutputWriter(metricOutputOptions, output.file)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions.asInstanceOf[Map[String, String]])

@@ -74,38 +74,6 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def writeToHive(job: Job, writer: Writer, outputConfig: Output) = {
-    outputConfig.hive match {
-      case Some(hiveConfig) => {
-        writer.getHivePath() match {
-          case Some(path) => {
-            hiveConfig.tableName match {
-              case Some(tableName) => {
-                // Allow overwriring
-                hiveConfig.overwrite match {
-                  case Some(overwrite) => {
-                    if (overwrite) {
-                      log.info(s"Dropping hive table ${tableName} if it's existing")
-                      job.sparkSession.sql(s"DROP TABLE IF EXISTS $tableName")
-                    }
-                  }
-                  case None =>
-                }
-                log.info(s"Writing to hive table ${tableName} with path ${path}")
-                job.sparkSession.catalog.createTable(tableName, path)
-              }
-              case None => log.error(s"Please provide a table name when using hive")
-            }
-          }
-          case None => log.error(s"Hive is not supported on output " +
-            s"${outputConfig.outputType} or there's some misconfiguration with the output " +
-            s"(missing path for example)")
-        }
-      }
-      case None =>
-    }
-  }
-
   private def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
       val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
@@ -119,8 +87,6 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
         writeBatch(dataFrame, dataFrameName, writer,
           outputConfig.outputType, job.instrumentationClient)
       }
-
-      writeToHive(job, writer, outputConfig)
     })
   }
 }

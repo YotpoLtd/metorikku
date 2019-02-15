@@ -5,8 +5,7 @@ import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
 
 case class Output(dataFrameName: String,
                   @JsonScalaEnumeration(classOf[OutputTypeReference]) outputType: OutputType.OutputType,
-                  outputOptions: Map[String, Any],
-                  hive: Option[Hive])
+                  outputOptions: Map[String, Any])
 
 object OutputType extends Enumeration {
   type OutputType = Value
@@ -21,7 +20,8 @@ object OutputType extends Enumeration {
   Instrumentation,
   JDBC,
   JDBCQuery,
-  Kafka = Value
+  Kafka,
+  Table = Value
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

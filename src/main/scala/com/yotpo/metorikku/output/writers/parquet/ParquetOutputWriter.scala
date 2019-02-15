@@ -2,22 +2,29 @@ package com.yotpo.metorikku.output.writers.parquet
 
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.output.writers.table.{TableOutputProperties, TableOutputWriter}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.streaming.Trigger
-import org.apache.spark.sql.{DataFrame, SaveMode}
+import org.apache.spark.sql.DataFrame
 
 
 class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) extends Writer {
-  val NO_REPARTITION = 0
-  case class ParquetOutputProperties(saveMode: SaveMode, path: String, partitionBy: Seq[String], triggerDuration: String)
-
   val log = LogManager.getLogger(this.getClass)
-  val partitionBy = props.getOrElse("partitionBy", Seq.empty).asInstanceOf[Seq[String]]
-  val repartitionValue = props.getOrElse("repartition",NO_REPARTITION).asInstanceOf[Integer]
-  val processingTime = props.getOrElse("triggerDuration", "10 seconds")
-  val parquetOutputOptions = ParquetOutputProperties(SaveMode.valueOf(props("saveMode")),
-                                                     props("path"),
-                                                     partitionBy, processingTime)
+
+  case class ParquetOutputProperties(path: String,
+                                     saveMode: Option[String],
+                                     partitionBy: Option[Seq[String]],
+                                     repartition: Option[Int],
+                                     triggerDuration: Option[String],
+                                     tableName: Option[String])
+
+  val parquetOutputOptions = ParquetOutputProperties(
+    props.get("path").get,
+    props.get("saveMode"),
+    props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
+    props.get("repartition").asInstanceOf[Option[Int]],
+    props.get("triggerDuration"),
+    props.get("tableName"))
 
   var outputPath: Option[String] = None
   outputFile match {
@@ -31,12 +38,36 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
       case Some(out) =>
         log.info(s"Writing Parquet Dataframe to $out")
 
-        var writer = if (repartitionValue == NO_REPARTITION) dataFrame.write else dataFrame.repartition(repartitionValue).write
-        if (parquetOutputOptions.partitionBy.nonEmpty) {
-          writer = writer.partitionBy(parquetOutputOptions.partitionBy: _*)
+        val writer = parquetOutputOptions.repartition match {
+          case Some(repartition) => dataFrame.repartition(repartition).write
+          case None => dataFrame.write
         }
 
-        writer.mode(parquetOutputOptions.saveMode).parquet(out)
+        parquetOutputOptions.partitionBy match {
+          case Some(partitionBy) =>
+            writer.partitionBy(partitionBy: _*)
+          case None =>
+        }
+
+        parquetOutputOptions.saveMode match {
+          case Some(saveMode) => writer.mode(saveMode)
+          case None =>
+        }
+
+        writer.parquet(out)
+
+        parquetOutputOptions.tableName match {
+          case Some(tableName) => {
+            val tableWriter = new TableOutputWriter(TableOutputProperties(
+              tableName,
+              parquetOutputOptions.saveMode,
+              parquetOutputOptions.partitionBy,
+              None,
+              Option(parquetOutputOptions.path)), outputFile)
+            tableWriter.write(dataFrame)
+          }
+          case None =>
+        }
       case None =>
     }
 
@@ -50,10 +81,17 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
             log.info(s"Writing Dataframe to parquet $out")
             val stream = dataFrame.writeStream
               .format("parquet")
-              .trigger(Trigger.ProcessingTime(parquetOutputOptions.triggerDuration))
               .option("path", out)
               .option("checkpointLocation", fileConfig.checkpointLocation.get)
-              .outputMode(parquetOutputOptions.saveMode.toString)
+
+            parquetOutputOptions.triggerDuration match {
+              case Some(triggerDuration) => stream.trigger(Trigger.ProcessingTime(triggerDuration))
+              case None =>
+            }
+            parquetOutputOptions.saveMode match {
+              case Some(saveMode) => stream.outputMode(saveMode)
+              case None =>
+            }
 
             val query = stream.start()
             query.awaitTermination()
@@ -64,9 +102,5 @@ class ParquetOutputWriter(props: Map[String, String], outputFile: Option[File]) 
 
       case None =>
     }
-  }
-
-  override def getHivePath(): Option[String] = {
-    outputPath
   }
 }
