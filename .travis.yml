@@ -11,7 +11,7 @@ cache:
   - "$HOME/.sbt/launchers/"
 env:
   global:
-    - SPARK_VERSION=2.3.2
+    - SPARK_VERSION=2.4.0
     - HADOOP_VERSION=2.7
 before_script:
   - docker pull metorikku/spark:latest

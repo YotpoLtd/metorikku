@@ -17,4 +17,3 @@ output:
   outputOptions:
     saveMode: Overwrite
     tableName: testMetorikkuHiveManaged
-    overwrite: true
