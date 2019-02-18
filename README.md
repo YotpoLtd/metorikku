@@ -309,17 +309,7 @@ output:
 ```
 Currently only parquet output is supported for saving an external table to the metastore.
 
-To write a managed table (that will reside in the warehouse dir) add the following config:
-```yaml
-...
-output:
-- dataFrameName: moviesWithRatings
-  outputType: Table
-  outputOptions:
-    saveMode: Overwrite
-    tableName: hiveTable
-    overwrite: true
-```
+To write a managed table (that will reside in the warehouse dir) simply omit the path in the parquet output configuration.
 
 Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 

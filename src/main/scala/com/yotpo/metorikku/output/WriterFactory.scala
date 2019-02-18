@@ -35,7 +35,6 @@ object WriterFactory {
       case OutputType.JDBC => new JDBCOutputWriter(metricOutputOptions, output.jdbc)
       case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions, output.jdbc)
       case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions, output.kafka)
-      case OutputType.Table => new TableOutputWriter(metricOutputOptions, output.file)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions.asInstanceOf[Map[String, String]])

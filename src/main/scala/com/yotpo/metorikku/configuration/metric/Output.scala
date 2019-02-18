@@ -20,8 +20,7 @@ object OutputType extends Enumeration {
   Instrumentation,
   JDBC,
   JDBCQuery,
-  Kafka,
-  Table = Value
+  Kafka = Value
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

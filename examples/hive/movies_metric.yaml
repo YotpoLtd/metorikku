@@ -11,9 +11,8 @@ output:
     saveMode: Overwrite
     path: comedyFantasyRomanceSciFiMovies.parquet
     tableName: testMetorikkuHiveExternal
-    overwrite: true
 - dataFrameName: comedyFantasyRomanceSciFiMovies
-  outputType: Table
+  outputType: Parquet
   outputOptions:
     saveMode: Overwrite
     tableName: testMetorikkuHiveManaged

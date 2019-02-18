@@ -14,18 +14,7 @@ import org.apache.spark.sql.DataFrame
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
-  def run(job: Job): Unit = {
-    val startTime = System.nanoTime()
-    calculateSteps(job)
-    write(job)
-
-    val endTime = System.nanoTime()
-    val elapsedTimeInNS = (endTime - startTime)
-    job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metricName))
-
-  }
-
-  private def calculateSteps(job: Job): Unit = {
+  def calculate(job: Job): Unit = {
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
       val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get)
@@ -74,7 +63,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def write(job: Job): Unit = {
+  def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
       val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
       val dataFrameName = outputConfig.dataFrameName
