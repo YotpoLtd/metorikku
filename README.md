@@ -58,7 +58,7 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
-***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka and Parquet and currently you can use just one output for streaming metrics*** <br />
+***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics*** <br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -295,7 +295,7 @@ spark-submit \
 
 This will enable reading from the metastore.
 
-To write an external table to the metastore you need to add the following to your metric file:
+To write an external table to the metastore you need to add **tableName** to your output configuration:
 ```yaml
 ...
 output:
@@ -307,9 +307,18 @@ output:
     tableName: hiveTable
     overwrite: true
 ```
-Currently only parquet output is supported for saving an external table to the metastore.
+Only file formats are supported for table saves (**Parquet**, **CSV**, **JSON**).
 
-To write a managed table (that will reside in the warehouse dir) simply omit the path in the parquet output configuration.
+To write a managed table (that will reside in the warehouse dir) simply omit the **path** in the output configuration.
+
+To change the default database you can add the following to the job configuration:
+```yaml
+...
+catalog:
+  database: some_database
+...
+
+```
 
 Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 

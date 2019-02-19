@@ -99,3 +99,6 @@ instrumentation:
     username: username
     password: password
     dbName: test
+# Optionally set catalog parameters (for hive support)
+catalog:
+  database: some_database

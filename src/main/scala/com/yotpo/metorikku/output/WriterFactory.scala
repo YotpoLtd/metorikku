@@ -5,13 +5,10 @@ import com.yotpo.metorikku.configuration.job.Configuration
 import com.yotpo.metorikku.configuration.metric.{Output, OutputType}
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
-import com.yotpo.metorikku.output.writers.csv.CSVOutputWriter
-import com.yotpo.metorikku.output.writers.table.TableOutputWriter
+import com.yotpo.metorikku.output.writers.file.{CSVOutputWriter, JSONOutputWriter, ParquetOutputWriter}
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
 import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
-import com.yotpo.metorikku.output.writers.json.JSONOutputWriter
 import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
-import com.yotpo.metorikku.output.writers.parquet.ParquetOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
 import com.yotpo.metorikku.output.writers.segment.SegmentOutputWriter

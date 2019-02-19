@@ -1,0 +1,133 @@
+package com.yotpo.metorikku.output.writers.file
+
+import com.yotpo.metorikku.configuration.job.output.File
+import com.yotpo.metorikku.output.Writer
+import org.apache.log4j.LogManager
+import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.{DataFrame, DataFrameWriter}
+
+class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
+  val log = LogManager.getLogger(this.getClass)
+
+  case class FileOutputProperties( path: Option[String],
+                                   saveMode: Option[String],
+                                   partitionBy: Option[Seq[String]],
+                                   repartition: Option[Int],
+                                   triggerDuration: Option[String],
+                                   tableName: Option[String],
+                                   format: Option[String],
+                                   coalesce: Option[Boolean],
+                                   extraOptions: Option[Map[String, String]])
+
+  val fileOutputProperties = FileOutputProperties(
+    props.get("path").asInstanceOf[Option[String]],
+    props.get("saveMode").asInstanceOf[Option[String]],
+    props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
+    props.get("repartition").asInstanceOf[Option[Int]],
+    props.get("triggerDuration").asInstanceOf[Option[String]],
+    props.get("tableName").asInstanceOf[Option[String]],
+    props.get("format").asInstanceOf[Option[String]],
+    props.get("coalesce").asInstanceOf[Option[Boolean]],
+    props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
+
+  private def repartition(dataFrame: DataFrame): DataFrame = {
+    (fileOutputProperties.coalesce, fileOutputProperties.repartition) match {
+      case (Some(true), _) => dataFrame.coalesce(1)
+      case (None, Some(repartition)) => dataFrame.repartition(repartition)
+      case _ => dataFrame
+    }
+  }
+
+  override def write(inputDataFrame: DataFrame): Unit = {
+    val dataFrame = repartition(inputDataFrame)
+    val writer = dataFrame.write
+
+    fileOutputProperties.format match {
+      case Some(format) => writer.format(format)
+      case None => writer.format("parquet")
+    }
+
+    fileOutputProperties.partitionBy match {
+      case Some(partitionBy) => writer.partitionBy(partitionBy: _*)
+      case None =>
+    }
+
+    fileOutputProperties.saveMode match {
+      case Some(saveMode) => writer.mode(saveMode)
+      case None =>
+    }
+
+    fileOutputProperties.extraOptions match {
+      case Some(options) => writer.options(options)
+      case None =>
+    }
+
+    // Handle path
+    val path: Option[String] = (fileOutputProperties.path, outputFile) match {
+      case (Some(path), Some(file)) => Option(file.dir + "/" + path)
+      case (Some(path), None) => Option(path)
+      case _ => None
+    }
+    path match {
+      case Some(filePath) => writer.option("path", filePath)
+      case None =>
+    }
+
+    save(writer, dataFrame, fileOutputProperties.tableName, path)
+  }
+
+  private def save(writer: DataFrameWriter[_], dataFrame: DataFrame, tableName: Option[String], path: Option[String]): Unit = {
+    (fileOutputProperties.tableName, path) match {
+      case (Some(tableName), Some(filePath)) => {
+        log.info(s"Writing external table $tableName to $filePath")
+        val ss = dataFrame.sparkSession
+        val catalog = ss.catalog
+        catalog.tableExists(tableName) match {
+          // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
+          case true => {
+            writer.save()
+            log.info(s"Overwriting external table $tableName to new path $filePath")
+            ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
+            catalog.refreshTable(tableName)
+          }
+          case false => writer.saveAsTable(tableName)
+        }
+      }
+      case (Some(tableName), None) => {
+        log.info(s"Writing managed table $tableName")
+        writer.saveAsTable(tableName)
+      }
+      case (None, Some(filePath)) => {
+        log.info(s"Writing file to $filePath")
+        writer.save()
+      }
+      case _ => log.error("Failed to write to file. missing some required options")
+    }
+  }
+
+  override def writeStream(dataFrame: DataFrame): Unit = {
+    (fileOutputProperties.path, outputFile) match {
+      case (Some(path), Some(file)) => {
+        val filePath = file.dir + "/" + path
+        log.info(s"Writing Dataframe to file path ${filePath}")
+        val stream = dataFrame.writeStream
+          .format(fileOutputProperties.format.getOrElse("parquet"))
+          .option("path", filePath)
+          .option("checkpointLocation", file.checkpointLocation.get)
+
+        fileOutputProperties.triggerDuration match {
+          case Some(triggerDuration) => stream.trigger(Trigger.ProcessingTime(triggerDuration))
+          case None =>
+        }
+        fileOutputProperties.saveMode match {
+          case Some(saveMode) => stream.outputMode(saveMode)
+          case None =>
+        }
+
+        val query = stream.start()
+        query.awaitTermination()
+      }
+      case _ =>
+    }
+  }
+}

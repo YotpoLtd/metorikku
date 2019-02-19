@@ -28,6 +28,19 @@ case class Job(val config: Configuration) {
     }
   })
 
+  config.catalog match {
+    case Some(catalog) => {
+      catalog.database match {
+        case Some(database) => {
+          sparkSession.sql(s"CREATE DATABASE IF NOT EXISTS $database")
+          sparkSession.catalog.setCurrentDatabase(database)
+        }
+        case None =>
+      }
+    }
+    case None =>
+  }
+
   StreamingQueryMetricsListener.init(sparkSession, instrumentationClient)
   setSparkLogLevel(config.logLevel, sparkContext)
   registerVariables(config.variables, sparkSession)
