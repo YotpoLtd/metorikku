@@ -17,22 +17,22 @@ import scala.collection.Seq
 case class Tester(config: TesterConfig) {
   val log = LogManager.getLogger(this.getClass)
   val metricConfig = createMetorikkuConfigFromTestSettings()
-  val session = Job(metricConfig)
+  val job = Job(metricConfig)
 
   def run(): Unit = {
     var errors = Array[String]()
 
     metricConfig.metrics match {
       case Some(metrics) => metrics.foreach(metric => {
-        val metricSet = new MetricSet(metric)
-        metricSet.run(session)
+        val metricSet = new MetricSet(metric, false)
+        metricSet.run(job)
         log.info(s"Starting testing ${metric}")
         errors = errors ++ compareActualToExpected(metric)
       })
       case None => log.warn("No metrics were defined, exiting")
     }
 
-    session.sparkSession.stop()
+    job.sparkSession.stop()
 
     if (!errors.isEmpty) {
       throw new MetorikkuTesterTestFailedException("Tests failed:\n" + errors.mkString("\n"))
@@ -47,7 +47,7 @@ case class Tester(config: TesterConfig) {
     val params = config.test.params.getOrElse(Params(None))
     val variables = params.variables
     val inputs = getMockFilesFromDir(config.test.mocks, config.basePath)
-    Configuration(Option(metrics),Option(inputs), variables, None, None, None, Option(config.preview), None, None, None)
+    Configuration(Option(metrics),Option(inputs), variables, None, None, None, None, Option(config.preview), None, None, None)
   }
 
   private def getMockFilesFromDir(mocks: List[Mock], testDir: File): Map[String, Input] = {
@@ -89,7 +89,7 @@ case class Tester(config: TesterConfig) {
     val metricExpectedTests = config.test.tests
 
     metricExpectedTests.keys.foreach(tableName => {
-      val metricActualResultRows = extractTableContents(session.sparkSession, tableName, config.test.outputMode.get)
+      val metricActualResultRows = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
       var metricExpectedResultRows = metricExpectedTests(tableName)
       if (metricExpectedResultRows.length == metricActualResultRows.length) {
         for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {

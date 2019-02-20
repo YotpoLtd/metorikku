@@ -11,7 +11,7 @@ cache:
   - "$HOME/.sbt/launchers/"
 env:
   global:
-    - SPARK_VERSION=2.3.2
+    - SPARK_VERSION=2.4.0
     - HADOOP_VERSION=2.7
 before_script:
   - docker pull metorikku/spark:latest
@@ -48,6 +48,10 @@ script:
   - travis_fold start "file_to_influx_e2e"
   - docker-compose -f e2e/influxdb/docker-compose.yml up --exit-code-from influxdb_tester || travis_terminate 1;
   - travis_fold end "file_to_influx_e2e"
+  # File to hive E2E
+  - travis_fold start "file_to_hive_e2e"
+  - docker-compose -f e2e/hive/docker-compose.yml up --exit-code-from spark-submit || travis_terminate 1;
+  - travis_fold end "file_to_hive_e2e"
 deploy:
   - provider: script
     skip_cleanup: true

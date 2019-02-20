@@ -58,7 +58,7 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
-***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka and Parquet and currently you can use just one output for streaming metrics*** <br />
+***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics*** <br />
 Redshift - s3_access_key and s3_secret are supported from spark-submit
 
 ### Running Metorikku
@@ -276,6 +276,51 @@ This will trigger your ```run``` method with the above dataFrameName.
 Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code/steps). 
 
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
+
+#### Apache Hive metastore
+Metorikku supports reading and saving tables with Apache hive metastore.
+To enable hive support via spark-submit (assuming you're using MySQL as Hive's DB but any backend can work) send the following configurations:
+```bash
+spark-submit \
+--packages mysql:mysql-connector-java:5.1.75 \
+--conf spark.sql.catalogImplementation=hive \
+--conf spark.hadoop.javax.jdo.option.ConnectionURL="jdbc:mysql://localhost:3306/hive?useSSL=false&createDatabaseIfNotExist=true" \
+--conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver \
+--conf spark.hadoop.javax.jdo.option.ConnectionUserName=user \
+--conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass \
+--conf spark.sql.warehouse.dir=/warehouse ...
+```
+
+*NOTE: If you're running via the standalone metorikku you can use system properties instead (```-Dspark.hadoop...```) and you must add the MySQL connector JAR to your class path via ```-cp```*
+
+This will enable reading from the metastore.
+
+To write an external table to the metastore you need to add **tableName** to your output configuration:
+```yaml
+...
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: moviesWithRatings.parquet
+    tableName: hiveTable
+    overwrite: true
+```
+Only file formats are supported for table saves (**Parquet**, **CSV**, **JSON**).
+
+To write a managed table (that will reside in the warehouse dir) simply omit the **path** in the output configuration.
+
+To change the default database you can add the following to the job configuration:
+```yaml
+...
+catalog:
+  database: some_database
+...
+
+```
+
+Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

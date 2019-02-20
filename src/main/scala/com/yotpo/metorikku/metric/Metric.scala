@@ -3,7 +3,7 @@ package com.yotpo.metorikku.metric
 import java.io.File
 
 import com.yotpo.metorikku.Job
-import com.yotpo.metorikku.configuration.metric.Configuration
+import com.yotpo.metorikku.configuration.metric.{Configuration, Output}
 import com.yotpo.metorikku.configuration.metric.OutputType.OutputType
 import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWriteFailedException}
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
@@ -14,30 +14,19 @@ import org.apache.spark.sql.DataFrame
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
-  def run(job: Job): Unit = {
-    val startTime = System.nanoTime()
-    calculateSteps(job)
-    write(job)
-
-    val endTime = System.nanoTime()
-    val elapsedTimeInNS = (endTime - startTime)
-    job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metricName))
-
-  }
-
-  private def calculateSteps(session: Job): Unit = {
+  def calculate(job: Job): Unit = {
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
-      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, session.config.showPreviewLines.get)
+      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get)
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
-        step.run(session.sparkSession)
-        session.instrumentationClient.count(name="successfulSteps", value=1, tags=tags)
+        step.run(job.sparkSession)
+        job.instrumentationClient.count(name="successfulSteps", value=1, tags=tags)
       } catch {
         case ex: Exception => {
           val errorMessage = s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metricName}"
-          session.instrumentationClient.count(name="failedSteps", value=1, tags=tags)
-          if (stepConfig.ignoreOnFailures.get || session.config.continueOnFailedStep.get) {
+          job.instrumentationClient.count(name="failedSteps", value=1, tags=tags)
+          if (stepConfig.ignoreOnFailures.get || job.config.continueOnFailedStep.get) {
             log.error(errorMessage + " - " + ex.getMessage)
           } else {
             throw MetorikkuFailedStepException(errorMessage, ex)
@@ -74,7 +63,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def write(job: Job): Unit = {
+  def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
       val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
       val dataFrameName = outputConfig.dataFrameName

@@ -19,7 +19,7 @@ object MetricSet {
   }
 }
 
-class MetricSet(metricSet: String) {
+class MetricSet(metricSet: String, write: Boolean = true) {
   val log = LogManager.getLogger(this.getClass)
 
   val metrics: Seq[Metric] = parseMetrics(metricSet)
@@ -37,7 +37,16 @@ class MetricSet(metricSet: String) {
     }
 
     metrics.foreach(metric => {
-      metric.run(job)
+      val startTime = System.nanoTime()
+
+      metric.calculate(job)
+      if (write) {
+        metric.write(job)
+      }
+
+      val endTime = System.nanoTime()
+      val elapsedTimeInNS = (endTime - startTime)
+      job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.metricName))
     })
 
     MetricSet.afterRun match {
