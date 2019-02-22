@@ -47,16 +47,19 @@ case class Tester(config: TesterConfig) {
     val params = config.test.params.getOrElse(Params(None))
     val variables = params.variables
     val inputs = getMockFilesFromDir(config.test.mocks, config.basePath)
-    Configuration(Option(metrics),Option(inputs), variables, None, None, None, None, Option(config.preview), None, None, None)
+    Configuration(Option(metrics),Option(inputs), variables, None, None, None, None, None,
+      None, None, Option(config.preview), None, None, None)
   }
 
   private def getMockFilesFromDir(mocks: List[Mock], testDir: File): Map[String, Input] = {
     mocks.map(mock => {
       mock.name -> {
-        val fileInput = com.yotpo.metorikku.configuration.job.input.File(new File(testDir, mock.path).getCanonicalPath)
+        val fileInput = com.yotpo.metorikku.configuration.job.input.File(
+          new File(testDir, mock.path).getCanonicalPath,
+          None, None, None)
         Input(Option(mock.streaming match {
-          case true => new StreamMockInput(fileInput)
-          case false => fileInput
+          case Some(true) => new StreamMockInput(fileInput)
+          case Some(false) => fileInput
         }), None, None, None, None)
       }
     }).toMap

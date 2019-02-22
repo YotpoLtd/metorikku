@@ -12,34 +12,21 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
   case class FileOutputProperties( path: Option[String],
                                    saveMode: Option[String],
                                    partitionBy: Option[Seq[String]],
-                                   repartition: Option[Int],
                                    triggerDuration: Option[String],
                                    tableName: Option[String],
                                    format: Option[String],
-                                   coalesce: Option[Boolean],
                                    extraOptions: Option[Map[String, String]])
 
   val fileOutputProperties = FileOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
     props.get("saveMode").asInstanceOf[Option[String]],
     props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
-    props.get("repartition").asInstanceOf[Option[Int]],
     props.get("triggerDuration").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("format").asInstanceOf[Option[String]],
-    props.get("coalesce").asInstanceOf[Option[Boolean]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
-  private def repartition(dataFrame: DataFrame): DataFrame = {
-    (fileOutputProperties.coalesce, fileOutputProperties.repartition) match {
-      case (Some(true), _) => dataFrame.coalesce(1)
-      case (None, Some(repartition)) => dataFrame.repartition(repartition)
-      case _ => dataFrame
-    }
-  }
-
-  override def write(inputDataFrame: DataFrame): Unit = {
-    val dataFrame = repartition(inputDataFrame)
+  override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
     fileOutputProperties.format match {

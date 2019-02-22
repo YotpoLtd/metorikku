@@ -1,17 +1,19 @@
 package com.yotpo.metorikku.utils
 
-import java.io.{File, FileNotFoundException}
+import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
+import java.util.stream.Collectors
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.text.StringSubstitutor
+import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.SparkSession
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods
 
 import scala.io.Source
-
 import scala.collection.JavaConverters._
 
 object FileUtils {
@@ -55,5 +57,14 @@ object FileUtils {
     val fileContents = Source.fromFile(path).getLines.mkString("\n")
     val interpolationMap = System.getProperties().asScala ++= System.getenv().asScala
     StringSubstitutor.replace(fileContents, interpolationMap.asJava)
+  }
+
+  def readFileWithHadoop(path: String, sparkSession: SparkSession): String = {
+    val file = new Path(path)
+    val hadoopConf = sparkSession.sessionState.newHadoopConf()
+    val fs = file.getFileSystem(hadoopConf)
+    val fsFile = fs.open(file)
+    val reader = new BufferedReader(new InputStreamReader(fsFile))
+    reader.lines.collect(Collectors.joining)
   }
 }

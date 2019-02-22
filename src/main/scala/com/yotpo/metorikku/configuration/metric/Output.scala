@@ -3,8 +3,11 @@ package com.yotpo.metorikku.configuration.metric
 import com.fasterxml.jackson.core.`type`.TypeReference
 import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
 
-case class Output(dataFrameName: String,
+case class Output(name: Option[String],
+                  dataFrameName: String,
                   @JsonScalaEnumeration(classOf[OutputTypeReference]) outputType: OutputType.OutputType,
+                  repartition: Option[Int],
+                  coalesce: Option[Boolean],
                   outputOptions: Map[String, Any])
 
 object OutputType extends Enumeration {
@@ -20,6 +23,7 @@ object OutputType extends Enumeration {
   Instrumentation,
   JDBC,
   JDBCQuery,
+  File,
   Kafka = Value
 }
 

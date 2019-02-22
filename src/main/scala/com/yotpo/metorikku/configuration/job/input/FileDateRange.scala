@@ -10,8 +10,15 @@ import org.joda.time.{DateTime, Period}
 import scala.collection.mutable
 
 case class FileDateRange(template: String,
-                         @JsonProperty("date_range") dateRange: DateRange) extends InputConfig {
-  override def getReader(name: String): Reader = FilesInput(name, dateRange.replace(template))
+                         @JsonProperty("date_range") dateRange: DateRange,
+                         options: Option[Map[String, String]],
+                         schemaPath: Option[String],
+                         format: Option[String]) extends InputConfig {
+  override def getReader(name: String): Reader = FilesInput(name,
+    dateRange.replace(template),
+    options,
+    schemaPath,
+    format)
 }
 
 class DateRange(@JsonProperty("format") _format: String,

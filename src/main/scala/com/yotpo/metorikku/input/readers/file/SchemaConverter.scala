@@ -40,7 +40,7 @@ object SchemaConverter {
     "array" -> ArrayType
   )
 
-  def convert(inputPath: String): StructType = convert(loadSchemaJson(inputPath))
+  def convert(fileContent: String): StructType = convert(loadSchemaJson(fileContent))
 
   def convert(inputSchema: JsValue): StructType = {
     val name = getJsonName(inputSchema)
@@ -80,13 +80,8 @@ object SchemaConverter {
     }
   }
 
-  def loadSchemaJson(filePath: String): JsValue = {
-    val source = Source.fromFile(filePath)
-    try {
-      Json.parse(source.getLines.mkString)
-    } finally {
-      source.close()
-    }
+  def loadSchemaJson(fileContent: String): JsValue = {
+    Json.parse(fileContent)
   }
 
   @tailrec

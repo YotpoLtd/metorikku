@@ -17,7 +17,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   def calculate(job: Job): Unit = {
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
-      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get)
+      val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get,
+        job.config.cacheOnPreview, job.config.showQuery)
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
         step.run(job.sparkSession)
@@ -63,11 +64,24 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
+  private def repartition(outputConfig: Output, dataFrame: DataFrame): DataFrame = {
+    // Backward compatibility
+    val deprecatedRepartition = outputConfig.outputOptions.get("repartition").asInstanceOf[Option[Int]]
+    val deprecatedcoalesce = outputConfig.outputOptions.get("coalesce").asInstanceOf[Option[Boolean]]
+
+    (outputConfig.coalesce.orElse(deprecatedcoalesce),
+      outputConfig.repartition.orElse(deprecatedRepartition)) match {
+      case (Some(true), _) => dataFrame.coalesce(1)
+      case (_, Some(repartition)) => dataFrame.repartition(repartition)
+      case _ => dataFrame
+    }
+  }
+
   def write(job: Job): Unit = {
     configuration.output.foreach(outputConfig => {
       val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
       val dataFrameName = outputConfig.dataFrameName
-      val dataFrame = job.sparkSession.table(dataFrameName)
+      val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
       if (dataFrame.isStreaming) {
         writeStream(dataFrame, dataFrameName, writer)

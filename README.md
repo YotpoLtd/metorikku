@@ -3,14 +3,16 @@
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
 Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
-A user needs to write a simple YAML configuration file that includes SQL queries and run Metorikku on a spark cluster.
-The platform also includes a way to write tests for metrics using MetorikkuTester.
+
+It is based on simple YAML configuration files and runs on any Spark cluster.
+
+The platform also includes a simple way to write unit and E2E tests.
 
 ### Getting started
 To run Metorikku you must first define 2 files.
 
-#### MQL file
-An MQL (Metorikku Query Language) file defines the steps and queries of the ETL as well as where and what to output.
+#### Metric file
+A metric file defines the steps and queries of the ETL as well as where and what to output.
 
 For example a simple configuration YAML (JSON is also supported) should be as follows:
 ```yaml
@@ -32,16 +34,17 @@ output:
     saveMode: Overwrite
     path: df2.parquet
 ```
-Take a look at the [examples](examples) for further configuration examples.
+You can check out a full example file for all possible values in the [sample YAML configuration file](config/metric_config_sample.yaml).
 
-#### Run configuration file
-Metorikku uses a YAML file to describe the run configuration.
+Make sure to also check out the full [Spark SQL Language manual](https://docs.databricks.com/spark/latest/spark-sql/index.html#sql-language-manual) for the possible queries.
+
+#### Job file
 This file will include **input sources**, **output destinations** and the location of the **metric config** files.
 
 So for example a simple YAML (JSON is also supported) should be as follows:
 ```yaml
 metrics:
-  - /full/path/to/your/MQL/file.yaml
+  - /full/path/to/your/metric/file.yaml
 inputs:
   input_1: parquet/input_1.parquet
   input_2: parquet/input_2.parquet
@@ -51,6 +54,8 @@ output:
 ```
 You can check out a full example file for all possible values in the [sample YAML configuration file](config/job_config_sample.yaml).
 
+Also make sure to check out all our [examples](examples).
+
 #### Supported input/output:
 
 Currently Metorikku supports the following inputs:
@@ -58,8 +63,7 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
-***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics*** <br />
-Redshift - s3_access_key and s3_secret are supported from spark-submit
+***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics***
 
 ### Running Metorikku
 There are currently 3 options to run Metorikku.
@@ -77,16 +81,17 @@ There are currently 3 options to run Metorikku.
 
 #### Run as a library
 *It's also possible to use Metorikku inside your own software*
+
 *Metorikku library requires scala 2.11*
-* Add the following dependency to your build.sbt:
-`"com.yotpo" % "metorikku" % "0.0.1"`
-* Start Metorikku by creating an instance of `com.yotpo.metorikku.config` and run `com.yotpo.metorikku.Metorikku.execute(config)`
 
-#### Metorikku Tester
-In order to test and fully automate the deployment of MQLs (Metorikku query language files) we added a method to run tests against MQLs.
+To use it add the following dependency to your build.sbt:
+`"com.yotpo" % "metorikku" % "LATEST VERSION"`
 
-A test is comprised of 2 files:
-##### Test settings
+### Metorikku Tester
+In order to test and fully automate the deployment of metrics we added a method to run tests against a metric.
+
+A test is comprised of the following:
+#### Test settings
 This defines what to test and where to get the mocked data.
 For example, a simple test YAML (JSON is also supported) will be:
 ```yaml
@@ -109,12 +114,14 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 1, "name": "test3" }
 ```
 
-##### Running Metorikku Tester
+#### Running Metorikku Tester
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
+
 The main class changes from `com.yotpo.metorikku.Metorikku` to `com.yotpo.metorikku.MetorikkuTester`
 
-##### Testing streaming metrics
+#### Testing streaming metrics
 In Spark some behaviors are different when writing queries for streaming sources (for example kafka).
+
 In order to make sure the test behaves the same as the real life queries, you can configure a mock to behave like a streaming input by writing the following:
 ```yaml
 metric: "/path/to/metric"
@@ -141,8 +148,10 @@ All configuration files support variable interpolation from environment variable
 
 #### Using JDBC
 When using JDBC writer or input you must provide a path to the driver JAR.
+
 For example to run with spark-submit with a mysql driver:
 `spark-submit --driver-class-path mysql-connector-java-5.1.45.jar --jars mysql-connector-java-5.1.45.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
+
 If you want to run this with the standalone JAR:
 `java -Dspark.master=local[*] -cp metorikku-standalone.jar:mysql-connector-java-5.1.45.jar -c config.yaml`
 
@@ -162,6 +171,7 @@ INSERT INTO table_name (column1, column2, column3, ...) VALUES ($1, $2, $3, ...)
 
 #### Kafka output
 Kafka output allows writing batch operations to kafka
+
 We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look like so:
 
 ```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.2.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```

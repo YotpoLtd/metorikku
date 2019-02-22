@@ -9,15 +9,17 @@ import com.yotpo.metorikku.metric.stepActions.Code
 import com.yotpo.metorikku.utils.FileUtils
 
 object StepFactory {
-  def getStepAction(configuration: Step, metricDir: File, metricName: String, showPreviewLines: Int): StepAction[_] = {
+  def getStepAction(configuration: Step, metricDir: File, metricName: String,
+                    showPreviewLines: Int, cacheOnPreview: Option[Boolean],
+                    showQuery: Option[Boolean]): StepAction[_] = {
     configuration.sql match {
-      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines)
+      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery)
       case None => {
         configuration.file match {
           case Some(filePath) =>
             Sql(
               FileUtils.getContentFromFileAsString(new File(metricDir, filePath)),
-              configuration.dataFrameName, showPreviewLines
+              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery
             )
           case None => {
             configuration.classpath match {
