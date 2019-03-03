@@ -19,7 +19,7 @@ before_script:
   - export -f travis_fold
 script:
   - travis_fold start "assembly"
-  - sbt -DsparkVersion=$SPARK_VERSION scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
+  - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
   - travis_fold end "assembly"
   # Metorikku main test example
   - travis_fold start "main_tester_example"

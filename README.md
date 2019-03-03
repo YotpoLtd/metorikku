@@ -63,7 +63,6 @@ Currently Metorikku supports the following inputs:
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
-***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics***
 
 ### Running Metorikku
 There are currently 3 options to run Metorikku.
@@ -199,7 +198,13 @@ inputs:
       topic: test
       consumerGroup: testConsumerGroupID
 ```
-Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming. <br />
+Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming.
+
+When in streaming writing is only available to ```File``` and ```Kafka```, and only to a single output.
+
+To enable all other writers and also enable multiple outputs for a single streaming dataframe, add ```batchMode``` to your job configuration, this will enable the ```foreachBatch``` mode (only available in spark >= 2.4.0)
+Check out all possible streaming configurations in the ```streaming``` section of the [sample job configuration file](config/job_config_sample.yaml).
+
 Please note the following while using streaming applications:
 
 * Multiple streaming aggregations (i.e. a chain of aggregations on a streaming DF) are not yet supported on streaming Datasets.
@@ -215,7 +220,7 @@ Please note the following while using streaming applications:
 
 * For more information please go to [Spark Structured Streaming WIKI](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html)
 
-* In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input. <br />
+* In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input.
 This will commit the offsets to kafka, as a new dummy consumer group.
 
 #### Instrumentation
