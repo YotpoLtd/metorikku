@@ -48,7 +48,7 @@ case class Tester(config: TesterConfig) {
     val variables = params.variables
     val inputs = getMockFilesFromDir(config.test.mocks, config.basePath)
     Configuration(Option(metrics),Option(inputs), variables, None, None, None, None, None,
-      None, None, Option(config.preview), None, None, None)
+      None, None, None, Option(config.preview), None, None, None)
   }
 
   private def getMockFilesFromDir(mocks: List[Mock], testDir: File): Map[String, Input] = {

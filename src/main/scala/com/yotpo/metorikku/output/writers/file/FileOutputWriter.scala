@@ -1,9 +1,10 @@
 package com.yotpo.metorikku.output.writers.file
 
+import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.streaming.Trigger
+import org.apache.spark.sql.streaming.DataStreamWriter
 import org.apache.spark.sql.{DataFrame, DataFrameWriter}
 
 class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
@@ -92,26 +93,49 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     }
   }
 
-  override def writeStream(dataFrame: DataFrame): Unit = {
+  override def writeStream(dataFrame: DataFrame, streamingConfig: Option[Streaming]): Unit = {
     (fileOutputProperties.path, outputFile) match {
       case (Some(path), Some(file)) => {
         val filePath = file.dir + "/" + path
         log.info(s"Writing Dataframe to file path ${filePath}")
-        val stream = dataFrame.writeStream
-          .format(fileOutputProperties.format.getOrElse("parquet"))
-          .option("path", filePath)
-          .option("checkpointLocation", file.checkpointLocation.get)
 
-        fileOutputProperties.triggerDuration match {
-          case Some(triggerDuration) => stream.trigger(Trigger.ProcessingTime(triggerDuration))
-          case None =>
-        }
-        fileOutputProperties.saveMode match {
-          case Some(saveMode) => stream.outputMode(saveMode)
-          case None =>
+        val writer = dataFrame.writeStream.option("path", filePath)
+
+        fileOutputProperties.format match {
+          case Some(format) => writer.format(format)
+          case None => writer.format("parquet")
         }
 
-        val query = stream.start()
+        fileOutputProperties.partitionBy match {
+          case Some(partitionBy) => writer.partitionBy(partitionBy: _*)
+          case None =>
+        }
+
+        fileOutputProperties.extraOptions match {
+          case Some(options) => writer.options(options)
+          case None =>
+        }
+
+        // Handle deprecated streaming configuration
+        val deprecatedTriggerMode: Option[String] = fileOutputProperties.triggerDuration match {
+          case Some(_) => Option("ProcessingTime")
+          case None => None
+        }
+        val deprecatedStreamingConfig = Option(
+          Streaming(triggerMode=deprecatedTriggerMode,
+            triggerDuration=fileOutputProperties.triggerDuration,
+            outputMode=None,
+            checkpointLocation=file.checkpointLocation,
+            batchMode=None,
+            extraOptions=None)
+        )
+
+        streamingConfig.orElse(deprecatedStreamingConfig) match {
+          case Some(config) => config.applyOptions(writer)
+          case None =>
+        }
+
+        val query = writer.start()
         query.awaitTermination()
       }
       case _ =>

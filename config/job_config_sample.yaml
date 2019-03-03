@@ -156,3 +156,19 @@ instrumentation:
 # Optionally set catalog parameters (for hive support)
 catalog:
   database: some_database
+
+# Set options for streaming writing
+streaming:
+  # Set the trigger mode (ProcessingTime, Once, Continuous)
+  triggerMode: ProcessingTime
+  # If trigger is ProcessingTime/Continuous set the trigger duration
+  triggerDuration: 10 seconds
+  # Possible values are append/replace/complete
+  outputMode: append
+  # Where to save Spark's checkpoint
+  checkpointLocation: /tmp/checkpoint
+  # Optionally set streaming to use foreachBatch when writing streams. this enable writing to all available writers and to write to multiple outputs.
+  batchMode: true
+  # Add any other options supported by the DataStreamWriter
+  extraOptions:
+    opt: val

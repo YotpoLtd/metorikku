@@ -1,12 +1,11 @@
 package com.yotpo.metorikku.output.writers.kafka
 
+import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.Kafka
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.streaming.{DataStreamWriter, Trigger}
-
 
 class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) extends Writer {
 
@@ -60,35 +59,38 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     selectExpression
   }
 
-  private def withTrigger(outputStream: DataStreamWriter[_]) = {
-    val withTrigger = kafkaOptions.triggerType match {
-      case None => outputStream
-      case Some(triggerType) =>
-        val trigger = triggerType match {
-          case "ProcessingTime" => Trigger.ProcessingTime(kafkaOptions.triggerDuration)
-          case "Once" => Trigger.Once()
-        }
-        outputStream.trigger(trigger)
-    }
-    withTrigger
-  }
-
-  override def writeStream(dataFrame: DataFrame): Unit = {
+  override def writeStream(dataFrame: DataFrame, streamingConfig: Option[Streaming]): Unit = {
     config match {
       case Some(kafkaConfig) =>
         val bootstrapServers = kafkaConfig.servers.mkString(",")
         log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
         val df: DataFrame = selectedColumnsDataframe(dataFrame)
         val kafkaOutputStream = df.writeStream.format("kafka")
-        val stream = withTrigger(kafkaOutputStream)
+
+        kafkaOutputStream
           .option("kafka.bootstrap.servers", bootstrapServers)
-          .option("checkpointLocation", kafkaConfig.checkpointLocation.get)
           .option("topic", kafkaOptions.topic)
-          .outputMode(kafkaOptions.outputMode)
-        if (kafkaConfig.compressionType.nonEmpty) {
-          stream.option("kafka.compression.type", kafkaConfig.compressionType.get)
+
+        kafkaConfig.compressionType match {
+          case Some(compressionType) => kafkaOutputStream.option("kafka.compression.type",compressionType)
+          case None =>
         }
-        val query = stream.start()
+
+        val deprecatedStreamingConfig = Option(
+          Streaming(triggerMode=kafkaOptions.triggerType,
+                    triggerDuration=Option(kafkaOptions.triggerDuration),
+                    outputMode=Option(kafkaOptions.outputMode),
+                    checkpointLocation=kafkaConfig.checkpointLocation,
+                    batchMode=None,
+                    extraOptions=None)
+        )
+
+        streamingConfig.orElse(deprecatedStreamingConfig) match {
+          case Some(config) => config.applyOptions(kafkaOutputStream)
+          case None =>
+        }
+
+        val query = kafkaOutputStream.start()
         query.awaitTermination()
       case None =>
     }

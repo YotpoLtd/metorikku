@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output.writers.file
 
+import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.spark.sql.DataFrame
@@ -22,7 +23,7 @@ class CSVOutputWriter(var props: Map[String, String], outputFile: Option[File]) 
     fileOutputWriter.write(dataFrame)
   }
 
-  override def writeStream(dataFrame: DataFrame): Unit = {
-    fileOutputWriter.writeStream(dataFrame)
+  override def writeStream(dataFrame: DataFrame, streamingConfig: Option[Streaming]): Unit = {
+    fileOutputWriter.writeStream(dataFrame, streamingConfig)
   }
 }

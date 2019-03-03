@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output
 
+import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.exceptions.MetorikkuWriterStreamingUnsupported
 import org.apache.spark.sql.DataFrame
 
@@ -18,7 +19,7 @@ trait Writer extends Serializable{
     }
   }
 
-  def writeStream(dataFrame: DataFrame): Unit = {
+  def writeStream(dataFrame: DataFrame, streamingConfig: Option[Streaming]): Unit = {
     throw MetorikkuWriterStreamingUnsupported(s"writer doesn't support streaming yet.")
   }
 
