@@ -59,7 +59,7 @@ case class Tester(config: TesterConfig) {
           None, None, None)
         Input(Option(mock.streaming match {
           case Some(true) => new StreamMockInput(fileInput)
-          case Some(false) => fileInput
+          case _ => fileInput
         }), None, None, None, None)
       }
     }).toMap
