@@ -131,3 +131,6 @@ instrumentation:
 # Optionally set catalog parameters (for hive support)
 catalog:
   database: some_database
+
+# Optionally set streaming to use foreachBatch when writing streams. this enable writing to all available writers and to write to multiple outputs.
+streamingBatchMode: true
