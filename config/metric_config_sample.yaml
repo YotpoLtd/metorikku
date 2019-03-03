@@ -1,0 +1,128 @@
+# ---- SAMPLE YAML OF METRIC CONFIG FILE ---- #
+
+steps:
+    # What will be the name of the table that represents the output of this step
+  - dataFrameName: table1
+    # Inline SQL
+    sql:
+      SELECT * FROM source
+    ignoreOnFailures: true
+  - dataFrameName: table2
+    # Use SQL from an external file
+    file: test.sql
+  - dataFrameName: table3
+    # Run custom code from the below object
+    classpath: com.example.CustomCode
+    # Send the params below to the custom code
+    params:
+      param1: value
+      param2: value
+output:
+    # What table should we send to the output from the above steps
+  - dataFrameName: table1
+    # Defines the output type
+    outputType: File
+    # When using outputType: File we can set any custom format we like that's supported by spark
+    format: parquet
+    # Optional when using named outputs
+    name: fileDir1
+    # Optional repartition the output before writing it
+    repartition: 100
+    # Create a single partition from the requested table
+    coalesce: true
+    # Specifies options specific to each writer
+    outputOptions:
+      # defines the same mode (append/overwrite/ignore)
+      saveMode: Overwrite
+      # path of the file (can be omitted if using tableName and writing to warehouse)
+      path: file.parquet
+      # partition by the following columns
+      partitionBy:
+        - col1
+        - col2
+      # when in streaming mode, micro batch each X time
+      triggerDuration: 10 seconds
+      # save output to hive metastore (or any other catalog provider)
+      tableName: hive_table1
+      # you can add below any option supported by file outputs (take a look at Spark's documentation)
+      extraOptions:
+        multiLine: true
+  - dataFrameName: table1
+    # All options in file output are available for Parquet as well
+    outputType: Parquet
+  - dataFrameName: table1
+    # All options in file output are available for CSV as well
+    outputType: CSV
+  - dataFrameName: table1
+    # All options in file output are available for JSON as well
+    outputType: JSON
+  - dataFrameName: table1
+    outputType: Cassandra
+    outputOptions:
+      saveMode: Overwrite
+      dbKeySpace: keyspace
+      dbTable: table
+  - dataFrameName: table1
+    outputType: Instrumentation
+    outputOptions:
+      # This will be used to specify a column that will be treated as a string and be used as a key
+      keyColumn: col1
+      # When using influx instrumentation, use the time column in the table to set the time (by default it's now)
+      timeColumn: col3
+  - dataFrameName: table1
+    outputType: JDBC
+    outputOptions:
+      saveMode: Overwrite
+      dbTable: table_in_db
+  - dataFrameName: table1
+    outputType: JDBCQuery
+    outputOptions:
+      # Run this query for each line in the table
+      query:
+        INSERT INTO table
+        (col1, col2)
+        VALUES (?, ?)
+        ON DUPLICATE KEY UPDATE value = VALUES(value)
+      # Size of the insert batch before committing
+      maxBatchSize: 10
+      # This will repartition the data if it doesn't have enough partitions
+      minPartitions: 5
+      # This will repartition the data if it has too many partitions
+      maxPartitions: 10
+  - dataFrameName: table1
+    outputType: Kafka
+    outputOptions:
+      # Name of the topic in kafka
+      topic: topic
+      # Column in table used as the key in kafka
+      keyColumn: col1
+      # This column will be sent as the payload of the kafka message
+      valueColumn: col2
+      # In streaming mode set to append/replace/complete default is append
+      outputMode: append
+      # In streaming mode set the trigger type (Once/Processing time)
+      triggerType: Once
+      # In streaming mode if trigger is processing time or was not set, how long between micro batches
+      triggerDuration: 30 seconds
+  - dataFrameName: table1
+    outputType: Redis
+    outputOptions:
+      keyColumn: col1
+  - dataFrameName: table1
+    outputType: Redshift
+    outputOptions:
+      saveMode: Overwrite
+      dbTable: table
+      # After copy is completed add these options
+      extraCopyOptions: TRUNCATECOLUMNS ACCEPTINVCHARS BLANKSASNULL COMPUPDATE ON
+      # After write is completed run the following query
+      postActions: GRANT SELECT ON TABLE table TO GROUP group
+      maxStringSize: 1000
+  - dataFrameName: table1
+    outputType: Segment
+    outputOptions:
+      eventType: track
+      eventName: event
+      # Since segment limits the number of events per second, we need to sleep and write in small enough batches
+      sleep: 1000
+      batchSize: 30

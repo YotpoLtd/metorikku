@@ -12,14 +12,27 @@ inputs:
       path: parquet/input_1.parquet
   input_2:
     file:
-      path: parquet/input_2.parquet
+      # The path of the file, you can add multiple files with ,
+      path: json/input_2.csv
+      # Optional, if omitted we'll guess by the extension (fallback to parquet)
+      format: csv
+      # Optional, define custom schema via a json schema file (https://json-schema.org/)
+      schemaPath: schema/schema.json
+      # Optional send any spark supported option to the reader
+      options:
+        quoteAll: false
   input_3:
       file_date_range:
         template: parquet/%s/input_1.parquet
         date_range:
-         format: yyyy/MM/dd
-         startDate: 2017/09/01
-         endDate: 2017/09/03
+          format: yyyy/MM/dd
+          startDate: 2017/09/01
+          endDate: 2017/09/03
+        # Below are optional (check out the file input example above)
+        format: parquet
+        schemaPath: schema/schema.json
+        options:
+          opt: val
   input_4:
     jdbc:
       connectionUrl: jdbc:mysql://localhost/db?zeroDateTimeBehavior=convertToNull
@@ -80,11 +93,27 @@ output:
     password: password
     driver: "org.postgresql.Driver"
 
+# You can also use named outputs (all outputs above are supported)
+outputs:
+  fileDir1:
+    file:
+      dir: /path/to/parquet/output
+  fileDir2:
+    file:
+      dir: /path/to/parquet/output2
+
+
 # If set to true, triggers Explain before saving
 explain: true
 
 # Shows a Preview of the output
 showPreviewLines: 42
+
+# Prints the query after running it
+showQuery: true
+
+# Caches the step before each preview
+cacheOnPreview: true
 
 # Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 logLevel: WARN
