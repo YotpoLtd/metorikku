@@ -1,0 +1,52 @@
+[
+  {
+    "_index" : "movies",
+    "_type" : "_doc",
+    "_id" : "1",
+    "_score" : null,
+    "_source" : {
+      "userid" : 1,
+      "movieid" : 1
+    },
+    "sort": [
+      1
+    ]
+  },
+  {
+    "_index" : "movies",
+    "_type" : "_doc",
+    "_id" : "2",
+    "_score" : null,
+    "_source" : {
+      "movieid" : 2
+    },
+    "sort": [
+      2
+    ]
+  },
+  {
+    "_index" : "movies",
+    "_type" : "_doc",
+    "_id" : "3",
+    "_score" : null,
+    "_source" : {
+      "movieid" : 3
+    },
+    "sort": [
+      3
+    ]
+  },
+  {
+    "_index" : "movies",
+    "_type" : "_doc",
+    "_id" : "4",
+    "_score" : null,
+    "_source" : {
+      "movieid" : 4
+    },
+    "sort": [
+      4
+    ]
+  }
+]
+

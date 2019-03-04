@@ -1,0 +1,24 @@
+steps:
+- dataFrameName: RatedMovies
+  sql:
+    SELECT userid,
+           movies.movieid
+    FROM movies
+    LEFT JOIN ratings ON ratings.movieid = movies.movieid
+    GROUP BY 1,2
+output:
+- dataFrameName: RatedMovies
+  outputType: Elasticsearch
+  outputOptions:
+    saveMode: Append
+    # Overwrite/Append(=default)
+    resource: movies
+    # The index name you wish to write to. By default the index would be auto created.
+    #writeOperation: upsert
+    # When specified can be update/upsert("merge"). When using writeOperation make sure to use saveMode "Append" and
+    # indicate the mappingId by which the operation will be done (similar to primary key, or join key)
+    mappingId: movieid
+    # Used both for update/upsert purposes, and performance for Elasticsearch indexing
+    extraOptions:
+    # Use extra options to configure any other ES parameters
+      es.index.auto.create: "true"

@@ -62,7 +62,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet, JDBC, Kafka, Cassandra**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
 ***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics***
 
 ### Running Metorikku
@@ -175,6 +175,12 @@ Kafka output allows writing batch operations to kafka
 We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look like so:
 
 ```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.2.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+
+#### Elasticsearch output
+Elasticsearch output allows bulk writing to elasticsearch (overwrite/append/update/upsert)
+We use elasticsearch-hadoop as a provided jar - spark-submit command should look like so:
+
+```spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
 ##### Mandatory parameters:
 * **topic** - defines the topic in kafka which the data will be written to.

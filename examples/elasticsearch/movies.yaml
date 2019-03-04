@@ -1,0 +1,14 @@
+# The MQL file path
+metrics:
+  - examples/elasticsearch/movies_metric.yaml
+
+inputs:
+  movies:
+    file:
+      path: examples/mocks/movies.jsonl
+  ratings:
+    file:
+      path: examples/mocks/ratings.jsonl
+output:
+  elasticsearch:
+    nodes: elasticsearch

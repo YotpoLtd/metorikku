@@ -63,7 +63,6 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
       case v: MapType => stmt.setString(i, v.asInstanceOf[MapType].json)
       case v: StructType => stmt.setString(i, v.asInstanceOf[StructType].json)
       // NULLs
-      case _ => stmt.setObject(i, v)
     }
   }
   // scalastyle:on cyclomatic.complexity

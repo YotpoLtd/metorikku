@@ -23,6 +23,7 @@ object OutputType extends Enumeration {
   Instrumentation,
   JDBC,
   JDBCQuery,
+  Elasticsearch,
   File,
   Kafka = Value
 }

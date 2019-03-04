@@ -126,3 +126,14 @@ output:
       # Since segment limits the number of events per second, we need to sleep and write in small enough batches
       sleep: 1000
       batchSize: 30
+  - dataFrameName: table1
+    outputType: Elasticsearch
+    outputOptions:
+      # The index name to write to
+      resource: index1
+      # The saveMode for the write operation
+      saveMode: Append
+      # The write Operation to preform (insert/create/upsert/update)
+      writeOperation: Upsert
+      mappingId: id
+      # All options under elasticsearch-hadoop are available under extraOptions

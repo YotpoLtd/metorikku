@@ -38,7 +38,7 @@ class RedisOutputWriter(props: Map[String, String], sparkSession: SparkSession) 
       log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
       redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
     } else {
-      log.error(s"Redshift Configuration does not exists")
+      log.error(s"Redis Configuration does not exists")
     }
   }
 

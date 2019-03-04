@@ -52,6 +52,10 @@ script:
   - travis_fold start "file_to_hive_e2e"
   - docker-compose -f e2e/hive/docker-compose.yml up --exit-code-from spark-submit || travis_terminate 1;
   - travis_fold end "file_to_hive_e2e"
+  # File to Elasticsearch E2E
+  - travis_fold start "file_to_elasticsearch_e2e"
+  - docker-compose -f e2e/elasticsearch/docker-compose.yml up --exit-code-from elasticsearch_tester || travis_terminate 1;
+  - travis_fold end "file_to_elasticsearch_e2e"
 deploy:
   - provider: script
     skip_cleanup: true
