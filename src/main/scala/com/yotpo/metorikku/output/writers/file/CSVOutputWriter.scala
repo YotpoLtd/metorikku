@@ -4,7 +4,9 @@ import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.spark.sql.DataFrame
 
-class CSVOutputWriter(props: Map[String, String], outputFile: Option[File]) extends Writer {
+class CSVOutputWriter(var props: Map[String, String], outputFile: Option[File]) extends Writer {
+  props = Option(props).getOrElse(Map())
+
   val defaultCSVOptions = Map("escape" -> "\"", "quoteAll" -> "true", "header" -> "true")
   // Backward compatibility
   val csvOptions = props.getOrElse("csvOptions", Map.empty).asInstanceOf[Map[String, String]]

@@ -66,10 +66,10 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
 
   private def repartition(outputConfig: Output, dataFrame: DataFrame): DataFrame = {
     // Backward compatibility
-    val deprecatedRepartition = outputConfig.outputOptions.get("repartition").asInstanceOf[Option[Int]]
-    val deprecatedcoalesce = outputConfig.outputOptions.get("coalesce").asInstanceOf[Option[Boolean]]
+    val deprecatedRepartition = Option(outputConfig.outputOptions).getOrElse(Map()).get("repartition").asInstanceOf[Option[Int]]
+    val deprecatedCoalesce = Option(outputConfig.outputOptions).getOrElse(Map()).get("coalesce").asInstanceOf[Option[Boolean]]
 
-    (outputConfig.coalesce.orElse(deprecatedcoalesce),
+    (outputConfig.coalesce.orElse(deprecatedCoalesce),
       outputConfig.repartition.orElse(deprecatedRepartition)) match {
       case (Some(true), _) => dataFrame.coalesce(1)
       case (_, Some(repartition)) => dataFrame.repartition(repartition)
