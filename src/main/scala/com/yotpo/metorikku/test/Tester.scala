@@ -47,22 +47,27 @@ case class Tester(config: TesterConfig) {
     val params = config.test.params.getOrElse(Params(None))
     val variables = params.variables
     val inputs = getMockFilesFromDir(config.test.mocks, config.basePath)
-    Configuration(Option(metrics),Option(inputs), variables, None, None, None, None, None,
+    Configuration(Option(metrics),inputs, variables, None, None, None, None, None,
       None, None, None, Option(config.preview), None, None, None)
   }
 
-  private def getMockFilesFromDir(mocks: List[Mock], testDir: File): Map[String, Input] = {
-    mocks.map(mock => {
-      mock.name -> {
-        val fileInput = com.yotpo.metorikku.configuration.job.input.File(
-          new File(testDir, mock.path).getCanonicalPath,
-          None, None, None)
-        Input(Option(mock.streaming match {
-          case Some(true) => new StreamMockInput(fileInput)
-          case _ => fileInput
-        }), None, None, None, None)
+  private def getMockFilesFromDir(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {
+    mocks match {
+      case Some(mockList) => {
+        Option(mockList.map(mock => {
+          mock.name -> {
+            val fileInput = com.yotpo.metorikku.configuration.job.input.File(
+              new File(testDir, mock.path).getCanonicalPath,
+              None, None, None)
+            Input(Option(mock.streaming match {
+              case Some(true) => new StreamMockInput(fileInput)
+              case _ => fileInput
+            }), None, None, None, None)
+          }
+        }).toMap)
       }
-    }).toMap
+      case None => None
+    }
   }
 
   private def getMetricFromDir(metric: String, testDir: File): Seq[String] = {

@@ -1,4 +1,3 @@
-# docker-compose up --exit-code-from kafka_consume
 version: '3'
 services:
   spark-submit:
@@ -8,7 +7,8 @@ services:
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
-      - kafka
+      - spark-master
+      - spark-worker
   spark-master:
     image: metorikku/spark
     entrypoint:
@@ -23,8 +23,6 @@ services:
       driver: none
   zookeeper:
     image: wurstmeister/zookeeper
-    logging:
-      driver: none
   kafka:
     image: wurstmeister/kafka
     environment:
@@ -34,9 +32,7 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092
     depends_on:
       - zookeeper
-    logging:
-      driver: none
-  kafka_seed:
+  kafka-seed:
     image: wurstmeister/kafka
     volumes:
       - ./scripts:/scripts
@@ -44,11 +40,8 @@ services:
     command: /scripts/kafka_seed.sh
     environment:
       TOPIC: test
-      SLEEP_FOREVER: 1
       SEED_FILE: /mocks/movies.jsonl
-    depends_on:
-      - kafka
-  kafka_consume:
+  kafka-consume:
     image: wurstmeister/kafka
     volumes:
       - ./scripts:/scripts
@@ -58,5 +51,3 @@ services:
       TOPIC: testAppendOutputMode
       NUMBER_OF_EXPECTED_MESSAGES: 5
       MOCK_OUTPUT: /mocks/movies.jsonl
-    depends_on:
-      - kafka

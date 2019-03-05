@@ -5,14 +5,3 @@ steps:
 - dataFrameName: hiveManagedOutput
   sql:
     SELECT * FROM testMetorikkuHiveManaged
-output:
-- dataFrameName: hiveExternalOutput
-  outputType: Parquet
-  outputOptions:
-    saveMode: Overwrite
-    path: hiveExternalOutput.parquet
-- dataFrameName: hiveManagedOutput
-  outputType: Parquet
-  outputOptions:
-    saveMode: Overwrite
-    path: hiveManagedOutput.parquet

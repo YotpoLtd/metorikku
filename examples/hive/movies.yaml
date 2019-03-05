@@ -1,6 +1,5 @@
 metrics:
   - examples/hive/movies_metric.yaml
-  - examples/hive/get_from_hive_metric.yaml
 inputs:
   movies:
     file:

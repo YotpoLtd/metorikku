@@ -6,7 +6,3 @@ KAFKA_BROKER=${KAFKA_BROKER:=kafka:9092}
 
 kafka-console-producer.sh --request-required-acks 1 --broker-list ${KAFKA_BROKER} --topic ${TOPIC} < ${SEED_FILE}
 echo "Completed producing seed to kafka topic ${TOPIC}"
-
-if [ ! -z ${SLEEP_FOREVER} ] ; then
-    while true; do sleep 86400; done
-fi

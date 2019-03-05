@@ -201,9 +201,9 @@ inputs:
 ```
 Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming.
 
-When in streaming writing is only available to ```File``` and ```Kafka```, and only to a single output.
+When using kafka input, writing is only available to ```File``` and ```Kafka```, and only to a single output.
 
-To enable all other writers and also enable multiple outputs for a single streaming dataframe, add ```batchMode``` to your job configuration, this will enable the ```foreachBatch``` mode (only available in spark >= 2.4.0)
+To enable all other writers and also enable multiple outputs for a single streaming dataframe, add ```batchMode``` to your job configuration, this will enable the [foreachBatch](https://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#using-foreach-and-foreachbatch) mode (only available in spark >= 2.4.0)
 Check out all possible streaming configurations in the ```streaming``` section of the [sample job configuration file](config/job_config_sample.yaml).
 
 Please note the following while using streaming applications:

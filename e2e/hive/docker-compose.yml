@@ -1,4 +1,3 @@
-# docker-compose up --exit-code-from spark-submit
 version: '3'
 services:
   spark-submit:
@@ -11,7 +10,20 @@ services:
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
-      - hive-db
+      - spark-master
+      - spark-worker
+  hive-tester:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages mysql:mysql-connector-java:5.1.47 --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=root --conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
+    volumes:
+      - ./output/:/examples/output/
+      - ./warehouse:/warehouse
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
   spark-master:
     image: metorikku/metorikku
     entrypoint:
