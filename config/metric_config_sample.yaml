@@ -113,7 +113,7 @@ output:
     outputOptions:
       saveMode: Overwrite
       dbTable: table
-      # After copy is completed add these options
+      # Specify any copy options if required
       extraCopyOptions: TRUNCATECOLUMNS ACCEPTINVCHARS BLANKSASNULL COMPUPDATE ON
       # After write is completed run the following query
       postActions: GRANT SELECT ON TABLE table TO GROUP group
@@ -131,9 +131,16 @@ output:
     outputOptions:
       # The index name to write to
       resource: index1
+      # type, default is _doc
+      indexType:
       # The saveMode for the write operation
       saveMode: Append
-      # The write Operation to preform (insert/create/upsert/update)
+      # The write Operation to preform (index/create/upsert/update)
       writeOperation: Upsert
-      mappingId: id
-      # All options under elasticsearch-hadoop are available under extraOptions
+      # The mappingId by which to update/upsert a document by (not mandatory given a document Id exists)
+      mappingId: myId
+      # Enables dynamic indexing by adding a timestamp suffix
+      addTimestampToIndex: True
+      # you can add below any option supported by "Elasticsearch for Apache Hadoop"
+      extraOptions:
+        es.index.auto.create: false

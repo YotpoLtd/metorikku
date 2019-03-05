@@ -65,9 +65,9 @@ variables:
  TrimmedDateFormat: yyyy/MM/dd
 
 output:
-  # elasticsearch Database argument: nodes is mandatory.
+  # elasticsearch Database argument: (host:port) specifying host (under nodes option) is mandatory.
   elasticsearch:
-    nodes: localhost
+    nodes: localhost:9200
   # cassandra Database arguments: host is mandatory. username and password are supported
   cassandra:
     host: example.cassandra.db
