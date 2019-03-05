@@ -110,29 +110,34 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 
   def write(job: Job): Unit = {
-    val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
+    configuration.output match {
+      case Some(output) => {
+        val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
 
-    configuration.output.foreach(outputConfig => {
-      val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
-      val dataFrameName = outputConfig.dataFrameName
-      val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
+        output.foreach(outputConfig => {
+          val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
+          val dataFrameName = outputConfig.dataFrameName
+          val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
-      if (dataFrame.isStreaming) {
-        val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame))
-        streamingWriterConfig.writers += writer
-        streamingWriterList += (dataFrameName -> streamingWriterConfig)
+          if (dataFrame.isStreaming) {
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame))
+            streamingWriterConfig.writers += writer
+            streamingWriterList += (dataFrameName -> streamingWriterConfig)
+          }
+          else {
+            writeBatch(dataFrame, dataFrameName, writer,
+              outputConfig.outputType, job.instrumentationClient)
+          }
+        })
+
+        // If There were some streaming sources
+        streamingWriterList.keys.size match {
+          case size if size == 1 => for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming)
+          case size if size > 1 => log.error("Cannot write to from multiple streaming dataframes, skipping streaming writing")
+          case _ =>
+        }
       }
-      else {
-        writeBatch(dataFrame, dataFrameName, writer,
-          outputConfig.outputType, job.instrumentationClient)
-      }
-    })
-
-    // If There were some streaming sources
-    streamingWriterList.keys.size match {
-      case size if size == 1 => for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming)
-      case size if size > 1 => log.error("Cannot write to from multiple streaming dataframes, skipping streaming writing")
-      case _ =>
+      case None =>
     }
   }
 }

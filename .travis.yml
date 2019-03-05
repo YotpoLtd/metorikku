@@ -31,7 +31,7 @@ script:
   - travis_fold end "kafka_tester_example"
   # Test UDF example
   - travis_fold start "udf_tester_example"
-  - cd examples/udf && sbt package && cd - || travis_terminate 1;
+  - (cd examples/udf && sbt package) || travis_terminate 1;
   - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
   - travis_fold end "udf_tester_example"
   # Create all relevant docker images
@@ -42,15 +42,15 @@ script:
   - travis_fold end "docker"
   # Kafka to Kafka E2E
   - travis_fold start "kafka_to_kafka_e2e"
-  - docker-compose -f e2e/kafka/docker-compose.yml up --exit-code-from kafka_consume || travis_terminate 1;
+  - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
   - travis_fold end "kafka_to_kafka_e2e"
   # File to InfluxDB E2E
   - travis_fold start "file_to_influx_e2e"
-  - docker-compose -f e2e/influxdb/docker-compose.yml up --exit-code-from influxdb_tester || travis_terminate 1;
+  - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_influx_e2e"
   # File to hive E2E
   - travis_fold start "file_to_hive_e2e"
-  - docker-compose -f e2e/hive/docker-compose.yml up --exit-code-from spark-submit || travis_terminate 1;
+  - (cd e2e/hive && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_hive_e2e"
 deploy:
   - provider: script
