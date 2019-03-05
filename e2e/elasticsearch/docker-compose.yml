@@ -13,14 +13,14 @@ services:
     image: metorikku/spark
     entrypoint:
       - /scripts/entrypoint-master.sh
-#   logging:
-#     driver: none
+    logging:
+      driver: none
   spark-worker:
     image: metorikku/metorikku
     entrypoint:
       - /scripts/entrypoint-worker.sh
-#   logging:
-#     driver: none
+    logging:
+      driver: none
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
     environment:
@@ -33,9 +33,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    ports:
-      - "9200:9200"
-      - "9300:9300"
   elasticsearch_tester:
     image: "circleci/buildpack-deps:stretch-curl"
     volumes:
@@ -45,4 +42,4 @@ services:
     environment:
       - MOCK_OUTPUT=/mocks/movies.json
       - INDEX_NAME=movies
-      - DEBUG=true
+      - SORTBY=movieid

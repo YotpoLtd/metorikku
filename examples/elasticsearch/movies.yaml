@@ -11,4 +11,4 @@ inputs:
       path: examples/mocks/ratings.jsonl
 output:
   elasticsearch:
-    nodes: elasticsearch
+    nodes: elasticsearch:9200

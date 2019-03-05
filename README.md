@@ -176,12 +176,6 @@ We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look
 
 ```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.2.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
-#### Elasticsearch output
-Elasticsearch output allows bulk writing to elasticsearch (overwrite/append/update/upsert)
-We use elasticsearch-hadoop as a provided jar - spark-submit command should look like so:
-
-```spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
-
 ##### Mandatory parameters:
 * **topic** - defines the topic in kafka which the data will be written to.
 currently supported only one topic
@@ -250,6 +244,14 @@ Check out the [example](examples/movies_metric.yaml) for further details.
 You can also send metric directly to InfluxDB (gaining the ability to use tags and time field).
 
 Check out the [example](examples/influxdb) and also the [InfluxDB E2E test](e2e/influxdb) for further details.
+
+##### Elasticsearch output
+Elasticsearch output allows bulk writing to elasticsearch
+We use elasticsearch-hadoop as a provided jar - spark-submit command should look like so:
+
+```spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+
+Check out the [example](examples/elasticsearch) and also the [Elasticsearch E2E test](e2e/elasticsearch) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).
