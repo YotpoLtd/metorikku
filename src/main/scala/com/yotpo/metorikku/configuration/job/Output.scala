@@ -9,4 +9,5 @@ case class Output(cassandra: Option[Cassandra] = None,
                   jdbc: Option[JDBC] = None,
                   jdbcquery: Option[JDBC] = None,
                   file: Option[File] = None,
-                  kafka: Option[Kafka] = None)
+                  kafka: Option[Kafka] = None,
+                  elasticsearch: Option[Elasticsearch] = None)

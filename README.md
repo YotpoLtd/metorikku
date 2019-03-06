@@ -62,7 +62,7 @@ Currently Metorikku supports the following inputs:
 **CSV, JSON, parquet, JDBC, Kafka, Cassandra**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
 ***NOTE: If you are using Kafka as input note that the only supported outputs are currently Kafka/Parquet/CSV/JSON and currently you can use just one output for streaming metrics***
 
 ### Running Metorikku
@@ -244,6 +244,14 @@ Check out the [example](examples/movies_metric.yaml) for further details.
 You can also send metric directly to InfluxDB (gaining the ability to use tags and time field).
 
 Check out the [example](examples/influxdb) and also the [InfluxDB E2E test](e2e/influxdb) for further details.
+
+##### Elasticsearch output
+Elasticsearch output allows bulk writing to elasticsearch
+We use elasticsearch-hadoop as a provided jar - spark-submit command should look like so:
+
+```spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+
+Check out the [example](examples/elasticsearch) and also the [Elasticsearch E2E test](e2e/elasticsearch) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).

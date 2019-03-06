@@ -8,9 +8,11 @@ scmInfo := Some(
 developers := List(
   Developer(id="amitco1", name="Amit Cohen", email="amit@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="avichay", name="Avichay Etzioni", email="avichay@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="etrabelsi", name="Eyal Trabelsi", email="etrabelsi@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="dporat", name="Doron Porat", email="dporat@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="etrabelsi", name="Eyal Trabelsi", email="", url=url("http://www.yotpo.com")),
   Developer(id="lyogev", name="Liran Yogev", email="lyogev@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="ofirventura", name="Ofir Ventura", email="oventura@yotpo.com", url=url("http://www.yotpo.com")),
+  Developer(id="nuriyan", name="Nadav Bar Uriyan", email="nuriyan@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="ronbarab", name="Ron Barabash", email="rbarabash@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="shirbr", name="Shir Bromberg", email="sbromberg@yotpo.com", url=url("http://www.yotpo.com"))
 )
