@@ -103,8 +103,14 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
 
     (outputConfig.coalesce.orElse(deprecatedCoalesce),
       outputConfig.repartition.orElse(deprecatedRepartition)) match {
-      case (Some(true), _) => dataFrame.coalesce(1)
-      case (_, Some(repartition)) => dataFrame.repartition(repartition)
+      case (Some(true), _) => {
+        log.info("coalesce dataframe to a single partition")
+        dataFrame.coalesce(1)
+      }
+      case (_, Some(repartition)) => {
+        log.info(s"repartitioning dataframe to ${repartition} partitions")
+        dataFrame.repartition(repartition)
+      }
       case _ => dataFrame
     }
   }

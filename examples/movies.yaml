@@ -20,7 +20,7 @@ variables:
 
 output:
   file:
-    dir: examples/output
+    dir: /tmp/hudi_test
 
 # If set to true, triggers Explain before saving
 explain: true
