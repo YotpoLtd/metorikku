@@ -1,0 +1,24 @@
+steps:
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT userid,
+           movies.movieid as movieId,
+           rating,
+           timestamp,
+           title,
+           genres,
+           now() as ts,
+           year(from_unixtime(timestamp)) as year,
+           month(from_unixtime(timestamp)) as month
+    FROM ratings
+    JOIN movies ON ratings.movieid = movies.movieid
+    WHERE year(from_unixtime(timestamp))='2014'
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Hudi
+  outputOptions:
+    path: topFantasyMovies.parquet
+    keyColumn: movieId
+    timeColumn: ts
+    partitionBy: year
+    tableName: hoodie_test

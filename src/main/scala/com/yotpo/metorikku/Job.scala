@@ -16,9 +16,6 @@ case class Job(val config: Configuration) {
   val sparkSession = createSparkSession(config.appName, config.output)
   val sparkContext = sparkSession.sparkContext
 
-  org.apache.spark.sql.hive.thriftserver.HiveThriftServer2.startWithContext(sparkSession.sqlContext)
-
-
   // Set up instrumentation
   val instrumentationFactory = InstrumentationProvider.getInstrumentationFactory(
     config.appName, config.instrumentation)

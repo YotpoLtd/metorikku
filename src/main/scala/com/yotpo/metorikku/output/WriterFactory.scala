@@ -31,7 +31,7 @@ object WriterFactory {
       case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file)
       case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
-      case OutputType.Hudi => new HudiWriter(metricOutputOptions, output.file)
+      case OutputType.Hudi => new HudiOutputWriter(metricOutputOptions, output.hudi)
       case OutputType.Instrumentation => new InstrumentationOutputWriter(
         metricOutputOptions,
         outputConfig.dataFrameName, metricName, job.instrumentationFactory)

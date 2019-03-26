@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - examples/movies_metric.yaml
+  - examples/hudi/movies_metric.yaml
 
 inputs:
   movies:
@@ -14,13 +14,13 @@ inputs:
     file:
       path: examples/file_inputs/ratings.csv
 
-# Set custom variables that would be accessible from the SQL
-variables:
- myFavoriteMovie: 'Princess Bride, The (1987)'
-
 output:
-  file:
-    dir: examples/output
+  hudi:
+    dir: /tmp/hudi_test
+    parallelism: 4
+    operation: upsert
+    storageType: COPY_ON_WRITE
+    maxVersions: 1
 
 # If set to true, triggers Explain before saving
 explain: true
