@@ -197,7 +197,8 @@ inputs:
       servers:
         - 127.0.0.1:9092
       topic: test
-      consumerGroup: testConsumerGroupID
+      consumerGroup: testConsumerGroupID # optional
+      schemaRegistryUrl: https://schema-registry-url # optional
 ```
 Using Kafka input will convert your application into a streaming application build on top of Spark Structured Streaming. <br />
 Please note the following while using streaming applications:
@@ -217,6 +218,8 @@ Please note the following while using streaming applications:
 
 * In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input. <br />
 This will commit the offsets to kafka, as a new dummy consumer group.
+
+* In order to deserialize your kafka stream messages with confluent's [Schema Registry](https://docs.confluent.io/current/schema-registry/docs/index.html), add the  ```schemaRegistryUrl``` option to the kafka input config 
 
 #### Instrumentation
 One of the most useful features in Metorikku is it's instrumentation capabilities.

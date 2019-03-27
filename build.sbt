@@ -30,6 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
+  "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
   "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.11.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
@@ -51,16 +52,20 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
-  "org.influxdb" % "influxdb-java" % "2.14"
+  "org.influxdb" % "influxdb-java" % "2.14",
+  "org.apache.kafka" %% "kafka" % "0.10.2.2" % "provided",
+  "io.confluent" % "kafka-avro-serializer" % "3.3.1" % "provided"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
 dependencyOverrides += "com.databricks" %% "spark-avro" % "4.0.0"
+dependencyOverrides += "org.apache.avro" %% "avro" % "1.8.2"
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("public"),
   Resolver.bintrayRepo("spark-packages", "maven"),
-  "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release"
+  "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release",
+  "confluent" at "http://packages.confluent.io/maven/"
 )
 
 fork := true
