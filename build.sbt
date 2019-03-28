@@ -26,10 +26,9 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-hive-thriftserver" % sparkVersion % "provided",
+//  "org.apache.spark" %% "spark-hive-thriftserver" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
-  "org.apache.parquet" % "parquet-hadoop" % "1.8.2",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
   "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.11.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
@@ -53,7 +52,8 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "com.uber.hoodie" % "hoodie-spark" % "0.4.5",
-  "mysql" % "mysql-connector-java" % "5.1.47"
+  "org.apache.parquet" % "parquet-hadoop" % "1.8.2"
+//  "mysql" % "mysql-connector-java" % "5.1.47"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306

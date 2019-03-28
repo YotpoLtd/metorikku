@@ -1,7 +1,5 @@
-# The MQL file path
 metrics:
   - examples/hudi/movies_metric.yaml
-
 inputs:
   movies:
     file_date_range:
@@ -13,23 +11,18 @@ inputs:
   ratings:
     file:
       path: examples/file_inputs/ratings.csv
-
 output:
   hudi:
-    dir: /tmp/hudi_test
-    parallelism: 4
+    dir: file:///tmp/hudi_test
+    parallelism: 1
     operation: upsert
     storageType: COPY_ON_WRITE
     maxVersions: 1
-
-# If set to true, triggers Explain before saving
+    hiveDB: default
+    hiveJDBCURL: jdbc:hive2://localhost:10000
+    hiveUserName: root
+    hivePassword: pass
 explain: true
-
-# Set Log Level : ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
 logLevel: WARN
-
-# Set Application Name to have app name prefix in spark instrumentation counters
-appName: moviesApp
-
-# Shows a Preview of the output
-showPreviewLines: 100
+appName: hudiTestMoviesApp
+showPreviewLines: 10
