@@ -8,11 +8,9 @@ scmInfo := Some(
 developers := List(
   Developer(id="amitco1", name="Amit Cohen", email="amit@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="avichay", name="Avichay Etzioni", email="avichay@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="dporat", name="Doron Porat", email="dporat@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="etrabelsi", name="Eyal Trabelsi", email="", url=url("http://www.yotpo.com")),
+  Developer(id="etrabelsi", name="Eyal Trabelsi", email="etrabelsi@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="lyogev", name="Liran Yogev", email="lyogev@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="ofirventura", name="Ofir Ventura", email="oventura@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="nuriyan", name="Nadav Bar Uriyan", email="nuriyan@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="ronbarab", name="Ron Barabash", email="rbarabash@yotpo.com", url=url("http://www.yotpo.com")),
   Developer(id="shirbr", name="Shir Bromberg", email="sbromberg@yotpo.com", url=url("http://www.yotpo.com"))
 )
@@ -22,12 +20,14 @@ val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.0")
 val jacksonVersion = "2.8.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
+lazy val excludeHadoopParquet = ExclusionRule(organization = "org.apache.parquet", name = "parquet-hadoop")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
+//  "org.apache.spark" %% "spark-hive-thriftserver" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
@@ -52,6 +52,9 @@ libraryDependencies ++= Seq(
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14"
+//  "com.uber.hoodie" % "hoodie-spark" % "0.4.5" excludeAll(excludeHadoopParquet)
+//  "org.apache.parquet" % "parquet-hadoop" % "1.8.2"
+//  "mysql" % "mysql-connector-java" % "5.1.47"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306

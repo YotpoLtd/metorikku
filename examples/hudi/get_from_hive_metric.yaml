@@ -1,0 +1,4 @@
+steps:
+- dataFrameName: hoodie_hive_test
+  sql:
+    SELECT * FROM hoodie_test
