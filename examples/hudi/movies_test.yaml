@@ -1,0 +1,4 @@
+metric: get_from_hive_metric.yaml
+tests:
+  hoodie_hive_test:
+    - title: Nutty Professor, The (1996)

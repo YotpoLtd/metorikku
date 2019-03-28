@@ -13,7 +13,7 @@ inputs:
       path: examples/file_inputs/ratings.csv
 output:
   hudi:
-    dir: file:///tmp/hudi_test
+    dir: file://examples/output
     parallelism: 1
     operation: upsert
     storageType: COPY_ON_WRITE

@@ -1,0 +1,53 @@
+version: '3'
+services:
+  spark-submit:
+    image: metorikku/metorikku
+    environment:
+    - SUBMIT_COMMAND=spark-submit --packages mysql:mysql-connector-java:5.1.47 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=root --conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  hive-tester:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages mysql:mysql-connector-java:5.1.47 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=root --conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  spark-master:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
+  spark-worker:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
+    volumes:
+      - ./output/:/examples/output/
+    logging:
+      driver: none
+  hive:
+    image: hive_test
+    environment:
+      - CONNECTION_URL="jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false"
+      - CONNECTION_USER_NAME=root
+      - CONNECTION_PASSWORD=pass
+      - WAREHOUSE_DIR=file:///tmp
+    depends_on:
+      - hive-db
+    volumes:
+      - ./output/:/examples/output/
+  hive-db:
+    image: mysql:5.7.25
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass

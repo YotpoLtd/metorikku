@@ -20,6 +20,7 @@ val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.0")
 val jacksonVersion = "2.8.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
+lazy val excludeHadoopParquet = ExclusionRule(organization = "org.apache.parquet", name = "parquet-hadoop")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -50,9 +51,9 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
-  "org.influxdb" % "influxdb-java" % "2.14",
-  "com.uber.hoodie" % "hoodie-spark" % "0.4.5",
-  "org.apache.parquet" % "parquet-hadoop" % "1.8.2"
+  "org.influxdb" % "influxdb-java" % "2.14"
+//  "com.uber.hoodie" % "hoodie-spark" % "0.4.5" excludeAll(excludeHadoopParquet)
+//  "org.apache.parquet" % "parquet-hadoop" % "1.8.2"
 //  "mysql" % "mysql-connector-java" % "5.1.47"
 )
 
