@@ -2,7 +2,7 @@ package com.yotpo.metorikku.output.writers.file
 
 import com.yotpo.metorikku.configuration.job.output.{File, Hudi}
 import com.yotpo.metorikku.output.Writer
-import org.apache.spark.sql.{DataFrame, SaveMode}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -26,6 +26,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
+  // scalastyle:off cyclomatic.complexity
+  // scalastyle:off method.length
   override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
@@ -34,56 +36,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     // Handle hudi job configuration
     hudiOutput match {
       case Some(config) => {
-        config.parallelism match {
-          case Some(parallelism) => {
-            writer.option("hoodie.insert.shuffle.parallelism", parallelism)
-            writer.option("hoodie.bulkinsert.shuffle.parallelism", parallelism)
-            writer.option("hoodie.upsert.shuffle.parallelism", parallelism)
-          }
-          case None =>
-        }
-        config.maxFileSize match {
-          case Some(maxFileSize) => writer.option("hoodie.parquet.max.file.size", maxFileSize)
-          case None =>
-        }
-        config.storageType match {
-          case Some(storageType) => writer.option("hoodie.datasource.write.storage.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
-          case None =>
-        }
-        config.operation match {
-          case Some(operation) => writer.option("hoodie.datasource.write.operation", operation) // bulkinsert/upsert/insert
-          case None =>
-        }
-        config.maxVersions match {
-          case Some(maxVersions) => {
-            writer.option("hoodie.cleaner.fileversions.retained", maxVersions)
-            writer.option("hoodie.cleaner.policy", "KEEP_LATEST_FILE_VERSIONS")
-          }
-          case None =>
-        }
-        config.hiveJDBCURL match {
-          case Some(hiveJDBCURL) => {
-            writer.option("hoodie.datasource.hive_sync.jdbcurl", hiveJDBCURL)
-            writer.option("hoodie.datasource.hive_sync.enable", "true")
-          }
-          case None =>
-        }
-        config.hiveDB match {
-          case Some(hiveDB) => writer.option("hoodie.datasource.hive_sync.database", hiveDB)
-          case None =>
-        }
-        config.hiveUserName match {
-          case Some(hiveUserName) => writer.option("hoodie.datasource.hive_sync.username" , hiveUserName)
-          case None =>
-        }
-        config.hivePassword match {
-          case Some(hivePassword) => writer.option("hoodie.datasource.hive_sync.password" , hivePassword)
-          case None =>
-        }
-        config.options match {
-          case Some(options) => writer.options(options)
-          case None =>
-        }
+        updateJobConfig(config, writer)
       }
       case None =>
     }
@@ -139,4 +92,59 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     writer.save()
   }
+
+  private def updateJobConfig(config: Hudi, writer: DataFrameWriter[_]): Unit = {
+    config.parallelism match {
+      case Some(parallelism) => {
+        writer.option("hoodie.insert.shuffle.parallelism", parallelism)
+        writer.option("hoodie.bulkinsert.shuffle.parallelism", parallelism)
+        writer.option("hoodie.upsert.shuffle.parallelism", parallelism)
+      }
+      case None =>
+    }
+    config.maxFileSize match {
+      case Some(maxFileSize) => writer.option("hoodie.parquet.max.file.size", maxFileSize)
+      case None =>
+    }
+    config.storageType match {
+      case Some(storageType) => writer.option("hoodie.datasource.write.storage.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
+      case None =>
+    }
+    config.operation match {
+      case Some(operation) => writer.option("hoodie.datasource.write.operation", operation) // bulkinsert/upsert/insert
+      case None =>
+    }
+    config.maxVersions match {
+      case Some(maxVersions) => {
+        writer.option("hoodie.cleaner.fileversions.retained", maxVersions)
+        writer.option("hoodie.cleaner.policy", "KEEP_LATEST_FILE_VERSIONS")
+      }
+      case None =>
+    }
+    config.hiveJDBCURL match {
+      case Some(hiveJDBCURL) => {
+        writer.option("hoodie.datasource.hive_sync.jdbcurl", hiveJDBCURL)
+        writer.option("hoodie.datasource.hive_sync.enable", "true")
+      }
+      case None =>
+    }
+    config.hiveDB match {
+      case Some(hiveDB) => writer.option("hoodie.datasource.hive_sync.database", hiveDB)
+      case None =>
+    }
+    config.hiveUserName match {
+      case Some(hiveUserName) => writer.option("hoodie.datasource.hive_sync.username" , hiveUserName)
+      case None =>
+    }
+    config.hivePassword match {
+      case Some(hivePassword) => writer.option("hoodie.datasource.hive_sync.password" , hivePassword)
+      case None =>
+    }
+    config.options match {
+      case Some(options) => writer.options(options)
+      case None =>
+    }
+  }
+  // scalastyle:on cyclomatic.complexity
+  // scalastyle:on method.length
 }

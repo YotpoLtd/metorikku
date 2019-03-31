@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --packages mysql:mysql-connector-java:5.1.47 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=root --conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --packages com.uber.hoodie:hoodie-spark-bundle:0.4.5,com.uber.hoodie:hoodie-utilities:0.4.5 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
     volumes:
       - ./output/:/examples/output/
     entrypoint:
@@ -14,7 +14,7 @@ services:
   hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages mysql:mysql-connector-java:5.1.47 --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=root --conf spark.hadoop.javax.jdo.option.ConnectionPassword=pass --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --packages com.uber.hoodie:hoodie-spark-bundle:0.4.5,com.uber.hoodie:hoodie-utilities:0.4.5 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
     volumes:
       - ./output/:/examples/output/
     entrypoint:
@@ -37,12 +37,13 @@ services:
     logging:
       driver: none
   hive:
-    image: hive_test
+    image: metorikku/hive
     environment:
-      - CONNECTION_URL="jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&useSSL=false"
+      - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
       - CONNECTION_USER_NAME=root
       - CONNECTION_PASSWORD=pass
       - WAREHOUSE_DIR=file:///tmp
+      - WAIT_HOSTS=hive-db:3306
     depends_on:
       - hive-db
     volumes:
@@ -51,3 +52,4 @@ services:
     image: mysql:5.7.25
     environment:
       - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=hive

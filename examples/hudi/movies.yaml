@@ -13,13 +13,13 @@ inputs:
       path: examples/file_inputs/ratings.csv
 output:
   hudi:
-    dir: file://examples/output
+    dir: /examples/output
     parallelism: 1
     operation: upsert
     storageType: COPY_ON_WRITE
     maxVersions: 1
     hiveDB: default
-    hiveJDBCURL: jdbc:hive2://localhost:10000
+    hiveJDBCURL: jdbc:hive2://hive:10000
     hiveUserName: root
     hivePassword: pass
 explain: true

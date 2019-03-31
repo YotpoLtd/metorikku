@@ -1,4 +1,6 @@
 steps:
 - dataFrameName: hoodie_hive_test
   sql:
-    SELECT * FROM hoodie_test
+    SELECT title
+    FROM hoodie_test
+    WHERE userkey='48-68358'

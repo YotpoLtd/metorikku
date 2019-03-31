@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CONNECTION_DRIVER_NAME=${CONNECTION_DRIVER_NAME:=com.mysql.jdbc.Driver}
+DB_TYPE=${DB_TYPE:=mysql}
 
 cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
 <configuration>
@@ -41,8 +42,14 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>hive.server2.thrift.port</name>
         <value>10000</value>
     </property>
+     <property>
+        <name>fs.default.name</name>
+        <value>file:///</value>
+     </property>
 </configuration>
 EOL
+
+$HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
 
 nohup ${HIVE_HOME}/bin/hive --service metastore &
 ${HIVE_HOME}/bin/hiveserver2 --hiveconf hive.root.logger=INFO,console
