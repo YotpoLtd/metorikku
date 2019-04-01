@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages com.uber.hoodie:hoodie-spark-bundle:0.4.5,com.uber.hoodie:hoodie-utilities:0.4.5 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
     volumes:
       - ./output/:/examples/output/
     entrypoint:
@@ -14,7 +14,7 @@ services:
   hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages com.uber.hoodie:hoodie-spark-bundle:0.4.5,com.uber.hoodie:hoodie-utilities:0.4.5 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
     volumes:
       - ./output/:/examples/output/
     entrypoint:
