@@ -3,4 +3,4 @@ steps:
   sql:
     SELECT title
     FROM hoodie_test
-    WHERE userkey='48-68358'
+    WHERE genres='Animation|Children'

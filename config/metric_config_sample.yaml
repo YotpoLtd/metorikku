@@ -144,3 +144,23 @@ output:
       # you can add below any option supported by "Elasticsearch for Apache Hadoop"
       extraOptions:
         es.index.auto.create: false
+  - outputType: Hudi
+    outputOptions:
+      path: path
+      # The key to use for upserts
+      keyColumn: userkey
+      # This will be used to determine which row should prevail (newer timestamps will win)
+      timeColumn: ts
+      # Partition column - note that hudi support a single column only, so if you require multiple levels of partitioning you need to add / to your column values
+      partitionBy: date
+      # Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day)
+      hivePartitions: year,month,day
+      # Hive table to save the results to
+      tableName: test_table
+      # Save mode to use (default to Append)
+      saveMode: Overwrite
+      # Delete all rows with dataframe's partition+key
+      delete: true
+      # extra options (http://hudi.incubator.apache.org/configurations.html)
+      extraOptions:
+        option1: value1

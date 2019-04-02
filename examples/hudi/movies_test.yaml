@@ -5,4 +5,4 @@ mocks:
   path: ../mocks/movies.jsonl
 tests:
   hoodie_hive_test:
-    - title: Star Trek (2009)
+    - title: Boundin' (2003)

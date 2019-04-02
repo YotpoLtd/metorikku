@@ -1,6 +1,8 @@
 package com.yotpo.metorikku.output.writers.file
 
-import com.yotpo.metorikku.configuration.job.output.{File, Hudi}
+import java.util.Optional
+
+import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
@@ -14,6 +16,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   partitionBy: Option[String],
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
+                                  delete: Option[Boolean],
                                   extraOptions: Option[Map[String, String]])
 
   val hudiOutputProperties = HudiOutputProperties(
@@ -24,6 +27,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("partitionBy").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
+    props.get("delete").asInstanceOf[Option[Boolean]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   // scalastyle:off cyclomatic.complexity
@@ -83,6 +87,11 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         writer.option("hoodie.datasource.hive_sync.partition_extractor_class", "com.uber.hoodie.hive.MultiPartKeysValueExtractor")
       }
       case None =>
+    }
+
+    hudiOutputProperties.delete match {
+      case Some(true) => writer.option("hoodie.datasource.write.payload.class", classOf[EmptyHoodieRecordPayload].getName)
+      case _ =>
     }
 
     hudiOutputProperties.extraOptions match {
@@ -147,4 +156,15 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
   // scalastyle:on cyclomatic.complexity
   // scalastyle:on method.length
+}
+
+class EmptyHoodieRecordPayload extends com.uber.hoodie.common.model.HoodieRecordPayload[EmptyHoodieRecordPayload] {
+  def this(record: org.apache.avro.generic.GenericRecord, orderingVal: Comparable[_]) {
+    this()
+  }
+
+  override def preCombine(another: EmptyHoodieRecordPayload): EmptyHoodieRecordPayload = another
+  override def combineAndGetUpdateValue(indexedRecord: org.apache.avro.generic.IndexedRecord,
+                                        schema: org.apache.avro.Schema): Optional[org.apache.avro.generic.IndexedRecord] = Optional.empty()
+  override def getInsertValue(schema: org.apache.avro.Schema): Optional[org.apache.avro.generic.IndexedRecord] = Optional.empty()
 }

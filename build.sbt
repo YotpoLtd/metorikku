@@ -51,7 +51,8 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
-  "org.influxdb" % "influxdb-java" % "2.14"
+  "org.influxdb" % "influxdb-java" % "2.14",
+  "com.uber.hoodie" % "hoodie-spark" % "0.4.5" % "provided"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
