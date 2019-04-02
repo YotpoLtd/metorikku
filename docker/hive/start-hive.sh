@@ -1,6 +1,10 @@
 #!/bin/bash
 
 CONNECTION_DRIVER_NAME=${CONNECTION_DRIVER_NAME:=com.mysql.jdbc.Driver}
+HIVE_SERVER_PORT=${HIVE_SERVER_PORT:=10000}
+SCHEMA_VERIFICATION=${SCHEMA_VERIFICATION:=false}
+METASTORE_PORT=${METASTORE_PORT:=9083}
+DEFAULT_FS=${DEFAULT_FS:=file:///}
 DB_TYPE=${DB_TYPE:=mysql}
 
 cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
@@ -27,7 +31,7 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
 	</property>
 	<property>
 		<name>hive.metastore.schema.verification</name>
-		<value>false</value>
+		<value>${SCHEMA_VERIFICATION}</value>
 	</property>
 	<property>
         <name>hive.metastore.warehouse.dir</name>
@@ -36,20 +40,20 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
     </property>
     <property>
         <name>hive.metastore.uris</name>
-        <value>thrift://localhost:9083</value>
+        <value>thrift://localhost:${METASTORE_PORT}</value>
     </property>
     <property>
         <name>hive.server2.thrift.port</name>
-        <value>10000</value>
+        <value>${HIVE_SERVER_PORT}</value>
     </property>
      <property>
         <name>fs.default.name</name>
-        <value>file:///</value>
+        <value>${DEFAULT_FS}</value>
      </property>
 </configuration>
 EOL
 
 $HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
 
-nohup ${HIVE_HOME}/bin/hive --service metastore &
+nohup ${HIVE_HOME}/bin/hive --service metastore -p ${METASTORE_PORT} &
 ${HIVE_HOME}/bin/hiveserver2 --hiveconf hive.root.logger=INFO,console
