@@ -153,14 +153,14 @@ output:
       timeColumn: ts
       # Partition column - note that hudi support a single column only, so if you require multiple levels of partitioning you need to add / to your column values
       partitionBy: date
-      # Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day)
-      hivePartitions: year,month,day
       # Hive table to save the results to
       tableName: test_table
-      # Save mode to use (default to Append)
+      # Optional: Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day) - (default will be split by / of the partitionBy column)
+      hivePartitions: year,month,day
+      # Optional: Save mode to use (default to Append)
       saveMode: Overwrite
-      # Delete all rows with dataframe's partition+key
+      # Optional: Delete all rows with dataframe's partition+key - check example (default is false)
       delete: true
-      # extra options (http://hudi.incubator.apache.org/configurations.html)
+      # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
       extraOptions:
         option1: value1

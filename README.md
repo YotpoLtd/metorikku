@@ -344,10 +344,15 @@ Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 #### Apache Hudi
 Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/incubator-hudi).
 
-Hudi is a very exciting project that basically allows upserts and deletes directly on top of the data lake.
+Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
 
 In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
 an external JAR from here: https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar
+
+To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
+```properties
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+```
 
 After that you can start using the new Hudi writer like this:
 
@@ -358,7 +363,7 @@ output:
     dir: /examples/output
     # This controls the level of parallelism of hudi writing (should be similar to shuffle partitions)
     parallelism: 1
-    # upsert/insert
+    # upsert/insert/bulkinsert
     operation: upsert
     # COPY_ON_WRITE/MERGE_ON_READ
     storageType: COPY_ON_WRITE

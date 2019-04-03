@@ -18,9 +18,10 @@ ENV MYSQL_CONNECTOR_VERSION=5.1.47
 RUN wget -q http://central.maven.org/maven2/mysql/mysql-connector-java/$MYSQL_CONNECTOR_VERSION/mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar \
     && mv mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar $HIVE_HOME/lib
 
+ENV HUDI_VERSION=0.4.5
 RUN apt-get update && apt-get install -y ant
-RUN wget -q http://central.maven.org/maven2/com/uber/hoodie/hoodie-hive-bundle/0.4.5/hoodie-hive-bundle-0.4.5.jar \
-    && mv hoodie-hive-bundle-0.4.5.jar $HIVE_HOME/lib
+RUN wget -q http://central.maven.org/maven2/com/uber/hoodie/hoodie-hive-bundle/$HUDI_VERSION/hoodie-hive-bundle-$HUDI_VERSION.jar \
+    && mv hoodie-hive-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait

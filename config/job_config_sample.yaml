@@ -98,21 +98,22 @@ output:
   # Apache Hudi
   hudi:
     dir: /path/to/parquet/output
-    # This controls the level of parallelism of hudi writing (should be similar to shuffle partitions)
+    # Optional: This controls the level of parallelism of hudi writing (should be similar to shuffle partitions) - (default is 1500)
     parallelism: 1
-    # upsert/insert
+    # Optional: upsert/insert/bulkinsert (default is upsert)
     operation: upsert
-    # COPY_ON_WRITE/MERGE_ON_READ
+    # Optional: COPY_ON_WRITE/MERGE_ON_READ (default is COPY_ON_WRITE)
     storageType: COPY_ON_WRITE
-    # Maximum number of versions to retain
+    # Optional: Maximum number of versions to retain
     maxVersions: 1
-    # Hive database to use when writing
+    # Optional: Hive database to use when writing (default is default)
     hiveDB: default
     # Hive server URL
     hiveJDBCURL: jdbc:hive2://hive:10000
+    # Optional: credentials to hive
     hiveUserName: root
     hivePassword: pass
-    # extra options (http://hudi.incubator.apache.org/configurations.html)
+    # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
     options:
       ....
 
