@@ -1,0 +1,28 @@
+metrics:
+  - examples/hudi/movies_metric.yaml
+inputs:
+  movies:
+    file_date_range:
+      template: examples/file_date_range_inputs/%s/movies.csv
+      date_range:
+        format: yyyy/MM/dd
+        startDate: 2017/09/01
+        endDate: 2017/09/03
+  ratings:
+    file:
+      path: examples/file_inputs/ratings.csv
+output:
+  hudi:
+    dir: /examples/output
+    parallelism: 1
+    operation: upsert
+    storageType: COPY_ON_WRITE
+    maxVersions: 1
+    hiveDB: default
+    hiveJDBCURL: jdbc:hive2://hive:10000
+    hiveUserName: root
+    hivePassword: pass
+explain: true
+logLevel: WARN
+appName: hudiTestMoviesApp
+showPreviewLines: 10

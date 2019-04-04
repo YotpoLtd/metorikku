@@ -1,0 +1,8 @@
+metric: get_from_hive_metric.yaml
+mocks:
+# TODO: Remove once #157 is merged
+- name: movies
+  path: ../mocks/movies.jsonl
+tests:
+  hoodie_hive_test:
+    - title: Boundin' (2003)

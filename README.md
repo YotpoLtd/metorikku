@@ -343,5 +343,65 @@ catalog:
 
 Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 
+
+#### Apache Hudi
+Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/incubator-hudi).
+
+Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
+
+In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
+an external JAR from here: https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar
+
+To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
+```properties
+spark.serializer=org.apache.spark.serializer.KryoSerializer
+```
+
+After that you can start using the new Hudi writer like this:
+
+#### Job config
+```yaml
+output:
+  hudi:
+    dir: /examples/output
+    # This controls the level of parallelism of hudi writing (should be similar to shuffle partitions)
+    parallelism: 1
+    # upsert/insert/bulkinsert
+    operation: upsert
+    # COPY_ON_WRITE/MERGE_ON_READ
+    storageType: COPY_ON_WRITE
+    # Maximum number of versions to retain 
+    maxVersions: 1
+    # Hive database to use when writing
+    hiveDB: default
+    # Hive server URL
+    hiveJDBCURL: jdbc:hive2://hive:10000
+    hiveUserName: root
+    hivePassword: pass
+```
+
+#### Metric config
+```yaml
+dataFrameName: test
+  outputType: Hudi
+  outputOptions:
+    path: test.parquet
+    # The key to use for upserts
+    keyColumn: userkey
+    # This will be used to determine which row should prevail (newer timestamps will win)
+    timeColumn: ts
+    # Partition column - note that hudi support a single column only, so if you require multiple levels of partitioning you need to add / to your column values
+    partitionBy: date
+    # Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day)
+    hivePartitions: year,month,day
+    # Hive table to save the results to
+    tableName: test_table
+```
+
+Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details.
+
+Also check the full list of configurations possible with hudi [here](http://hudi.incubator.apache.org/configurations.html).
+
+
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

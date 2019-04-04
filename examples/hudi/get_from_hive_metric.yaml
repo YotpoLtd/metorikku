@@ -1,0 +1,6 @@
+steps:
+- dataFrameName: hoodie_hive_test
+  sql:
+    SELECT title
+    FROM hoodie_test
+    WHERE genres='Animation|Children'

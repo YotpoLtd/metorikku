@@ -5,7 +5,7 @@ import com.yotpo.metorikku.configuration.job.Configuration
 import com.yotpo.metorikku.configuration.metric.{Output, OutputType}
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
-import com.yotpo.metorikku.output.writers.file.{CSVOutputWriter, FileOutputWriter, JSONOutputWriter, ParquetOutputWriter}
+import com.yotpo.metorikku.output.writers.file._
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
 import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
 import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
@@ -32,6 +32,7 @@ object WriterFactory {
       case OutputType.CSV => new CSVOutputWriter(metricOutputOptions, output.file)
       case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
+      case OutputType.Hudi => new HudiOutputWriter(metricOutputOptions, output.hudi)
       case OutputType.Instrumentation => new InstrumentationOutputWriter(
         metricOutputOptions,
         outputConfig.dataFrameName, metricName, job.instrumentationFactory)

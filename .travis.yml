@@ -13,6 +13,7 @@ env:
   global:
     - SPARK_VERSION=2.4.0
     - HADOOP_VERSION=2.7
+    - HIVE_VERSION=1.2.2
 before_script:
   - docker pull metorikku/spark:latest
   - docker pull metorikku/metorikku:latest
@@ -38,6 +39,7 @@ script:
   - travis_fold start "docker"
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
+  - docker build -t metorikku/hive:$HIVE_VERSION -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
   - travis_fold end "docker"
   # Kafka to Kafka E2E
@@ -56,6 +58,10 @@ script:
   - travis_fold start "file_to_elasticsearch_e2e"
   - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_elasticsearch_e2e"
+  # File to Hudi E2E
+  - travis_fold start "file_to_hudi_e2e"
+  - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
+  - travis_fold end "file_to_hudi_e2e"
 deploy:
   - provider: script
     skip_cleanup: true
@@ -64,7 +70,7 @@ deploy:
       branch: master
   - provider: script
     skip_cleanup: true
-    script: docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/metorikku
+    script: docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*

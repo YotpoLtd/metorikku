@@ -96,6 +96,27 @@ output:
     user: username
     password: password
     driver: "org.postgresql.Driver"
+  # Apache Hudi
+  hudi:
+    dir: /path/to/parquet/output
+    # Optional: This controls the level of parallelism of hudi writing (should be similar to shuffle partitions) - (default is 1500)
+    parallelism: 1
+    # Optional: upsert/insert/bulkinsert (default is upsert)
+    operation: upsert
+    # Optional: COPY_ON_WRITE/MERGE_ON_READ (default is COPY_ON_WRITE)
+    storageType: COPY_ON_WRITE
+    # Optional: Maximum number of versions to retain
+    maxVersions: 1
+    # Optional: Hive database to use when writing (default is default)
+    hiveDB: default
+    # Hive server URL
+    hiveJDBCURL: jdbc:hive2://hive:10000
+    # Optional: credentials to hive
+    hiveUserName: root
+    hivePassword: pass
+    # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
+    options:
+      ....
 
 # You can also use named outputs (all outputs above are supported)
 outputs:

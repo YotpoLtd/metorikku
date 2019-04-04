@@ -1,0 +1,55 @@
+version: '3'
+services:
+  spark-submit:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  hive-tester:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  spark-master:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
+  spark-worker:
+    image: metorikku/metorikku
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
+    volumes:
+      - ./output/:/examples/output/
+    logging:
+      driver: none
+  hive:
+    image: metorikku/hive
+    environment:
+      - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
+      - CONNECTION_USER_NAME=root
+      - CONNECTION_PASSWORD=pass
+      - WAREHOUSE_DIR=file:///tmp
+      - WAIT_HOSTS=hive-db:3306
+    depends_on:
+      - hive-db
+    volumes:
+      - ./output/:/examples/output/
+  hive-db:
+    image: mysql:5.7.25
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass
+      - MYSQL_DATABASE=hive
