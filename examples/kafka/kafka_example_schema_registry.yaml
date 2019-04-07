@@ -1,0 +1,24 @@
+# The MQL file path
+metrics:
+  - examples/kafka/kafka2kafka_schema_registry.yaml
+
+inputs:
+  testStream:
+    kafka:
+      servers:
+        - kafka:9092
+      topic: dbserver1.inventory.customers
+      consumerGroup: kafkaAppConsumerGroup
+      schemaRegistryUrl: http://schema-registry:8081
+      options:
+        startingOffsets: earliest
+
+output:
+  kafka:
+    servers:
+      - kafka:9092
+    checkpointLocation: /tmp/checkpoint
+    compressionType: gzip
+
+# Set Application Name to have app name prefix in spark instrumentation counters
+appName: kafkaApp

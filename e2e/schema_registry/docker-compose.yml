@@ -1,0 +1,116 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:0.9
+  kafka:
+    image: debezium/kafka:0.9
+    environment:
+     KAFKA_CREATE_TOPICS: testAppendOutputMode:1:1
+     ZOOKEEPER_CONNECT: zookeeper:2181
+     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+     KAFKA_LISTENERS: PLAINTEXT://kafka:9092
+     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  mysql:
+    image: debezium/example-mysql:0.9
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
+  schema-registry:
+    image: confluentinc/cp-schema-registry
+    environment:
+     - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+     - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+     - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+    depends_on:
+      - mysql
+  connect:
+    image: debezium/connect:0.9
+    environment:
+    - BOOTSTRAP_SERVERS=kafka:9092
+    - GROUP_ID=1
+    - CONFIG_STORAGE_TOPIC=my_connect_configs
+    - OFFSET_STORAGE_TOPIC=my_connect_offsets
+    - STATUS_STORAGE_TOPIC=my_connect_statuses
+    - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+    - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+    - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+    - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+    - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+    depends_on:
+      - schema-registry
+  schema-registry-register:
+    image: buildpack-deps:stretch-curl
+    volumes:
+    - ./scripts:/scripts
+    command: /scripts/entrypoint-schema-registry.sh
+    depends_on:
+      - connect
+  mysql-client:
+    image: debezium/example-mysql:0.9
+    volumes:
+    - ./scripts:/scripts
+    command: /scripts/entrypoint-mysql-changes.sh
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
+    depends_on:
+      - mysql
+  spark-master:
+    image: metorikku/spark
+    entrypoint:
+    - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
+    depends_on:
+      - zookeeper
+      - kafka
+      - mysql
+      - schema-registry
+      - connect
+      - schema-registry-register
+      - mysql-client
+  spark-worker:
+    image: metorikku/spark
+    entrypoint:
+    - /scripts/entrypoint-worker.sh
+    logging:
+      driver: none
+    depends_on:
+    - zookeeper
+    - kafka
+    - mysql
+    - schema-registry
+    - connect
+    - schema-registry-register
+    - mysql-client
+  spark-submit:
+    image: metorikku/metorikku
+    environment:
+    - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:0.10.2.2,org.apache.spark:spark-avro_2.11:2.4.0 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_schema_registry.yaml
+    entrypoint:
+    - /scripts/entrypoint-submit.sh
+    volumes:
+    - ../../examples:/examples
+    depends_on:
+    - spark-master
+    - spark-worker
+  kafka-consume-avro:
+    image: wurstmeister/kafka
+    volumes:
+    - ./scripts:/scripts
+    - ./mocks:/mocks
+    command: /scripts/consumer_test_avro.sh
+    environment:
+      TOPIC: testAppendOutputMode
+      NUMBER_OF_EXPECTED_MESSAGES: 9
+      MOCK_OUTPUT: /mocks/orders.jsonl
+      KAFKA_CONSUME_TIMEOUT: 24000
+      KAFKA_BROKER: kafka:9092
+      SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - spark-submit

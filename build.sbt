@@ -19,6 +19,7 @@ developers := List(
 
 scalaVersion := "2.11.12"
 val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.0")
+val sparkVersionTestBase = "2.4.0"
 val jacksonVersion = "2.8.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
@@ -32,7 +33,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
-  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.11.0" % "test",
+  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersionTestBase}_0.11.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
@@ -54,7 +55,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "0.10.2.2" % "provided",
-  "io.confluent" % "kafka-avro-serializer" % "3.3.1" % "provided",
+  "io.confluent" % "kafka-avro-serializer" % "3.3.1",
   "com.uber.hoodie" % "hoodie-spark" % "0.4.5" % "provided"
 )
 
