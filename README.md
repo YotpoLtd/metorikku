@@ -355,7 +355,7 @@ Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/
 Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
 
 In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
-an external JAR from here: https://github.com/YotpoLtd/incubator-hudi/releases/download/hoodie-0.4.5-metorikku/hoodie-spark-bundle-0.4.5-hive-unshaded.jar
+an external JAR from here: https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar
 
 To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
 ```properties
