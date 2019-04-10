@@ -5,12 +5,11 @@ services:
     image: metorikku/metorikku
     environment:
       - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/influxdb/movies.yaml
-    volumes:
-      - ./scripts/finish_submit.sh:/scripts/finish-submit.sh
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
-      - influxdb
+      - spark-worker
+      - spark-master
   spark-master:
     image: metorikku/metorikku
     entrypoint:
@@ -31,9 +30,7 @@ services:
       - INFLUXDB_DB=test
       - INFLUXDB_HTTP_ENABLED=true
       - INFLUXDB_HTTP_AUTH_ENABLED=true
-    logging:
-      driver: none
-  influxdb_tester:
+  influxdb-tester:
     image: buildpack-deps:stretch-curl
     volumes:
       - ./scripts:/scripts

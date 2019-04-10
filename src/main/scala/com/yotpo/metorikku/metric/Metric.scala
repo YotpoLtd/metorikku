@@ -3,6 +3,7 @@ package com.yotpo.metorikku.metric
 import java.io.File
 
 import com.yotpo.metorikku.Job
+import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.metric.{Configuration, Output}
 import com.yotpo.metorikku.configuration.metric.OutputType.OutputType
 import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWriteFailedException}
@@ -10,6 +11,11 @@ import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
+
+import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
+case class StreamingWritingConfiguration(dataFrame: DataFrame, writers: ListBuffer[Writer] = ListBuffer.empty)
 
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
@@ -37,11 +43,37 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def writeStream(dataFrame: DataFrame,
-                          dataFrameName: String,
-                          writer: Writer): Unit = {
+  private def writeStream(dataFrameName: String, writerConfig: StreamingWritingConfiguration,
+                          streamingConfig: Option[Streaming]): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
-    writer.writeStream(dataFrame)
+
+    streamingConfig match {
+      case Some(config) => {
+        val streamWriter = writerConfig.dataFrame.writeStream
+        config.applyOptions(streamWriter)
+
+        config.batchMode match {
+          case Some(true) => {
+            val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
+              writerConfig.writers.foreach(writer => writer.write(batchDF))
+            }).start()
+            query.awaitTermination()
+            // Exit this function after streaming is completed
+            return
+          }
+          case _ =>
+        }
+      }
+      case None =>
+    }
+
+    // Non batch mode
+    writerConfig.writers.size match {
+      case size if size == 1 => writerConfig.writers.foreach(writer => writer.writeStream(writerConfig.dataFrame, streamingConfig))
+      case size if size > 1 => log.error("Found multiple outputs for a streaming source without using the batch mode, " +
+        "skipping streaming writing")
+      case _ =>
+    }
   }
 
   private def writeBatch(dataFrame: DataFrame,
@@ -78,19 +110,30 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 
   def write(job: Job): Unit = {
-    configuration.output.foreach(outputConfig => {
-      val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
-      val dataFrameName = outputConfig.dataFrameName
-      val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
+    configuration.output match {
+      case Some(output) => {
+        val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
 
-      if (dataFrame.isStreaming) {
-        writeStream(dataFrame, dataFrameName, writer)
+        output.foreach(outputConfig => {
+          val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
+          val dataFrameName = outputConfig.dataFrameName
+          val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
+
+          if (dataFrame.isStreaming) {
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame))
+            streamingWriterConfig.writers += writer
+            streamingWriterList += (dataFrameName -> streamingWriterConfig)
+          }
+          else {
+            writeBatch(dataFrame, dataFrameName, writer,
+              outputConfig.outputType, job.instrumentationClient)
+          }
+        })
+
+        for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming)
       }
-      else {
-        writeBatch(dataFrame, dataFrameName, writer,
-          outputConfig.outputType, job.instrumentationClient)
-      }
-    })
+      case None =>
+    }
   }
 }
 
