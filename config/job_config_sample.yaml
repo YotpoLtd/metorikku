@@ -48,7 +48,8 @@ inputs:
         servers:
           - localhost:9092
         topic: some_topic
-        schemaRegistryUrl: https://schema-registry-url
+        schemaRegistryUrl: https://schema-registry-url # optional
+        schemaSubject: subject # optional
   input_6:
     cassandra:
       host: 127.0.0.1
