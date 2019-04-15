@@ -12,12 +12,14 @@ kafka-console-consumer.sh \
 
 echo "completed consuming from topic ${TOPIC}, results:"
 cat /tmp/test_results
+echo "starting to compare expected results:"
+cat ${MOCK_OUTPUT}
 
 jq 'del(.ts_ms)'  /tmp/test_results > /tmp/test_results_without_ms
-jq 'del(.. | .ts_sec?)' /tmp/test_results_without_ms > /tmp/test_results_without_ms_sec
+jq 'del(.. | .source?)' /tmp/test_results_without_ms > /tmp/test_results_without_ms_sec
 
 jq 'del(.ts_ms)' ${MOCK_OUTPUT} > /tmp/expected_without_ms
-jq 'del(.. | .ts_sec?)' /tmp/expected_without_ms > /tmp/expected_without_ms_sec
+jq 'del(.. | .source?)' /tmp/expected_without_ms > /tmp/expected_without_ms_sec
 
 
 diff -w <(sort /tmp/expected_without_ms_sec) <(sort /tmp/test_results_without_ms_sec)

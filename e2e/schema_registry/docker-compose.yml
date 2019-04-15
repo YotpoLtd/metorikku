@@ -39,6 +39,9 @@ services:
     - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     depends_on:
+      - zookeeper
+      - kafka
+      - mysql
       - schema-registry
   schema-registry-register:
     image: buildpack-deps:stretch-curl
@@ -57,6 +60,7 @@ services:
       MYSQL_PORT: 3306
       MYSQL_USER: mysqluser
       MYSQL_PASSWORD: mysqlpw
+      MAX_RETRIES: 45
     depends_on:
       - mysql
   spark-master:
@@ -90,7 +94,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:0.10.2.2,org.apache.spark:spark-avro_2.11:2.4.0 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_schema_registry.yaml
+    - SUBMIT_COMMAND=spark-submit --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:0.10.2.2,org.apache.spark:spark-avro_2.11:2.4.0,io.confluent:kafka-avro-serializer:3.3.1 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_schema_registry.yaml
     entrypoint:
     - /scripts/entrypoint-submit.sh
     volumes:

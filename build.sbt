@@ -55,7 +55,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "0.10.2.2" % "provided",
-  "io.confluent" % "kafka-avro-serializer" % "3.3.1",
+  "io.confluent" % "kafka-avro-serializer" % "3.3.1" % "provided",
   "com.uber.hoodie" % "hoodie-spark" % "0.4.5" % "provided"
 )
 
