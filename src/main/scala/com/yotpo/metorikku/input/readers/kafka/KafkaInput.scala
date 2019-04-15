@@ -9,7 +9,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 case class KafkaInput(name: String, servers: Seq[String], topic: String, consumerGroup: Option[String],
-                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String]) extends Reader {
+                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject:  Option[String]) extends Reader {
   @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
   def read(sparkSession: SparkSession): DataFrame = {
@@ -34,7 +34,7 @@ case class KafkaInput(name: String, servers: Seq[String], topic: String, consume
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, topic)
+        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, topic, schemaSubject)
         schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
       }
       case None => kafkaDataFrame
