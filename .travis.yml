@@ -42,14 +42,14 @@ script:
   - docker build -t metorikku/hive:$HIVE_VERSION -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
   - travis_fold end "docker"
+  # CDC E2E
+  - travis_fold start "cdc_e2e"
+  - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
+  - travis_fold end "cdc_e2e"
   # Kafka to Kafka E2E
   - travis_fold start "kafka_to_kafka_e2e"
   - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
   - travis_fold end "kafka_to_kafka_e2e"
-  # Kafka to Kafka E2E with schema registry and debezium
-  - travis_fold start "kafka_to_kafka_chema_registry_e2e"
-  - (cd e2e/schema_registry && ./test.sh) || travis_terminate 1;
-  - travis_fold end "kafka_to_kafka_chema_registry_e2e"
   # File to InfluxDB E2E
   - travis_fold start "file_to_influx_e2e"
   - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;

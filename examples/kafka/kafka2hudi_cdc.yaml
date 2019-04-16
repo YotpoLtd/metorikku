@@ -1,0 +1,23 @@
+steps:
+- dataFrameName: testAppendOutputMode
+  sql:
+    SELECT ts_ms,
+    after.*,
+    false as delete
+    FROM testStream
+    WHERE op != 'd'
+- dataFrameName: testAppendOutputModeWithDate
+  sql:
+    SELECT *,
+          from_unixtime(created_at, 'yyyy/MM/dd') AS date
+    FROM testAppendOutputMode
+output:
+- dataFrameName: testAppendOutputModeWithDate
+  outputType: Hudi
+  outputOptions:
+    path: hoodie_test.parquet
+    keyColumn: id
+    timeColumn: ts_ms
+    partitionBy: date
+    hivePartitions: year,month,day
+    tableName: hoodie_test

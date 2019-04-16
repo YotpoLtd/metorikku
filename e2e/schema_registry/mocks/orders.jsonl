@@ -1,9 +1,0 @@
-{"after":{"id":1001,"first_name":"Sally","last_name":"Thomas","email":"sally.thomas@acme.com"},"op":"c","ts_ms":1554910630246}
-{"after":{"id":1002,"first_name":"George","last_name":"Bailey","email":"gbailey@foobar.com"},"op":"c","ts_ms":1554910630246}
-{"after":{"id":1003,"first_name":"Edward","last_name":"Walker","email":"ed@walker.com"},"op":"c","ts_ms":1554910630246}
-{"after":{"id":1004,"first_name":"Anne Mariesssss","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"c","ts_ms":1554910630246}
-{"before":{"id":1004,"first_name":"Anne Mariesssss","last_name":"Kretchmar","email":"annek@noanswer.org"},"after":{"id":1004,"first_name":"Anne Maries","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"u","ts_ms":1554910655669}
-{"before":{"id":1004,"first_name":"Anne Maries","last_name":"Kretchmar","email":"annek@noanswer.org"},"after":{"id":1004,"first_name":"Anne Mariess","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"u","ts_ms":1554910655708}
-{"before":{"id":1004,"first_name":"Anne Mariess","last_name":"Kretchmar","email":"annek@noanswer.org"},"after":{"id":1004,"first_name":"Anne Mariesss","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"u","ts_ms":1554910655742}
-{"before":{"id":1004,"first_name":"Anne Mariesss","last_name":"Kretchmar","email":"annek@noanswer.org"},"after":{"id":1004,"first_name":"Anne Mariessss","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"u","ts_ms":1554910655777}
-{"before":{"id":1004,"first_name":"Anne Mariessss","last_name":"Kretchmar","email":"annek@noanswer.org"},"after":{"id":1004,"first_name":"Anne Mariesssss","last_name":"Kretchmar","email":"annek@noanswer.org"},"op":"u","ts_ms":1554910655810}
