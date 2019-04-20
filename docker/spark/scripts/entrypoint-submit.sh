@@ -35,6 +35,13 @@ spark.master $SPARK_MASTER
 spark.ui.port $SPARK_UI_PORT
 " >> /spark/conf/spark-defaults.conf
 
+if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
+echo -e "
+spark.sql.catalogImplementation=hive
+spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
+" >> /spark/conf/spark-defaults.conf
+fi
+
 echo "Running command: ${SUBMIT_COMMAND}"
 ${SUBMIT_COMMAND}
 EXIT_CODE=$?
