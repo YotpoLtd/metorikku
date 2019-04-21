@@ -18,18 +18,9 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
       case Some(group) =>
         log.info(s"creating consumer group with id $group")
         val consumer = createKafkaConsumer(group)
-        topic match {
-          case Some(regular_topic) =>
-            val lagWriter = new KafkaLagWriter(consumer, regular_topic)
-            sparkSession.streams.addListener(lagWriter)
-          case _ =>
-        }
-        topicPattern match {
-          case Some(regex_topic) =>
-            val lagWriter = new KafkaLagWriter(consumer, regex_topic)
-            sparkSession.streams.addListener(lagWriter)
-          case _ =>
-        }
+        val chosen_topic = topic.getOrElse(topicPattern.getOrElse(""))
+        val lagWriter = new KafkaLagWriter(consumer, chosen_topic)
+        sparkSession.streams.addListener(lagWriter)
       case _ =>
     }
 
