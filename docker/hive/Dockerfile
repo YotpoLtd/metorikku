@@ -33,6 +33,12 @@ RUN wget -q http://central.maven.org/maven2/net/logstash/log4j/jsonevent-layout/
     && mv jsonevent-layout-1.7.jar $HIVE_HOME/lib
 RUN wget -q http://central.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar \
     && mv json-smart-1.1.1.jar $HIVE_HOME/lib
+RUN wget -q https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.7/AthenaJDBC42_2.0.7.jar \
+    && mv AthenaJDBC42_2.0.7.jar $HIVE_HOME/lib
+RUN wget -q http://central.maven.org/maven2/com/amazonaws/aws-java-sdk-logs/1.11.534/aws-java-sdk-logs-1.11.534.jar \
+    && mv aws-java-sdk-logs-1.11.534.jar $HIVE_HOME/lib
+RUN wget -q http://central.maven.org/maven2/log4j/log4j/1.2.17/log4j-1.2.17.jar \
+    && mv log4j-1.2.17.jar $HIVE_HOME/lib
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait

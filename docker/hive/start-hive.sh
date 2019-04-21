@@ -71,6 +71,22 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>fs.s3.awsSecretAccessKey</name>
         <value>${AWS_SECRET_KEY}</value>
      </property>
+     <property>
+        <name>hive.metastore.event.listeners</name>
+        <value>com.amazonaws.services.glue.catalog.HiveGlueCatalogSyncAgent</value>
+     </property>
+     <property>
+        <name>glue.catalog.athena.s3.staging.dir</name>
+        <value>s3://aws-athena-query-results-402837048690-us-east-1/ariel</value>
+     </property>
+     <property>
+        <name>glue.catalog.user.key</name>
+        <value>${AWS_ACCESS_KEY}</value>
+     </property>
+     <property>
+        <name>glue.catalog.user.secret</name>
+        <value>${AWS_SECRET_KEY}</value>
+     </property>
 </configuration>
 EOL
 
