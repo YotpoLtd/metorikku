@@ -12,6 +12,7 @@ case class Kafka(servers: Seq[String],
                  schemaRegistryUrl:  Option[String],
                  schemaSubject:  Option[String]
                 ) extends InputConfig {
+  require(Option(servers).isDefined, "Servers Must be Defined")
   require(topic.isDefined && !topicPattern.isDefined || !topic.isDefined && topicPattern.isDefined, "Exactly one of (topic, topicPattern) must be defined")
 
   override def getReader(name: String): Reader = KafkaInput(name, servers, topic, topicPattern, consumerGroup, options, schemaRegistryUrl, schemaSubject)

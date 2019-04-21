@@ -9,7 +9,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 
 case class KafkaInput(name: String, servers: Seq[String], topic: Option[String], topicPattern: Option[String], consumerGroup: Option[String],
-                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject:  Option[String]) extends Reader {
+                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject: Option[String]) extends Reader {
   @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
 
@@ -57,22 +57,12 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        topic match {
-          case Some(regular_topic) =>
-            val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, regular_topic, schemaSubject)
-            schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
-          case _ => kafkaDataFrame
-        }
-        topicPattern match {
-          case Some(regex_topic) =>
-            val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, regex_topic, schemaSubject)
-            schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
-          case _ => kafkaDataFrame
-        }
+        val amit = topic.getOrElse(topicPattern.getOrElse(""))
+        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, amit, schemaSubject)
+        schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
       }
       case None => kafkaDataFrame
     }
-
   }
 
   private def createKafkaConsumer(consumerGroupID: String) = {
