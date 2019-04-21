@@ -57,8 +57,8 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val amit = topic.getOrElse(topicPattern.getOrElse(""))
-        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, amit, schemaSubject)
+        val chosen_topic = topic.getOrElse(topicPattern.getOrElse(""))
+        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, chosen_topic, schemaSubject)
         schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
       }
       case None => kafkaDataFrame
