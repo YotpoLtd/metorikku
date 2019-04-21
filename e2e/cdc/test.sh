@@ -1,12 +1,17 @@
 #!/bin/bash
-mkdir -p /output/hoodie_test.parquet
+mkdir output
 set -e
-
-docker-compose up -d connect connect
+docker-compose up -d zookeeper zookeeper
+docker-compose up -d kafka kafka
+docker-compose up -d mysql mysql
+docker-compose up -d schema-registry schema-registry
 docker-compose up -d hive hive
-docker-compose up --exit-code-from schema-registry-register schema-registry-register
-docker-compose up --exit-code-from mysql-client mysql-client
-sleep 10
+
+docker-compose up --exit-code-from kafka-wait kafka-wait
+docker-compose up -d connect connect
+docker-compose up --exit-code-from register-connector register-connector
+docker-compose up --exit-code-from mysql-client-seed mysql-client-seed
+docker-compose up --exit-code-from wait-schema-registry-topic
 docker-compose up --exit-code-from spark-submit spark-submit
 docker-compose up --exit-code-from hive-tester hive-tester
 

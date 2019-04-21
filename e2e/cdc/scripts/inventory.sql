@@ -1,3 +1,4 @@
+# Taken from https://github.com/debezium/docker-images/blob/master/examples/mysql/0.9/inventory.sql - added date column and seed values to customers table
 # In production you would almost certainly limit the replication user must be on the follower (slave) machine,
 # to prevent other clients accessing the log from other machines. For example, 'replicator'@'follower.acme.com'.
 #

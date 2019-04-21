@@ -22,8 +22,6 @@ output:
     maxVersions: 2
     hiveDB: default
     hiveJDBCURL: jdbc:hive2://hive:10000
-    hiveUserName: mysqluser
-    hivePassword: mysqlpw
 
 streaming:
   triggerMode: Once

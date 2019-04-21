@@ -1,15 +1,15 @@
 version: '2'
 services:
+  # CDC Components from Debezium
   zookeeper:
     image: debezium/zookeeper:0.9
   kafka:
     image: debezium/kafka:0.9
     environment:
-     KAFKA_CREATE_TOPICS: testAppendOutputMode:1:1
      ZOOKEEPER_CONNECT: zookeeper:2181
      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
      KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+     KAFKA_CREATE_TOPICS: testAppendOutputMode:1:1
   mysql:
     image: debezium/example-mysql:0.9
     environment:
@@ -22,11 +22,17 @@ services:
   schema-registry:
     image: confluentinc/cp-schema-registry
     environment:
+     - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+     - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
-     - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
-    depends_on:
-      - mysql
+  kafka-wait:
+    image: wurstmeister/kafka
+    environment:
+      TOPIC: testAppendOutputMode
+    volumes:
+    - ./scripts:/scripts
+    command: /scripts/wait_for_topic.sh
   connect:
     image: debezium/connect:0.9
     environment:
@@ -41,78 +47,71 @@ services:
     - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
     - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
     - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-    depends_on:
-      - zookeeper
-      - kafka
-      - mysql
-      - schema-registry
-  schema-registry-register:
+  # Register MySQL Table
+  register-connector:
     image: buildpack-deps:stretch-curl
     volumes:
     - ./scripts:/scripts
-    command: /scripts/entrypoint-schema-registry.sh
+    command: /scripts/register-connector.sh
+    environment:
+      REGISTER_JSON_PATH: /scripts/register-mysql.json
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
     depends_on:
       - connect
-  mysql-client:
+  # Run some table updates
+  mysql-client-seed:
     image: debezium/example-mysql:0.9
     volumes:
     - ./scripts:/scripts
-    command: /scripts/entrypoint-mysql-changes.sh
+    command: /scripts/mysql-client-seed.sh
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_USER: mysqluser
       MYSQL_PASSWORD: mysqlpw
+      MYSQL_DB: inventory
+      SCRIPT_PATH: /scripts/customers_table_updates.sql
       MAX_RETRIES: 45
     depends_on:
       - mysql
+  # Spark Resources
   spark-master:
     image: metorikku/spark
     entrypoint:
     - /scripts/entrypoint-master.sh
     logging:
       driver: none
-    depends_on:
-      - zookeeper
-      - kafka
-      - mysql
-      - schema-registry
-      - connect
-      - schema-registry-register
-      - mysql-client
   spark-worker:
     image: metorikku/spark
-    environment:
-    - OUTPUT_EXECUTOR_LOGS_TO_STDOUT=true
     entrypoint:
     - /scripts/entrypoint-worker.sh
     logging:
       driver: none
-    depends_on:
-    - zookeeper
-    - kafka
-    - mysql
-    - schema-registry
-    - connect
-    - schema-registry-register
-    - mysql-client
     volumes:
-    - ../../examples:/examples
     - ./output/:/examples/output/
+  wait-schema-registry-topic:
+    image: buildpack-deps:stretch-curl
+    volumes:
+    - ./scripts:/scripts
+    command: /scripts/wait_for_schema_registry_topic.sh
+    environment:
+    - WAIT_SCHEMA_REGISTRY_SUBJECT=dbserver1.inventory.customers
+    - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+  # Spark job: Read from CDC Kafka topic, Deserialize according to schema registry, Write to Hudi output
   spark-submit:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:0.10.2.2,org.apache.spark:spark-avro_2.11:2.4.0,io.confluent:kafka-avro-serializer:3.3.1 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://mysql:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=mysqluser --conf spark.hadoop.javax.jdo.option.ConnectionPassword=mysqlpw --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
-    - MAX_RETRIES_JOB=3
+    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.0,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
     entrypoint:
     - /scripts/entrypoint-submit.sh
     volumes:
     - ../../examples:/examples
     - ./output/:/examples/output/
-    - ./warehouse:/warehouse
     depends_on:
     - spark-master
     - spark-worker
+  # Hive table with the spark job output
   hive:
     image: metorikku/hive
     environment:
@@ -124,17 +123,16 @@ services:
     - MAX_RETRIES=45
     volumes:
     - ./output/:/examples/output/
-    - ./scripts:/scripts
     depends_on:
     - mysql
+  # Hive test: Select from hive table and assert over the result
   hive-tester:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.hadoop.javax.jdo.option.ConnectionURL=jdbc:mysql://mysql:3306/hive?createDatabaseIfNotExist=true&useSSL=false --conf spark.hadoop.javax.jdo.option.ConnectionDriverName=com.mysql.jdbc.Driver --conf spark.hadoop.javax.jdo.option.ConnectionUserName=mysqluser --conf spark.hadoop.javax.jdo.option.ConnectionPassword=mysqlpw --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /hive_job/hive_test.yaml
+    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
     volumes:
-    - ./warehouse:/warehouse
     - ./output/:/examples/output/
-    - ./hive_job:/hive_job
+    - ./test_metrics:/test_metrics
     entrypoint:
     - /scripts/entrypoint-submit.sh
     depends_on:

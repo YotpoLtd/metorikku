@@ -1,7 +1,8 @@
 #!/bin/bash
 # wait until MySQL is really available
-maxcounter=${MAX_RETRIES}
-
+maxcounter=${MAX_RETRIES:=45}
+MYSQL_HOST=${MYSQL_HOST:=mysql}
+MYSQL_PORT=${MYSQL_PORT:=3306}
 counter=1
 while ! mysql --protocol TCP -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "show databases;" > /dev/null 2>&1; do
     sleep 1
@@ -11,5 +12,3 @@ while ! mysql --protocol TCP -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "show databa
         exit 1
     fi;
 done
-
-mysql -h mysql -P 3306 -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" inventory -e "source /scripts/customers_table_updates.sql;"
