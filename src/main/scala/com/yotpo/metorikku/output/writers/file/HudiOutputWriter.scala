@@ -4,11 +4,15 @@ import java.util.Optional
 
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
+import org.apache.spark.sql.functions.col
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
 class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) extends Writer {
+  val log = LogManager.getLogger(this.getClass)
+
   case class HudiOutputProperties(path: Option[String],
                                   saveMode: Option[String],
                                   keyColumn: Option[String],
@@ -17,6 +21,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
                                   delete: Option[Boolean],
+                                  deleteColumn: Option[String],
                                   extraOptions: Option[Map[String, String]])
 
   val hudiOutputProperties = HudiOutputProperties(
@@ -28,11 +33,32 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("delete").asInstanceOf[Option[Boolean]],
+    props.get("deleteColumn").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
+
+  override def write(dataFrame: DataFrame): Unit = {
+    hudiOutputProperties.deleteColumn match {
+      case Some(column) => {
+        val deleteDF = dataFrame.where(col(column) === true).drop(column)
+        val appendDF = dataFrame.where(col(column) === false or col(column).isNull).drop(column)
+
+        writeDF(deleteDF, true)
+        writeDF(appendDF)
+      }
+      case _ => writeDF(dataFrame)
+    }
+  }
 
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
-  override def write(dataFrame: DataFrame): Unit = {
+  private def writeDF(dataFrame: DataFrame, delete: Boolean = false): Unit = {
+    val counter = dataFrame.cache().count()
+    if (counter == 0) {
+      log.info("Skipping writing to hudi on empty dataframe")
+      return
+    }
+    log.info(s"Starting to write dataframe to hudi ($counter rows)")
+
     val writer = dataFrame.write
 
     writer.format("com.uber.hoodie")
@@ -89,8 +115,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
 
-    hudiOutputProperties.delete match {
-      case Some(true) => writer.option("hoodie.datasource.write.payload.class", classOf[EmptyHoodieRecordPayload].getName)
+    hudiOutputProperties.delete.getOrElse(delete) match {
+      case true => writer.option("hoodie.datasource.write.payload.class", classOf[EmptyHoodieRecordPayload].getName)
       case _ =>
     }
 
@@ -158,6 +184,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   // scalastyle:on method.length
 }
 
+// TODO: Remove once 0.4.6 is released
 class EmptyHoodieRecordPayload extends com.uber.hoodie.common.model.HoodieRecordPayload[EmptyHoodieRecordPayload] {
   def this(record: org.apache.avro.generic.GenericRecord, orderingVal: Comparable[_]) {
     this()

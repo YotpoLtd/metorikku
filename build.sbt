@@ -76,6 +76,8 @@ resolvers ++= Seq(
 
 fork := true
 javaOptions in Test ++= Seq("-Dspark.master=local[*]")
+scalacOptions += "-target:jvm-1.8"
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
 // Assembly settings
 Project.inConfig(Test)(baseAssemblySettings)

@@ -161,6 +161,8 @@ output:
       saveMode: Overwrite
       # Optional: Delete all rows with dataframe's partition+key - check example (default is false)
       delete: true
+      # Optional: Use the specified boolean column to determine if a row should be delete or not (true is for delete)
+      deleteColumn: some_boolean_column
       # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
       extraOptions:
         option1: value1
