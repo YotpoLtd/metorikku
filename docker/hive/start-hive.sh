@@ -7,15 +7,10 @@ METASTORE_PORT=${METASTORE_PORT:=9083}
 DEFAULT_FS=${DEFAULT_FS:=file:///}
 DB_TYPE=${DB_TYPE:=mysql}
 
-cat >${HIVE_HOME}/conf/hive-log4j.properties <<EOL
-log4j.rootLogger=INFO, CONSOLE
-
-# Disable excessive reflection warnings - KAFKA-5229
-log4j.logger.org.reflections=ERROR
-
-log4j.appender.CONSOLE=org.apache.log4j.ConsoleAppender
-log4j.appender.CONSOLE.layout=net.logstash.log4j.JSONEventLayoutV1
-EOL
+if [ ! -z ${JSON_LOG} ] ; then
+    echo "Setting Log type to JSON"
+    cat log4j.json.properties >> ${HIVE_HOME}/conf/hive-log4j.properties
+fi
 
 cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
 <configuration>

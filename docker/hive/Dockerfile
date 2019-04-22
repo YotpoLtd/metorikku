@@ -24,8 +24,11 @@ RUN wget -q http://central.maven.org/maven2/com/uber/hoodie/hoodie-hive-bundle/$
     && mv hoodie-hive-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
 RUN wget -q http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/$HADOOP_VERSION/hadoop-aws-$HADOOP_VERSION.jar \
     && mv hadoop-aws-$HADOOP_VERSION.jar $HIVE_HOME/lib
-RUN wget -q http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar \
-    && mv aws-java-sdk-1.7.4.jar $HIVE_HOME/lib
+
+ENV AWS_JAVA_SDK_VERSION=1.7.4
+RUN wget -q http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/$AWS_JAVA_SDK_VERSION/aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar \
+    && mv aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar $HIVE_HOME/lib
+
 RUN wget -q http://central.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar \
     && mv jsonevent-layout-1.7.jar $HIVE_HOME/lib
 RUN wget -q http://central.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar \
@@ -35,5 +38,6 @@ ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait
 RUN chmod +x /wait
 
 COPY start-hive.sh /
+COPY log4j.json.properties .
 
 CMD /wait && /start-hive.sh
