@@ -26,18 +26,15 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
 
     val bootstrapServers = servers.mkString(",")
     val inputStream = sparkSession.readStream.format("kafka")
+      .option("kafka.bootstrap.servers", bootstrapServers)
     topic match {
       case Some(regular_topic) =>
-        inputStream
-          .option("kafka.bootstrap.servers", bootstrapServers)
-          .option("subscribe", regular_topic)
+        inputStream.option("subscribe", regular_topic)
       case _ =>
     }
     topicPattern match {
       case Some(regex_topic) =>
-        inputStream
-          .option("kafka.bootstrap.servers", bootstrapServers)
-          .option("subscribePattern", regex_topic)
+        inputStream.option("subscribePattern", regex_topic)
       case _ =>
     }
 
@@ -48,8 +45,7 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val chosen_topic = topic.getOrElse(topicPattern.getOrElse(""))
-        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, chosen_topic, schemaSubject)
+        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, topic.getOrElse(""), schemaSubject)
         schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
       }
       case None => kafkaDataFrame
