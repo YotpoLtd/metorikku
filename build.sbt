@@ -18,8 +18,8 @@ developers := List(
 )
 
 scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.0")
-val sparkVersionTestBase = System.getProperty("sparkVersion") match {
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.1")
+val sparkVersionTestBase = sparkVersion match {
   case "2.4.1" => "2.4.0"
   case other => other
 }
