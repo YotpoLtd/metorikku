@@ -11,7 +11,7 @@ cache:
   - "$HOME/.sbt/launchers/"
 env:
   global:
-    - SPARK_VERSION=2.4.0
+    - SPARK_VERSION=2.4.1
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
 before_script:
@@ -62,6 +62,10 @@ script:
   - travis_fold start "file_to_hudi_e2e"
   - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_hudi_e2e"
+  # CDC E2E
+  - travis_fold start "cdc_e2e"
+  - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
+  - travis_fold end "cdc_e2e"
 deploy:
   - provider: script
     skip_cleanup: true

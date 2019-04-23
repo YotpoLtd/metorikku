@@ -48,4 +48,4 @@ EXIT_CODE=$?
 
 /scripts/finish-submit.sh
 
-exit $EXIT_CODE
+exit ${EXIT_CODE}
