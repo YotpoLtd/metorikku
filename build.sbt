@@ -18,7 +18,12 @@ developers := List(
 )
 
 scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.0")
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.1")
+val sparkVersionTestBase = sparkVersion match {
+  case "2.4.1" => "2.4.0"
+  case other => other
+}
+
 val jacksonVersion = "2.8.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
@@ -32,7 +37,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
-  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.11.0" % "test",
+  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersionTestBase}_0.11.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",

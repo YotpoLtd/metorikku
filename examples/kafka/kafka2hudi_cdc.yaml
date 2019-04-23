@@ -1,0 +1,22 @@
+steps:
+- dataFrameName: cdc_updates
+  sql:
+    SELECT ts_ms,
+    after.*
+    FROM testStream
+    WHERE op IN ('c', 'u')
+- dataFrameName: cdc_updates_with_partition
+  sql:
+    SELECT *,
+          from_unixtime(created_at, 'yyyy/MM/dd') AS date
+    FROM cdc_updates
+output:
+- dataFrameName: cdc_updates_with_partition
+  outputType: Hudi
+  outputOptions:
+    path: hoodie_test.parquet
+    keyColumn: id
+    timeColumn: ts_ms
+    partitionBy: date
+    hivePartitions: year,month,day
+    tableName: hoodie_test
