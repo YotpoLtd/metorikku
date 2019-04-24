@@ -1,22 +1,44 @@
 steps:
-- dataFrameName: cdc_updates
+- dataFrameName: cdc_delete
   sql:
     SELECT ts_ms,
-    after.*
-    FROM testStream
+    before.*,
+    true AS delete
+    FROM cdc_events
+    WHERE op = 'd'
+- dataFrameName: cdc_update
+  sql:
+    SELECT ts_ms,
+    after.*,
+    false AS delete
+    FROM cdc_events
     WHERE op IN ('c', 'u')
-- dataFrameName: cdc_updates_with_partition
+- dataFrameName: aligned_delete
+  classpath: com.yotpo.metorikku.code.steps.AlignTables
+  params:
+    from: cdc_delete
+    to: cdc_update
+- dataFrameName: cdc_table_union
+  sql:
+    SELECT * FROM cdc_update
+    UNION ALL
+    SELECT * FROM aligned_delete
+- dataFrameName: cdc_table
   sql:
     SELECT *,
-          from_unixtime(created_at, 'yyyy/MM/dd') AS date
-    FROM cdc_updates
+    ${key_expression} AS key, #id
+    ${partition_expression} AS partitionpath, #from_unixtime(created_at, 'yyyy/MM/dd')
+    FROM cdc_table_union
 output:
-- dataFrameName: cdc_updates_with_partition
+- dataFrameName: cdc_table
   outputType: Hudi
   outputOptions:
-    path: hoodie_test.parquet
-    keyColumn: id
+    path: table_view.parquet
+    keyColumn: key
     timeColumn: ts_ms
-    partitionBy: date
-    hivePartitions: year,month,day
-    tableName: hoodie_test
+    partitionBy: partitionpath
+    hivePartitions: ${hive_partition} #year,month,day
+    deleteColumn: delete
+    tableName: ${table_name} #hoodie_test
+    saveMode: Append
+

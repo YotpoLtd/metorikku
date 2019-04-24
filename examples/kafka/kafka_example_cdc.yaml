@@ -1,33 +1,31 @@
-# The MQL file path
 metrics:
   - examples/kafka/kafka2hudi_cdc.yaml
-
 inputs:
-  testStream:
+  cdc_events:
     kafka:
       servers:
-        - kafka:9092
-      topic: dbserver1.inventory.customers
-      consumerGroup: kafkaAppConsumerGroup
-      schemaRegistryUrl: http://schema-registry:8081
+      - ${kafka_broker} #kafka:9092
+      topic: ${topic} #dbserver1.inventory.customers
+      schemaRegistryUrl: ${schema_registry_url} #http://schema-registry:8081
+      consumerGroup: ${consumer_group} #kafkaAppConsumerGroup
       options:
         startingOffsets: earliest
-
+#        maxOffsetsPerTrigger: ${max_offsets_per_trigger}
 output:
   hudi:
-    dir: /examples/output
+    dir: ${table_view_output_dir} # /examples/output
     parallelism: 1
     operation: upsert
     storageType: COPY_ON_WRITE
     maxVersions: 2
     hiveDB: default
-    hiveJDBCURL: jdbc:hive2://hive:10000
+    hiveJDBCURL: ${hive_server_jdbc} #jdbc:hive2://hive:10000
 
 streaming:
-  triggerMode: Once
+  triggerMode: ProcessingTime
   triggerDuration: 5 seconds
   outputMode: append
-  checkpointLocation: /tmp/checkpoint
+  checkpointLocation: ${checkpoint_path} #/tmp/checkpoint
   batchMode: true
 
 appName: kafkaCDCApp
