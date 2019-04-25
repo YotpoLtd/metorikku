@@ -36,9 +36,11 @@ case class SchemaRegistryDeserializer(val schemaRegistryUrl: String, val topic: 
   @SerialVersionUID(serialVersion)
   class AvroDeserializer(val schemaRegistryURL: String) extends AbstractKafkaAvroDeserializer with Serializable {
     override def deserialize(bytes: Array[Byte]): Row = {
+      // scalastyle:off null
       if (bytes.length == 0) {
         return null
       }
+      // scalastyle:on null
       val schemaRegistryConf = new AbstractKafkaAvroSerDeConfig(AbstractKafkaAvroSerDeConfig.baseConfigDef(),
         Map(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryURL).asJava)
       super.configureClientProperties(schemaRegistryConf)

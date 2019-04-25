@@ -24,6 +24,7 @@ import org.apache.spark.sql.catalyst.expressions.codegen.UnsafeRowWriter
 import org.apache.spark.sql.catalyst.util.DateTimeUtils
 import org.apache.spark.unsafe.types.UTF8String
 
+// scalastyle:off
 /** A simple class for converting Kafka ConsumerRecord to UnsafeRow */
 private[kafka010] class KafkaRecordToUnsafeRowConverter {
   private val rowWriter = new UnsafeRowWriter(7)
@@ -47,3 +48,4 @@ private[kafka010] class KafkaRecordToUnsafeRowConverter {
     rowWriter.getRow()
   }
 }
+// scalastyle:on
