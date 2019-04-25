@@ -4,28 +4,25 @@ inputs:
   cdc_events:
     kafka:
       servers:
-      - ${kafka_broker} #kafka:9092
-      topic: ${topic} #dbserver1.inventory.customers
-      schemaRegistryUrl: ${schema_registry_url} #http://schema-registry:8081
-      consumerGroup: ${consumer_group} #kafkaAppConsumerGroup
+        - kafka:9092
+      topic: dbserver1.inventory.customers
+      schemaRegistryUrl: http://schema-registry:8081
       options:
         startingOffsets: earliest
-#        maxOffsetsPerTrigger: ${max_offsets_per_trigger}
 output:
   hudi:
-    dir: ${table_view_output_dir} # /examples/output
+    dir: /examples/output
     parallelism: 1
     operation: upsert
     storageType: COPY_ON_WRITE
     maxVersions: 2
     hiveDB: default
-    hiveJDBCURL: ${hive_server_jdbc} #jdbc:hive2://hive:10000
+    hiveJDBCURL: jdbc:hive2://hive:10000
 
 streaming:
-  triggerMode: ProcessingTime
-  triggerDuration: 5 seconds
+  triggerMode: Once
   outputMode: append
-  checkpointLocation: ${checkpoint_path} #/tmp/checkpoint
+  checkpointLocation: /tmp/checkpoint
   batchMode: true
 
 appName: kafkaCDCApp

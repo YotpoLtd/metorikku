@@ -37,6 +37,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
+  "org.apache.avro" % "avro" % "1.8.2",
   "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersionTestBase}_0.11.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
@@ -58,13 +59,14 @@ libraryDependencies ++= Seq(
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
-  "org.apache.kafka" %% "kafka" % "0.10.2.2" % "provided",
-  "io.confluent" % "kafka-avro-serializer" % "3.3.1" % "provided",
+  "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
+  "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
   "com.uber.hoodie" % "hoodie-spark" % "0.4.5" % "provided"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
 dependencyOverrides += "com.databricks" %% "spark-avro" % "4.0.0"
+dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
 dependencyOverrides += "org.apache.avro" %% "avro" % "1.8.2"
 
 resolvers ++= Seq(

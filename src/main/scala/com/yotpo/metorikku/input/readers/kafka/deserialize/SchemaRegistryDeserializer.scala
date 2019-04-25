@@ -5,7 +5,7 @@ import io.confluent.kafka.serializers.{AbstractKafkaAvroDeserializer, AbstractKa
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericRecord
 import org.apache.spark.sql.avro.SchemaConverters
-import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.{udf, col}
 import org.apache.spark.sql.types.DataType
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
@@ -29,13 +29,16 @@ case class SchemaRegistryDeserializer(val schemaRegistryUrl: String, val topic: 
     val deserializeUDF = udf((bytes: Array[Byte]) =>
       kafkaAvroDeserializer.deserialize(bytes), sqlSchema.dataType)
     kafkaDataFrame.select(
-      deserializeUDF(kafkaDataFrame.col("value")).alias("parsed"))
+      deserializeUDF(kafkaDataFrame.col("value")).alias("parsed")).filter(col("parsed").isNotNull)
       .select("parsed.*")
   }
 
   @SerialVersionUID(serialVersion)
   class AvroDeserializer(val schemaRegistryURL: String) extends AbstractKafkaAvroDeserializer with Serializable {
     override def deserialize(bytes: Array[Byte]): Row = {
+      if (bytes.length == 0) {
+        return null
+      }
       val schemaRegistryConf = new AbstractKafkaAvroSerDeConfig(AbstractKafkaAvroSerDeConfig.baseConfigDef(),
         Map(AbstractKafkaAvroSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryURL).asJava)
       super.configureClientProperties(schemaRegistryConf)

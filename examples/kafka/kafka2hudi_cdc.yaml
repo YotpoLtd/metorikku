@@ -1,44 +1,40 @@
 steps:
-- dataFrameName: cdc_delete
-  sql:
-    SELECT ts_ms,
-    before.*,
-    true AS delete
-    FROM cdc_events
-    WHERE op = 'd'
-- dataFrameName: cdc_update
-  sql:
-    SELECT ts_ms,
-    after.*,
-    false AS delete
-    FROM cdc_events
-    WHERE op IN ('c', 'u')
-- dataFrameName: aligned_delete
-  classpath: com.yotpo.metorikku.code.steps.AlignTables
-  params:
-    from: cdc_delete
-    to: cdc_update
-- dataFrameName: cdc_table_union
-  sql:
-    SELECT * FROM cdc_update
-    UNION ALL
-    SELECT * FROM aligned_delete
-- dataFrameName: cdc_table
-  sql:
-    SELECT *,
-    ${key_expression} AS key, #id
-    ${partition_expression} AS partitionpath, #from_unixtime(created_at, 'yyyy/MM/dd')
-    FROM cdc_table_union
+  - dataFrameName: cdc_filtered
+    sql:
+      SELECT ts_ms,
+      op,
+      before,
+      after
+      FROM cdc_events
+      WHERE op IN ('d', 'u', 'c')
+  - dataFrameName: cdc_by_event
+    sql:
+      SELECT ts_ms,
+      CASE WHEN op = 'd' THEN before ELSE after END AS cdc_fields,
+      CASE WHEN op = 'd' THEN true ELSE false END AS delete
+      FROM cdc_filtered
+  - dataFrameName: cdc_with_fields
+    sql:
+      SELECT ts_ms,
+      cdc_fields.*,
+      delete
+      FROM cdc_by_event
+  - dataFrameName: cdc_table
+    sql:
+      SELECT *,
+      id AS hoodie_key,
+      from_unixtime(created_at, 'yyyy/MM/dd') AS hoodie_partition
+      FROM cdc_with_fields
 output:
 - dataFrameName: cdc_table
   outputType: Hudi
   outputOptions:
     path: table_view.parquet
-    keyColumn: key
+    keyColumn: hoodie_key
     timeColumn: ts_ms
-    partitionBy: partitionpath
-    hivePartitions: ${hive_partition} #year,month,day
+    partitionBy: hoodie_partition
+    hivePartitions: year,month,day
     deleteColumn: delete
-    tableName: ${table_name} #hoodie_test
+    tableName: hoodie_test
     saveMode: Append
 

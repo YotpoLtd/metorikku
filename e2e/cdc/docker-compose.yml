@@ -2,56 +2,64 @@ version: '2'
 services:
   # CDC Components from Debezium
   zookeeper:
-    image: debezium/zookeeper:0.9
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
   kafka:
-    image: debezium/kafka:0.9
+    image: wurstmeister/kafka:2.12-2.2.0
     environment:
-     ZOOKEEPER_CONNECT: zookeeper:2181
-     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-     KAFKA_LISTENERS: PLAINTEXT://kafka:9092
-     KAFKA_CREATE_TOPICS: testAppendOutputMode:1:1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://kafka:9092,OUTSIDE://kafka:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,OUTSIDE://kafka:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CREATE_TOPICS: testAppendOutputMode:1:1
+#    ports:
+#      - 9094:9094
   mysql:
     image: debezium/example-mysql:0.9
     environment:
-     - MYSQL_ROOT_PASSWORD=debezium
-     - MYSQL_USER=mysqluser
-     - MYSQL_PASSWORD=mysqlpw
-     - MYSQL_DATABASE=hive
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+      - MYSQL_DATABASE=hive
     volumes:
-     - ./scripts/inventory.sql:/docker-entrypoint-initdb.d/inventory.sql
+      - ./scripts/inventory.sql:/docker-entrypoint-initdb.d/inventory.sql
   schema-registry:
     image: confluentinc/cp-schema-registry
     environment:
-     - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
-     - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
-     - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
-     - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+      - SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+      - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
+      - SCHEMA_REGISTRY_HOST_NAME=schema-registry
+#    ports:
+#      - 8081:8081
   kafka-wait:
-    image: wurstmeister/kafka
+    image: wurstmeister/kafka:2.12-2.2.0
     environment:
       TOPIC: testAppendOutputMode
     volumes:
-    - ./scripts:/scripts
+      - ./scripts:/scripts
     command: /scripts/wait_for_topic.sh
   connect:
     image: debezium/connect:0.9
     environment:
-    - BOOTSTRAP_SERVERS=kafka:9092
-    - GROUP_ID=1
-    - CONFIG_STORAGE_TOPIC=my_connect_configs
-    - OFFSET_STORAGE_TOPIC=my_connect_offsets
-    - STATUS_STORAGE_TOPIC=my_connect_statuses
-    - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
-    - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
-    - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-    - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-    - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
-    - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - KEY_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - VALUE_CONVERTER=io.confluent.connect.avro.AvroConverter
+      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
+      - CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL=http://schema-registry:8081
   # Register MySQL Table
   register-connector:
     image: buildpack-deps:stretch-curl
     volumes:
-    - ./scripts:/scripts
+      - ./scripts:/scripts
     command: /scripts/register-connector.sh
     environment:
       REGISTER_JSON_PATH: /scripts/register-mysql.json
@@ -63,7 +71,7 @@ services:
   mysql-client-seed:
     image: debezium/example-mysql:0.9
     volumes:
-    - ./scripts:/scripts
+      - ./scripts:/scripts
     command: /scripts/mysql-client-seed.sh
     environment:
       MYSQL_HOST: mysql
@@ -79,73 +87,67 @@ services:
   spark-master:
     image: metorikku/spark
     entrypoint:
-    - /scripts/entrypoint-master.sh
+      - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
     image: metorikku/spark
     entrypoint:
-    - /scripts/entrypoint-worker.sh
+      - /scripts/entrypoint-worker.sh
     logging:
       driver: none
     volumes:
-    - ./output/:/examples/output/
+      - ./output/:/examples/output/
   wait-schema-registry-topic:
     image: buildpack-deps:stretch-curl
     volumes:
-    - ./scripts:/scripts
+      - ./scripts:/scripts
     command: /scripts/wait_for_schema_registry_topic.sh
     environment:
-    - WAIT_SCHEMA_REGISTRY_SUBJECT=dbserver1.inventory.customers
-    - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
+      - WAIT_SCHEMA_REGISTRY_SUBJECT=dbserver1.inventory.customers
+      - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
   # Spark job: Read from CDC Kafka topic, Deserialize according to schema registry, Write to Hudi output
   spark-submit:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.0,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.0,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
-    - key_expression=id
-    - partition_expression=from_unixtime(created_at, 'yyyy/MM/dd')
-    - hive_partition=year,month,day
-    - table_name=hoodie_test
-    - kafka_broker=kafka:9092
-    - topic=dbserver1.inventory.customers
-    - schema_registry_url=http://schema-registry:8081
-    - consumer_group=kafkaAppConsumerGroup
-    - table_view_output_dir=/examples/output
-    - hive_server_jdbc=jdbc:hive2://hive:10000
-    - checkpoint_path=/tmp/checkpoint
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.1,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.1,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
     entrypoint:
-    - /scripts/entrypoint-submit.sh
+      - /scripts/entrypoint-submit.sh
     volumes:
-    - ../../examples:/examples
-    - ./output/:/examples/output/
+      - ./output/:/examples/output/
+      # This helps with caching
+#      - ./.ivy2/:/root/.ivy2/
+#      - ../hudi/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar:/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar
     depends_on:
-    - spark-master
-    - spark-worker
+      - spark-master
+      - spark-worker
   # Hive table with the spark job output
   hive:
     image: metorikku/hive
     environment:
-    - CONNECTION_URL=jdbc:mysql://mysql:3306/hive?useSSL=false
-    - CONNECTION_USER_NAME=mysqluser
-    - CONNECTION_PASSWORD=mysqlpw
-    - WAREHOUSE_DIR=file:///tmp
-    - WAIT_HOSTS=mysql:3306
-    - MAX_RETRIES=45
+      - CONNECTION_URL=jdbc:mysql://mysql:3306/hive?useSSL=false
+      - CONNECTION_USER_NAME=mysqluser
+      - CONNECTION_PASSWORD=mysqlpw
+      - WAREHOUSE_DIR=file:///tmp
+      - WAIT_HOSTS=mysql:3306
+      - MAX_RETRIES=45
     volumes:
-    - ./output/:/examples/output/
+      - ./output/:/examples/output/
     depends_on:
-    - mysql
+      - mysql
+#    ports:
+#      - 10000:10000
+#      - 9083:9083
   # Hive test: Select from hive table and assert over the result
   hive-tester:
     image: metorikku/metorikku
     environment:
-    - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
     volumes:
-    - ./output/:/examples/output/
-    - ./test_metrics:/test_metrics
+      - ./output/:/examples/output/
+      - ./test_metrics:/test_metrics
     entrypoint:
-    - /scripts/entrypoint-submit.sh
+      - /scripts/entrypoint-submit.sh
     depends_on:
-    - spark-master
-    - spark-worker
+      - spark-master
+      - spark-worker

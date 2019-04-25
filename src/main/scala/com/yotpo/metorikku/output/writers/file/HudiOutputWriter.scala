@@ -42,8 +42,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         val deleteDF = dataFrame.where(col(column) === true).drop(column)
         val appendDF = dataFrame.where(col(column) === false or col(column).isNull).drop(column)
 
-        writeDF(deleteDF, true)
         writeDF(appendDF)
+        writeDF(deleteDF, true)
       }
       case _ => writeDF(dataFrame)
     }
@@ -52,12 +52,11 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
   private def writeDF(dataFrame: DataFrame, delete: Boolean = false): Unit = {
-    val counter = dataFrame.cache().count()
-    if (counter == 0) {
+    if (dataFrame.head(1).isEmpty) {
       log.info("Skipping writing to hudi on empty dataframe")
       return
     }
-    log.info(s"Starting to write dataframe to hudi ($counter rows)")
+    log.info(s"Starting to write dataframe to hudi")
 
     val writer = dataFrame.write
 
