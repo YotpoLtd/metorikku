@@ -406,7 +406,7 @@ dataFrameName: test
     tableName: test_table
 ```
 
-In order to delete send in your dataframe a boolean column called hoodie_delete, if it's true that row will be deleted.
+In order to delete send in your dataframe a boolean column called ```_hoodie_delete```, if it's true that row will be deleted.
 
 Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details.
 

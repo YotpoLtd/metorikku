@@ -14,6 +14,7 @@ services:
       - MAX_RETRIES=300
       - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/movies.yaml
       - JSON_LOG=true
+      - JSON_LOG_LEVEL=WARN
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
 #      - KILL_NOMAD_JOB_ON_COMPLETE=true

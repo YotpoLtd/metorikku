@@ -1,10 +1,9 @@
 package com.yotpo.metorikku.output.writers.file
 
-import java.util.Optional
-
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
@@ -40,7 +39,13 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
     log.info(s"Starting to write dataframe to hudi")
 
-    val writer = dataFrame.write
+    // To support schema evolution all fields should be nullable
+    val schema = StructType(dataFrame.schema.fields.map(
+      field => field.copy(nullable = true))
+    )
+    val df = dataFrame.sparkSession.createDataFrame(dataFrame.rdd, schema)
+
+    val writer = df.write
 
     writer.format("com.uber.hoodie")
 
