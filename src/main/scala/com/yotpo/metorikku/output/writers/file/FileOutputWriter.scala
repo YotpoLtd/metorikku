@@ -76,6 +76,12 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
             writer.save()
             log.info(s"Overwriting external table $tableName to new path $filePath")
             ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
+            fileOutputProperties.partitionBy match {
+              case Some(_) =>
+                log.info("Recovering partitions")
+                catalog.recoverPartitions(tableName)
+              case _ => None
+            }
             catalog.refreshTable(tableName)
           }
           case false => writer.saveAsTable(tableName)
