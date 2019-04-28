@@ -1,14 +1,16 @@
 package com.yotpo.metorikku.output.writers.file
 
-import java.util.Optional
-
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.log4j.LogManager
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
 class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) extends Writer {
+  val log = LogManager.getLogger(this.getClass)
+
   case class HudiOutputProperties(path: Option[String],
                                   saveMode: Option[String],
                                   keyColumn: Option[String],
@@ -16,7 +18,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   partitionBy: Option[String],
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
-                                  delete: Option[Boolean],
                                   extraOptions: Option[Map[String, String]])
 
   val hudiOutputProperties = HudiOutputProperties(
@@ -27,13 +28,24 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("partitionBy").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
-    props.get("delete").asInstanceOf[Option[Boolean]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
   override def write(dataFrame: DataFrame): Unit = {
-    val writer = dataFrame.write
+    if (dataFrame.head(1).isEmpty) {
+      log.info("Skipping writing to hudi on empty dataframe")
+      return
+    }
+    log.info(s"Starting to write dataframe to hudi")
+
+    // To support schema evolution all fields should be nullable
+    val schema = StructType(dataFrame.schema.fields.map(
+      field => field.copy(nullable = true))
+    )
+    val df = dataFrame.sparkSession.createDataFrame(dataFrame.rdd, schema)
+
+    val writer = df.write
 
     writer.format("com.uber.hoodie")
 
@@ -59,6 +71,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     // Mandatory
     writer.option("hoodie.datasource.write.recordkey.field",  hudiOutputProperties.keyColumn.get)
     writer.option("hoodie.datasource.write.precombine.field", hudiOutputProperties.timeColumn.get)
+
+    writer.option("hoodie.datasource.write.payload.class", classOf[OverwriteWithLatestAvroPayloadWithDelete].getName)
 
     hudiOutputProperties.saveMode match {
       case Some(saveMode) => writer.mode(saveMode)
@@ -87,11 +101,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         writer.option("hoodie.datasource.hive_sync.partition_extractor_class", "com.uber.hoodie.hive.MultiPartKeysValueExtractor")
       }
       case None =>
-    }
-
-    hudiOutputProperties.delete match {
-      case Some(true) => writer.option("hoodie.datasource.write.payload.class", classOf[EmptyHoodieRecordPayload].getName)
-      case _ =>
     }
 
     hudiOutputProperties.extraOptions match {
@@ -156,15 +165,4 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
   // scalastyle:on cyclomatic.complexity
   // scalastyle:on method.length
-}
-
-class EmptyHoodieRecordPayload extends com.uber.hoodie.common.model.HoodieRecordPayload[EmptyHoodieRecordPayload] {
-  def this(record: org.apache.avro.generic.GenericRecord, orderingVal: Comparable[_]) {
-    this()
-  }
-
-  override def preCombine(another: EmptyHoodieRecordPayload): EmptyHoodieRecordPayload = another
-  override def combineAndGetUpdateValue(indexedRecord: org.apache.avro.generic.IndexedRecord,
-                                        schema: org.apache.avro.Schema): Optional[org.apache.avro.generic.IndexedRecord] = Optional.empty()
-  override def getInsertValue(schema: org.apache.avro.Schema): Optional[org.apache.avro.generic.IndexedRecord] = Optional.empty()
 }

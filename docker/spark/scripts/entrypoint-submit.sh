@@ -43,7 +43,7 @@ spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
 fi
 
 echo "Running command: ${SUBMIT_COMMAND}"
-${SUBMIT_COMMAND}
+eval ${SUBMIT_COMMAND}
 EXIT_CODE=$?
 
 /scripts/finish-submit.sh

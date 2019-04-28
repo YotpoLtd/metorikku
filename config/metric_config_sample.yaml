@@ -159,8 +159,6 @@ output:
       hivePartitions: year,month,day
       # Optional: Save mode to use (default to Append)
       saveMode: Overwrite
-      # Optional: Delete all rows with dataframe's partition+key - check example (default is false)
-      delete: true
       # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
       extraOptions:
         option1: value1

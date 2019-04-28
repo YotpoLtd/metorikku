@@ -1,22 +1,39 @@
 steps:
-- dataFrameName: cdc_updates
-  sql:
-    SELECT ts_ms,
-    after.*
-    FROM testStream
-    WHERE op IN ('c', 'u')
-- dataFrameName: cdc_updates_with_partition
-  sql:
-    SELECT *,
-          from_unixtime(created_at, 'yyyy/MM/dd') AS date
-    FROM cdc_updates
+  - dataFrameName: cdc_filtered
+    sql:
+      SELECT ts_ms,
+      op,
+      before,
+      after
+      FROM cdc_events
+      WHERE op IN ('d', 'u', 'c')
+  - dataFrameName: cdc_by_event
+    sql:
+      SELECT ts_ms,
+      CASE WHEN op = 'd' THEN before ELSE after END AS cdc_fields,
+      CASE WHEN op = 'd' THEN true ELSE false END AS _hoodie_delete
+      FROM cdc_filtered
+  - dataFrameName: cdc_with_fields
+    sql:
+      SELECT ts_ms,
+      cdc_fields.*,
+      _hoodie_delete
+      FROM cdc_by_event
+  - dataFrameName: cdc_table
+    sql:
+      SELECT *,
+      id AS hoodie_key,
+      from_unixtime(created_at, 'yyyy/MM/dd') AS hoodie_partition
+      FROM cdc_with_fields
 output:
-- dataFrameName: cdc_updates_with_partition
+- dataFrameName: cdc_table
   outputType: Hudi
   outputOptions:
-    path: hoodie_test.parquet
-    keyColumn: id
+    path: table_view.parquet
+    keyColumn: hoodie_key
     timeColumn: ts_ms
-    partitionBy: date
+    partitionBy: hoodie_partition
     hivePartitions: year,month,day
     tableName: hoodie_test
+    saveMode: Append
+

@@ -14,7 +14,8 @@ steps:
     WHERE from_unixtime(timestamp) BETWEEN '2014-11-01' AND '2014-11-03'
 - dataFrameName: deleteDayAndNight
   sql:
-    SELECT *
+    SELECT *,
+    true AS _hoodie_delete
     FROM moviesWithRatings
     WHERE title = 'Day & Night (2010)'
 output:
@@ -34,6 +35,5 @@ output:
     keyColumn: userkey
     timeColumn: ts
     partitionBy: date
-    delete: true
     hivePartitions: year,month,day
     tableName: hoodie_test

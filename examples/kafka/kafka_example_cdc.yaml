@@ -1,18 +1,14 @@
-# The MQL file path
 metrics:
   - examples/kafka/kafka2hudi_cdc.yaml
-
 inputs:
-  testStream:
+  cdc_events:
     kafka:
       servers:
         - kafka:9092
       topic: dbserver1.inventory.customers
-      consumerGroup: kafkaAppConsumerGroup
       schemaRegistryUrl: http://schema-registry:8081
       options:
         startingOffsets: earliest
-
 output:
   hudi:
     dir: /examples/output
@@ -25,7 +21,6 @@ output:
 
 streaming:
   triggerMode: Once
-  triggerDuration: 5 seconds
   outputMode: append
   checkpointLocation: /tmp/checkpoint
   batchMode: true
