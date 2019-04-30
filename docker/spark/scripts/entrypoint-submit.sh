@@ -39,6 +39,7 @@ if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
 echo -e "
 spark.sql.catalogImplementation=hive
 spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
+spark.sql.hive.convertMetastoreParquet=false
 " >> /spark/conf/spark-defaults.conf
 fi
 
