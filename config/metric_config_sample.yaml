@@ -65,8 +65,9 @@ output:
   - dataFrameName: table1
     outputType: Instrumentation
     outputOptions:
-      # This will be used to specify a column that will be treated as a string and be used as a key
-      keyColumn: col1
+      # This will be used to specify a column that will be treated as a string and be used as a value.
+      # by default valuecolumn will be the last column of the schema.
+      valueColumn: col1
       # When using influx instrumentation, use the time column in the table to set the time (by default it's now)
       timeColumn: col3
   - dataFrameName: table1
@@ -98,7 +99,7 @@ output:
       keyColumn: col1
       # This column will be sent as the payload of the kafka message
       valueColumn: col2
-      # In streaming mode set to append/replace/complete default is append
+      # In streaming mode set to append/update/complete default is append
       outputMode: append
       # In streaming mode set the trigger type (Once/Processing time)
       triggerType: Once

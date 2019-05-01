@@ -247,6 +247,7 @@ Metorikku sends automatically on top of what spark is already sending the follow
 * In streaming: number of processed records in batch
 
 You can also send any information you like to the instrumentation output within a metric.
+by default the last column of the schema will be the field value. all other columns will be tags
 
 Check out the [example](examples/movies_metric.yaml) for further details.
 
@@ -305,6 +306,18 @@ This will trigger your ```run``` method with the above dataFrameName.
 Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code/steps). 
 
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
+
+#### Watermark
+Metorikku supports Watermark method which helps a stream processing engine to deal with latenes.
+You can use watermarking by adding a new udf step in your metric:
+```yaml
+- dataFrameName: dataframe
+  classpath: com.yotpo.metorikku.code.steps.Watermark
+  params:
+    table: my_table
+    eventTime: event
+    delayThreshold: 2 hours
+```
 
 #### Apache Hive metastore
 Metorikku supports reading and saving tables with Apache hive metastore.
