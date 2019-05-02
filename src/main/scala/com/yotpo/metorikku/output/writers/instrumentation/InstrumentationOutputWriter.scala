@@ -27,14 +27,13 @@ class InstrumentationOutputWriter(props: Map[String, String],
 
       // use last column if valueColumn is missing
       val actualIndexOfValCol = indexOfValCol.getOrElse(columns.length - 1)
-      val actualIndexOfTimeCol = indexOfTimeCol.getOrElse(columns.length)
 
       p.foreach(row => {
         try {
 
           val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++
             columns.filter {
-              case (column, index) => index != actualIndexOfValCol && index != actualIndexOfTimeCol
+              case (column, index) => index != actualIndexOfValCol && (!indexOfTimeCol.isDefined || index != indexOfTimeCol.get)
             }.map {
               case (column, index) =>
                 column.name -> row.get(index).asInstanceOf[AnyVal].toString

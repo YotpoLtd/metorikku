@@ -247,7 +247,9 @@ Metorikku sends automatically on top of what spark is already sending the follow
 * In streaming: number of processed records in batch
 
 You can also send any information you like to the instrumentation output within a metric.
-by default the last column of the schema will be the field value. all other columns will be tags
+by default the last column of the schema will be the field value. 
+Other columns that are not value or time columns will be merged together as the name of the metric. 
+If writing directly to influxDB these will become tags.
 
 Check out the [example](examples/movies_metric.yaml) for further details.
 
@@ -308,13 +310,16 @@ Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
 
 #### Watermark
-Metorikku supports Watermark method which helps a stream processing engine to deal with latenes.
+Metorikku supports Watermark method which helps a stream processing engine to deal with late data.
 You can use watermarking by adding a new udf step in your metric:
 ```yaml
+# This will become the new watermarked dataframe name.
 - dataFrameName: dataframe
   classpath: com.yotpo.metorikku.code.steps.Watermark
   params:
+    # Watermark table my_table
     table: my_table
+    # The column representing the event time (needs to be a TIMESTAMP or DATE column)
     eventTime: event
     delayThreshold: 2 hours
 ```
