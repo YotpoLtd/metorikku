@@ -29,4 +29,4 @@ output:
   outputType: Instrumentation
   outputOptions:
     timeColumn: month_ts
-    keyColumn: genre
+    valueColumn: number_of_ratings
