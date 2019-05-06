@@ -25,6 +25,7 @@ done
 
 if [[ ${MAX_RETRIES} -eq 0 ]] ; then
     echo "Cluster $URL is not ready - stopping"
+    /scripts/finish-submit.sh
     exit 1
 fi
 
