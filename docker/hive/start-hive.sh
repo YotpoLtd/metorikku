@@ -64,11 +64,11 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
      </property>
      <property>
-        <name>fs.s3.awsAccessKeyId</name>
+        <name>fs.s3n.awsAccessKeyId</name>
         <value>${AWS_ACCESS_KEY}</value>
      </property>
      <property>
-        <name>fs.s3.awsSecretAccessKey</name>
+        <name>fs.s3n.awsSecretAccessKey</name>
         <value>${AWS_SECRET_KEY}</value>
      </property>
 </configuration>
