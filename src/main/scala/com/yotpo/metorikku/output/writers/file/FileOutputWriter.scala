@@ -73,9 +73,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
           case true => {
-            writer.save()
-            log.info(s"Overwriting external table $tableName to new path $filePath")
-            ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
+            writer.saveAsTable(tableName)
             fileOutputProperties.partitionBy match {
               case Some(_) =>
                 log.info("Recovering partitions")
