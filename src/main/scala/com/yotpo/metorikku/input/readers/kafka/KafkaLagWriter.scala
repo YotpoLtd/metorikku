@@ -28,7 +28,7 @@ class KafkaLagWriter(kafkaConsumer: KafkaConsumer[String, String], topic: String
     om.registerModule(DefaultScalaModule)
     event.progress.sources.foreach(source => {
       val jsonOffsets = om.readValue(source.endOffset, classOf[Map[String, Map[String, Long]]])
-      jsonOffsets.keys.filter(key => key == topic)
+      jsonOffsets.keys
         .foreach(topic => {
           log.debug(s"committing offsets for topic $topic")
           val topicPartitionMap = new util.HashMap[TopicPartition, OffsetAndMetadata]()

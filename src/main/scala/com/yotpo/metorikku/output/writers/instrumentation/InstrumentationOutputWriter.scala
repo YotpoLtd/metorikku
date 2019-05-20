@@ -13,57 +13,49 @@ class InstrumentationOutputWriter(props: Map[String, String],
                                   instrumentationFactory: InstrumentationFactory) extends Writer {
   @transient lazy val log: Logger = LogManager.getLogger(this.getClass)
 
-  val keyColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("keyColumn")
+  val valueColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("valueColumn")
   val timeColumnProperty: Option[String] = Option(props).getOrElse(Map()).get("timeColumn")
 
   override def write(dataFrame: DataFrame): Unit = {
     val columns = dataFrame.schema.fields.zipWithIndex
-    val indexOfKeyCol = keyColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
+    val indexOfValCol = valueColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
     val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
     dataFrame.foreachPartition(p => {
       val client = instrumentationFactory.create()
 
-      p.foreach(row => {
-        for ((column, i) <- columns) {
-          try {
-            // Don't write key/time column to metric
-            if ((!indexOfKeyCol.isDefined || i != indexOfKeyCol.get) && (!indexOfTimeCol.isDefined || i != indexOfTimeCol.get)) {
-              val valueOfRowAtCurrentCol = row.get(i)
-              // Only if value is numeric
-              if (valueOfRowAtCurrentCol != null && classOf[Number].isAssignableFrom(valueOfRowAtCurrentCol.getClass)) {
-                val longValue = valueOfRowAtCurrentCol.asInstanceOf[Number].longValue()
-                val keyColumnTags = getTagsForKeyColumn(indexOfKeyCol, row)
-                val time = getTime(indexOfTimeCol, row)
-                val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++ keyColumnTags
+      // use last column if valueColumn is missing
+      val actualIndexOfValCol = indexOfValCol.getOrElse(columns.length - 1)
 
-                client.gauge(name = column.name, value = longValue, tags = tags, time = time)
-              } else {
-                throw MetorikkuWriteFailedException("Value column doesn't contain a number")
-              }
-            }
-          } catch {
-            case ex: Throwable =>
-              throw MetorikkuWriteFailedException(s"failed to write instrumentation on data frame: $dataFrameName " +
-                s"for row: ${row.toString()} on column: ${column.name}", ex)
+      p.foreach(row => {
+        try {
+
+          val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++
+            columns.filter {
+              case (column, index) => index != actualIndexOfValCol && (!indexOfTimeCol.isDefined || index != indexOfTimeCol.get)
+            }.map {
+              case (column, index) =>
+                column.name -> row.get(index).asInstanceOf[AnyVal].toString
+            }.toMap
+
+          val time = getTime(indexOfTimeCol, row)
+          val metricValue = row.get(actualIndexOfValCol)
+
+          if (metricValue != null && classOf[Number].isAssignableFrom(metricValue.getClass)) {
+            val longValue = metricValue.asInstanceOf[Number].longValue()
+            val valueColumnName = row.schema.fieldNames(actualIndexOfValCol)
+            client.gauge(name = valueColumnName, value = longValue, tags = tags, time = time)
           }
+
+        }catch {
+          case ex: Throwable =>
+            throw MetorikkuWriteFailedException(s"failed to write instrumentation on data frame: $dataFrameName " +
+              s"for row: ${row.toString()}", ex)
         }
       })
-
       client.close()
     })
-  }
-
-  def getTagsForKeyColumn(indexOfKeyCol: Option[Int], row: Row): Map[String, String] = {
-    if (indexOfKeyCol.isDefined) {
-      if (!row.isNullAt(indexOfKeyCol.get)) {
-        return Map(keyColumnProperty.get -> row.get(indexOfKeyCol.get).asInstanceOf[AnyVal].toString)
-      } else {
-        throw MetorikkuWriteFailedException("Defined key column is null for row")
-      }
-    }
-    Map()
   }
 
   def getTime(indexOfTimeCol: Option[Int], row: Row): Long = {

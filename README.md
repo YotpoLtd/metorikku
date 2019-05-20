@@ -229,6 +229,37 @@ This will commit the offsets to kafka, as a new dummy consumer group.
 
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 
+###### Topic Pattern
+Kafka input also allows reading messages from multiple topics by using subscribe pattern:
+```yaml
+inputs:
+  testStream:
+    kafka:
+      servers:
+        - 127.0.0.1:9092
+      # topicPattern can be any Java regex string
+      topicPattern: my_topics_regex.*
+      consumerGroup: testConsumerGroupID # optional
+      schemaRegistryUrl: https://schema-registry-url # optional
+      schemaSubject: subject # optional
+```
+* While using topicPattern, consider using ```schemaRegistryUrl``` and ```schemaSubject``` in case your topics have different schemas.
+
+##### Watermark
+Metorikku supports Watermark method which helps a stream processing engine to deal with late data.
+You can use watermarking by adding a new udf step in your metric:
+```yaml
+# This will become the new watermarked dataframe name.
+- dataFrameName: dataframe
+  classpath: com.yotpo.metorikku.code.steps.Watermark
+  params:
+    # Watermark table my_table
+    table: my_table
+    # The column representing the event time (needs to be a TIMESTAMP or DATE column)
+    eventTime: event
+    delayThreshold: 2 hours
+```
+
 #### Instrumentation
 One of the most useful features in Metorikku is it's instrumentation capabilities.
 
@@ -247,6 +278,9 @@ Metorikku sends automatically on top of what spark is already sending the follow
 * In streaming: number of processed records in batch
 
 You can also send any information you like to the instrumentation output within a metric.
+by default the last column of the schema will be the field value. 
+Other columns that are not value or time columns will be merged together as the name of the metric. 
+If writing directly to influxDB these will become tags.
 
 Check out the [example](examples/movies_metric.yaml) for further details.
 

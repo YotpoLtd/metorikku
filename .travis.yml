@@ -71,7 +71,8 @@ deploy:
     skip_cleanup: true
     script: sbt publishSigned sonatypeReleaseAll
     on:
-      branch: master
+      all_branches: true
+      condition: (branch = master) OR ($TRAVIS_TAG =~ ^v.*)
   - provider: script
     skip_cleanup: true
     script: docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
