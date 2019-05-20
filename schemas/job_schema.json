@@ -4,13 +4,7 @@
   "filematch": [
     "*.mcj.json",
     "*.mcj.yaml",
-    "*.mcj.yml",
-    "*.mcm.json",
-    "*.mcm.yaml",
-    "*.mcm.yml",
-    "*.mct.json",
-    "*.mct.yaml",
-    "*.mct.yml"
+    "*.mcj.yml"
   ],
 
   "type": "object",
