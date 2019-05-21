@@ -37,7 +37,6 @@ script:
   - travis_fold end "udf_tester_example"
   # Create all relevant docker images
   - travis_fold start "docker"
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
   - docker build -t metorikku/hive:$HIVE_VERSION -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
@@ -75,7 +74,7 @@ deploy:
       condition: (branch = master) OR ($TRAVIS_TAG =~ ^v.*)
   - provider: script
     skip_cleanup: true
-    script: docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*
