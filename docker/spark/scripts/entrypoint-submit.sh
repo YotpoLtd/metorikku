@@ -47,6 +47,5 @@ echo "Running command: ${SUBMIT_COMMAND}"
 eval ${SUBMIT_COMMAND}
 EXIT_CODE=$?
 
-/scripts/finish-submit.sh
+/scripts/finish-submit.sh ${EXIT_CODE}
 
-exit ${EXIT_CODE}

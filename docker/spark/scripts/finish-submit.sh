@@ -1,4 +1,5 @@
 #!/bin/bash
+EXIT_CODE=$1
 
 # SUPPORT FOR NOMAD
 if [[ "${KILL_NOMAD_JOB_ON_COMPLETE}" == true ]] ; then
@@ -12,4 +13,4 @@ if [[ "${KILL_NOMAD_JOB_ON_COMPLETE}" == true ]] ; then
     fi
 fi
 echo -e "\nJob completed\n"
-
+exit ${EXIT_CODE}
