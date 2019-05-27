@@ -9,6 +9,10 @@ cache:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
   - "$HOME/.sbt/launchers/"
+branches:
+  only:
+    - master
+    - /^v[\d\.]+$/
 env:
   global:
     - SPARK_VERSION=2.4.1
