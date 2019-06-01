@@ -2,6 +2,7 @@ package com.yotpo.metorikku.configuration.job
 
 import java.nio.file.{Files, Paths}
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
 import com.yotpo.metorikku.utils.FileUtils
@@ -11,13 +12,16 @@ import scopt.OptionParser
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
 
-  case class ConfigFileName(filename: String = "")
+  case class ConfigFileName(job: Option[String] = None, filename: Option[String] = None)
 
   val CLIparser: OptionParser[ConfigFileName] = new scopt.OptionParser[ConfigFileName]("Metorikku") {
     head("Metorikku", "1.0")
+    opt[String]('j', "job")
+      .action((x, c) => c.copy(job = Option(x)))
+      .text("Job configuration JSON")
     opt[String]('c', "config")
       .text("Path to the job config file (YAML/JSON)")
-      .action((x, c) => c.copy(filename = x))
+      .action((x, c) => c.copy(filename = Option(x)))
       .validate(x => {
         if (Files.exists(Paths.get(x))) {
           success
@@ -25,8 +29,8 @@ object ConfigurationParser {
         else {
           failure("Supplied file not found")
         }
-      }).required()
-    help("help") text "use command line arguments to specify the configuration file path"
+      })
+    help("help") text "use command line arguments to specify the configuration file path or content"
   }
 
   def parse(args: Array[String]): Configuration = {
@@ -34,18 +38,23 @@ object ConfigurationParser {
 
     CLIparser.parse(args, ConfigFileName()) match {
       case Some(arguments) =>
-        parseConfigurationFile(arguments.filename)
-      case None => throw new MetorikkuException("Failed to parse config file")
+        arguments.job match {
+          case Some(job) => parseConfigurationFile(job, FileUtils.getObjectMapperByExtension("json"))
+          case None => arguments.filename match {
+            case Some(filename) => parseConfigurationFile(FileUtils.readConfigurationFile(filename), FileUtils.getObjectMapperByFileName(filename))
+            case None => throw new MetorikkuException("Failed to parse config file")
+          }
+        }
     }
   }
 
-  def parseConfigurationFile(fileName: String): Configuration = {
-    FileUtils.getObjectMapperByExtension(fileName) match {
+  def parseConfigurationFile(job: String, mapper: Option[ObjectMapper]): Configuration = {
+    mapper match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
+        mapper.readValue(job, classOf[Configuration])
       }
-      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+      case None => throw MetorikkuInvalidMetricFileException(s"File extension should be json or yaml")
     }
   }
 }

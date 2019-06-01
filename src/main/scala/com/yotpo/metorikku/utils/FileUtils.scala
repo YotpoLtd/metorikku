@@ -45,12 +45,16 @@ object FileUtils {
     scala.io.Source.fromFile(file).mkString //    //By scala.io. on read spark fail with legit error when path does not exists
   }
 
-  def getObjectMapperByExtension(fileName: String): Option[ObjectMapper] = {
-    val extension = FilenameUtils.getExtension(fileName)
+  def getObjectMapperByExtension(extension: String): Option[ObjectMapper] = {
     extension match {
       case "json" => Option(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
       case "yaml" | "yml" | _ => Option(new ObjectMapper(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
     }
+  }
+
+  def getObjectMapperByFileName(fileName: String): Option[ObjectMapper] = {
+    val extension = FilenameUtils.getExtension(fileName)
+    getObjectMapperByExtension(extension)
   }
 
   def readConfigurationFile(path: String): String = {
