@@ -17,10 +17,6 @@ services:
       - JSON_LOG_LEVEL=WARN
       - GRAPHITE_HOST=graphite.local
       - GRAPHITE_PORT=3001
-#      - KILL_NOMAD_JOB_ON_COMPLETE=true
-#      - NOMAD_SECRET_KEY=<secret>
-#      - NOMAD_URL=nomad.local:4646
-#      - NOMAD_JOB_NAME=<job name>
     entrypoint:
       - /scripts/entrypoint-submit.sh
   spark-master:
