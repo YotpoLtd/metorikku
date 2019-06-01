@@ -75,13 +75,13 @@ deploy:
     script: sbt publishSigned sonatypeReleaseAll
     on:
       all_branches: true
-      condition: (branch = master) OR ($TRAVIS_TAG =~ ^v.*)
+      condition: (tag =~ ^v) OR (branch = master)
   - provider: script
     skip_cleanup: true
     script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
     on:
       all_branches: true
-      condition: $TRAVIS_TAG =~ ^v.*
+      condition: tag =~ ^v
   - provider: releases
     skip_cleanup: true
     api_key:
@@ -90,4 +90,4 @@ deploy:
     file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
     on:
       all_branches: true
-      condition: $TRAVIS_TAG =~ ^v.*
+      condition: tag =~ ^v
