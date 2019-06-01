@@ -7,7 +7,7 @@ SPARK_MASTER_HOST=${SPARK_MASTER_HOST:=spark-master}
 MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
-
+POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
 # Logs
 /scripts/init-logs-metrics.sh
 
@@ -25,6 +25,7 @@ done
 
 if [[ ${MAX_RETRIES} -eq 0 ]] ; then
     echo "Cluster $URL is not ready - stopping"
+    ${POST_SCRIPT}
     exit 1
 fi
 
@@ -47,6 +48,6 @@ echo "Running command: ${SUBMIT_COMMAND}"
 eval ${SUBMIT_COMMAND}
 EXIT_CODE=$?
 
-/scripts/finish-submit.sh
+${POST_SCRIPT}
 
 exit ${EXIT_CODE}
