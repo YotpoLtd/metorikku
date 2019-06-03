@@ -5,7 +5,7 @@ import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.streaming.DataStreamWriter
-import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter}
 
 class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
@@ -68,13 +68,13 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     (fileOutputProperties.tableName, path) match {
       case (Some(tableName), Some(filePath)) => {
         log.info(s"Writing external table $tableName to $filePath")
-        val ss = SparkSession.builder().getOrCreate()
+        val ss = dataFrame.sparkSession
         val catalog = ss.catalog
         writer.save()
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
           case true => {
-            log.info(s"Overwriting external table: $tableName to new path $filePath")
+            log.info(s"Overwriting external table $tableName to new path $filePath")
             ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
             fileOutputProperties.partitionBy match {
               case Some(_) =>
@@ -84,7 +84,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
             }
           }
           case false => {
-            log.info(s"Creating new external table: $tableName to path $filePath")
+            log.info(s"Creating new external table $tableName to path $filePath")
             catalog.createTable(tableName, filePath)
             fileOutputProperties.partitionBy match {
               case Some(_) =>
