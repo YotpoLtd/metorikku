@@ -5,26 +5,15 @@ licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-lic
 scmInfo := Some(
   ScmInfo(url("https://github.com/YotpoLtd/metorikku"),
     "scm:git:git@github.com:YotpoLtd/metorikku.git"))
-developers := List(
-  Developer(id="amitco1", name="Amit Cohen", email="amit@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="avichay", name="Avichay Etzioni", email="avichay@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="dporat", name="Doron Porat", email="dporat@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="etrabelsi", name="Eyal Trabelsi", email="", url=url("http://www.yotpo.com")),
-  Developer(id="lyogev", name="Liran Yogev", email="lyogev@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="ofirventura", name="Ofir Ventura", email="oventura@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="nuriyan", name="Nadav Bar Uriyan", email="nuriyan@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="ronbarab", name="Ron Barabash", email="rbarabash@yotpo.com", url=url("http://www.yotpo.com")),
-  Developer(id="shirbr", name="Shir Bromberg", email="sbromberg@yotpo.com", url=url("http://www.yotpo.com"))
-)
 
 scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.1")
-val sparkVersionTestBase = sparkVersion match {
-  case "2.4.1" => "2.4.0"
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.3")
+val sparkCassandraVersion = sparkVersion match {
+  case "2.4.3" => "2.4.1"
+  case "2.4.2" => "2.4.1"
   case other => other
 }
-
-val jacksonVersion = "2.8.9"
+val jacksonVersion = "2.9.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
 
@@ -36,9 +25,9 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
-  "com.datastax.spark" %% "spark-cassandra-connector" % sparkVersion,
+  "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraVersion,
   "org.apache.avro" % "avro" % "1.8.2",
-  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersionTestBase}_0.11.0" % "test",
+  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.12.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",

@@ -45,6 +45,7 @@ object ConfigurationParser {
             case None => throw new MetorikkuException("Failed to parse config file")
           }
         }
+      case None => throw new MetorikkuException("No arguments passed to metorikku")
     }
   }
 

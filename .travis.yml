@@ -15,7 +15,7 @@ branches:
     - /^v[\d\.]+$/
 env:
   global:
-    - SPARK_VERSION=2.4.1
+    - SPARK_VERSION=2.4.3
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
 before_script:

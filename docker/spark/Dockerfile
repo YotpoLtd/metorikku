@@ -1,7 +1,7 @@
 FROM openjdk:8-jre
 
 # BASE
-ARG SPARK_VERSION=2.4.1
+ARG SPARK_VERSION=2.4.3
 ARG HADOOP_VERSION=2.7
 
 RUN wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
