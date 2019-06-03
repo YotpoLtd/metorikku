@@ -70,22 +70,31 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
         log.info(s"Writing external table $tableName to $filePath")
         val ss = dataFrame.sparkSession
         val catalog = ss.catalog
+        writer.save()
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
           case true => {
-            writer.save()
             log.info(s"Overwriting external table $tableName to new path $filePath")
             ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
             fileOutputProperties.partitionBy match {
               case Some(_) =>
                 log.info("Recovering partitions")
                 catalog.recoverPartitions(tableName)
-              case _ => None
+              case _ =>
             }
-            catalog.refreshTable(tableName)
           }
-          case false => writer.saveAsTable(tableName)
+          case false => {
+            log.info(s"Creating new external table $tableName to path $filePath")
+            catalog.createTable(tableName, filePath)
+            fileOutputProperties.partitionBy match {
+              case Some(_) =>
+                log.info("Recovering partitions")
+                catalog.recoverPartitions(tableName)
+              case _ =>
+            }
+          }
         }
+        catalog.refreshTable(tableName)
       }
       case (Some(tableName), None) => {
         log.info(s"Writing managed table $tableName")

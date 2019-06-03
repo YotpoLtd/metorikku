@@ -7,6 +7,8 @@ services:
     - HIVE_METASTORE_URI=hive:9083
     entrypoint:
       - /scripts/entrypoint-submit.sh
+    volumes:
+      - ./output/:/examples/output/
     depends_on:
       - spark-master
       - spark-worker
