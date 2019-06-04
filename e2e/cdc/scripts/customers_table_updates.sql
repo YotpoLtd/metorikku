@@ -9,3 +9,7 @@ DELETE FROM customers WHERE id=1003;
 SET FOREIGN_KEY_CHECKS=1; -- to re-enable the foreign key check before delete
 
 SELECT * FROM customers;
+
+ALTER TABLE customers ADD COLUMN phone VARCHAR(15) AFTER email;
+
+SELECT * FROM customers;
