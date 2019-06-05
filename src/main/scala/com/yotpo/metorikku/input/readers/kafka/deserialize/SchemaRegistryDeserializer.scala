@@ -46,7 +46,7 @@ case class SchemaRegistryDeserializer(val schemaRegistryUrl: String, val topic: 
 
     override def deserialize(bytes: Array[Byte]): Row = {
       // scalastyle:off null
-      if (bytes.length == 0) {
+      if (bytes == null || bytes.length == 0) {
         return null
       }
       // scalastyle:on null
