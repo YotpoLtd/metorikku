@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:8u212-b04-jre-stretch
 
 ENV HADOOP_HOME=/opt/hadoop
 ENV HADOOP_VERSION=2.7.4

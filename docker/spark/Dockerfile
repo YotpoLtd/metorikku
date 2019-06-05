@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:8u212-b04-jre-stretch
 
 # BASE
 ARG SPARK_VERSION=2.4.3
