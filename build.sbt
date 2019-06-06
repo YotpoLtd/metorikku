@@ -5,6 +5,17 @@ licenses := Seq("MIT License" -> url("http://www.opensource.org/licenses/mit-lic
 scmInfo := Some(
   ScmInfo(url("https://github.com/YotpoLtd/metorikku"),
     "scm:git:git@github.com:YotpoLtd/metorikku.git"))
+developers := List(
+  Developer(id="amitco1", name="Amit Cohen", email="", url=url("http://www.yotpo.com")),
+  Developer(id="avichay", name="Avichay Etzioni", email="", url=url("http://www.yotpo.com")),
+  Developer(id="dporat", name="Doron Porat", email="", url=url("http://www.yotpo.com")),
+  Developer(id="etrabelsi", name="Eyal Trabelsi", email="", url=url("http://www.yotpo.com")),
+  Developer(id="lyogev", name="Liran Yogev", email="", url=url("http://www.yotpo.com")),
+  Developer(id="ofirventura", name="Ofir Ventura", email="", url=url("http://www.yotpo.com")),
+  Developer(id="nuriyan", name="Nadav Bar Uriyan", email="", url=url("http://www.yotpo.com")),
+  Developer(id="ronbarab", name="Ron Barabash", email="", url=url("http://www.yotpo.com")),
+  Developer(id="shirbr", name="Shir Bromberg", email="", url=url("http://www.yotpo.com"))
+)
 
 scalaVersion := "2.11.12"
 val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.3")
