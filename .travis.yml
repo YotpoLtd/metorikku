@@ -21,6 +21,7 @@ env:
 before_script:
   - docker pull metorikku/spark:latest
   - docker pull metorikku/metorikku:latest
+  - docker pull metorikku/hive:latest
   - export -f travis_fold
 script:
   - travis_fold start "assembly"
@@ -41,8 +42,8 @@ script:
   - travis_fold end "udf_tester_example"
   # Create all relevant docker images
   - travis_fold start "docker"
-  - docker build -t metorikku/spark:$SPARK_VERSION -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
-  - docker build -t metorikku/hive:$HIVE_VERSION -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
+  - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
+  - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
   - travis_fold end "docker"
   # Kafka to Kafka E2E

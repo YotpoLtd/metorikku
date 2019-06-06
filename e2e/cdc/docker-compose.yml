@@ -3,8 +3,8 @@ services:
   # CDC Components from Debezium
   zookeeper:
     image: wurstmeister/zookeeper
-    ports:
-      - 2181:2181
+#    ports:
+#      - 2181:2181
   kafka:
     image: wurstmeister/kafka:2.12-2.2.0
     environment:
@@ -110,14 +110,14 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.1,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.1,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
+      - SUBMIT_COMMAND=spark-submit --jars http://central.maven.org/maven2/com/uber/hoodie/hoodie-spark-bundle/0.4.7/hoodie-spark-bundle-0.4.7.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.3,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.3,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
     entrypoint:
       - /scripts/entrypoint-submit.sh
     volumes:
       - ./output/:/examples/output/
       # This helps with caching
 #      - ./.ivy2/:/root/.ivy2/
-#      - ../hudi/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar:/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar
+#      - ../hudi/hoodie-spark-bundle-0.4.7.jar:/hoodie-spark-bundle-0.4.7.jar
     depends_on:
       - spark-master
       - spark-worker
@@ -142,7 +142,7 @@ services:
   hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.6-snapshot/hoodie-spark-bundle-0.4.6-SNAPSHOT.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars http://central.maven.org/maven2/com/uber/hoodie/hoodie-spark-bundle/0.4.7/hoodie-spark-bundle-0.4.7.jar --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
     volumes:
       - ./output/:/examples/output/
       - ./test_metrics:/test_metrics
