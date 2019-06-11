@@ -44,6 +44,8 @@ output:
       triggerDuration: 10 seconds
       # save output to hive metastore (or any other catalog provider)
       tableName: hive_table1
+      # when a table already exists in the catalog always update it's schema with the dataframe's schema (default is true)
+      alwaysUpdateSchemaInCatalog: true
       # you can add below any option supported by file outputs (take a look at Spark's documentation)
       extraOptions:
         multiLine: true

@@ -4,8 +4,7 @@ import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.streaming.DataStreamWriter
-import org.apache.spark.sql.{DataFrame, DataFrameWriter}
+import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
 
 class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
@@ -16,6 +15,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
                                    triggerDuration: Option[String],
                                    tableName: Option[String],
                                    format: Option[String],
+                                   alwaysUpdateSchemaInCatalog: Boolean,
                                    extraOptions: Option[Map[String, String]])
 
   val fileOutputProperties = FileOutputProperties(
@@ -25,6 +25,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("triggerDuration").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("format").asInstanceOf[Option[String]],
+    props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   override def write(dataFrame: DataFrame): Unit = {
@@ -64,24 +65,42 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     save(writer, dataFrame, fileOutputProperties.tableName, path)
   }
 
+  private def overwriteExternalTable(ss: SparkSession, tableName: String, dataFrame: DataFrame, filePath: String): Unit = {
+    log.info(s"Overwriting external table $tableName to new path $filePath")
+    ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
+    val catalog = ss.catalog
+
+    fileOutputProperties.alwaysUpdateSchemaInCatalog match {
+      case true => ss.sharedState.externalCatalog.alterTableDataSchema(
+        catalog.currentDatabase,
+        tableName,
+        dataFrame.schema
+      )
+      case false =>
+    }
+
+    fileOutputProperties.partitionBy match {
+      case Some(_) =>
+        log.info("Recovering partitions")
+        catalog.recoverPartitions(tableName)
+      case _ =>
+    }
+  }
+
   private def save(writer: DataFrameWriter[_], dataFrame: DataFrame, tableName: Option[String], path: Option[String]): Unit = {
     (fileOutputProperties.tableName, path) match {
       case (Some(tableName), Some(filePath)) => {
         log.info(s"Writing external table $tableName to $filePath")
         val ss = dataFrame.sparkSession
         val catalog = ss.catalog
+
         writer.save()
+
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
           case true => {
-            log.info(s"Overwriting external table $tableName to new path $filePath")
-            ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
-            fileOutputProperties.partitionBy match {
-              case Some(_) =>
-                log.info("Recovering partitions")
-                catalog.recoverPartitions(tableName)
-              case _ =>
-            }
+            overwriteExternalTable(ss=ss, tableName=tableName,
+              dataFrame=dataFrame, filePath=filePath)
           }
           case false => {
             log.info(s"Creating new external table $tableName to path $filePath")
@@ -95,6 +114,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
           }
         }
         catalog.refreshTable(tableName)
+
+
       }
       case (Some(tableName), None) => {
         log.info(s"Writing managed table $tableName")
