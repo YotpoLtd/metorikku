@@ -19,8 +19,10 @@ env:
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
 before_script:
+  - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
   - docker pull metorikku/spark:latest
   - docker pull metorikku/metorikku:latest
+  - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
   - docker pull metorikku/hive:latest
   - export -f travis_fold
 script:

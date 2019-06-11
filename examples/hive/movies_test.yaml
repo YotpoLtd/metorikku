@@ -4,3 +4,4 @@ tests:
     - title: Nutty Professor, The (1996)
   testMetorikkuHiveExternal:
     - title: Nutty Professor, The (1996)
+      new_column: test
