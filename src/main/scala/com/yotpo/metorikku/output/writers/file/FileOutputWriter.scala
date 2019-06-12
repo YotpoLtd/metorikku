@@ -71,11 +71,19 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     val catalog = ss.catalog
 
     fileOutputProperties.alwaysUpdateSchemaInCatalog match {
-      case true => ss.sharedState.externalCatalog.alterTableDataSchema(
-        catalog.currentDatabase,
-        tableName,
-        dataFrame.schema
-      )
+      case true => {
+        try {
+          ss.sharedState.externalCatalog.alterTableDataSchema(
+            catalog.currentDatabase,
+            tableName,
+            dataFrame.schema
+          )
+        }
+        catch
+        {
+          case e: Exception => log.info(s"Failed to update schema in hive: ${e.getMessage}")
+        }
+      }
       case false =>
     }
 

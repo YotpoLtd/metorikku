@@ -22,6 +22,7 @@ val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.3")
 val sparkCassandraVersion = sparkVersion match {
   case "2.4.3" => "2.4.1"
   case "2.4.2" => "2.4.1"
+  case "2.2.0" => "2.0.11"
   case other => other
 }
 val jacksonVersion = "2.9.9"
