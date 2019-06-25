@@ -37,6 +37,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
+  "com.databricks" %% "spark-xml" % "0.5.0",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraVersion,
   "org.apache.avro" % "avro" % "1.8.2",
   "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.12.0" % "test",
