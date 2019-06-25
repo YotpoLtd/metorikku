@@ -59,6 +59,14 @@ inputs:
       keySpace: keySpace
       options:
         ....
+  input_7:
+    zuora:
+      email: some@example.com
+      password: password
+      instanceURL: https://apisandbox.zuora.com
+      zoql: select AccountId, FirstName, LastName from contact
+      pageSize: 500 # optional. default is 1000
+
 
 # Set custom variables that would be accessible from the SQL
 variables:

@@ -59,7 +59,7 @@ Also make sure to check out all our [examples](examples).
 #### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC, Kafka, Cassandra**
+**CSV, JSON, parquet, JDBC, Kafka, Cassandra, Zuora**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
@@ -446,6 +446,25 @@ Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details
 
 Also check the full list of configurations possible with hudi [here](http://hudi.incubator.apache.org/configurations.html).
 
+#### Zuora
+
+Metorikku supports reading from Zuora.
+
+`instanceURL` Would be one of [these](https://www.zuora.com/developer/api-reference/#section/Introduction/Access-to-the-API), 
+without the `rest` in the beginning of the host name.
+
+`zoql` is a [Zuora Object Query Language](https://knowledgecenter.zuora.com/DC_Developers/BC_ZOQL) string.
+
+##### Example
+```yaml
+inputs:
+  contacts:
+    zuora:
+      email: some@example.com
+      password: password
+      instanceURL: https://apisandbox.zuora.com
+      zoql: select AccountId, FirstName, LastName from contact
+```
 
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
