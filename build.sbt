@@ -61,7 +61,7 @@ libraryDependencies ++= Seq(
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
-  "com.uber.hoodie" % "hoodie-spark" % "0.4.5" % "provided"
+  "com.uber.hoodie" % "hoodie-spark-bundle" % "0.4.7" % "provided"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
