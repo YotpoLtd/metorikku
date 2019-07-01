@@ -9,8 +9,8 @@ cache:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
   - "$HOME/.sbt/launchers/"
-  - "$HOME/jars/"
-  - "$HOME/docker-cache/"
+  - $TARGET_CACHE
+  - $DOCKER_CACHE
 branches:
   only:
     - master
@@ -20,15 +20,18 @@ env:
     - SPARK_VERSION=2.4.3
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
+    - TARGET_CACHE=$HOME/target-cache/
+    - DOCKER_CACHE=$HOME/docker-cache/
 before_script:
   - export -f travis_fold
 jobs:
   include:
     - stage: compile
+      name: compile and build docker
       script:
         - travis_fold start "assembly"
         - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
-        - mkdir -p $HOME/jars && cp target/scala-2.11/*.jar $HOME/jars/
+        - mkdir -p $TARGET_CACHE && cp -r target $TARGET_CACHE
         - travis_fold end "assembly"
         # Create all relevant docker images
         - travis_fold start "docker"
@@ -41,13 +44,13 @@ jobs:
         - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
         - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
         - mkdir -p $HOME/docker-cache
-        - docker save metorikku/spark:latest | gzip -c > $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz
-        - docker save metorikku/hive:latest | gzip -c > $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz
-        - docker save metorikku/metorikku:latest | gzip -c > $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+        - docker save metorikku/spark:latest | gzip -c > $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz
+        - docker save metorikku/hive:latest | gzip -c > $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz
+        - docker save metorikku/metorikku:latest | gzip -c > $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
         - travis_fold end "docker"
 
     - stage: test
-      before_script: docker load -i $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+      before_script: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
       name: "Main example test"
       script:
         - travis_fold start "main_tester_example"
@@ -71,6 +74,7 @@ jobs:
       before_script: docker load -i $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
       name: "Kafka to Kafka E2E"
     - stage: deploy
+      before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
       deploy:
         - provider: script
           skip_cleanup: true
