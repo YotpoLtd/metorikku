@@ -9,6 +9,8 @@ cache:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt/boot/"
   - "$HOME/.sbt/launchers/"
+  - "$HOME/jars/"
+  - "$HOME/docker-cache/"
 branches:
   only:
     - master
@@ -19,78 +21,110 @@ env:
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
 before_script:
-  - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
-  - docker pull metorikku/spark:latest
-  - docker pull metorikku/metorikku:latest
-  - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
-  - docker pull metorikku/hive:latest
   - export -f travis_fold
-script:
-  - travis_fold start "assembly"
-  - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
-  - travis_fold end "assembly"
-  # Metorikku main test example
-  - travis_fold start "main_tester_example"
-  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
-  - travis_fold end "main_tester_example"
-  # Metorikku kafka test example
-  - travis_fold start "kafka_tester_example"
-  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
-  - travis_fold end "kafka_tester_example"
-  # Test UDF example
-  - travis_fold start "udf_tester_example"
-  - (cd examples/udf && sbt package) || travis_terminate 1;
-  - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
-  - travis_fold end "udf_tester_example"
-  # Create all relevant docker images
-  - travis_fold start "docker"
-  - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
-  - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
-  - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
-  - travis_fold end "docker"
-  # Kafka to Kafka E2E
-  - travis_fold start "kafka_to_kafka_e2e"
-  - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
-  - travis_fold end "kafka_to_kafka_e2e"
-  # File to InfluxDB E2E
-  - travis_fold start "file_to_influx_e2e"
-  - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
-  - travis_fold end "file_to_influx_e2e"
-  # File to hive E2E
-  - travis_fold start "file_to_hive_e2e"
-  - (cd e2e/hive && ./test.sh) || travis_terminate 1;
-  - travis_fold end "file_to_hive_e2e"
-  # File to Elasticsearch E2E
-  - travis_fold start "file_to_elasticsearch_e2e"
-  - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
-  - travis_fold end "file_to_elasticsearch_e2e"
-  # File to Hudi E2E
-  - travis_fold start "file_to_hudi_e2e"
-  - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
-  - travis_fold end "file_to_hudi_e2e"
-  # CDC E2E
-  - travis_fold start "cdc_e2e"
-  - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
-  - travis_fold end "cdc_e2e"
-deploy:
-  - provider: script
-    skip_cleanup: true
-    script: sbt publishSigned sonatypeReleaseAll
-    on:
-      all_branches: true
-      condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
-  - provider: script
-    skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
-    on:
-      all_branches: true
-      condition: $TRAVIS_TAG =~ ^v.*
-  - provider: releases
-    skip_cleanup: true
-    api_key:
-      secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
-    file_glob: true
-    file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
-    on:
-      all_branches: true
-      condition: $TRAVIS_TAG =~ ^v.*
+jobs:
+  include:
+    - stage: compile
+      script:
+        - travis_fold start "assembly"
+        - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
+        - mkdir -p $HOME/jars && cp target/scala-2.11/*.jar $HOME/jars/
+        - travis_fold end "assembly"
+        # Create all relevant docker images
+        - travis_fold start "docker"
+        - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
+        - docker pull metorikku/spark:latest
+        - docker pull metorikku/metorikku:latest
+        - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
+        - docker pull metorikku/hive:latest
+        - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
+        - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
+        - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
+        - mkdir -p $HOME/docker-cache
+        - docker save metorikku/spark:latest | gzip -c > $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz
+        - docker save metorikku/hive:latest | gzip -c > $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz
+        - docker save metorikku/metorikku:latest | gzip -c > $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+        - travis_fold end "docker"
+
+    - stage: test
+      before_script: docker load -i $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+      name: "Main example test"
+      script:
+        - travis_fold start "main_tester_example"
+        - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
+        - travis_fold end "main_tester_example"
+    - script:
+        - travis_fold start "kafka_tester_example"
+        - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
+        - travis_fold end "kafka_tester_example"
+      name: "Kafka example test"
+    - script:
+        - travis_fold start "udf_tester_example"
+        - (cd examples/udf && sbt package) || travis_terminate 1;
+        - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
+        - travis_fold end "udf_tester_example"
+      name: "UDF test"
+    - script:
+        - travis_fold start "kafka_to_kafka_e2e"
+        - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
+        - travis_fold end "kafka_to_kafka_e2e"
+      before_script: docker load -i $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+      name: "Kafka to Kafka E2E"
+    - stage: deploy
+      deploy:
+        - provider: script
+          skip_cleanup: true
+          script: sbt publishSigned sonatypeReleaseAll
+          on:
+            all_branches: true
+            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
+        - provider: script
+          skip_cleanup: true
+          script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
+          on:
+            all_branches: true
+            condition: $TRAVIS_TAG =~ ^v.*
+        - provider: releases
+          skip_cleanup: true
+          api_key:
+            secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
+          file_glob: true
+          file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
+          on:
+            all_branches: true
+            condition: $TRAVIS_TAG =~ ^v.*
+
+
+#
+#
+#script:
+#
+#  # Metorikku kafka test example
+#  - travis_fold start "kafka_tester_example"
+#  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
+#  - travis_fold end "kafka_tester_example"
+#  # Test UDF example
+#
+#  #
+#
+#  # File to InfluxDB E2E
+#  - travis_fold start "file_to_influx_e2e"
+#  - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
+#  - travis_fold end "file_to_influx_e2e"
+#  # File to hive E2E
+#  - travis_fold start "file_to_hive_e2e"
+#  - (cd e2e/hive && ./test.sh) || travis_terminate 1;
+#  - travis_fold end "file_to_hive_e2e"
+#  # File to Elasticsearch E2E
+#  - travis_fold start "file_to_elasticsearch_e2e"
+#  - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
+#  - travis_fold end "file_to_elasticsearch_e2e"
+#  # File to Hudi E2E
+#  - travis_fold start "file_to_hudi_e2e"
+#  - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
+#  - travis_fold end "file_to_hudi_e2e"
+#  # CDC E2E
+#  - travis_fold start "cdc_e2e"
+#  - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
+#  - travis_fold end "cdc_e2e"
+
