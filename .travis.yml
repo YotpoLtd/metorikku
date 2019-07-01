@@ -50,28 +50,30 @@ jobs:
         - travis_fold end "docker"
 
     - stage: test
-      before_script: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
-      name: "Main example test"
       script:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
         - travis_fold end "main_tester_example"
+      before_script: cp -r $TARGET_CACHE .
+      name: "Main example test"
     - script:
         - travis_fold start "kafka_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
         - travis_fold end "kafka_tester_example"
+      before_script: cp -r $TARGET_CACHE .
       name: "Kafka example test"
     - script:
         - travis_fold start "udf_tester_example"
         - (cd examples/udf && sbt package) || travis_terminate 1;
         - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
         - travis_fold end "udf_tester_example"
+      before_script: cp -r $TARGET_CACHE .
       name: "UDF test"
     - script:
         - travis_fold start "kafka_to_kafka_e2e"
         - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
         - travis_fold end "kafka_to_kafka_e2e"
-      before_script: docker load -i $HOME/docker-cache/spark-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/hive-${TRAVIS_COMMIT}.gz && docker load -i $HOME/docker-cache/metorikku-${TRAVIS_COMMIT}.gz
+      before_script: docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
       name: "Kafka to Kafka E2E"
     - stage: deploy
       before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
