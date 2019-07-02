@@ -13,7 +13,8 @@ env:
     - SPARK_VERSION=2.4.3
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
-    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}/
+    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
+    - TARGET_CACHE_DIR=$TARGET_CACHE/target
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
     - DOCKER_HIVE_CACHE=$HOME/docker-hive-cache/${TRAVIS_COMMIT}
 before_script:
@@ -60,7 +61,7 @@ jobs:
           - $DOCKER_CACHE
     - name: "Main example test"
       stage: test
-      before_script: cp -rv $TARGET_CACHE .
+      before_script: cp -rv $TARGET_CACHE_DIR .
       script:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
@@ -69,7 +70,7 @@ jobs:
         directories:
           - $TARGET_CACHE
     - name: "Kafka example test"
-      before_script: cp -rv $TARGET_CACHE .
+      before_script: cp -r $TARGET_CACHE_DIR .
       script:
         - travis_fold start "kafka_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
@@ -78,7 +79,7 @@ jobs:
         directories:
           - $TARGET_CACHE
     - name: "UDF test"
-      before_script: cp -r $TARGET_CACHE .
+      before_script: cp -r $TARGET_CACHE_DIR .
       script:
         - travis_fold start "udf_tester_example"
         - (cd examples/udf && sbt package) || travis_terminate 1;
@@ -96,8 +97,53 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
+    - name: "File to InfluxDB E2E"
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      script:
+        - travis_fold start "file_to_influx_e2e"
+        - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
+        - travis_fold end "file_to_influx_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
+    - name: "File to hive E2E"
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      script:
+        - travis_fold start "file_to_hive_e2e"
+        - (cd e2e/hive && ./test.sh) || travis_terminate 1;
+        - travis_fold end "file_to_hive_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
+    - name: "File to Elasticsearch E2E"
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      script:
+        - travis_fold start "file_to_elasticsearch_e2e"
+        - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
+        - travis_fold end "file_to_elasticsearch_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
+    - name: "File to Hudi E2E"
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      script:
+        - travis_fold start "file_to_hudi_e2e"
+        - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
+        - travis_fold end "file_to_hudi_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
+    - name: "CDC E2E"
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
+      script:
+        - travis_fold start "cdc_e2e"
+        - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
+        - travis_fold end "cdc_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
     - stage: deploy
-      before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      before_deploy: cp -r $TARGET_CACHE_DIR . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       cache:
         directories:
           - $HOME/.ivy2/cache
@@ -126,38 +172,3 @@ jobs:
           on:
             all_branches: true
             condition: $TRAVIS_TAG =~ ^v.*
-
-
-#
-#
-#script:
-#
-#  # Metorikku kafka test example
-#  - travis_fold start "kafka_tester_example"
-#  - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
-#  - travis_fold end "kafka_tester_example"
-#  # Test UDF example
-#
-#  #
-#
-#  # File to InfluxDB E2E
-#  - travis_fold start "file_to_influx_e2e"
-#  - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
-#  - travis_fold end "file_to_influx_e2e"
-#  # File to hive E2E
-#  - travis_fold start "file_to_hive_e2e"
-#  - (cd e2e/hive && ./test.sh) || travis_terminate 1;
-#  - travis_fold end "file_to_hive_e2e"
-#  # File to Elasticsearch E2E
-#  - travis_fold start "file_to_elasticsearch_e2e"
-#  - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
-#  - travis_fold end "file_to_elasticsearch_e2e"
-#  # File to Hudi E2E
-#  - travis_fold start "file_to_hudi_e2e"
-#  - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
-#  - travis_fold end "file_to_hudi_e2e"
-#  # CDC E2E
-#  - travis_fold start "cdc_e2e"
-#  - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
-#  - travis_fold end "cdc_e2e"
-
