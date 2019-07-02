@@ -1,4 +1,5 @@
 language: scala
+sudo: true
 services:
   - docker
 jdk:
@@ -13,7 +14,6 @@ env:
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
-    - TARGET_CACHE_DIR=$TARGET_CACHE/target
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
     - DOCKER_HIVE_CACHE=$HOME/docker-hive-cache/${TRAVIS_COMMIT}
 before_script:
@@ -24,8 +24,8 @@ jobs:
       stage: compile
       script:
         - travis_fold start "assembly"
-        - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
-        - mkdir -p $TARGET_CACHE && cp -r target $TARGET_CACHE
+        - sbt -Dfile.encoding=UTF8 -J-XX:ReservedCodeCacheSize=256M -J-Xms2048M -J-Xmx2048M -J-Xss6M -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
+        - mkdir -p $TARGET_CACHE && cp -r target/scala-2.11/*.jar $TARGET_CACHE
         - travis_fold end "assembly"
         # Create all relevant docker images
         - travis_fold start "docker"
@@ -60,7 +60,7 @@ jobs:
           - $DOCKER_CACHE
     - name: "Main example test"
       stage: test
-      before_script: cp -rv $TARGET_CACHE_DIR .
+      before_script: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/
       script:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
@@ -69,7 +69,7 @@ jobs:
         directories:
           - $TARGET_CACHE
     - name: "Kafka example test"
-      before_script: cp -r $TARGET_CACHE_DIR .
+      before_script: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/
       script:
         - travis_fold start "kafka_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
@@ -78,7 +78,7 @@ jobs:
         directories:
           - $TARGET_CACHE
     - name: "UDF test"
-      before_script: cp -r $TARGET_CACHE_DIR .
+      before_script: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/
       script:
         - travis_fold start "udf_tester_example"
         - (cd examples/udf && sbt package) || travis_terminate 1;
@@ -144,7 +144,7 @@ jobs:
     - name: "Deploy"
       stage: deploy
       if: tag =~ ^v OR branch = master
-      before_deploy: cp -r $TARGET_CACHE_DIR . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      before_deploy: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       cache:
         directories:
           - $HOME/.ivy2/cache
