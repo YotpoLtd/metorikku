@@ -13,7 +13,7 @@ env:
     - SPARK_VERSION=2.4.3
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
-    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
+    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}/
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
     - DOCKER_HIVE_CACHE=$HOME/docker-hive-cache/${TRAVIS_COMMIT}
 before_script:
@@ -69,7 +69,7 @@ jobs:
         directories:
           - $TARGET_CACHE
     - name: "Kafka example test"
-      before_script: cp -r $TARGET_CACHE .
+      before_script: cp -rv $TARGET_CACHE .
       script:
         - travis_fold start "kafka_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
