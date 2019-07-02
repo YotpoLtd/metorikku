@@ -49,6 +49,7 @@ jobs:
         - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
         - docker pull metorikku/hive:latest
         - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
+        - mkdir -p $DOCKER_HIVE_CACHE
         - docker save metorikku/hive:latest | gzip -c > $DOCKER_HIVE_CACHE/hive.gz
       name: "Build Hive"
       cache:
