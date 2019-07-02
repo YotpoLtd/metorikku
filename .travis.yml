@@ -24,7 +24,7 @@ jobs:
       stage: compile
       script:
         - travis_fold start "assembly"
-        - sbt -Dfile.encoding=UTF8 -J-XX:ReservedCodeCacheSize=256M -J-Xms2048M -J-Xmx2048M -J-Xss6M -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
+        - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
         - mkdir -p $TARGET_CACHE && cp -r target/scala-2.11/*.jar $TARGET_CACHE
         - travis_fold end "assembly"
         # Create all relevant docker images
