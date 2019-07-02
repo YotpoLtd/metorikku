@@ -65,13 +65,18 @@ jobs:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
         - travis_fold end "main_tester_example"
+      cache:
+        directories:
+          - $TARGET_CACHE
     - name: "Kafka example test"
       before_script: cp -r $TARGET_CACHE .
       script:
         - travis_fold start "kafka_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml || travis_terminate 1;
         - travis_fold end "kafka_tester_example"
-
+      cache:
+        directories:
+          - $TARGET_CACHE
     - name: "UDF test"
       before_script: cp -r $TARGET_CACHE .
       script:
@@ -79,14 +84,26 @@ jobs:
         - (cd examples/udf && sbt package) || travis_terminate 1;
         - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
         - travis_fold end "udf_tester_example"
+      cache:
+        directories:
+          - $TARGET_CACHE
     - name: "Kafka to Kafka E2E"
       before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       script:
         - travis_fold start "kafka_to_kafka_e2e"
         - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
         - travis_fold end "kafka_to_kafka_e2e"
+      cache:
+        directories:
+          - $DOCKER_CACHE
     - stage: deploy
       before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      cache:
+        directories:
+          - $HOME/.ivy2/cache
+          - $HOME/.sbt
+          - $TARGET_CACHE
+          - $DOCKER_CACHE
       deploy:
         - provider: script
           skip_cleanup: true
