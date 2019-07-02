@@ -1,4 +1,3 @@
-sudo: required
 language: scala
 services:
   - docker
@@ -142,7 +141,9 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
-    - stage: deploy
+    - name: "Deploy"
+      stage: deploy
+      if: tag =~ ^v OR branch = master
       before_deploy: cp -r $TARGET_CACHE_DIR . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       cache:
         directories:
