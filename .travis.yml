@@ -106,7 +106,7 @@ jobs:
         directories:
           - $DOCKER_CACHE
     - name: "File to hive E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
       script:
         - travis_fold start "file_to_hive_e2e"
         - (cd e2e/hive && ./test.sh) || travis_terminate 1;
@@ -124,7 +124,7 @@ jobs:
         directories:
           - $DOCKER_CACHE
     - name: "File to Hudi E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
       script:
         - travis_fold start "file_to_hudi_e2e"
         - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
@@ -133,7 +133,7 @@ jobs:
         directories:
           - $DOCKER_CACHE
     - name: "CDC E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
       script:
         - travis_fold start "cdc_e2e"
         - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
