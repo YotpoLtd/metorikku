@@ -4,13 +4,6 @@ services:
   - docker
 jdk:
   - oraclejdk8
-cache:
-  directories:
-  - "$HOME/.ivy2/cache"
-  - "$HOME/.sbt/boot/"
-  - "$HOME/.sbt/launchers/"
-  - $TARGET_CACHE
-  - $DOCKER_CACHE
 branches:
   only:
     - master
@@ -20,14 +13,15 @@ env:
     - SPARK_VERSION=2.4.3
     - HADOOP_VERSION=2.7
     - HIVE_VERSION=1.2.2
-    - TARGET_CACHE=$HOME/target-cache/
-    - DOCKER_CACHE=$HOME/docker-cache/
+    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
+    - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
+    - DOCKER_HIVE_CACHE=$HOME/docker-hive-cache/${TRAVIS_COMMIT}
 before_script:
   - export -f travis_fold
 jobs:
   include:
     - stage: compile
-      name: compile and build docker
+      name: "Compile and build docker"
       script:
         - travis_fold start "assembly"
         - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
@@ -38,23 +32,34 @@ jobs:
         - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
         - docker pull metorikku/spark:latest
         - docker pull metorikku/metorikku:latest
+        - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
+        - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
+        - mkdir -p $DOCKER_CACHE
+        - docker save metorikku/spark:latest | gzip -c > $DOCKER_CACHE/spark.gz
+        - docker save metorikku/metorikku:latest | gzip -c > $DOCKER_CACHE/metorikku.gz
+        - travis_fold end "docker"
+      cache:
+        directories:
+          - "$HOME/.ivy2/cache"
+          - "$HOME/.sbt/boot/"
+          - "$HOME/.sbt/launchers/"
+          - $TARGET_CACHE
+          - $DOCKER_CACHE
+    - script:
         - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
         - docker pull metorikku/hive:latest
-        - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
         - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
-        - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
-        - mkdir -p $HOME/docker-cache
-        - docker save metorikku/spark:latest | gzip -c > $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz
-        - docker save metorikku/hive:latest | gzip -c > $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz
-        - docker save metorikku/metorikku:latest | gzip -c > $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
-        - travis_fold end "docker"
-
+        - docker save metorikku/hive:latest | gzip -c > $DOCKER_HIVE_CACHE/hive.gz
+      name: "Build Hive"
+      cache:
+        directories:
+          - $DOCKER_CACHE
     - stage: test
       script:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
         - travis_fold end "main_tester_example"
-      before_script: cp -r $TARGET_CACHE .
+      before_script: cp -rv $TARGET_CACHE .
       name: "Main example test"
     - script:
         - travis_fold start "kafka_tester_example"
@@ -73,10 +78,10 @@ jobs:
         - travis_fold start "kafka_to_kafka_e2e"
         - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
         - travis_fold end "kafka_to_kafka_e2e"
-      before_script: docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       name: "Kafka to Kafka E2E"
     - stage: deploy
-      before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/hive-${TRAVIS_COMMIT}.gz && docker load -i $DOCKER_CACHE/metorikku-${TRAVIS_COMMIT}.gz
+      before_deploy: cp -r $TARGET_CACHE . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       deploy:
         - provider: script
           skip_cleanup: true
