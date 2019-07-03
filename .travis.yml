@@ -57,7 +57,7 @@ jobs:
         - docker save metorikku/hive:latest | gzip -c > $DOCKER_HIVE_CACHE/hive.gz
       cache:
         directories:
-          - $DOCKER_CACHE
+          - $DOCKER_HIVE_CACHE
     - name: "Main example test"
       stage: test
       before_script: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/
@@ -114,6 +114,7 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
+          - $DOCKER_HIVE_CACHE
     - name: "File to Elasticsearch E2E"
       before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       script:
@@ -132,6 +133,7 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
+          - $DOCKER_HIVE_CACHE
     - name: "CDC E2E"
       before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
       script:
@@ -141,16 +143,18 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
+          - $DOCKER_HIVE_CACHE
     - name: "Deploy"
       stage: deploy
       if: tag =~ ^v OR branch = master
-      before_deploy: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/hive.gz && docker load -i $DOCKER_CACHE/metorikku.gz
+      before_deploy: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
       cache:
         directories:
           - $HOME/.ivy2/cache
           - $HOME/.sbt
           - $TARGET_CACHE
           - $DOCKER_CACHE
+          - $DOCKER_HIVE_CACHE
       deploy:
         - provider: script
           skip_cleanup: true
