@@ -15,7 +15,6 @@ env:
     - HIVE_VERSION=1.2.2
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
-    - DOCKER_HIVE_CACHE=$HOME/docker-hive-cache/${TRAVIS_COMMIT}
 before_script:
   - export -f travis_fold
 jobs:
@@ -34,9 +33,13 @@ jobs:
         - docker pull metorikku/metorikku:latest
         - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
         - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
+        - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
+        - docker pull metorikku/hive:latest
+        - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
         - mkdir -p $DOCKER_CACHE
         - docker save metorikku/spark:latest | gzip -c > $DOCKER_CACHE/spark.gz
         - docker save metorikku/metorikku:latest | gzip -c > $DOCKER_CACHE/metorikku.gz
+        - docker save metorikku/hive:latest | gzip -c > $DOCKER_CACHE/hive.gz
         - travis_fold end "docker"
       cache:
         directories:
@@ -48,16 +51,6 @@ jobs:
         - find $HOME/.sbt -name "*.lock" | xargs rm
         - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
         - rm -f $HOME/.ivy2/.sbt.ivy.lock
-    - name: "Build Hive"
-      script:
-        - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive/Dockerfile)
-        - docker pull metorikku/hive:latest
-        - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
-        - mkdir -p $DOCKER_HIVE_CACHE
-        - docker save metorikku/hive:latest | gzip -c > $DOCKER_HIVE_CACHE/hive.gz
-      cache:
-        directories:
-          - $DOCKER_HIVE_CACHE
     - name: "Main example test"
       stage: test
       before_script: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/
@@ -106,7 +99,7 @@ jobs:
         directories:
           - $DOCKER_CACHE
     - name: "File to hive E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
       script:
         - travis_fold start "file_to_hive_e2e"
         - (cd e2e/hive && ./test.sh) || travis_terminate 1;
@@ -114,7 +107,6 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
-          - $DOCKER_HIVE_CACHE
     - name: "File to Elasticsearch E2E"
       before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
       script:
@@ -125,7 +117,7 @@ jobs:
         directories:
           - $DOCKER_CACHE
     - name: "File to Hudi E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
       script:
         - travis_fold start "file_to_hudi_e2e"
         - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
@@ -133,9 +125,8 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
-          - $DOCKER_HIVE_CACHE
     - name: "CDC E2E"
-      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
+      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
       script:
         - travis_fold start "cdc_e2e"
         - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
@@ -143,18 +134,16 @@ jobs:
       cache:
         directories:
           - $DOCKER_CACHE
-          - $DOCKER_HIVE_CACHE
     - name: "Deploy"
       stage: deploy
       if: tag =~ ^v OR branch = master
-      before_deploy: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_HIVE_CACHE/hive.gz
+      before_deploy: mkdir -p target/scala-2.11 && cp -v $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
       cache:
         directories:
           - $HOME/.ivy2/cache
           - $HOME/.sbt
           - $TARGET_CACHE
           - $DOCKER_CACHE
-          - $DOCKER_HIVE_CACHE
       deploy:
         - provider: script
           skip_cleanup: true
