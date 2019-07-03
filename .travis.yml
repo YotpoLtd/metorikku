@@ -1,5 +1,4 @@
 language: scala
-sudo: true
 services:
   - docker
 jdk:
@@ -17,6 +16,8 @@ env:
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
 before_script:
   - export -f travis_fold
+script:
+  - echo "skipping tests"
 jobs:
   include:
     - name: "Compile and build docker"
@@ -150,10 +151,10 @@ jobs:
           script: sbt publishSigned sonatypeReleaseAll
           on:
             all_branches: true
-            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
+#            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
         - provider: script
           skip_cleanup: true
-          script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
+          script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker tag metorikku/spark metorikku/spark:$SPARK_VERSION && docker tag metorikku/hive metorikku/hive:$HIVE_VERSION && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
           on:
             all_branches: true
             condition: $TRAVIS_TAG =~ ^v.*
