@@ -1,9 +1,5 @@
-# ---- SAMPLE YAML OF METRIC CONFIG FILE ---- #
-
 steps:
-    # What will be the name of the table that represents the output of this step
   - dataFrameName: table2
-    # Inline SQL
     sql:
       SELECT * FROM table1
 
@@ -13,11 +9,8 @@ output:
     dataFrameName: table2
     outputOptions:
       path: hoodie_test.parquet
-      # The key to use for upserts
       keyColumn: some_string
-      # This will be used to determine which row should prevail (newer timestamps will win)
       timeColumn: time
-      # Optional: Save mode to use (default to Append)
       saveMode: Append
       partitionBy: some_string
       tableName: test_table
