@@ -1,0 +1,28 @@
+metrics:
+  - examples/file_input_stream/stream_metric.yml
+inputs:
+  table1:
+    file:
+      path: examples/file_input_stream/input
+      isStream: true
+      format: json
+      options:
+        timestampFormat: "yyyy-MM-dd'T'HH:mm:ss'Z'"
+
+output:
+  hudi:
+    dir: /some/path/examples/file_input_stream/output
+    parallelism: 1
+    operation: upsert
+    storageType: COPY_ON_WRITE
+    maxVersions: 1
+explain: true
+logLevel: WARN
+appName: fileStreamInputApp
+showPreviewLines: 10
+streaming:
+  triggerMode: Once
+  outputMode: append
+  checkpointLocation: examples/file_input_stream/checkpoint
+  batchMode: true
+
