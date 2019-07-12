@@ -18,6 +18,16 @@ before_script:
   - export -f travis_fold
 script:
   - echo "skipping tests"
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+    - $TARGET_CACHE
+    - $DOCKER_CACHE
+before_cache:
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+  - rm -f $HOME/.ivy2/.sbt.ivy.lock
 jobs:
   include:
     - name: "Compile and build docker"
@@ -25,7 +35,7 @@ jobs:
       script:
         - travis_fold start "assembly"
         - sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly || travis_terminate 1;
-        - mkdir -p $TARGET_CACHE && cp -r target/scala-2.11/*.jar target/scala-2.11/classes $TARGET_CACHE
+        - mkdir -p $TARGET_CACHE && rm -rf target/streams/\$global/assembly target/streams/\$global/assemblyOption target/streams/test/assemblyOption target/streams/test/assembly && cp -r target $TARGET_CACHE
         - travis_fold end "assembly"
         # Create all relevant docker images
         - travis_fold start "docker"
@@ -42,19 +52,9 @@ jobs:
         - docker save metorikku/metorikku:latest | gzip -c > $DOCKER_CACHE/metorikku.gz
         - docker save metorikku/hive:latest | gzip -c > $DOCKER_CACHE/hive.gz
         - travis_fold end "docker"
-      cache:
-        directories:
-          - $HOME/.ivy2/cache
-          - $HOME/.sbt
-          - $TARGET_CACHE
-          - $DOCKER_CACHE
-      before_cache:
-        - find $HOME/.sbt -name "*.lock" | xargs rm
-        - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-        - rm -f $HOME/.ivy2/.sbt.ivy.lock
     - name: "Main tests"
       stage: test
-      before_script: mkdir -p target/scala-2.11 && cp -rv $TARGET_CACHE/* target/scala-2.11/
+      before_script: cp -r $TARGET_CACHE/target .
       script:
         - travis_fold start "main_tester_example"
         - java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml || travis_terminate 1;
@@ -66,18 +66,12 @@ jobs:
         - (cd examples/udf && sbt package) || travis_terminate 1;
         - "java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar:examples/udf/target/scala-2.11/udf-example_2.11-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml || travis_terminate 1;"
         - travis_fold end "udf_tester_example"
-      cache:
-        directories:
-          - $TARGET_CACHE
 #    - name: "Kafka to Kafka E2E"
 #      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
 #      script:
 #        - travis_fold start "kafka_to_kafka_e2e"
 #        - (cd e2e/kafka && ./test.sh) || travis_terminate 1;
 #        - travis_fold end "kafka_to_kafka_e2e"
-#      cache:
-#        directories:
-#          - $DOCKER_CACHE
 #    - name: "File to InfluxDB/Elasticsearch E2E"
 #      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz
 #      script:
@@ -87,9 +81,6 @@ jobs:
 #        - travis_fold start "file_to_elasticsearch_e2e"
 #        - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
 #        - travis_fold end "file_to_elasticsearch_e2e"
-#      cache:
-#        directories:
-#          - $DOCKER_CACHE
 #    - name: "File to Hive/Hudi E2E"
 #      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
 #      script:
@@ -99,38 +90,21 @@ jobs:
 #        - travis_fold start "file_to_hudi_e2e"
 #        - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
 #        - travis_fold end "file_to_hudi_e2e"
-#      cache:
-#        directories:
-#          - $DOCKER_CACHE
 #    - name: "CDC E2E"
 #      before_script: docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
 #      script:
 #        - travis_fold start "cdc_e2e"
 #        - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
 #        - travis_fold end "cdc_e2e"
-#      cache:
-#        directories:
-#          - $DOCKER_CACHE
     - name: "test"
       stage: test
-      before_script: mkdir -p target/scala-2.11 && cp -rv $TARGET_CACHE/* target/scala-2.11/
+      before_script: cp -r $TARGET_CACHE/target .
       script:
         - sbt publishSigned
-      cache:
-        directories:
-          - $HOME/.ivy2/cache
-          - $HOME/.sbt
-          - $TARGET_CACHE
     - name: "Deploy"
       stage: deploy
       if: (branch = master AND NOT type = pull_request) OR tag =~ ^v.*
-      before_deploy: mkdir -p target/scala-2.11 && cp -rv $TARGET_CACHE/* target/scala-2.11/ && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
-      cache:
-        directories:
-          - $HOME/.ivy2/cache
-          - $HOME/.sbt
-          - $TARGET_CACHE
-          - $DOCKER_CACHE
+      before_deploy: cp -r $TARGET_CACHE/target . && docker load -i $DOCKER_CACHE/spark.gz && docker load -i $DOCKER_CACHE/metorikku.gz && docker load -i $DOCKER_CACHE/hive.gz
       deploy:
         - provider: script
           skip_cleanup: true
