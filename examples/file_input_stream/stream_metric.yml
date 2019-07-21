@@ -1,0 +1,18 @@
+steps:
+  - dataFrameName: table2
+    sql:
+      SELECT * FROM table1
+
+
+output:
+  - outputType: Hudi
+    dataFrameName: table2
+    outputOptions:
+      path: hoodie_test.parquet
+      keyColumn: some_string
+      timeColumn: time
+      saveMode: Append
+      partitionBy: some_string
+      tableName: test_table
+
+

@@ -58,7 +58,7 @@ case class Tester(config: TesterConfig) {
           mock.name -> {
             val fileInput = com.yotpo.metorikku.configuration.job.input.File(
               new File(testDir, mock.path).getCanonicalPath,
-              None, None, None)
+              None, None, None, None)
             Input(Option(mock.streaming match {
               case Some(true) => new StreamMockInput(fileInput)
               case _ => fileInput

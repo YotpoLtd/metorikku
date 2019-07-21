@@ -21,6 +21,8 @@ inputs:
       # Optional send any spark supported option to the reader
       options:
         quoteAll: false
+      # Optional define stream reader that can be used to read streaming data.
+      isStream: true
   input_3:
       file_date_range:
         template: parquet/%s/input_1.parquet
