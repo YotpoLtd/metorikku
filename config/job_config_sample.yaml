@@ -175,3 +175,6 @@ streaming:
   # Add any other options supported by the DataStreamWriter
   extraOptions:
     opt: val
+
+# Optional: controls caching and counting on each output (default is true)
+cacheCountOnOutput: false
