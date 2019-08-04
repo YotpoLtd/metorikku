@@ -28,6 +28,8 @@ val sparkCassandraVersion = sparkVersion match {
 val jacksonVersion = "2.9.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
+lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
+lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -44,6 +46,7 @@ libraryDependencies ++= Seq(
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
   "io.netty" % "netty-all" % "4.1.32.Final",
+  "io.netty" % "netty" % "3.10.6.Final",
   "com.google.guava" % "guava" % "16.0.1",
   "com.typesafe.play" %% "play-json" % "2.6.2",
   "com.databricks" %% "spark-redshift" % "3.0.0-preview1",
@@ -63,7 +66,8 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
   "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided",
-  "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided"
+  "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided",
+  "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306

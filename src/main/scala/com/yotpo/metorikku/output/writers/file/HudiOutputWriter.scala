@@ -1,13 +1,17 @@
 package com.yotpo.metorikku.output.writers.file
-
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{DataFrame, DataFrameWriter, SaveMode}
+import org.apache.spark
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import org.apache.spark.sql.functions.{col, lit}
+import org.apache.spark.sql._
+
+import scala.collection.mutable.ListBuffer
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
+
 class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
 
@@ -18,7 +22,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   partitionBy: Option[String],
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
-                                  extraOptions: Option[Map[String, String]])
+                                  extraOptions: Option[Map[String, String]],
+                                  dropNullColumns: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -28,7 +33,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("partitionBy").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
-    props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
+    props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
+    props.get("dropNullColumns").asInstanceOf[Option[Boolean]])
+
 
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
@@ -40,10 +47,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     log.info(s"Starting to write dataframe to hudi")
 
     // To support schema evolution all fields should be nullable
-    val schema = StructType(dataFrame.schema.fields.map(
-      field => field.copy(nullable = true))
-    )
-    val df = dataFrame.sparkSession.createDataFrame(dataFrame.rdd, schema)
+    val df = updateSchema(dataFrame)
 
     val writer = df.write
 
@@ -163,6 +167,72 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
   }
-  // scalastyle:on cyclomatic.complexity
-  // scalastyle:on method.length
+
+
+  private def updateSchema(dataFrame: DataFrame): DataFrame = {
+    var df = dataFrame
+    val ss = dataFrame.sparkSession
+    var fieldMap = Map[String, DataType]()
+
+    // If table existed before, get its schema
+    val previousSchema: Option[StructType] = this.hudiOutputProperties.tableName match {
+      case Some(tableName) => {
+        ss.catalog.tableExists(tableName) match {
+          case true => Option(ss.table(tableName).schema)
+          case false => None
+        }
+      }
+      case None => None
+    }
+
+    // Update the schema
+    val schema = StructType(df.schema.fields.flatMap(
+      field => {
+        // Add nullability, not on by default
+        val newField = field.copy(nullable = true)
+        val fieldName = newField.name
+        var returnedFields = List[StructField]()
+
+        // By default we will remove completely null columns (will return them if existed in previous schemas), you can disable this behaviour
+        this.hudiOutputProperties.dropNullColumns match {
+          case Some(true) => {
+            // Column is detected as having only null values, we need to remove it
+            isOnlyNullColumn(df, fieldName) match {
+              case true => {
+                df = df.drop(fieldName)
+
+                // Check if removed column existed in a previous schema, if so, use the previous schema definition
+                previousSchema match {
+                  case Some(sch) => {
+                    sch.fields.filter(f => f.name == fieldName).foreach(f => fieldMap += (fieldName -> f.dataType))
+                  }
+                  case None =>
+                }
+              }
+              case false => returnedFields = returnedFields :+ newField
+            }
+          }
+          case _ => returnedFields = returnedFields :+ newField
+        }
+        returnedFields
+      })
+    )
+
+    // Update the actual schema
+    df = df.sparkSession.createDataFrame(df.rdd, schema)
+
+    // Add the new columns as null columns
+    for ((name, dataType) <- fieldMap) {
+      // scalastyle:off null
+      df = df.withColumn(name, lit(null).cast(dataType))
+      // scalastyle:on null
+    }
+    df
+  }
+
+  def isOnlyNullColumn(df: DataFrame, name: String): Boolean = {
+    df.select(name).filter(col(name).isNotNull).limit(1).count() == 0
+  }
 }
+// scalastyle:on cyclomatic.complexity
+// scalastyle:on method.length
