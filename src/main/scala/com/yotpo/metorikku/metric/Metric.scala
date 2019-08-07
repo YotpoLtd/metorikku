@@ -80,10 +80,18 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
                          dataFrameName: String,
                          writer: Writer,
                          outputType: OutputType,
-                         instrumentationProvider: InstrumentationProvider): Unit = {
-    dataFrame.cache()
+                         instrumentationProvider: InstrumentationProvider,
+                         cacheCountOnOutput: Option[Boolean]): Unit = {
+
+    val dataFrameCount = cacheCountOnOutput match {
+      case Some(true) => {
+        dataFrame.cache()
+        dataFrame.count()
+      }
+      case _ => 0
+    }
     val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputType.toString)
-    instrumentationProvider.count(name="counter", value=dataFrame.count(), tags=tags)
+    instrumentationProvider.count(name="counter", value=dataFrameCount, tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
     try {
       writer.write(dataFrame)
@@ -126,7 +134,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
           }
           else {
             writeBatch(dataFrame, dataFrameName, writer,
-              outputConfig.outputType, job.instrumentationClient)
+              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput)
           }
         })
 

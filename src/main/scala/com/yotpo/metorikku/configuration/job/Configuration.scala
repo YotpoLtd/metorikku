@@ -16,7 +16,8 @@ case class Configuration(metrics: Option[Seq[String]],
                          var showPreviewLines: Option[Int],
                          var explain: Option[Boolean],
                          var appName: Option[String],
-                         var continueOnFailedStep: Option[Boolean]) {
+                         var continueOnFailedStep: Option[Boolean],
+                         var cacheCountOnOutput: Option[Boolean]) {
 
   require(metrics.isDefined, "metrics files paths are mandatory")
 
@@ -25,6 +26,7 @@ case class Configuration(metrics: Option[Seq[String]],
   explain = Option(explain.getOrElse(false))
   appName = Option(appName.getOrElse("Metorikku"))
   continueOnFailedStep = Option(continueOnFailedStep.getOrElse(false))
+  cacheCountOnOutput = Option(cacheCountOnOutput.getOrElse(true))
 
   def getReaders: Seq[Reader] = inputs.getOrElse(Map()).map {
     case (name, input) => input.getReader(name) }.toSeq

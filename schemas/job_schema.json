@@ -18,7 +18,8 @@
             "path": { "type": "string" },
             "options": { "type": "string" },
             "schemaPath": { "type": "string" },
-            "format": { "type": "string" }
+            "format": { "type": "string" },
+            "isStream": {"type": "boolean" }
           },
           "required": [
             "path"

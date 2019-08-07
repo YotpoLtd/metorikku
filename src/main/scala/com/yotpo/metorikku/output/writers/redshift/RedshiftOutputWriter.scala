@@ -9,14 +9,20 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Redshift]) extends Writer {
 
-  case class RedshiftOutputProperties(saveMode: SaveMode, dbTable: String, extraCopyOptions: String, postActions: String, maxStringSize: String)
+  case class RedshiftOutputProperties(saveMode: SaveMode,
+                                      dbTable: String,
+                                      extraCopyOptions: String,
+                                      postActions: String,
+                                      maxStringSize: String,
+                                      extraOptions: Option[Map[String, String]])
 
   val log = LogManager.getLogger(this.getClass)
   val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")),
                                            props("dbTable"),
                                            props.getOrElse("extraCopyOptions",""),
                                            props.getOrElse("postActions",""),
-                                           props.getOrElse("maxStringSize",""))
+                                           props.getOrElse("maxStringSize",""),
+                                           props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   override def write(dataFrame: DataFrame): Unit = {
     redshiftDBConf match {
@@ -47,6 +53,11 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
         }
         if (!dbOptions.extraCopyOptions.isEmpty) {
           writer.option("extracopyoptions", dbOptions.extraCopyOptions)
+        }
+
+        dbOptions.extraOptions match {
+          case Some(options) => writer.options(options)
+          case None =>
         }
         writer.save()
 

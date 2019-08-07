@@ -6,7 +6,7 @@ import org.apache.spark.sql.catalyst.encoders.RowEncoder
 import org.apache.spark.sql.execution.streaming.MemoryStream
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
-class StreamMockInput(fileInput: File) extends File("", None, None, None) {
+class StreamMockInput(fileInput: File) extends File("", None, None, None, None) {
   override def getReader(name: String): Reader = StreamMockInputReader(name, fileInput)
 }
 

@@ -12,7 +12,7 @@ import org.apache.log4j.{LogManager, Logger}
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
 
-  val validExtensions = Seq("json", "yaml")
+  val validExtensions = Seq("json", "yaml", "yml")
 
   def isValidFile(path: File): Boolean = {
     val fileName = path.getName
