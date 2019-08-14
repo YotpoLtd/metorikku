@@ -12,6 +12,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
   case class RedshiftOutputProperties(saveMode: SaveMode,
                                       dbTable: String,
                                       extraCopyOptions: String,
+                                      preActions: String,
                                       postActions: String,
                                       maxStringSize: String,
                                       extraOptions: Option[Map[String, String]])
@@ -20,6 +21,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
   val dbOptions = RedshiftOutputProperties(SaveMode.valueOf(props("saveMode")),
                                            props("dbTable"),
                                            props.getOrElse("extraCopyOptions",""),
+                                           props.getOrElse("preActions",""),
                                            props.getOrElse("postActions",""),
                                            props.getOrElse("maxStringSize",""),
                                            props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
@@ -48,6 +50,9 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
           .option("dbtable", dbOptions.dbTable)
           .mode(dbOptions.saveMode)
 
+        if (!dbOptions.preActions.isEmpty) {
+          writer.option("preActions", dbOptions.preActions)
+        }
         if (!dbOptions.postActions.isEmpty) {
           writer.option("postActions", dbOptions.postActions)
         }
