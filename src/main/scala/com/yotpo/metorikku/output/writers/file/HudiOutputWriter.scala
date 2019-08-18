@@ -23,7 +23,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
                                   extraOptions: Option[Map[String, String]],
-                                  dropNullColumns: Option[Boolean])
+                                  alignToPreviousSchema: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -34,7 +34,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
-    props.get("dropNullColumns").asInstanceOf[Option[Boolean]])
+    props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -45,9 +45,14 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       return
     }
     log.info(s"Starting to write dataframe to hudi")
-
+    var df = dataFrame
     // To support schema evolution all fields should be nullable
-    val df = updateSchema(dataFrame)
+    df = supportNullableFields(df)
+
+    df = this.hudiOutputProperties.alignToPreviousSchema match {
+      case Some(true) => alignToPreviousSchema(df)
+      case _ => df
+    }
 
     val writer = df.write
 
@@ -169,10 +174,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
 
-  private def updateSchema(dataFrame: DataFrame): DataFrame = {
+  private def alignToPreviousSchema(dataFrame: DataFrame): DataFrame = {
     var df = dataFrame
     val ss = dataFrame.sparkSession
-    var fieldMap = Map[String, DataType]()
 
     // If table existed before, get its schema
     val previousSchema: Option[StructType] = this.hudiOutputProperties.tableName match {
@@ -184,36 +188,63 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       case None => None
     }
+    // By default we will add missing columns according to previous schema, if exists
+    df = alignToSchemaColumns(df, previousSchema)
 
-    // Update the schema
+    // // By default we will remove completely null columns (will return them if existed in previous schemas), you can disable this behaviour
+    removeNullColumns(df, previousSchema)
+
+  }
+
+  def supportNullableFields(dataFrame: DataFrame): DataFrame = {
+    val schema = StructType(dataFrame.schema.fields.map(
+      field => field.copy(nullable = true))
+    )
+    dataFrame.sparkSession.createDataFrame(dataFrame.rdd, schema)
+  }
+
+  def isOnlyNullColumn(df: DataFrame, name: String): Boolean = {
+    df.select(name).filter(col(name).isNotNull).limit(1).count() == 0
+  }
+
+  def alignToSchemaColumns(df: DataFrame, previousSchema: Option[StructType]) : DataFrame = {
+    previousSchema match {
+        case Some(sch) => {
+          // scalastyle:off null
+          val missingColumns = sch.fields.filter(f => !df.columns.contains(f.name)).map(f => lit(null).as(f.name))
+          // scalastyle:on null
+          df.select(col("*") +: missingColumns :_*)
+          }
+          case None => df
+        }
+    }
+
+  def removeNullColumns(dataFrame: DataFrame, previousSchema: Option[StructType]): DataFrame = {
+    var df = dataFrame
+    var fieldMap = Map[String, DataType]()
+
     val schema = StructType(df.schema.fields.flatMap(
       field => {
         // Add nullability, not on by default
-        val newField = field.copy(nullable = true)
-        val fieldName = newField.name
+        val fieldName = field.name
         var returnedFields = List[StructField]()
 
-        // By default we will remove completely null columns (will return them if existed in previous schemas), you can disable this behaviour
-        this.hudiOutputProperties.dropNullColumns match {
-          case Some(true) => {
-            // Column is detected as having only null values, we need to remove it
-            isOnlyNullColumn(df, fieldName) match {
-              case true => {
-                df = df.drop(fieldName)
+        // Column is detected as having only null values, we need to remove it
+        isOnlyNullColumn(df, fieldName) match {
+            case true => {
+              df = df.drop(fieldName)
 
-                // Check if removed column existed in a previous schema, if so, use the previous schema definition
-                previousSchema match {
-                  case Some(sch) => {
-                    sch.fields.filter(f => f.name == fieldName).foreach(f => fieldMap += (fieldName -> f.dataType))
-                  }
-                  case None =>
+              // Check if removed column existed in a previous schema, if so, use the previous schema definition
+              previousSchema match {
+                case Some(sch) => {
+                  sch.fields.filter(f => f.name == fieldName).foreach(f => fieldMap += (fieldName -> f.dataType))
                 }
+                case None =>
               }
-              case false => returnedFields = returnedFields :+ newField
             }
+            case false => returnedFields = returnedFields :+ field
           }
-          case _ => returnedFields = returnedFields :+ newField
-        }
+
         returnedFields
       })
     )
@@ -230,9 +261,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
-  def isOnlyNullColumn(df: DataFrame, name: String): Boolean = {
-    df.select(name).filter(col(name).isNotNull).limit(1).count() == 0
-  }
-}
+
+   }
 // scalastyle:on cyclomatic.complexity
 // scalastyle:on method.length
+

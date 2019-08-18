@@ -30,6 +30,7 @@ val jacksonVersion = "2.9.9"
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
 lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
+lazy val excludeHoodieTimeLineService = ExclusionRule(organization = "com.uber.hoodie", name = "hoodie-timeline-service")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -65,8 +66,8 @@ libraryDependencies ++= Seq(
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
-  "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided",
-  "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided",
+  "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
+  "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
   "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )
 
