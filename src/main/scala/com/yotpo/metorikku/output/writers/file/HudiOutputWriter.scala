@@ -208,10 +208,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
   def alignToSchemaColumns(df: DataFrame, previousSchema: Option[StructType]) : DataFrame = {
+    val lowerCasedColumns = df.columns.map(f => f.toLowerCase)
     previousSchema match {
         case Some(sch) => {
           // scalastyle:off null
-          val missingColumns = sch.fields.filter(f => !df.columns.contains(f.name)).map(f => lit(null).as(f.name))
+          val missingColumns = sch.fields.filter(f => !f.name.startsWith("_hoodie") &&
+            !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).as(f.name))
           // scalastyle:on null
           df.select(col("*") +: missingColumns :_*)
           }
@@ -237,7 +239,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
               // Check if removed column existed in a previous schema, if so, use the previous schema definition
               previousSchema match {
                 case Some(sch) => {
-                  sch.fields.filter(f => f.name == fieldName).foreach(f => fieldMap += (fieldName -> f.dataType))
+                  sch.fields.filter(f => f.name.toLowerCase == fieldName.toLowerCase).foreach(f => fieldMap += (fieldName -> f.dataType))
                 }
                 case None =>
               }
