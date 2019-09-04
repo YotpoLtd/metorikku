@@ -80,6 +80,22 @@ There are currently 3 options to run Metorikku.
 * Also job in a JSON format is supported, run following command:
 `java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
  
+*Run locally in intellij:*
+
+Go to Run->Edit Configuration->add application configuration
+
+* Main Class: 
+`com.yotpo.metorikku.Metorikku`
+* Vm options: 
+`-Dspark.master=local[*] -Dspark.executor.cores=1 -Dspark.driver.bindAddress=127.0.0.1 -Dspark.serializer=org.apache.spark.serializer.KryoSerializer`
+* program arguments:
+`-c examples/movies.yaml`
+* JRE: `1.8`
+
+*Run tester in intellij:*
+* Main class: `com.yotpo.metorikku.MetorikkuTester`
+* Program arguments: `--test-settings /{path to }/test_settings.yaml`
+
 
 #### Run as a library
 *It's also possible to use Metorikku inside your own software*
