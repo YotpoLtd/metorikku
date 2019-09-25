@@ -12,7 +12,7 @@ import scopt.OptionParser
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
 
-  case class ConfigFileName(job: Option[String] = None, filename: Option[String] = None)
+  case class ConfigFileName(job: Option[String] = None, path: Option[String] = None)
 
   val CLIparser: OptionParser[ConfigFileName] = new scopt.OptionParser[ConfigFileName]("Metorikku") {
     head("Metorikku", "1.0")
@@ -21,7 +21,7 @@ object ConfigurationParser {
       .text("Job configuration JSON")
     opt[String]('c', "config")
       .text("Path to the job config file (YAML/JSON)")
-      .action((x, c) => c.copy(filename = Option(x)))
+      .action((x, c) => c.copy(path = Option(x)))
       .validate(x => {
         if (Files.exists(Paths.get(x))) {
           success
@@ -40,7 +40,7 @@ object ConfigurationParser {
       case Some(arguments) =>
         arguments.job match {
           case Some(job) => parseConfigurationFile(job, FileUtils.getObjectMapperByExtension("json"))
-          case None => arguments.filename match {
+          case None => arguments.path match {
             case Some(filename) => parseConfigurationFile(FileUtils.readConfigurationFile(filename), FileUtils.getObjectMapperByFileName(filename))
             case None => throw new MetorikkuException("Failed to parse config file")
           }
