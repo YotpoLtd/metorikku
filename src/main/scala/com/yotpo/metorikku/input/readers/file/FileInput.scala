@@ -8,6 +8,7 @@ case class FileInput(val name: String,
                      options: Option[Map[String, String]],
                      schemaPath: Option[String],
                      format: Option[String]) extends Reader {
+
   def read(sparkSession: SparkSession): DataFrame = FilesInput(name,
     path.split(","),
     options,

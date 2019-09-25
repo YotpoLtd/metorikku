@@ -5,7 +5,7 @@ import java.io.File
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.{Configuration, Input}
 import com.yotpo.metorikku.configuration.test.ConfigurationParser.TesterConfig
-import com.yotpo.metorikku.configuration.test.{Mock, Params}
+import com.yotpo.metorikku.configuration.test.{Mock, Params, TestFile}
 import com.yotpo.metorikku.exceptions.MetorikkuTesterTestFailedException
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
@@ -51,7 +51,7 @@ case class Tester(config: TesterConfig) {
       Option(config.preview > 0), None, None, Option(config.preview), None, None, None, None)
   }
 
-  private def getMockFilesFromDir(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {
+  private def getMockFilesFromDir(mocks: Option[List[TestFile]], testDir: File): Option[Map[String, Input]] = {
     mocks match {
       case Some(mockList) => {
         Option(mockList.map(mock => {
@@ -59,10 +59,7 @@ case class Tester(config: TesterConfig) {
             val fileInput = com.yotpo.metorikku.configuration.job.input.File(
               new File(testDir, mock.path).getCanonicalPath,
               None, None, None, None)
-            Input(Option(mock.streaming match {
-              case Some(true) => new StreamMockInput(fileInput)
-              case _ => fileInput
-            }), None, None, None, None)
+            Input(Option(fileInput), None, None, None, None)
           }
         }).toMap)
       }
@@ -91,10 +88,36 @@ case class Tester(config: TesterConfig) {
     }
   }
 
+  private def getExpected(configuration: TesterConfig, sparkSession: SparkSession): Option[Map[String, List[Map[String, Any]]]] = {
+    configuration.test.testFiles match  {
+      case Some(testFiles) => {
+//        testFiles.mapValues(_.valuesIterator.toList)
+        val a = testFiles.mapValues(_.values.toList)
+        val b = a.mapValues(Option(_))
+        val c = b.mapValues(getMockFilesFromDir(_, configuration.basePath))
+
+        c.mapValues(_.get.map(_._2.getReader(_._1).read()) {
+          row =>
+           val fieldNames = row.schema.fieldNames
+           row.getValuesMap[Any](fieldNames)
+        }.collect().toList)
+
+//        val testFilesToDF = expectedMap.mapValues(_.read(sparkSession))
+//        testFilesToDF.mapValues(_.rdd.map {
+//          row =>
+//           val fieldNames = row.schema.fieldNames
+//           row.getValuesMap[Any](fieldNames)
+//        }.collect().toList)
+      }
+      case None => configuration.test.tests
+    }
+  }
+
+
   private def compareActualToExpected(metricName: String): Array[String] = {
     var errors = Array[String]()
     var errorsIndexArr = Seq[Int]()
-    val metricExpectedTests = config.test.tests
+    val metricExpectedTests = getExpected(config, job.sparkSession)
 
     metricExpectedTests.keys.foreach(tableName => {
       val metricActualResultRows = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
