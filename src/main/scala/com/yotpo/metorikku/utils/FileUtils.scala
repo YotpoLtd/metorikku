@@ -60,12 +60,12 @@ object FileUtils {
   }
 
   def readConfigurationFile(path: String): String = {
-    val rawFile = if (path.startsWith("s3://")) {
-      getRemoteFileContents(path)
+    val fs = if (path.startsWith("s3://")) {
+      new FileSystemContainer with RemoteFileSystem
     } else {
-      Source.fromFile(path)
+      new FileSystemContainer with LocalFileSystem
     }
-    val fileContents =  rawFile.getLines.mkString("\n")
+    val fileContents = fs.read(path).getLines.mkString("\n")
     val interpolationMap = System.getProperties.asScala ++= System.getenv().asScala
     StringSubstitutor.replace(fileContents, interpolationMap.asJava)
   }
@@ -77,17 +77,5 @@ object FileUtils {
     val fsFile = fs.open(file)
     val reader = new BufferedReader(new InputStreamReader(fsFile))
     reader.lines.collect(Collectors.joining)
-  }
-
-  def getRemoteFileContents(path: String): BufferedSource = {
-    val uri: AmazonS3URI = new AmazonS3URI(path)
-    import com.amazonaws.auth.AWSStaticCredentialsProvider
-    import com.amazonaws.services.s3.AmazonS3ClientBuilder
-
-    val creds = new EnvironmentVariableCredentialsProvider().getCredentials
-    val s3Client = AmazonS3ClientBuilder.standard.withCredentials(new AWSStaticCredentialsProvider(creds)).build
-
-    val s3Object = s3Client.getObject(uri.getBucket, uri.getKey)
-    Source.fromInputStream(s3Object.getObjectContent)
   }
 }
