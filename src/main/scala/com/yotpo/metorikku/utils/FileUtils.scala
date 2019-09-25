@@ -3,8 +3,6 @@ package com.yotpo.metorikku.utils
 import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
 import java.util.stream.Collectors
 
-import com.amazonaws.auth.EnvironmentVariableCredentialsProvider
-import com.amazonaws.services.s3.AmazonS3URI
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.exceptions.MetorikkuException
@@ -16,7 +14,6 @@ import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods
 
 import scala.collection.JavaConverters._
-import scala.io.{BufferedSource, Source}
 
 object FileUtils {
   def getListOfFiles(dir: String): List[File] = {
