@@ -8,5 +8,11 @@ class FileSystemContainer {
   def read(path: String): BufferedSource = {
     read(path)
   }
+  def isAbsolute(path: String): Boolean = {
+    isAbsolute(path)
+  }
+  def baseDir(path: String): String = {
+    baseDir(path)
+  }
 }
 

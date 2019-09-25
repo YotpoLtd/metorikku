@@ -5,7 +5,7 @@ import java.nio.file.{Files, Paths}
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
-import com.yotpo.metorikku.utils.FileUtils
+import com.yotpo.metorikku.utils.{FileSystemContainer, FileUtils, LocalFileSystem, RemoteFileSystem}
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser
 

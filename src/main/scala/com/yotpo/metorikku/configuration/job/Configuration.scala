@@ -12,6 +12,7 @@ case class Configuration(metrics: Option[Seq[String]],
                          cacheOnPreview: Option[Boolean],
                          showQuery: Option[Boolean],
                          streaming: Option[Streaming],
+                         var workingDir: Option[String],
                          var logLevel: Option[String],
                          var showPreviewLines: Option[Int],
                          var explain: Option[Boolean],
@@ -21,6 +22,7 @@ case class Configuration(metrics: Option[Seq[String]],
 
   require(metrics.isDefined, "metrics files paths are mandatory")
 
+  workingDir = Option(workingDir.getOrElse(System.getProperty("user.dir")))
   logLevel = Option(logLevel.getOrElse("WARN"))
   showPreviewLines = Option(showPreviewLines.getOrElse(0))
   explain = Option(explain.getOrElse(false))

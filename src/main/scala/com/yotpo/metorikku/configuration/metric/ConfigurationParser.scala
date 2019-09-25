@@ -5,7 +5,7 @@ import java.io.File
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import com.yotpo.metorikku.metric.Metric
-import com.yotpo.metorikku.utils.FileUtils
+import com.yotpo.metorikku.utils.{FileSystemContainer, FileUtils}
 import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.{LogManager, Logger}
 
@@ -14,13 +14,12 @@ object ConfigurationParser {
 
   val validExtensions = Seq("json", "yaml", "yml")
 
-  def isValidFile(path: File): Boolean = {
-    val fileName = path.getName
-    val extension = FilenameUtils.getExtension(fileName)
+  def isValidFile(path: String): Boolean = {
+    val extension = FilenameUtils.getExtension(path)
     validExtensions.contains(extension)
   }
 
-  def parse(path: File): Metric = {
+  def parse(path: FileSystemContainer): Metric = {
     val fileName: String = path.getName
     val metricDir: File = path.getParentFile
 
@@ -33,13 +32,13 @@ object ConfigurationParser {
     }
   }
 
-  private def parseFile(fileName: String): Configuration = {
-    FileUtils.getObjectMapperByExtension(fileName) match {
+  private def parseFile(path: String): Configuration = {
+    FileUtils.getObjectMapperByExtension(path) match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
+        mapper.readValue(FileUtils.readConfigurationFile(path), classOf[Configuration])
       }
-      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $path")
     }
   }
 }

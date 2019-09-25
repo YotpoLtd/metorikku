@@ -16,16 +16,6 @@ import org.json4s.native.JsonMethods
 import scala.collection.JavaConverters._
 
 object FileUtils {
-  def getListOfFiles(dir: String): List[File] = {
-    val d = new File(dir)
-    if (d.isDirectory) {
-      d.listFiles.filter(_.isFile).toList
-    } else if (d.isFile) {
-      List(d)
-    } else {
-      throw new FileNotFoundException(s"No Files to Run ${dir}")
-    }
-  }
 
   def jsonFileToObject[T: Manifest](file: File): T = {
     implicit val formats = DefaultFormats
@@ -65,6 +55,15 @@ object FileUtils {
     val fileContents = fs.read(path).getLines.mkString("\n")
     val interpolationMap = System.getProperties.asScala ++= System.getenv().asScala
     StringSubstitutor.replace(fileContents, interpolationMap.asJava)
+  }
+
+  def workingDir(path: String): String = {
+    val fs = if (path.startsWith("s3://")) {
+      new FileSystemContainer with RemoteFileSystem
+    } else {
+      new FileSystemContainer with LocalFileSystem
+    }
+    fs.baseDir(path)
   }
 
   def readFileWithHadoop(path: String, sparkSession: SparkSession): String = {

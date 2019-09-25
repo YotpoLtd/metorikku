@@ -1,7 +1,10 @@
 package com.yotpo.metorikku.metric
 
+import java.io.File
+
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.metric.ConfigurationParser
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.LogManager
 
@@ -19,15 +22,18 @@ object MetricSet {
   }
 }
 
-class MetricSet(metricSet: String, write: Boolean = true) {
+class MetricSet(metricSet: String, write: Boolean = true /*base path*/) {
   val log = LogManager.getLogger(this.getClass)
 
-  val metrics: Seq[Metric] = parseMetrics(metricSet)
+  val metric: Metric = parseMetrics(metricSet)
 
-  def parseMetrics(metricSet: String): Seq[Metric] = {
+  def parseMetrics(metricSet: String): Metric = {
     log.info(s"Starting to parse metricSet")
-    val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
-    metricsToCalculate.filter(ConfigurationParser.isValidFile(_)).map(ConfigurationParser.parse(_))
+//    val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
+    if (!ConfigurationParser.isValidFile(metricSet)) {
+      throw MetorikkuException(s"Metric file is invalid $metricSet")
+    }
+    ConfigurationParser.parse(metricSet)
   }
 
   def run(job: Job) {
@@ -36,18 +42,16 @@ class MetricSet(metricSet: String, write: Boolean = true) {
       case None =>
     }
 
-    metrics.foreach(metric => {
-      val startTime = System.nanoTime()
+    val startTime = System.nanoTime()
 
-      metric.calculate(job)
-      if (write) {
-        metric.write(job)
-      }
+    metric.calculate(job)
+    if (write) {
+      metric.write(job)
+    }
 
-      val endTime = System.nanoTime()
-      val elapsedTimeInNS = (endTime - startTime)
-      job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.metricName))
-    })
+    val endTime = System.nanoTime()
+    val elapsedTimeInNS = (endTime - startTime)
+    job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.metricName))
 
     MetricSet.afterRun match {
       case Some(callback) => callback(metricSet)
