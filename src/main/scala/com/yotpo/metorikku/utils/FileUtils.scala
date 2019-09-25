@@ -3,6 +3,8 @@ package com.yotpo.metorikku.utils
 import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
 import java.util.stream.Collectors
 
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider
+import com.amazonaws.services.s3.AmazonS3URI
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.yotpo.metorikku.exceptions.MetorikkuException
@@ -13,8 +15,8 @@ import org.apache.spark.sql.SparkSession
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods
 
-import scala.io.Source
 import scala.collection.JavaConverters._
+import scala.io.{BufferedSource, Source}
 
 object FileUtils {
   def getListOfFiles(dir: String): List[File] = {
@@ -58,8 +60,13 @@ object FileUtils {
   }
 
   def readConfigurationFile(path: String): String = {
-    val fileContents = Source.fromFile(path).getLines.mkString("\n")
-    val interpolationMap = System.getProperties().asScala ++= System.getenv().asScala
+    val rawFile = if (path.startsWith("s3://")) {
+      getRemoteFileContents(path)
+    } else {
+      Source.fromFile(path)
+    }
+    val fileContents =  rawFile.getLines.mkString("\n")
+    val interpolationMap = System.getProperties.asScala ++= System.getenv().asScala
     StringSubstitutor.replace(fileContents, interpolationMap.asJava)
   }
 
@@ -70,5 +77,17 @@ object FileUtils {
     val fsFile = fs.open(file)
     val reader = new BufferedReader(new InputStreamReader(fsFile))
     reader.lines.collect(Collectors.joining)
+  }
+
+  def getRemoteFileContents(path: String): BufferedSource = {
+    val uri: AmazonS3URI = new AmazonS3URI(path)
+    import com.amazonaws.auth.AWSStaticCredentialsProvider
+    import com.amazonaws.services.s3.AmazonS3ClientBuilder
+
+    val creds = new EnvironmentVariableCredentialsProvider().getCredentials
+    val s3Client = AmazonS3ClientBuilder.standard.withCredentials(new AWSStaticCredentialsProvider(creds)).build
+
+    val s3Object = s3Client.getObject(uri.getBucket, uri.getKey)
+    Source.fromInputStream(s3Object.getObjectContent)
   }
 }

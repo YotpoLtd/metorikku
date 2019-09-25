@@ -22,14 +22,6 @@ object ConfigurationParser {
     opt[String]('c', "config")
       .text("Path to the job config file (YAML/JSON)")
       .action((x, c) => c.copy(path = Option(x)))
-      .validate(x => {
-        if (Files.exists(Paths.get(x))) {
-          success
-        }
-        else {
-          failure("Supplied file not found")
-        }
-      })
     help("help") text "use command line arguments to specify the configuration file path or content"
   }
 
