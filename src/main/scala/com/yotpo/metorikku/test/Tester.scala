@@ -12,12 +12,14 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types._
 
-import scala.collection.Seq
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, SortedMap, mutable}
 
 case class Tester(config: TesterConfig) {
   val log = LogManager.getLogger(this.getClass)
   val metricConfig = createMetorikkuConfigFromTestSettings()
   val job = Job(metricConfig)
+  var currentTableName = ""
 
   def run(): Unit = {
     var errors = Array[String]()
@@ -74,7 +76,7 @@ case class Tester(config: TesterConfig) {
     Seq(new File(testDir, metric).getCanonicalPath)
   }
 
-  private def extractTableContents(sparkSession: SparkSession, tableName: String, outputMode: String): Array[Row] = {
+  private def extractTableContents(sparkSession: SparkSession, tableName: String, outputMode: String): DataFrame = {
     val df = sparkSession.table(tableName)
     df.isStreaming match {
       case true => {
@@ -85,39 +87,116 @@ case class Tester(config: TesterConfig) {
           .outputMode(outputMode)
           .start()
           .processAllAvailable()
-        sparkSession.table(outputTableName).collect()
+        sparkSession.table(outputTableName)
       }
-      case false => df.collect()
+      case false => df
     }
+  }
+
+  private def sortRows(a: Map[String, Any], b: Map[String, Any]): Boolean = {
+    val tableKeys = config.test.keys(currentTableName)
+    for(colName <- tableKeys) {
+      if (a.get(colName) != b.get(colName)) {
+         return a.get(colName).getOrElse(0).hashCode() < b.get(colName).getOrElse(0).hashCode()
+      }
+    }
+    return false
+  }
+
+  private def getRowKeyByKey(row: Map[String, Any], tableKeys: List[String]) =  {
+    var rowKey = ""
+    for (key <- tableKeys) {
+      if (!rowKey.isEmpty) { rowKey += "#" }
+      rowKey += row.getOrElse(key, 0).toString
+    }
+    rowKey
+  }
+
+  private def mapSortedRowsToExpectedIndexes(sortedExpectedRows: List[Map[String, Any]],
+                                             metricExpectedResultRows: List[Map[String, Any]], tableKeys : List[String]) =
+  {
+    var res = scala.collection.mutable.Map[Int,Int]()
+    for ((resultRow, sortIndex) <- metricExpectedResultRows.zipWithIndex) {
+      val key = getRowKeyByKey(resultRow, tableKeys)
+      for ((sortedRow, rowIndex) <- sortedExpectedRows.zipWithIndex) {
+        if (getRowKeyByKey(sortedRow, tableKeys) == key) {
+            res = res + (sortIndex -> rowIndex)
+        }
+      }
+    }
+    res
+  }
+
+
+  private def getDefaultKeys(): scala.collection.mutable.Map[String, List[String]] = {
+    var defaultKeys = scala.collection.mutable.Map[String, List[String]]()
+    var testTables = config.test.tests
+    for (testTable <- testTables)  {
+      val defaultKey = testTable._2(0).keys
+      defaultKeys = defaultKeys + (testTable._1 -> defaultKey.toList)
+    }
+    defaultKeys
   }
 
   private def compareActualToExpected(metricName: String): Array[String] = {
     var errors = Array[String]()
-    var errorsIndexArr = Seq[Int]()
     val metricExpectedTests = config.test.tests
+    var keys = config.test.keys
+    if (keys == null || keys.isEmpty) {
+      keys = getDefaultKeys().toMap
+    }
 
     metricExpectedTests.keys.foreach(tableName => {
+      currentTableName = tableName
       val metricActualResultRows = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
-      var metricExpectedResultRows = metricExpectedTests(tableName)
-      if (metricExpectedResultRows.length == metricActualResultRows.length) {
-        for ((metricActualResultRow, rowIndex) <- metricActualResultRows.zipWithIndex) {
-          val mapOfActualRow = metricActualResultRow.getValuesMap(metricActualResultRow.schema.fieldNames)
-          val matchingExpectedMetric = matchExpectedRow(mapOfActualRow, metricExpectedResultRows)
-          if (Option(matchingExpectedMetric).isEmpty) {
-            errorsIndexArr = errorsIndexArr :+ rowIndex
-            errors = errors :+ s"[$metricName - $tableName] failed on row ${rowIndex + 1}: " +
-              s"Didn't find any row in test_settings.json that matches ${mapOfActualRow}"
-          }
-          else {
-            metricExpectedResultRows = metricExpectedResultRows.filter(_ != matchingExpectedMetric)
-          }
+      val metricExpectedResultRows = metricExpectedTests(tableName)
+      val tableKeys = keys(tableName)
+      val actualRowKeysList: _root_.scala.Array[_root_.java.lang.String] = GetKeyListFromDF(metricActualResultRows, tableKeys)
+      for (expectedRow <- metricExpectedResultRows) {
+        val expRowKey = getRowKeyByKey(expectedRow, tableKeys)
+        if (!actualRowKeysList.contains(expRowKey)) {
+          errors = errors :+ s"[$metricName - $tableName] failed to find row with the key ${expRowKey}"
         }
-        if(errorsIndexArr.nonEmpty) compareErrorAndExpectedDataFrames(metricActualResultRows, metricExpectedResultRows, errorsIndexArr)
-      } else {
-        errors = errors :+ s"[$metricName - $tableName] number of rows was ${metricActualResultRows.length} while expected ${metricExpectedResultRows.length}"
+      }
+      if (!errors.isEmpty) {
+        val sortedExpectedRows = metricExpectedResultRows.sortWith(sortRows)
+        val sortedActualResults = metricActualResultRows.rdd.map {
+          row =>
+            val fieldNames = row.schema.fieldNames
+            row.getValuesMap[Any](fieldNames)
+        }.collect().sortWith(sortRows)
+        if (sortedExpectedRows.length == sortedActualResults.length) {
+          val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedRows, metricExpectedResultRows, tableKeys)
+          for ((actualResultRow, rowIndex) <- sortedActualResults.zipWithIndex) {
+            val expectedResultRow = sortedExpectedRows(rowIndex)
+            val mismatchingCols = getMismatchingColumns(actualResultRow, expectedResultRow)
+            if (mismatchingCols.length > 0) {
+              errors = errors :+ s"[$metricName - $tableName] failed on row ${mapSortedToExpectedIndexes(rowIndex) + 1}: " +
+                s"Column values mismatch on ${mismatchingCols.mkString(", ")}"
+            }
+          }
+          //        if(errorsIndexArr.nonEmpty) compareErrorAndExpectedDataFrames(metricActualResultRows, metricExpectedResultRows, errorsIndexArr)
+        }
+        else {
+          errors = errors :+ s"[$metricName - $tableName] number of rows was ${sortedActualResults.length} while expected ${sortedExpectedRows.length}"
+        }
       }
     })
     errors
+  }
+
+  private def GetKeyListFromDF(metricActualResultRows: DataFrame, tableKeys: List[String]) = {
+    val actualResKeysList = metricActualResultRows.rdd.map(row => {
+      var rowKey = ""
+      for (key <- tableKeys) {
+        if (!rowKey.isEmpty) {
+          rowKey += "#"
+        }
+        rowKey += row.getAs(key).toString
+      }
+      rowKey
+    }).collect()
+    actualResKeysList
   }
 
   private def compareErrorAndExpectedDataFrames(metricActualResultRows: Seq[Row],
@@ -205,29 +284,18 @@ case class Tester(config: TesterConfig) {
     fieldResult
   }
 
-  private def matchExpectedRow(mapOfActualRow: Map[String, Nothing], metricExpectedResultRows: List[Map[String, Any]]): Map[String, Any] = {
+    private def getMismatchingColumns(actualRow: Map[String, Any], expectedRowCandidate: Map[String, Any]): ArrayBuffer[String] = {
     // scalastyle:off
-    for (expectedRowCandidate <- metricExpectedResultRows) {
-      if (isMatchingValuesInRow(mapOfActualRow, expectedRowCandidate)) {
-        return expectedRowCandidate
-      }
-    }
-    //TODO Avoid using nulls and return
-    null
-    // scalastyle:on
-  }
-
-  private def isMatchingValuesInRow(actualRow: Map[String, Nothing], expectedRowCandidate: Map[String, Any]): Boolean = {
-    // scalastyle:off
+    var mismatchingCols = ArrayBuffer[String]()
     for (key <- expectedRowCandidate.keys) {
       val expectedValue = Option(expectedRowCandidate.get(key))
       val actualValue = Option(actualRow.get(key))
       // TODO: support nested Objects and Arrays
       if (expectedValue.toString != actualValue.toString) {
-        return false
+        mismatchingCols += key
       }
     }
-    true
+    mismatchingCols
     // scalastyle:on
   }
 
