@@ -24,6 +24,7 @@ case class Tester(config: TesterConfig) {
   val job = Job(metricConfig)
   val delimiter = "#"
   var currentTableName = ""
+  var tablesKeys = Map[String, List[String]]()
 
   def run(): Unit = {
     var errors = Array[String]()
@@ -102,15 +103,16 @@ case class Tester(config: TesterConfig) {
     var errors = Array[String]()
     val metricExpectedTests = config.test.tests
     val configuredKeys = config.test.keys
-    val allColsKeys = metricExpectedTests.mapValues(v=>v(0).keys.toList)
-    val keys = assignKeysToTables(configuredKeys, allColsKeys)
+   // val allColsKeys = metricExpectedTests.mapValues(v=>v(0).keys.toList)
+   // val keys = assignKeysToTables(configuredKeys, allColsKeys)
+    tablesKeys = assignKeysToTables(metricExpectedTests, configuredKeys)
     metricExpectedTests.keys.foreach(tableName => {
       var tableErrors = Array[String]()
       var errorsIndexArr = Seq[Int]()
       currentTableName = tableName
       val actualResults = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
       val expectedResults = metricExpectedTests(tableName)
-      val tableKeys = keys(tableName)
+      val tableKeys = tablesKeys(tableName)
       val actualKeysList = getKeyListFromDF(actualResults, tableKeys).sorted
       val expKeysList = getKeyListFromMap(expectedResults, tableKeys).sorted
       if (expKeysList.deep != actualKeysList.deep) {
@@ -150,9 +152,10 @@ case class Tester(config: TesterConfig) {
     if (mismatchingCols.length > 0) {
       val tableKeysVal = getRowKey(expectedResultRow, tableKeys)
       val outputKey = formatOutputKey(tableKeysVal, tableKeys)
-      return s"[$metricName - $tableName] failed on original row ${mapSortedToExpectedIndexes(rowIndex) + 1}, " +
-        s"sorted row_id ${rowIndex + 1} with key ${outputKey}." +
-        s" Column values mismatch on ${mismatchingCols.mkString(", ")}"
+      return s"[$metricName - $tableName] failed on expected key [${outputKey}]. In config file expected results" +
+        s" the row number = ${mapSortedToExpectedIndexes(rowIndex) + 1}," +
+        s" in expected output results (printed above) the row_id = ${rowIndex + 1}." +
+        s" Column values mismatch on [${mismatchingCols.mkString(", ")}]"
     }
     ""
   }
@@ -185,7 +188,7 @@ case class Tester(config: TesterConfig) {
   }
 
   private def sortRows(a: Map[String, Any], b: Map[String, Any]): Boolean = {
-    val tableKeys = config.test.keys(currentTableName)
+    val tableKeys = tablesKeys(currentTableName)
     for(colName <- tableKeys) {
       if (a.get(colName) != b.get(colName)) {
         return a.get(colName).getOrElse(0).hashCode() < b.get(colName).getOrElse(0).hashCode()
@@ -219,19 +222,38 @@ case class Tester(config: TesterConfig) {
     res
   }
 
+//
+//  private def assignKeysToTables(configuredKeys: Map[String, List[String]],
+//                                 allColsKeys: scala.collection.immutable.Map[String, List[String]]) = {
+//    val configuredKeysExist = (configuredKeys != null)
+//    allColsKeys.map{ case (k,v) =>
+//      if (configuredKeysExist && configuredKeys.isDefinedAt(k)) {
+//        k->configuredKeys(k)
+//        //consider validation of missing keys
+//      } else {
+//        log.info(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
+//        k->v
+//      }
+//    }
+//  }
 
-  private def assignKeysToTables(configuredKeys: Map[String, List[String]],
-                                 allColsKeys: scala.collection.immutable.Map[String, List[String]]) = {
+  private def assignKeysToTables(metricExpectedTests: Map[String, List[Map[String, Any]]] ,configuredKeys: Map[String, List[String]]
+                                ) = {
+
+    val tables = metricExpectedTests.keys
+    var res = Map[String, List[String]]()
     val configuredKeysExist = (configuredKeys != null)
-    allColsKeys.map{ case (k,v) =>
-      if (configuredKeysExist && configuredKeys.isDefinedAt(k)) {
-        k->configuredKeys(k)
+    for (table <- tables) {
+      if (configuredKeysExist && configuredKeys.isDefinedAt(table)) {
+        res += table->configuredKeys(table)
         //consider validation of missing keys
       } else {
-        log.info(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
-        k->v
+        val allColsList = metricExpectedTests(table)(0).keys.toList
+        log.info(s"Hint: define unique keys in test_settings.json for table type $table to make better performances")
+        res += table->allColsList
       }
     }
+    res
   }
 
   private def compareKeys(expRowKeyList: Array[String], actualRowKeysList: Array[String],
