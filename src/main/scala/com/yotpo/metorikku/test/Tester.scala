@@ -130,7 +130,8 @@ case class Tester(config: TesterConfig) {
        // if (sortedExpectedResults.length == sortedActualResults.length) {
           val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedResults, expectedResults, tableKeys)
           for ((actualResultRow, rowIndex) <- sortedActualResults.zipWithIndex) {
-               val tempErrors = compareRowsByAllCols(actualResultRow, rowIndex, sortedExpectedResults, tableKeys, metricName, tableName, mapSortedToExpectedIndexes)
+               val tempErrors = compareRowsByAllCols(actualResultRow, rowIndex, sortedExpectedResults, tableKeys,
+                                    metricName, tableName, mapSortedToExpectedIndexes)
                 if (!tempErrors.isEmpty) {
                   errorsIndexArr = errorsIndexArr :+ rowIndex
                   tableErrors = tableErrors :+ tempErrors
@@ -150,13 +151,17 @@ case class Tester(config: TesterConfig) {
   }
 
 
-  private def compareRowsByAllCols(actualResultRow: Map[String, Any], rowIndex: Int, sortedExpectedResults: List[Map[String, Any]], tableKeys: List[String], metricName: String, tableName: String, mapSortedToExpectedIndexes: mutable.Map[Int, Int]): String = {
+  private def compareRowsByAllCols(actualResultRow: Map[String, Any], rowIndex: Int,
+                                   sortedExpectedResults: List[Map[String, Any]], tableKeys: List[String],
+                                   metricName: String, tableName: String,
+                                   mapSortedToExpectedIndexes: mutable.Map[Int, Int]): String = {
     val expectedResultRow = sortedExpectedResults(rowIndex)
     val mismatchingCols = getMismatchingColumns(actualResultRow, expectedResultRow)
     if (mismatchingCols.length > 0) {
       val tableKeysVal = getRowKey(expectedResultRow, tableKeys)
       val outputKey = formatOutputKey(tableKeysVal, tableKeys)
-      return s"[$metricName - $tableName] failed on original row ${mapSortedToExpectedIndexes(rowIndex) + 1}, sorted row_id ${rowIndex + 1} with key ${outputKey}." +
+      return s"[$metricName - $tableName] failed on original row ${mapSortedToExpectedIndexes(rowIndex) + 1}, " +
+        s"sorted row_id ${rowIndex + 1} with key ${outputKey}." +
         s" Column values mismatch on ${mismatchingCols.mkString(", ")}"
     }
     ""
@@ -171,7 +176,8 @@ case class Tester(config: TesterConfig) {
 //    }
   }
 
-  private def printTableErrors(tableErrors: Array[String], sortedExpectedRows: List[Map[String, Any]], sortedActualResults: Array[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
+  private def printTableErrors(tableErrors: Array[String], sortedExpectedRows: List[Map[String, Any]],
+                               sortedActualResults: Array[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
     println("****************************  Test failed  *******************************")
     println("**************************  Expected results  ****************************")
     transformListMapToDf(sortedExpectedRows).show(true)
@@ -208,7 +214,8 @@ case class Tester(config: TesterConfig) {
   }
 
   private def mapSortedRowsToExpectedIndexes(sortedExpectedRows: List[Map[String, Any]],
-                                             metricExpectedResultRows: List[Map[String, Any]], tableKeys : List[String]) =
+                                             metricExpectedResultRows: List[Map[String, Any]],
+                                             tableKeys : List[String]) =
   {
     var res = scala.collection.mutable.Map[Int,Int]()
     metricExpectedResultRows.zipWithIndex.map { case (expectedRow, expectedRowIndex) =>
@@ -223,7 +230,8 @@ case class Tester(config: TesterConfig) {
   }
 
 
-  private def assignKeysToTables(configuredKeys: Map[String, List[String]], allColsKeys: scala.collection.immutable.Map[String, List[String]]) = {
+  private def assignKeysToTables(configuredKeys: Map[String, List[String]],
+                                 allColsKeys: scala.collection.immutable.Map[String, List[String]]) = {
     val configuredKeysExist = (configuredKeys != null)
     allColsKeys.map{ case (k,v) =>
       if (configuredKeysExist && configuredKeys.isDefinedAt(k)) {
@@ -245,14 +253,16 @@ case class Tester(config: TesterConfig) {
       if (!(actKeysToCount.contains(expKey) && actKeysToCount(expKey) == expKeysToCount(expKey))) {
 
         val expKeyToOutput = formatOutputKey(expKey, tableKeys)
-        errors = errors :+ s"[$metricName - $tableName] failed - expected to find ${expKeysToCount(expKey)} times a row with the key ${expKeyToOutput} - found it" +
+        errors = errors :+ s"[$metricName - $tableName] failed - expected to find ${expKeysToCount(expKey)} " +
+          s"times a row with the key ${expKeyToOutput} - found it" +
           s" ${actKeysToCount.getOrElse(expKey, 0)} times"
       }
     }
     for (actKey <- actKeysToCount.keys) {
       if (!(expKeysToCount.contains(actKey) && expKeysToCount(actKey) == actKeysToCount(actKey))) {
         val actKeyToOutput = formatOutputKey(actKey, tableKeys)
-        errors = errors :+ s"[$metricName - $tableName] failed - didn't expect to find ${actKeysToCount(actKey)} times a row with the key ${actKeyToOutput}  - expected for it" +
+        errors = errors :+ s"[$metricName - $tableName] failed - didn't expect to find ${actKeysToCount(actKey)} " +
+          s"times a row with the key ${actKeyToOutput}  - expected for it" +
           s" ${expKeysToCount.getOrElse(actKey, 0)} times"
       }
     }
@@ -273,7 +283,7 @@ case class Tester(config: TesterConfig) {
       columns = columns :+ col
     }
 
-    var indexedDf = df.withColumn("row_id", monotonically_increasing_id()+1)
+    var indexedDf = df.withColumn("row_id", monotonically_increasing_id() +1)
     val resDf = indexedDf.select("row_id", df.columns: _*)
     resDf
   }
