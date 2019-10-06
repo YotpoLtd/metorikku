@@ -139,7 +139,8 @@ case class Tester(config: TesterConfig) {
           }
 //        }
 //        else {
-//          tableErrors = tableErrors :+ s"[$metricName - $tableName] number of rows was ${sortedActualResults.length} while expected ${sortedExpectedResults.length}"
+//          tableErrors = tableErrors :+ s"[$metricName - $tableName] number of rows was ${sortedActualResults.length}
+        //          while expected ${sortedExpectedResults.length}"
 //        }
       }
       if (!tableErrors.isEmpty) {
@@ -178,14 +179,14 @@ case class Tester(config: TesterConfig) {
 
   private def printTableErrors(tableErrors: Array[String], sortedExpectedRows: List[Map[String, Any]],
                                sortedActualResults: Array[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
-    println("****************************  Test failed  *******************************")
-    println("**************************  Expected results  ****************************")
+    log.info("****************************  Test failed  *******************************")
+    log.info("**************************  Expected results  ****************************")
     transformListMapToDf(sortedExpectedRows).show(true)
-    println("***************************  Actual results  *****************************")
+    log.info("***************************  Actual results  *****************************")
     transformListMapToDf(sortedActualResults.toList).show(true)
-    println("******************************  Errors  **********************************")
+    log.info("******************************  Errors  **********************************")
     for (error <- tableErrors) {
-      println(error)
+      log.info(error)
     }
   //  println("*********************  Expected missing results  *************************")
   //  getSubDf(sortedExpectedRows, errorsIndexArr).show()
@@ -238,7 +239,7 @@ case class Tester(config: TesterConfig) {
         k->configuredKeys(k)
         //consider validation of missing keys
       } else {
-        println(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
+        log.info(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
         k->v
       }
     }
@@ -283,7 +284,7 @@ case class Tester(config: TesterConfig) {
       columns = columns :+ col
     }
 
-    var indexedDf = df.withColumn("row_id", monotonically_increasing_id() +1)
+    var indexedDf = df.withColumn("row_id", monotonically_increasing_id() + 1)
     val resDf = indexedDf.select("row_id", df.columns: _*)
     resDf
   }
