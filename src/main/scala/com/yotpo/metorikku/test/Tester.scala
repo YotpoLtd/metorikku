@@ -104,7 +104,6 @@ case class Tester(config: TesterConfig) {
     val configuredKeys = config.test.keys
     val allColsKeys = metricExpectedTests.mapValues(v=>v(0).keys.toList)
     val keys = assignKeysToTables(configuredKeys, allColsKeys)
-
     metricExpectedTests.keys.foreach(tableName => {
       var tableErrors = Array[String]()
       var errorsIndexArr = Seq[Int]()
@@ -112,22 +111,17 @@ case class Tester(config: TesterConfig) {
       val actualResults = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
       val expectedResults = metricExpectedTests(tableName)
       val tableKeys = keys(tableName)
-
       val actualKeysList = getKeyListFromDF(actualResults, tableKeys).sorted
       val expKeysList = getKeyListFromMap(expectedResults, tableKeys).sorted
       if (expKeysList.deep != actualKeysList.deep) {
-        // compare keys with duplications count
         tableErrors = tableErrors ++ compareKeys(expKeysList, actualKeysList, metricName, tableName, tableKeys)
       }
       val sortedExpectedResults = expectedResults.sortWith(sortRows) //TODO move to inside if
-      val sortedActualResults = actualResults.rdd.map { //TODO move to inside if
-        row =>
+      val sortedActualResults = actualResults.rdd.map { row => //TODO move to inside if
           val fieldNames = row.schema.fieldNames
           row.getValuesMap[Any](fieldNames)
       }.collect().sortWith(sortRows)
-
       if (tableErrors.isEmpty) {
-       // if (sortedExpectedResults.length == sortedActualResults.length) {
           val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedResults, expectedResults, tableKeys)
           for ((actualResultRow, rowIndex) <- sortedActualResults.zipWithIndex) {
                val tempErrors = compareRowsByAllCols(actualResultRow, rowIndex, sortedExpectedResults, tableKeys,
@@ -137,11 +131,6 @@ case class Tester(config: TesterConfig) {
                   tableErrors = tableErrors :+ tempErrors
                 }
           }
-//        }
-//        else {
-//          tableErrors = tableErrors :+ s"[$metricName - $tableName] number of rows was ${sortedActualResults.length}
-        //          while expected ${sortedExpectedResults.length}"
-//        }
       }
       if (!tableErrors.isEmpty) {
         printTableErrors(tableErrors, sortedExpectedResults, sortedActualResults, errorsIndexArr)
@@ -188,9 +177,9 @@ case class Tester(config: TesterConfig) {
     for (error <- tableErrors) {
       log.info(error)
     }
-  //  println("*********************  Expected missing results  *************************")
+  //  log.info("*********************  Expected missing results  *************************")
   //  getSubDf(sortedExpectedRows, errorsIndexArr).show()
-  //  println("*********************  Actual enexpected results  *************************")
+  //  log.info("*********************  Actual enexpected results  *************************")
   //  getSubDf(sortedActualResults, errorsIndexArr).show()
 
   }
