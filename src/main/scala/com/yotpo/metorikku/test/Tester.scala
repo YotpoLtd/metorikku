@@ -551,9 +551,7 @@ case class Tester(config: TesterConfig) {
     val rows = mapStrList.map(m => spark.sql.Row(m.values.toSeq:_*))
     val rowIdField = "row_id"
     var header = mapList.head.keys.toList
-//    if (header.contains(rowIdField) && header.indexOf(rowIdField) >= 1) {
-//      header = header.reverse
-//    }
+
     val schema = org.apache.spark.sql.types.StructType(header.map(fieldName => StructField(fieldName, StringType, true)))
     val x: java.util.List[Row] = scala.collection.JavaConversions.seqAsJavaList(rows)
 

@@ -2,7 +2,6 @@ metric: get_from_hive_metric.yaml
 tests:
   testMetorikkuHiveManaged:
     - title: Nutty Professor, The (1996)
-      new_column: test
   testMetorikkuHiveExternal:
     - title: Nutty Professor, The (1996)
       new_column: test
