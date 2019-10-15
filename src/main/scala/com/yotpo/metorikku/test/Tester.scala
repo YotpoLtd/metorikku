@@ -161,7 +161,7 @@ case class Tester(config: TesterConfig) {
           val printableActualResults = addLongestWhitespaceRow(actualResultsMap, longestRowMap)
           val tableKeys = tablesKeys(tableName)
           log.info(s"[$metricName - $tableName]: ")
-          if (configuredKeys.contains(tableName)) {
+          if (configuredKeys != null && configuredKeys.contains(tableName)) {
             log.info(s"Configured key columns for ${tableName}: [${configuredKeys(tableName).mkString(", ")}]")
           } else {
             log.info(s"Hint: Define key columns for ${tableName} for better performance")
@@ -307,7 +307,6 @@ case class Tester(config: TesterConfig) {
     val expectedErrorIndexes = errorIndexes("Expected")
     val actualErrorIndexes = errorIndexes("Actual")
     printTableErrors(tableErrors, expectedResults, actualResults, expectedErrorIndexes, actualErrorIndexes)
-
   }
 
   private def printSortedTableErrors(tableErrors: Array[String], expectedRows: List[Map[String, Any]],
