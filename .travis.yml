@@ -3,7 +3,7 @@ language: scala
 services:
   - docker
 jdk:
-  - oraclejdk8
+  - openjdk8
 cache:
   directories:
   - "$HOME/.ivy2/cache"
