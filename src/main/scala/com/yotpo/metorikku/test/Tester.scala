@@ -97,61 +97,61 @@ case class Tester(config: TesterConfig) {
     }
   }
 
-  private def printMetorikkuLogo(): Unit =
-  {
-    print("                                                                               \n" +
-      "                                                                               \n" +
-      "                                                                               \n" +
-      "                            .....................                              \n" +
-      "                       ...............................                         \n" +
-      "                    .....................................                      \n" +
-      "                  .........................................                    \n" +
-      "                .......................... ..................                  \n" +
-      "              ........................      ...................                \n" +
-      "             .........................      ..........  ........               \n" +
-      "            ..........................       .  .       .........              \n" +
-      "           .......................  .                   ..........             \n" +
-      "          ............. . .                            ............            \n" +
-      "         ..............                       . .      .............           \n" +
-      "        ..............             . .    .......     ...............          \n" +
-      "        .............           .....     ......      ...............          \n" +
-      "        ..................      ....       ....       ...............          \n" +
-      "        .................      .....       .....       ..............          \n" +
-      "        ................       ......     ......     ................          \n" +
-      "        .................     .......    .......     ................          \n" +
-      "        .................     .....       .....      ................          \n" +
-      "        ................      .....      ......       ...............          \n" +
-      "         ..............        ....    . .....       ...............           \n" +
-      "          ..............      ..... ..........      ...............            \n" +
-      "           .............     ..................     ..............             \n" +
-      "            ...........       ................       ............              \n" +
-      "             ..........   . .................       ............               \n" +
-      "              ...............................   . .............                \n" +
-      "                .............................................                  \n" +
-      "                  .........................................                    \n" +
-      "                     ...................................                       \n" +
-      "                       ...............................                         \n" +
-      "                             ...................                               \n\n                                                                               \n                                                                               \n                                                                               ")
-  }
+//  private def printMetorikkuLogo(): Unit =
+//  {
+//    print("                                                                               \n" +
+//      "                                                                               \n" +
+//      "                                                                               \n" +
+//      "                            .....................                              \n" +
+//      "                       ...............................                         \n" +
+//      "                    .....................................                      \n" +
+//      "                  .........................................                    \n" +
+//      "                .......................... ..................                  \n" +
+//      "              ........................      ...................                \n" +
+//      "             .........................      ..........  ........               \n" +
+//      "            ..........................       .  .       .........              \n" +
+//      "           .......................  .                   ..........             \n" +
+//      "          ............. . .                            ............            \n" +
+//      "         ..............                       . .      .............           \n" +
+//      "        ..............             . .    .......     ...............          \n" +
+//      "        .............           .....     ......      ...............          \n" +
+//      "        ..................      ....       ....       ...............          \n" +
+//      "        .................      .....       .....       ..............          \n" +
+//      "        ................       ......     ......     ................          \n" +
+//      "        .................     .......    .......     ................          \n" +
+//      "        .................     .....       .....      ................          \n" +
+//      "        ................      .....      ......       ...............          \n" +
+//      "         ..............        ....    . .....       ...............           \n" +
+//      "          ..............      ..... ..........      ...............            \n" +
+//      "           .............     ..................     ..............             \n" +
+//      "            ...........       ................       ............              \n" +
+//      "             ..........   . .................       ............               \n" +
+//      "              ...............................   . .............                \n" +
+//      "                .............................................                  \n" +
+//      "                  .........................................                    \n" +
+//      "                     ...................................                       \n" +
+//      "                       ...............................                         \n" +
+//      "                             ...................                               \n       " +
+//      "                                                                       \n             " +
+//      "                                                                  \n  " +
+//      "                                                                             ")
+//  }
 
+  // scalastyle:off
   private def compareActualToExpected(metricName: String): Array[String] = {
-    //printMetorikkuLogo()
     var errors = Array[String]()
     val metricExpectedTests = config.test.tests
     val configuredKeys = config.test.keys
     val allColsKeys = metricExpectedTests.mapValues(v=>v(0).keys.toList)
-    tablesKeys = assignKeysToTables(configuredKeys, allColsKeys)
+    tablesKeys = KeyColumns().assignKeysToTables(configuredKeys, allColsKeys)
     val invalidKeys = validateTablesKeys(tablesKeys)
     if (!(invalidKeys == null || invalidKeys.size == 0)) {
-      errors = errors ++ printInvalidKeysErrors(allColsKeys, configuredKeys, invalidKeys)
-    }
+      errors = errors ++ printInvalidKeysErrors(allColsKeys, configuredKeys, invalidKeys) }
     else {
         metricExpectedTests.keys.foreach(tableName => {
           var tableErrors = Array[String]()
           var errorsIndexArr = Seq[Int]()
           currentTableName = tableName
-
-
           val actualResults = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
           val expectedResults = metricExpectedTests(tableName)
           val actualResultsMap = getMapFromDf(actualResults)
@@ -159,8 +159,6 @@ case class Tester(config: TesterConfig) {
           val longestRowMap = getLongestRow(allResults)
           val printableExpectedResults = addLongestWhitespaceRow(expectedResults, longestRowMap)
           val printableActualResults = addLongestWhitespaceRow(actualResultsMap, longestRowMap)
-
-
           val tableKeys = tablesKeys(tableName)
           log.info(s"[$metricName - $tableName]: ")
           if (configuredKeys.contains(tableName)) {
@@ -168,8 +166,8 @@ case class Tester(config: TesterConfig) {
           } else {
             log.info(s"Hint: Define key columns for ${tableName} for better performance")
           }
-          val actualKeysList = getKeyListFromDF(actualResults, tableKeys)
-          val expKeysList = getKeyListFromMap(expectedResults, tableKeys)
+          val actualKeysList = KeyColumns().getKeyListFromDF(actualResults, tableKeys)
+          val expKeysList = KeyColumns().getKeyListFromMap(expectedResults, tableKeys)
           val duplicatedRes = handleDuplicationsFromResults(expKeysList, actualKeysList, printableExpectedResults,
                                                               printableActualResults, tableKeys)
           if (!duplicatedRes.isEmpty) {
@@ -185,14 +183,11 @@ case class Tester(config: TesterConfig) {
             else {
               val sortedExpectedResults = expectedResults.sortWith(sortRows)
               val printableSortedExpectedResults = addLongestWhitespaceRow(sortedExpectedResults, longestRowMap)
-
               val sortedActualResults = actualResults.rdd.map { row =>
                 val fieldNames = row.schema.fieldNames
                 row.getValuesMap[Any](fieldNames)
               }.collect().sortWith(sortRows).toList
-
               val printableSortedActualResults = addLongestWhitespaceRow(sortedActualResults, longestRowMap)
-
               val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedResults, expectedResults, tableKeys)
               for ((actualResultRow, rowIndex) <- sortedActualResults.zipWithIndex) {
                 val tempErrors = compareRowsByAllCols(actualResultRow, rowIndex, sortedExpectedResults, tableKeys,
@@ -203,7 +198,6 @@ case class Tester(config: TesterConfig) {
                 }
               }
               if (!tableErrors.isEmpty) {
-
                 tableErrors +:= s"[$metricName - $tableName]:"
                 printSortedTableErrors(tableErrors, printableSortedExpectedResults, printableSortedActualResults, errorsIndexArr)
               }
@@ -214,6 +208,7 @@ case class Tester(config: TesterConfig) {
     }
     errors
   }
+  // scalastyle:on
 
   private def getDuplicationsErrorMsg(duplicatedRes: Map[String, List[Int]], tableKeys: List[String]): String = {
     var res = ""
@@ -269,11 +264,12 @@ case class Tester(config: TesterConfig) {
       errorIndexes += (duplicateKey.head._1 -> indexes)
       val outputKey = formatOutputKey(duplicateKey.head._1, tableKeys)
       var resTypeStr = "actual"
-      if (isExpected)
+      if (isExpected) {
         resTypeStr = "expected"
+      }
       log.info(s"The key [${outputKey}] was found in the ${resTypeStr} results rows: ${indexes.mkString(", ")}")
       log.info(s"*****************  ${resTypeStr} results with Duplications  *******************")
-      val subExpectedError = getSubDf(results, indexes)
+      val subExpectedError = getSubTable(results, indexes)
       transformListMapToDf(subExpectedError).show(false)
     }
     errorIndexes
@@ -282,7 +278,7 @@ case class Tester(config: TesterConfig) {
 
   //returns list of all tables with invalid keys defined (non existing colums)
   private def validateTablesKeys(tablesKeys: Map[String, List[String]]): List[String] = {
-    tablesKeys.filter { case (k, v) => v == null }.map(_._1).toList
+    tablesKeys.filter { case (k, v) => (v == null || v.size == 0) }.map(_._1).toList
   }
 
   //handles all errors for invalid keys configured (non existing cols)
@@ -329,22 +325,22 @@ case class Tester(config: TesterConfig) {
     log.info("**************************************************************************")
     log.info("**************************  Expected results  ****************************")
     val emptySeq = Seq[Int]()
-    transformListMapToDf(getSubDf(sortedExpectedRows, emptySeq)).show(false)
+    transformListMapToDf(getSubTable(sortedExpectedRows, emptySeq)).show(false)
     log.info("***************************  Actual results  *****************************")
-    transformListMapToDf(getSubDf(sortedActualResults.toList, emptySeq)).show(false)
+    transformListMapToDf(getSubTable(sortedActualResults.toList, emptySeq)).show(false)
     log.info("******************************  Errors  **********************************")
     log.info("**********************  Expected with Mismatches  ************************")
-    val subExpectedError = getSubDf(sortedExpectedRows, errorsIndexArrExpected)
+    val subExpectedError = getSubTable(sortedExpectedRows, errorsIndexArrExpected)
     transformListMapToDf(subExpectedError).show(false)
     log.info("***********************  Actual with Mismatches  *************************")
-    val subActualError = getSubDf(sortedActualResults, errorsIndexArrActual)
+    val subActualError = getSubTable(sortedActualResults, errorsIndexArrActual)
     transformListMapToDf(subActualError).show(false)
     for (error <- tableErrors) {
       log.info(error)
     }
   }
 
-  private def getSubDf(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
+  private def getSubTable(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
     var res = List[mutable.LinkedHashMap[String, Any]]()
     var indexesToCollect = errorsIndexArr
     if (indexesToCollect.length == 0) {
@@ -501,7 +497,6 @@ case class Tester(config: TesterConfig) {
     resToErrorRowIndexes
   }
 
-
   private def sortRows(a: Map[String, Any], b: Map[String, Any]): Boolean = {
     val tableKeys = tablesKeys(currentTableName)
     for(colName <- tableKeys) {
@@ -523,8 +518,7 @@ case class Tester(config: TesterConfig) {
 
   private def mapSortedRowsToExpectedIndexes(sortedExpectedRows: List[Map[String, Any]],
                                              metricExpectedResultRows: List[Map[String, Any]],
-                                             tableKeys : List[String]) =
-  {
+                                             tableKeys : List[String]) = {
     var res = scala.collection.mutable.Map[Int,Int]()
     metricExpectedResultRows.zipWithIndex.map { case (expectedRow, expectedRowIndex) =>
       val expectedRowKey = getRowKey(expectedRow, tableKeys)
@@ -537,31 +531,7 @@ case class Tester(config: TesterConfig) {
     res
   }
 
-
-  //returns a map from each table name to it's list of key columns
-  //in case the user defined invalid key columns, the map will return a value of null for the given table's name
-  private def assignKeysToTables(configuredKeys: Map[String, List[String]],
-                                 allColsKeys: scala.collection.immutable.Map[String, List[String]]) = {
-    val configuredKeysExist = (configuredKeys != null)
-    allColsKeys.map{ case (k,v) =>
-      if (configuredKeysExist && configuredKeys.isDefinedAt(k)) {
-        val confKeys = configuredKeys(k)
-        val undefinedCols = confKeys.filter(key => !v.contains(key))
-        if (undefinedCols == null || undefinedCols.length == 0) {
-          k->confKeys
-        }
-        else {
-          //in case of non existing columns configured as table's keys, fail the test
-          k->null
-        }
-      } else {
-        //log.info(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
-        k->v
-      }
-    }
-  }
-
-  def addLongestWhitespaceRow(mapList: List[Map[String, Any]],
+  private def addLongestWhitespaceRow(mapList: List[Map[String, Any]],
                               longestRowMap: Map[String, Int]): List[Map[String, Any]] = {
 
     var res = List[Map[String, Any]]() ++ mapList
@@ -602,117 +572,6 @@ case class Tester(config: TesterConfig) {
     resDf
   }
 
-
-  private def getKeyListFromMap(resultRows: List[Map[String, Any]], tableKeys: List[String]): Array[String] = {
-    val resultKeys = resultRows.map(row => {
-      var rowKey = ""
-      for (key <- tableKeys) {
-        if (!rowKey.isEmpty) {
-          rowKey += "#"
-        }
-        rowKey += row.getOrElse(key, "").toString
-      }
-      rowKey
-    })
-    resultKeys.toArray
-  }
-
-  private def getKeyListFromDF(resultRows: DataFrame, tableKeys: List[String]) = {
-//    val metricActualResultsMap = metricActualResultRows.rdd.map(row=>getMapFromRow(row)).collect().toList
-    val metricActualResultsMap = resultRows.rdd.map {
-      row =>
-        val fieldNames = row.schema.fieldNames
-        row.getValuesMap[Any](fieldNames)
-    }.collect().toList
-    getKeyListFromMap(metricActualResultsMap, tableKeys)
-  }
-
-
-  //  private def compareErrorAndExpectedDataFrames(metricActualResultRows: Seq[Row],
-  //                                                metricExpectedResultRows: List[Map[String, Any]],
-  //                                                errorsIndex: Seq[Int]): Unit = {
-  //    val spark = SparkSession.builder().getOrCreate()
-  //    val aggregatedErrorRows = errorsIndex.map(index => metricActualResultRows(index))
-  //    val actualSchema = aggregatedErrorRows.head.schema
-  //
-  //    val expectedValuesRows = metricExpectedResultRows.map(expectedRes => {
-  //      Row.fromSeq(expectedRes.values.toSeq)
-  //    })
-  //
-  //    val expectedSchema = getExpectedSchema(metricExpectedResultRows.head.keys, actualSchema)
-  //    val expectedArrayStructFields = getExpectedArrayFields(metricExpectedResultRows.head.keys, actualSchema)
-  //
-  //    val actualRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(aggregatedErrorRows), actualSchema)
-  //    val expectedRowsDF = spark.sqlContext.createDataFrame(spark.sparkContext.parallelize(expectedValuesRows), expectedSchema)
-  //    val columns = expectedSchema.fields.map(_.name).filter(x => !expectedArrayStructFields.contains(x))
-  //
-  //    val actualDataFrameString = dataFrameShowToString(actualRowsDF)
-  //    log.warn(s"These are the Actual rows with no Expected match:\n$actualDataFrameString")
-  //    val expectedDataFrameString = dataFrameShowToString(expectedRowsDF)
-  //    log.warn(s"These are the Expected rows with no Actual match:\n$expectedDataFrameString")
-  //    if(expectedArrayStructFields.nonEmpty) log.warn("Notice that array typed object will not be compared to find discrepancies")
-  //
-  //    //log.warn("These are Actual columns with discrepancy with Expected Results:")
-  //    val actualDiffCounter = printColumnDiff(actualRowsDF, expectedRowsDF, columns, "These are Actual columns with discrepancy with Expected Results:")
-  //    //log.warn("These are Expected columns with discrepancy with Actual results:")
-  //    val expectedDiffCounter = printColumnDiff(expectedRowsDF, actualRowsDF, columns, "These are Expected columns with discrepancy with Actual results:")
-  //
-  //    if(actualDiffCounter == 0 && expectedDiffCounter == 0) log.info(
-  //      "No discrepancies were printed because each column was a match on the column level and a miss on the row level, compare the rows themselves"
-  //    )
-  //  }
-
-  private def dataFrameShowToString(dataFrame: DataFrame): String = {
-    val outputStream = new java.io.ByteArrayOutputStream()
-    val out = new java.io.PrintStream(outputStream, true)
-    Console.withOut(out) {dataFrame.show(false) }
-    outputStream.toString()
-  }
-
-  private def printColumnDiff(mainDF: DataFrame, subtractDF: DataFrame, columns: Array[String], logMessage: String): Int ={
-    val selectiveDifferencesActual = columns.map(col => mainDF.select(col).except(subtractDF.select(col)))
-    val diffsArr: Array[String] = selectiveDifferencesActual.filter(d => d.count() > 0).map(diff => dataFrameShowToString(diff))
-    val diffsCount = selectiveDifferencesActual.count(_.count() > 0)
-    if(diffsCount > 0) log.warn(logMessage + "\n" + diffsArr.mkString("\n"))
-    diffsCount
-  }
-
-  private def getExpectedSchema(expectedSchemaKeys:Iterable[String], actualSchema:StructType): StructType = {
-    var expectedStructFields = Seq[StructField]()
-    for(key <- expectedSchemaKeys){
-      val structFieldMatch = actualSchema.filter(_.name == key)
-      if(structFieldMatch.nonEmpty){
-        val currFieldType = structFieldMatch.head.dataType
-        val fieldType = getExpectedSchemaFieldType(currFieldType)
-        expectedStructFields = expectedStructFields :+ StructField(key, fieldType , true)
-      } else {
-        log.warn(s"The expected schema key : $key doesnt exist in the actual schema, the test will fail because of it")
-      }
-    }
-    StructType(expectedStructFields)
-  }
-
-  private def getExpectedArrayFields(expectedSchemaKeys:Iterable[String], actualSchema:StructType): Seq[String] = {
-    var expectedArrayStructFields = Seq[String]()
-    for(key <- expectedSchemaKeys){
-      val currFieldType = actualSchema.filter(_.name == key).head.dataType
-      if(currFieldType.toString.contains("Array")) expectedArrayStructFields = expectedArrayStructFields :+ key
-    }
-    expectedArrayStructFields
-  }
-
-  private def getExpectedSchemaFieldType(currFieldType: DataType): DataType = {
-    // switch case to mitigate changes between json infer interpretation to actual dataframe result
-    val fieldResult = currFieldType match {
-      case x if x == TimestampType => StringType
-      case x if x == LongType => IntegerType
-      case x if x.toString.contains("Array") => StringType
-      case x if x.toString.contains("Object") => StringType
-      case x => x
-    }
-    fieldResult
-  }
-
   private def getMismatchingColumns(actualRow: Map[String, Any], expectedRowCandidate: Map[String, Any]): ArrayBuffer[String] = {
     // scalastyle:off
     var mismatchingCols = ArrayBuffer[String]() //TODO when arraybuffer/array/seq?
@@ -727,6 +586,5 @@ case class Tester(config: TesterConfig) {
     mismatchingCols
     // scalastyle:on
   }
-
 
 }
