@@ -17,6 +17,8 @@ import org.apache.spark.sql.functions._
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{GenTraversableOnce, Seq, SortedMap, mutable}
 
+case class ResultsData(keysList:  Array[String], results: List[Map[String, Any]])
+
 case class Tester(config: TesterConfig) {
   val log = LogManager.getLogger(this.getClass)
   val metricConfig = createMetorikkuConfigFromTestSettings()
@@ -41,12 +43,11 @@ case class Tester(config: TesterConfig) {
     job.sparkSession.stop()
 
     if (!errors.isEmpty) {
-      throw new MetorikkuTesterTestFailedException("Tests failed:\n" + errors.mkString("\n"))
+      throw new MetorikkuTesterTestFailedException("Test failed:\n" + errors.mkString("\n"))
     } else {
       log.info("Tests completed successfully")
     }
   }
-
 
   private def createMetorikkuConfigFromTestSettings(): Configuration = {
     val metrics = getMetricFromDir(config.test.metric, config.basePath)
@@ -131,7 +132,7 @@ case class Tester(config: TesterConfig) {
 //      "                  .........................................                    \n" +
 //      "                     ...................................                       \n" +
 //      "                       ...............................                         \n" +
-//      "                             ...................                               \n       " +
+//      "                             ...................                               \n        " +
 //      "                                                                       \n             " +
 //      "                                                                  \n  " +
 //      "                                                                             ")
@@ -145,20 +146,18 @@ case class Tester(config: TesterConfig) {
     val allColsKeys = metricExpectedTests.mapValues(v=>v(0).keys.toList)
     tablesKeys = KeyColumns().assignKeysToTables(configuredKeys, allColsKeys)
     val invalidKeys = validateTablesKeys(tablesKeys)
+
     if (!(invalidKeys == null || invalidKeys.size == 0)) {
-      errors = errors ++ printInvalidKeysErrors(allColsKeys, configuredKeys, invalidKeys) }
+      errors = errors ++ getInvalidKeysErrors(allColsKeys, configuredKeys, invalidKeys) }
     else {
         metricExpectedTests.keys.foreach(tableName => {
           var tableErrors = Array[String]()
           var errorsIndexArr = Seq[Int]()
           currentTableName = tableName
-          val actualResults = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
-          val expectedResults = metricExpectedTests(tableName)
-          val actualResultsMap = getMapFromDf(actualResults)
-          val allResults = actualResultsMap ++ expectedResults
-          val longestRowMap = getLongestRow(allResults)
-          val printableExpectedResults = addLongestWhitespaceRow(expectedResults, longestRowMap)
-          val printableActualResults = addLongestWhitespaceRow(actualResultsMap, longestRowMap)
+          // prepare sending all results merged to calc width of each column
+          // the expected results must be at the head of the list,
+          // so keys of head result will be from the expected format
+          // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
           val tableKeys = tablesKeys(tableName)
           log.info(s"[$metricName - $tableName]: ")
           if (configuredKeys != null && configuredKeys.contains(tableName)) {
@@ -166,29 +165,40 @@ case class Tester(config: TesterConfig) {
           } else {
             log.info(s"Hint: Define key columns for ${tableName} for better performance")
           }
+          val actualResults = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
+          val expectedResults = metricExpectedTests(tableName)
+          val actualResultsMap = getMapFromDf(actualResults)
+          val allResults = expectedResults  ++ actualResultsMap
+          val longestRowMap = getLongestRow(allResults)
+          val printableExpectedResults = addLongestWhitespaceRow(expectedResults, longestRowMap)
+          val printableActualResults = addLongestWhitespaceRow(actualResultsMap, longestRowMap)
+
           val actualKeysList = KeyColumns().getKeyListFromDF(actualResults, tableKeys)
           val expKeysList = KeyColumns().getKeyListFromMap(expectedResults, tableKeys)
-          val duplicatedRes = handleDuplicationsFromResults(expKeysList, actualKeysList, printableExpectedResults,
-                                                              printableActualResults, tableKeys)
+
+          val expData = ResultsData(expKeysList, printableExpectedResults)
+          val actData = ResultsData(actualKeysList, printableActualResults)
+          val duplicatedRes = validateDuplicatedResults(expData, actData, tableKeys)
           if (!duplicatedRes.isEmpty) {
-            tableErrors = tableErrors :+ s"Error: Found duplications " +
-                                                              s"in the results: " + getDuplicationsErrorMsg(duplicatedRes, tableKeys)
+            tableErrors = tableErrors :+ s"Error: Found duplications in the results: " +
+                        printDuplicationsErrorMsg(duplicatedRes, tableKeys,
+                                          printableExpectedResults, printableActualResults)
           }
           else {
             if (expKeysList.sorted.deep != actualKeysList.sorted.deep) {
-              val errorIndexes = compareKeys(expKeysList, actualKeysList) //, metricName, tableName, tableKeys)
-              tableErrors = tableErrors ++ getKeysErrorsByIndexes(errorIndexes, metricName, tableName, tableKeys, expKeysList, actualKeysList)
-              printTableKeysErrors(errorIndexes, tableErrors, printableExpectedResults, printableActualResults)
+              val errorIndexes = compareKeys(expKeysList, actualKeysList)
+              tableErrors = tableErrors ++ getKeysErrorsByIndexes(errorIndexes, metricName, tableName, tableKeys,
+                                              ResultsData(expKeysList, printableExpectedResults),
+                                              ResultsData(actualKeysList, printableActualResults),
+                                              tableErrors)
             }
             else {
               val sortedExpectedResults = expectedResults.sortWith(sortRows)
-              val printableSortedExpectedResults = addLongestWhitespaceRow(sortedExpectedResults, longestRowMap)
+              val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedResults, expectedResults, tableKeys)
               val sortedActualResults = actualResults.rdd.map { row =>
                 val fieldNames = row.schema.fieldNames
                 row.getValuesMap[Any](fieldNames)
               }.collect().sortWith(sortRows).toList
-              val printableSortedActualResults = addLongestWhitespaceRow(sortedActualResults, longestRowMap)
-              val mapSortedToExpectedIndexes = mapSortedRowsToExpectedIndexes(sortedExpectedResults, expectedResults, tableKeys)
               for ((actualResultRow, rowIndex) <- sortedActualResults.zipWithIndex) {
                 val tempErrors = compareRowsByAllCols(actualResultRow, rowIndex, sortedExpectedResults, tableKeys,
                   metricName, tableName, mapSortedToExpectedIndexes)
@@ -198,83 +208,120 @@ case class Tester(config: TesterConfig) {
                 }
               }
               if (!tableErrors.isEmpty) {
+                val printableSortedExpectedResults = addLongestWhitespaceRow(sortedExpectedResults, longestRowMap)
+                val printableSortedActualResults = addLongestWhitespaceRow(sortedActualResults, longestRowMap)
                 tableErrors +:= s"[$metricName - $tableName]:"
                 printSortedTableErrors(tableErrors, printableSortedExpectedResults, printableSortedActualResults, errorsIndexArr)
               }
             }
-            errors = errors ++ tableErrors
           }
+            errors = errors ++ tableErrors
         })
     }
     errors
   }
   // scalastyle:on
 
-  private def getDuplicationsErrorMsg(duplicatedRes: Map[String, List[Int]], tableKeys: List[String]): String = {
-    var res = ""
-    var isExpected = "expected"
-    for (dupKey <- duplicatedRes.keys) {
-      if (dupKey == "Expected") {
-        isExpected = "actual"
-      } else {
-        val outputKey = formatOutputKey(dupKey, tableKeys)
-        res += s"Key = ${outputKey}" + s" in ${isExpected} rows: ${duplicatedRes(dupKey).mkString(", ")}"
+
+
+
+
+
+  //new flow
+
+
+
+  private def validateDuplicatedResults(expData: ResultsData, actualData: ResultsData,
+                                        tableKeys: List[String]): Map[String, List[Int]] = {
+    val expResIsDuplicated = validateDuplication(expData, tableKeys, true)
+    val actResIsDuplicated = validateDuplication(actualData, tableKeys, false)
+    val areResDuplicated = !expResIsDuplicated.isEmpty || !actResIsDuplicated.isEmpty
+    areResDuplicated match {
+      case true => {
+        val emptyList = List[Int]()
+        val tempRes = expResIsDuplicated + ("Expected" -> emptyList)
+        tempRes ++ actResIsDuplicated
+      }
+      case false => {
+        expResIsDuplicated
       }
     }
-    res
   }
 
-  private def handleDuplication(keysList: Array[String], results: List[Map[String, Any]],
-                                tableKeys: List[String], isExpected: Boolean): Map[String, List[Int]] = {
+
+  private def validateDuplication(resData: ResultsData,tableKeys: List[String], isExpected: Boolean): Map[String, List[Int]] = {
     var res = Map[String, List[Int]]()
-    val tempKeysToCount = keysList.toSeq.zipWithIndex.groupBy { case (x, y) => x }
+    val tempKeysToCount = resData.keysList.toSeq.zipWithIndex.groupBy { case (x, y) => x }
     val duplicatedKeys = tempKeysToCount.filter(_._2.length > 1)
-
-    if (duplicatedKeys != null && duplicatedKeys.size > 0) {
-      res = printDuplicateKeysErrors(duplicatedKeys, results, tableKeys, isExpected)
-    }
-    res
-  }
-
-  private def handleDuplicationsFromResults(expKeysList: Array[String], actualKeysList: Array[String],
-                                            expectedResults: List[Map[String, Any]], actualResults: List[Map[String, Any]],
-                                            tableKeys: List[String]): Map[String, List[Int]] = {
-    val expResIsDuplicated = handleDuplication(expKeysList, expectedResults, tableKeys, true)
-    val actResIsDuplicated = handleDuplication(actualKeysList, actualResults, tableKeys, false)
-    if (!expResIsDuplicated.isEmpty || !actResIsDuplicated.isEmpty) {
-      val emptyList = List[Int]()
-      val tempRes = expResIsDuplicated + ("Expected" -> emptyList)
-      tempRes ++ actResIsDuplicated
-    }
-    else {
-      expResIsDuplicated
+    val duplicationsExist = (duplicatedKeys != null && duplicatedKeys.size > 0)
+    duplicationsExist match {
+      case true => {
+        getDuplicateKeysErrors(duplicatedKeys, resData.results, tableKeys, isExpected)
+      }
+      case false => {
+        Map[String, List[Int]]()
+      }
     }
   }
 
-  private def printDuplicateKeysErrors(duplicatedKeys: Map[String, Seq[(String, Int)]]
-                                       , results: List[Map[String, Any]],
-                                       tableKeys: List[String], isExpected: Boolean) = {
+  private def getDuplicateKeysErrors(duplicatedKeys: Map[String, Seq[(String, Int)]]
+                                     , results: List[Map[String, Any]],
+                                     tableKeys: List[String], isExpected: Boolean) = {
     var errorIndexes = Map[String, List[Int]]()
-    log.info("**************************************************************************")
-    log.info("****************************  Test failed  *******************************")
-    log.info("**************************************************************************")
-    log.info("Duplicated results are not allowed - The following duplications were found:")
     for (duplicateKey <- duplicatedKeys.values) {
       val indexes = duplicateKey.map { case (key, row) => row }.toList
       errorIndexes += (duplicateKey.head._1 -> indexes)
-      val outputKey = formatOutputKey(duplicateKey.head._1, tableKeys)
-      var resTypeStr = "actual"
-      if (isExpected) {
-        resTypeStr = "expected"
-      }
-      log.info(s"The key [${outputKey}] was found in the ${resTypeStr} results rows: ${indexes.mkString(", ")}")
-      log.info(s"*****************  ${resTypeStr} results with Duplications  *******************")
-      val subExpectedError = getSubTable(results, indexes)
-      transformListMapToDf(subExpectedError).show(false)
     }
     errorIndexes
   }
 
+
+  private def printDuplicationsErrorMsg(duplicatedRes: Map[String, List[Int]],
+                                        tableKeys: List[String],
+                                        expResults: List[Map[String, Any]],
+                                        actResults: List[Map[String, Any]]): String = {
+    printAllResults(expResults, actResults)
+    log.info("Duplicated results are not allowed - The following duplications were found:")
+    var resTypeStr = "expected"
+    var results = expResults
+    for (duplicateKey <- duplicatedRes) {
+      duplicateKey._1 match {
+        case "Expected" => {
+          resTypeStr = "actual"
+          results = actResults
+        }
+        case _ => {
+          val outputKey = KeyColumns().formatOutputKey(duplicateKey._1, tableKeys)
+          val indexes = duplicateKey._2
+          log.info(s"The key [${outputKey}] was found in the ${resTypeStr} results rows: ${indexes.map(_ + 1) .mkString(", ")}")
+          log.info(s"*****************  ${resTypeStr} results with Duplications  *******************")
+          val subExpectedError = getSubTable(results, indexes)
+          val expKeys = "row_id" +: expResults.head.keys.toList
+          transformListMapToDf(subExpectedError, expKeys).show(false)
+
+        }
+      }
+    }
+    var res = ""
+    var isExpected = "expected"
+    for (dupKey <- duplicatedRes.keys) {
+      dupKey match {
+        case "Expected" => {
+          isExpected = "actual"
+        }
+        case _ => {
+          val outputKey = KeyColumns().formatOutputKey(dupKey, tableKeys)
+          if (!res.isEmpty) {
+            res += "\n"
+          }
+          res += s"Key = [${outputKey}] in ${isExpected} rows: ${duplicatedRes(dupKey).map(_ + 1).mkString(", ")}"
+        }
+      }
+    }
+    res
+  }
+
+  //end of new flow
 
   //returns list of all tables with invalid keys defined (non existing colums)
   private def validateTablesKeys(tablesKeys: Map[String, List[String]]): List[String] = {
@@ -282,21 +329,24 @@ case class Tester(config: TesterConfig) {
   }
 
   //handles all errors for invalid keys configured (non existing cols)
-  private def printInvalidKeysErrors(allColsKeys: Map[String, List[String]],
+  private def getInvalidKeysErrors(allColsKeys: Map[String, List[String]],
                                      configuredKeys: Map[String, List[String]],
                                      invalidTables: List[String])= {
     var errors = Array[String]()
     for (tableName <- invalidTables) {
-      if (configuredKeys.contains(tableName) && allColsKeys.contains(tableName)) {
-        val allCols = allColsKeys(tableName)
-        val confKeys = configuredKeys(tableName)
-        val undefinedCols = confKeys.filter(key => !allCols.contains(key))
-        errors = errors :+ s"Defined non existing columns as keys for table ${tableName}: " +
-          s"The bad defined keys: ${undefinedCols.mkString(", ")}. " +
-          s"All columns defined for ${tableName} table: ${allColsKeys(tableName).mkString(", ")}"
-      }
-      else {
-        errors = errors :+ s"Unable to read columns defined as keys for table ${tableName} :<"
+      val keysExist = configuredKeys.contains(tableName) && allColsKeys.contains(tableName)
+      keysExist match {
+        case true => {
+          val allCols = allColsKeys(tableName)
+          val confKeys = configuredKeys(tableName)
+          val undefinedCols = confKeys.filter(key => !allCols.contains(key))
+          errors = errors :+ s"Defined non existing columns as keys for table ${tableName}: " +
+            s"The bad defined keys: ${undefinedCols.mkString(", ")}. " +
+            s"All columns defined for ${tableName} table: ${allColsKeys(tableName).mkString(", ")}"
+        }
+        case _ => {
+          errors = errors :+ s"Unable to read columns defined as keys for table ${tableName} :<"
+        }
       }
     }
     errors
@@ -319,24 +369,30 @@ case class Tester(config: TesterConfig) {
                                sortedActualResults: List[Map[String, Any]],
                                errorsIndexArrExpected: Seq[Int],
                                errorsIndexArrActual: Seq[Int]) = {
+    printAllResults(sortedExpectedRows, sortedActualResults)
+    log.info("******************************  Errors  **********************************")
+    log.info("**********************  Expected with Mismatches  ************************")
+    val subExpectedError = getSubTable(sortedExpectedRows, errorsIndexArrExpected)
+    val expectedKeys = "row_id" +: sortedExpectedRows.head.keys.toList
+    transformListMapToDf(subExpectedError, expectedKeys).show(false)
+    log.info("***********************  Actual with Mismatches  *************************")
+    val subActualError = getSubTable(sortedActualResults, errorsIndexArrActual)
+    transformListMapToDf(subActualError, expectedKeys).show(false)
+    for (error <- tableErrors) {
+      log.info(error)
+    }
+  }
+
+  private def printAllResults(sortedExpectedRows: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]]) = {
     log.info("**************************************************************************")
     log.info("****************************  Test failed  *******************************")
     log.info("**************************************************************************")
     log.info("**************************  Expected results  ****************************")
     val emptySeq = Seq[Int]()
-    transformListMapToDf(getSubTable(sortedExpectedRows, emptySeq)).show(false)
+    val expectedKeys = sortedExpectedRows.head.keys
+    transformListMapToDf(getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList).show(false)
     log.info("***************************  Actual results  *****************************")
-    transformListMapToDf(getSubTable(sortedActualResults.toList, emptySeq)).show(false)
-    log.info("******************************  Errors  **********************************")
-    log.info("**********************  Expected with Mismatches  ************************")
-    val subExpectedError = getSubTable(sortedExpectedRows, errorsIndexArrExpected)
-    transformListMapToDf(subExpectedError).show(false)
-    log.info("***********************  Actual with Mismatches  *************************")
-    val subActualError = getSubTable(sortedActualResults, errorsIndexArrActual)
-    transformListMapToDf(subActualError).show(false)
-    for (error <- tableErrors) {
-      log.info(error)
-    }
+    transformListMapToDf(getSubTable(sortedActualResults.toList, emptySeq), expectedKeys.toList).show(false)
   }
 
   private def getSubTable(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int]) = {
@@ -348,7 +404,8 @@ case class Tester(config: TesterConfig) {
     }
     for (index <- indexesToCollect) {
       var tempRes = mutable.LinkedHashMap[String, Any]()
-      tempRes += ("row_id" -> index)
+      val resIndx = index + 1
+      tempRes += ("row_id" -> resIndx)
       val sortedRow = sortedExpectedRows(index)
       for (col <- sortedRow.keys) {
         tempRes += (col -> sortedRow(col))
@@ -362,7 +419,6 @@ case class Tester(config: TesterConfig) {
       for (col <- emptyRowPreBuilt.keys) {
         lastRow += (col -> emptyRowPreBuilt(col))
       }
-      // val longestColumnsRow = sortedExpectedRows.last + ("row_id" -> "     ")
       res = res :+ lastRow
     }
     res
@@ -381,65 +437,71 @@ case class Tester(config: TesterConfig) {
     val expKeysToCount = expKeyList.toSeq.groupBy(identity).mapValues(_.size)
     val actKeysToCount = actKeyList.toSeq.groupBy(identity).mapValues(_.size)
     var errors = Array[String]()
-    if (errorType == "Expected") {
-      for (rowIndex <- listOfErrorRowIndexes)
-      {
-        val key = expKeyList(rowIndex)
-        val keyToOutput = formatOutputKey(key, tableKeys)
-        errors = errors :+ s"Error: Expected to find ${expKeysToCount(key)} " +
-          s"times a row with a key [${keyToOutput}] - found it" +
-          s" ${actKeysToCount.getOrElse(key, 0)} times"
+    errorType match {
+      case "Expected" => {
+        for (rowIndex <- listOfErrorRowIndexes)
+        {
+          val key = expKeyList(rowIndex)
+          val keyToOutput = KeyColumns().formatOutputKey(key, tableKeys)
+          errors = errors :+ s"Error: Expected to find ${expKeysToCount(key)} " +
+            s"times a row with a key [${keyToOutput}] - found it" +
+            s" ${actKeysToCount.getOrElse(key, 0)} times"
+        }
       }
-    }
-    else {
-      for (rowIndex <- listOfErrorRowIndexes)
-      {
-        val key = actKeyList(rowIndex)
-        val actKeyToOutput = formatOutputKey(key, tableKeys)
-        errors = errors :+ s"Error: Didn't expect to find ${actKeysToCount(key)} " +
-          s"times a row with a key [${actKeyToOutput}]  - expected for it" +
-          s" ${expKeysToCount.getOrElse(key, 0)} times"
+      case _ => {
+        for (rowIndex <- listOfErrorRowIndexes)
+        {
+          val key = actKeyList(rowIndex)
+          val actKeyToOutput = KeyColumns().formatOutputKey(key, tableKeys)
+          errors = errors :+ s"Error: Didn't expect to find ${actKeysToCount(key)} " +
+            s"times a row with a key [${actKeyToOutput}]  - expected for it" +
+            s" ${expKeysToCount.getOrElse(key, 0)} times"
+        }
       }
     }
     errors
   }
-
+//scalastyle:off
   private def getKeysErrorsByIndexes(errorIndexes: Map[String, List[Int]], metricName: String,
-                                     tableName: String, tableKeys: List[String], expKeysList: Array[String], actualKeysList: Array[String]) = {
+                                     tableName: String, tableKeys: List[String],
+                                     expData: ResultsData,
+                                     actData: ResultsData,
+                                     tableErrors: Array[String]
+                                    ) = {
     var errors = Array[String]()
     // go over errorIndexes, for every kv:
     //  use k to evaluate the error msg
     //  for every v, add the correspondeing's key error msg
     for ((errorType, listOfErrorRowIndexes) <- errorIndexes) {
       errors = errors ++
-        getErrorMsgs(errorType, listOfErrorRowIndexes, metricName, tableName, tableKeys, expKeysList, actualKeysList)
+        getErrorMsgs(errorType, listOfErrorRowIndexes, metricName, tableName, tableKeys, expData.keysList, actData.keysList)
     }
+
+    printTableKeysErrors(errorIndexes, tableErrors ++ errors, expData.results, actData.results)
+
     errors
   }
+  // scalastyle:on
+
+
+
 
   private def getLongestRow(results: List[Map[String, Any]]): Map[String, Int] = {
     var res = Map[String, Int]()
-    for (resCol <- results.head.keys) {
-      val resColLength = results.maxBy(c => c.getOrElse(resCol, "").toString().length)
-      res += (resCol -> resColLength.getOrElse(resCol, "").toString().length)
+    if (results != null) {
+      for (resCol <- results.head.keys) {
+        val resColLength = results.maxBy(c => {
+          if (c(resCol) == null) {
+            0
+          } else {
+            c(resCol).toString().length
+          }
+        } )
+          //c.getOrElse(resCol, "").toString().length)
+        res += (resCol -> resColLength.getOrElse(resCol, "").toString().length)
+      }
     }
     res
-  }
-
-  private def formatOutputKey(key: String, tableKeys: List[String]): String = {
-    var outputKey = ""
-    val outputVals = key.split(delimiter)
-    var isFirstField = true
-    for ((tableKey, index) <- tableKeys.zipWithIndex) {
-      if (!isFirstField) {
-        outputKey += ", "
-      }
-      else {
-        isFirstField = false
-      }
-      outputKey += tableKey + "=" + outputVals(index)
-    }
-    outputKey
   }
 
   private def getMismatchedVals(expectedResultRow: Map[String, Any], actualResultRow: Map[String, Any],
@@ -458,8 +520,8 @@ case class Tester(config: TesterConfig) {
     val expectedResultRow = sortedExpectedResults(rowIndex)
     val mismatchingCols = getMismatchingColumns(actualResultRow, expectedResultRow)
     if (mismatchingCols.length > 0) {
-      val tableKeysVal = getRowKey(expectedResultRow, tableKeys)
-      val outputKey = formatOutputKey(tableKeysVal, tableKeys)
+      val tableKeysVal = KeyColumns().getRowKey(expectedResultRow, tableKeys)
+      val outputKey = KeyColumns().formatOutputKey(tableKeysVal, tableKeys)
       return s"Error: Failed when comparing a row with the expected key [${outputKey}]. \nRow number: In the test's configuration" +
         s" expected results row number=${mapSortedToExpectedIndexes(rowIndex) + 1}," +
         s" in the logged expected output results (printed above) row_id=${rowIndex + 1}.\n" +
@@ -471,29 +533,29 @@ case class Tester(config: TesterConfig) {
 
   private def compareKeys(expRowKeyList: Array[String], actualRowKeysList: Array[String]) : Map[String, List[Int]] = {
     var resToErrorRowIndexes = Map[String, List[Int]]()
-    var currErrorsIndexes = List[Int]()
     val expectedResKey = "Expected"
     val actualResKey = "Actual"
     for ((expKey, expIndex) <- expRowKeyList.zipWithIndex) {
       if (!actualRowKeysList.contains(expKey)) {
-        if (resToErrorRowIndexes.contains(expectedResKey)) {
-          currErrorsIndexes = resToErrorRowIndexes(expectedResKey)
-        }
-        val newExpErrIndxs = currErrorsIndexes :+ expIndex
-        resToErrorRowIndexes = resToErrorRowIndexes + (expectedResKey -> newExpErrIndxs)
+        resToErrorRowIndexes = resToErrorRowIndexes + getMissingRowKeyIndex(expectedResKey, resToErrorRowIndexes, expIndex)
       }
     }
     for ((actKey, actIndex) <- actualRowKeysList.zipWithIndex) {
       if (!expRowKeyList.contains(actKey)) {
-        currErrorsIndexes = List[Int]()
-        if (resToErrorRowIndexes.contains(actualResKey)) {
-          currErrorsIndexes = resToErrorRowIndexes(actualResKey)
-        }
-        val newActErrIndxs = currErrorsIndexes :+ actIndex
-        resToErrorRowIndexes = resToErrorRowIndexes + (actualResKey -> newActErrIndxs)
+        resToErrorRowIndexes = resToErrorRowIndexes + getMissingRowKeyIndex(actualResKey, resToErrorRowIndexes, actIndex)
       }
     }
     resToErrorRowIndexes
+  }
+
+  private def getMissingRowKeyIndex(typeResKey: String,
+                                    resToErrorRowIndexes: Map[String, List[Int]], resIndex: Int): (String, List[Int]) = {
+    var currErrorsIndexes = List[Int]()
+    if (resToErrorRowIndexes.contains(typeResKey)) {
+      currErrorsIndexes = resToErrorRowIndexes(typeResKey)
+    }
+    val newActErrIndxs = currErrorsIndexes :+ resIndex
+    (typeResKey -> newActErrIndxs)
   }
 
   private def sortRows(a: Map[String, Any], b: Map[String, Any]): Boolean = {
@@ -506,23 +568,16 @@ case class Tester(config: TesterConfig) {
     false
   }
 
-  private def getRowKey(row: Map[String, Any], tableKeys: List[String]) =  {
-    var rowKey = ""
-    for (key <- tableKeys) {
-      if (!rowKey.isEmpty) { rowKey += delimiter }
-      rowKey += row.getOrElse(key, 0).toString
-    }
-    rowKey
-  }
+
 
   private def mapSortedRowsToExpectedIndexes(sortedExpectedRows: List[Map[String, Any]],
                                              metricExpectedResultRows: List[Map[String, Any]],
                                              tableKeys : List[String]) = {
     var res = scala.collection.mutable.Map[Int,Int]()
     metricExpectedResultRows.zipWithIndex.map { case (expectedRow, expectedRowIndex) =>
-      val expectedRowKey = getRowKey(expectedRow, tableKeys)
+      val expectedRowKey = KeyColumns().getRowKey(expectedRow, tableKeys)
       sortedExpectedRows.zipWithIndex.map { case (sortedRow, sortedRowIndex) =>
-        if (getRowKey(sortedRow, tableKeys) == expectedRowKey) {
+        if (KeyColumns().getRowKey(sortedRow, tableKeys) == expectedRowKey) {
           res = res + (expectedRowIndex -> sortedRowIndex)
         }
       }
@@ -533,9 +588,7 @@ case class Tester(config: TesterConfig) {
   private def addLongestWhitespaceRow(mapList: List[Map[String, Any]],
                               longestRowMap: Map[String, Int]): List[Map[String, Any]] = {
 
-    var res = List[Map[String, Any]]() ++ mapList
     var longestRow = Map[String, Any]()
-
     for (col <- longestRowMap.keys) {
       val sb = new StringBuilder
         for (i <- 0 to longestRowMap(col)) {
@@ -546,26 +599,32 @@ case class Tester(config: TesterConfig) {
     mapList :+ longestRow
   }
 
-  private def transformListMapToDf(mapList: List[mutable.LinkedHashMap[String, Any]]): DataFrame = {
-    val mapStrList = mapList.map( x=> x.mapValues(v=>v.toString()))
-    val rows = mapStrList.map(m => spark.sql.Row(m.values.toSeq:_*))
+
+
+  private def transformListMapToDf(mapList: List[mutable.LinkedHashMap[String, Any]], schemaKeys: List[String]): DataFrame = {
     val rowIdField = "row_id"
-    var header = mapList.head.keys.toList
-
-    val schema = org.apache.spark.sql.types.StructType(header.map(fieldName => StructField(fieldName, StringType, true)))
+    val mapSchemaKeysList = KeyColumns().removeUnexpectedColumns(mapList, schemaKeys)
+    val mapStrList =  mapSchemaKeysList.map(x => x.mapValues(v => {
+        if (v == null) {
+          ""
+        } else {
+          v.toString()
+        }
+      }
+    ))
+    val rows = mapStrList.map(m => spark.sql.Row(m.values.toSeq: _*))
     val x: java.util.List[Row] = scala.collection.JavaConversions.seqAsJavaList(rows)
-
+    val schema = org.apache.spark.sql.types.StructType(schemaKeys.map(fieldName => StructField(fieldName, StringType, true)))
     val df = job.sparkSession.createDataFrame(x, schema)
     var indexedDf = df
-    var allColsWihoutIndex = header
-      if (!header.contains(rowIdField)) {
-         indexedDf = df.withColumn(rowIdField, monotonically_increasing_id() + 1)
-      }
+    var allColsWihoutIndex = schemaKeys
+    if (!allColsWihoutIndex.contains(rowIdField)) {
+      indexedDf = df.withColumn(rowIdField, monotonically_increasing_id() + 1)
+    }
     else {
-        allColsWihoutIndex = allColsWihoutIndex.filter(col => col!=rowIdField)
-      }
-      val resDf = indexedDf.select(rowIdField, allColsWihoutIndex: _*)
-//    resDf.show(false)
+      allColsWihoutIndex = schemaKeys.filter(col => col != rowIdField)
+    }
+    val resDf = indexedDf.select(rowIdField, allColsWihoutIndex: _*)
     resDf
   }
 

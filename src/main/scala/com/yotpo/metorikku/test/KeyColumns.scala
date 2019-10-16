@@ -2,6 +2,8 @@ package com.yotpo.metorikku.test
 
 import org.apache.spark.sql.DataFrame
 
+import scala.collection.mutable
+
 case class KeyColumns() {
 
   def getKeyListFromMap(resultRows: List[Map[String, Any]], tableKeys: List[String]): Array[String] = {
@@ -11,7 +13,11 @@ case class KeyColumns() {
         if (!rowKey.isEmpty) {
           rowKey += "#"
         }
-        rowKey += row.getOrElse(key, "").toString
+        var colKey = row(key)
+        if (colKey == null) {
+          colKey = ""
+        }
+        rowKey += colKey.toString
       }
       rowKey
     })
@@ -19,7 +25,6 @@ case class KeyColumns() {
   }
 
   def getKeyListFromDF(resultRows: DataFrame, tableKeys: List[String]): Array[String] = {
-    //    val metricActualResultsMap = metricActualResultRows.rdd.map(row=>getMapFromRow(row)).collect().toList
     val metricActualResultsMap = resultRows.rdd.map {
       row =>
         val fieldNames = row.schema.fieldNames
@@ -45,10 +50,53 @@ case class KeyColumns() {
           k->List[String]()
         }
       } else {
-        //log.info(s"Hint: define unique keys in test_settings.json for table type $k to make better performances")
         k->v
       }
     }
+  }
+
+   def getRowKey(row: Map[String, Any], tableKeys: List[String]): String = {
+     var rowKey = ""
+     val delimiter = "#"
+     for (key <- tableKeys) {
+       if (!rowKey.isEmpty) {
+         rowKey += delimiter
+       }
+       rowKey += row.getOrElse(key, 0).toString
+     }
+     rowKey
+   }
+
+  def formatOutputKey(key: String, tableKeys: List[String]): String = {
+    var outputKey = ""
+    val delimiter = "#"
+    val outputVals = key.split(delimiter)
+    var isFirstField = true
+    for ((tableKey, index) <- tableKeys.zipWithIndex) {
+      if (!isFirstField) {
+        outputKey += ", "
+      }
+      else {
+        isFirstField = false
+      }
+      outputKey += tableKey + "=" + outputVals(index)
+    }
+    outputKey
+  }
+
+   def removeUnexpectedColumns(mapList: List[mutable.LinkedHashMap[String, Any]],
+                                      schemaKeys: Iterable[String]): List[mutable.LinkedHashMap[String, Any]] = {
+    var res = List[mutable.LinkedHashMap[String, Any]]()
+    for (mapRes <- mapList) {
+      var row = mutable.LinkedHashMap[String, Any]()
+      for (key <- schemaKeys) {
+        if (mapRes.contains(key)) {
+          row += (key -> mapRes(key))
+        }
+      }
+      res = res :+ row
+    }
+    res
   }
 
 
