@@ -56,10 +56,6 @@ script:
   - travis_fold start "file_to_influx_e2e"
   - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_influx_e2e"
-  # File to hive E2E
-  - travis_fold start "file_to_hive_e2e"
-  - (cd e2e/hive && ./test.sh) || travis_terminate 1;
-  - travis_fold end "file_to_hive_e2e"
   # File to Elasticsearch E2E
   - travis_fold start "file_to_elasticsearch_e2e"
   - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
