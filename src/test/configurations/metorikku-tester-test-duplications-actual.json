@@ -1,0 +1,25 @@
+{
+  "metric": "metorikku-tester-test-duplications-actual.yaml",
+  "mocks": [
+    {
+      "name": "accounts_duplicated",
+      "path": "mocks/accounts_duplicated.jsonl"
+    }
+  ],
+  "tests": {
+    "accountsDf": [
+      {
+        "app_key": "AAAA",
+        "id": "A"
+      },
+      {
+        "app_key": "BBBB",
+        "id": "B"
+      },
+      {
+        "app_key": "CCCC",
+        "id": "C"
+      }
+    ]
+  }
+}
