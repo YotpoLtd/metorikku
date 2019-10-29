@@ -2,6 +2,7 @@ package com.yotpo.metorikku.test
 
 import org.apache.spark.sql.DataFrame
 
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 case class Common() {
@@ -55,7 +56,6 @@ case class Common() {
             c(resCol).toString().length
           }
         } )
-        //c.getOrElse(resCol, "").toString().length)
         res += (resCol -> resColLength.getOrElse(resCol, "").toString().length)
       }
     }
@@ -77,6 +77,27 @@ case class Common() {
     mapList :+ longestRow
   }
 
+   def getMismatchedVals(expectedResultRow: Map[String, Any], actualResultRow: Map[String, Any],
+                                mismatchingCols: ArrayBuffer[String]): ArrayBuffer[String] = {
+    var res = ArrayBuffer[String]()
+    for (mismatchCol <- mismatchingCols) {
+      res +:= s"${mismatchCol} - Expected = ${expectedResultRow(mismatchCol)}, Actual = ${actualResultRow(mismatchCol)}"
+    }
+    res
+  }
+
+   def getMismatchingColumns(actualRow: Map[String, Any], expectedRowCandidate: Map[String, Any]): ArrayBuffer[String] = {
+    var mismatchingCols = ArrayBuffer[String]() //TODO when arraybuffer/array/seq?
+    for (key <- expectedRowCandidate.keys) {
+      val expectedValue = Option(expectedRowCandidate.get(key))
+      val actualValue = Option(actualRow.get(key))
+      // TODO: support nested Objects and Arrays
+      if (expectedValue.toString != actualValue.toString) {
+        mismatchingCols += key
+      }
+    }
+    mismatchingCols
+  }
 
   //  private def printMetorikkuLogo(): Unit =
   //  {

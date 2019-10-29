@@ -6,9 +6,9 @@ object ErrorType extends Enumeration {
 }
 
 case class ErrorData(errorType: ErrorType.Value, tableName: String, undefinedCols: List[String], allColsKeys: List[String]
-  , outputKey: String, isExpected: String, duplicatedRes: List[Int]
-  , expCount: Int, keyToOutput: String
-  , actCount: Int, expectedRowIndex: Int, sortedRowIndex: Int,
+                     , outputKey: String, resultType: String, duplicatedRes: List[Int]
+                     , expCount: Int, keyToOutput: String
+                     , actCount: Int, expectedRowIndex: Int, sortedRowIndex: Int,
                      mismatchingCols: List[String], mismatchingVals: List[String],
                      invalidSchemaMap: Map[String, List[Int]])
 
@@ -81,7 +81,7 @@ case class ErrorMsgs() {
       }
 
       case ErrorType.DuplicatedResults => {
-        s"Key = [${errorData.outputKey}] in ${errorData.isExpected} rows: ${errorData.duplicatedRes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
+        s"Key = [${errorData.outputKey}] in ${errorData.resultType} rows: ${errorData.duplicatedRes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
       }
 
       case ErrorType.MismatchedResultsExpected => {
@@ -97,11 +97,9 @@ case class ErrorMsgs() {
       }
 
       case ErrorType.MismatchedResultsAllCols => {
-        s"Error: Failed when comparing a row with the expected key [${errorData.outputKey}]. \n " +
-          s"Row number: In the test's configuration" +
-          s" expected results row number=${errorData.expectedRowIndex}," +
-          s" in the logged expected output results (printed above) row_id=${errorData.sortedRowIndex}.\n" +
-          s"Column values mismatch on [${errorData.mismatchingCols.sortWith(_ < _).mkString(", ")}] field " +
+        s"Error: Failed on row ${errorData.expectedRowIndex} with key " +
+          s"[${errorData.outputKey}]. \n " +
+          s"Column values mismatch on [${errorData.mismatchingCols.sortWith(_ < _).mkString(", ")}] fields " +
           s"with the values [${errorData.mismatchingVals.sortWith(_ < _).mkString(", ")}]"
       }
 

@@ -123,6 +123,8 @@ tests:
     name: test
   - id: 300
     name: test2
+keys:
+  df2: id
 ```
 
 And the corresponding `mocks/table_1.jsonl`:
@@ -131,6 +133,11 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 300, "name": "test2" }
 { "id": 1, "name": "test3" }
 ```
+
+Note the defined keys section is optional, and without defining it all columns defined for each DataFrame will be taken as keys.
+Currently we support only unique rows in the output DataFrames - duplications will cause a failure. 
+The structure of the defined dataFrame's result must be identical for all rows, and the keys must be valid (defined as keys for the results of the same DataFrame as well)
+
 
 #### Running Metorikku Tester
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
