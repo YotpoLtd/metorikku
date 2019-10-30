@@ -44,7 +44,14 @@ class ElasticsearchOutputWriter(props: Map[String, Object], elasticsearchOutputC
 
     val writer = dataFrame.write.format("org.elasticsearch.spark.sql")
         .option("es.nodes", elasticsearchOutputConf.nodes)
-
+    elasticsearchOutputConf.user match{
+      case Some(user) => writer.option("es.net.http.auth.user", user)
+      case None =>
+    }
+    elasticsearchOutputConf.password match{
+      case Some(password) => writer.option("es.net.http.auth.pass", password)
+      case None =>
+    }
     elasticsearchOutputProperties.saveMode match {
       case Some(saveMode) => writer.mode(saveMode)
       case None => writer.mode("Append")
