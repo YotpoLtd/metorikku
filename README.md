@@ -8,7 +8,6 @@ It is based on simple YAML configuration files and runs on any Spark cluster.
 
 The platform also includes a simple way to write unit and E2E tests.
 
-
 ### Getting started
 To run Metorikku you must first define 2 files.
 
