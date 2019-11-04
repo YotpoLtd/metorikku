@@ -9,9 +9,10 @@ case class Input(file: Option[File],
                            @JsonProperty("file_date_range") fileDateRange: Option[FileDateRange],
                            jdbc: Option[JDBC],
                            kafka: Option[Kafka],
-                           cassandra: Option[Cassandra]) extends InputConfig {
+                           cassandra: Option[Cassandra],
+                           elasticsearch: Option[Elasticsearch]) extends InputConfig {
   def getReader(name: String): Reader = {
-    Seq(file, fileDateRange, jdbc, kafka, cassandra).find(
+    Seq(file, fileDateRange, jdbc, kafka, cassandra,elasticsearch).find(
       x => x.isDefined
     ).get.get.getReader(name)
   }
