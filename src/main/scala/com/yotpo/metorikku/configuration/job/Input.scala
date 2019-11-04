@@ -12,7 +12,7 @@ case class Input(file: Option[File],
                            cassandra: Option[Cassandra],
                            elasticsearch: Option[Elasticsearch]) extends InputConfig {
   def getReader(name: String): Reader = {
-    Seq(file, fileDateRange, jdbc, kafka, cassandra,elasticsearch).find(
+    Seq(file, fileDateRange, jdbc, kafka, cassandra, elasticsearch).find(
       x => x.isDefined
     ).get.get.getReader(name)
   }
