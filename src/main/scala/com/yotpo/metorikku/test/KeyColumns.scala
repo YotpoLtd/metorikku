@@ -1,58 +1,26 @@
 package com.yotpo.metorikku.test
 
+import org.apache.log4j.Logger
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable
 
-case class KeyColumns() {
+object KeyColumns {
 
   def getKeyListFromMap(resultRows: List[Map[String, Any]], tableKeys: List[String]): Array[String] = {
-    val resultKeys = resultRows.map(row => {
-      var rowKey = ""
-      for (key <- tableKeys) {
-        if (!rowKey.isEmpty) {
-          rowKey += "#"
-        }
-        var colKey = row(key)
-        if (colKey == null) {
-          colKey = ""
-        }
-        rowKey += colKey.toString
-      }
-      rowKey
-    })
-    resultKeys.toArray
+    resultRows.map(row => {
+      tableKeys.map(currKey => {
+        row(currKey) match {
+          case Some(x) => x.toString
+          case None => ""
+          case _ => row(currKey).toString
+      }}).mkString("#")}).toArray
   }
+
 
   def getKeyListFromDF(resultRows: DataFrame, tableKeys: List[String]): Array[String] = {
-    val metricActualResultsMap = resultRows.rdd.map {
-      row =>
-        val fieldNames = row.schema.fieldNames
-        row.getValuesMap[Any](fieldNames)
-    }.collect().toList
-    KeyColumns().getKeyListFromMap(metricActualResultsMap, tableKeys)
-  }
-
-  //returns a map from each table name to it's list of key columns
-  //in case the user defined invalid key columns, the map will return a value of null for the given table's name
-  def assignKeysToTables(configuredKeys: Map[String, List[String]],
-                                 allColsKeys: scala.collection.immutable.Map[String, List[String]]): Map[String, List[String]] = {
-    val configuredKeysExist = (configuredKeys != null)
-    allColsKeys.map{ case (k,v) =>
-      if (configuredKeysExist && configuredKeys.isDefinedAt(k)) {
-        val confKeys = configuredKeys(k)
-        val undefinedCols = confKeys.filter(key => !v.contains(key))
-        if (undefinedCols == null || undefinedCols.length == 0) {
-          k->confKeys
-        }
-        else {
-          //in case of non existing columns configured as table's keys, fail the test
-          k->List[String]()
-        }
-      } else {
-        k->v
-      }
-    }
+    val metricActualResultsMap = TestUtil.getMapFromDf(resultRows)
+    KeyColumns.getKeyListFromMap(metricActualResultsMap, tableKeys)
   }
 
    def getRowKey(row: Map[String, Any], tableKeys: List[String]): String = {
@@ -66,6 +34,16 @@ case class KeyColumns() {
      }
      rowKey
    }
+
+  def formatRowOutputKey(row: Map[String, Any], tableKeys: List[String]): String = {
+   tableKeys.map { tableKey =>
+      row.lift(tableKey) match {
+        case Some(x) => tableKey + " = " + x.toString
+        case None => ""
+      }
+    }.mkString(",")
+    //Key1 = Value1, Key2 = Value2
+  }
 
   def formatOutputKey(key: String, tableKeys: List[String]): String = {
     var outputKey = ""
@@ -98,6 +76,4 @@ case class KeyColumns() {
     }
     res
   }
-
-
 }

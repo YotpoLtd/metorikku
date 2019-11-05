@@ -5,18 +5,27 @@ import org.apache.spark.sql.DataFrame
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
-case class Common() {
+object TestUtil {
 
-   def getSubTable(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int]): List[mutable.LinkedHashMap[String, Any]] = {
+   def getSubTable(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int], isWhitespaced: Boolean): List[mutable.LinkedHashMap[String, Any]] = {
     var res = List[mutable.LinkedHashMap[String, Any]]()
-    var indexesToCollect = errorsIndexArr
-    if (indexesToCollect.length == 0) {
-      val r = 0 to sortedExpectedRows.length-1
-      indexesToCollect = r.toSeq
+    val indexesToCollect = errorsIndexArr.length match {
+      case 0 => 0 to sortedExpectedRows.length-1
+      case _ => {
+        errorsIndexArr.contains(sortedExpectedRows.length-1) match {
+          case true => errorsIndexArr
+          case _ => errorsIndexArr //:+ sortedExpectedRows.length-1
+        }
+      }
     }
     for (index <- indexesToCollect) {
       var tempRes = mutable.LinkedHashMap[String, Any]()
-      val resIndx = index + 1
+      val indexOfLastRow = sortedExpectedRows.length-1
+      val isLastRow = (index == indexOfLastRow) && isWhitespaced
+      val resIndx = isLastRow match {
+        case true => ""
+        case _ => index + 1
+      }
       tempRes += ("row_id" -> resIndx)
       val sortedRow = sortedExpectedRows(index)
       for (col <- sortedRow.keys) {
@@ -24,15 +33,15 @@ case class Common() {
       }
       res = res :+ tempRes
     }
-    if (!errorsIndexArr.isEmpty) {
-      var lastRow = mutable.LinkedHashMap[String, Any]()
-      lastRow += ("row_id" -> "                 ")
-      val emptyRowPreBuilt = sortedExpectedRows.last
-      for (col <- emptyRowPreBuilt.keys) {
-        lastRow += (col -> emptyRowPreBuilt(col))
-      }
-      res = res :+ lastRow
-    }
+//    if (!errorsIndexArr.isEmpty) {
+//      var lastRow = mutable.LinkedHashMap[String, Any]()
+//      lastRow += ("row_id" -> "      ")
+//      val emptyRowPreBuilt = sortedExpectedRows.last
+//      for (col <- emptyRowPreBuilt.keys) {
+//        lastRow += (col -> "")
+//      }
+//      res = res :+ lastRow
+//    }
     res
   }
 
@@ -45,26 +54,23 @@ case class Common() {
   }
 
 
-  def getLongestRow(results: List[Map[String, Any]]): Map[String, Int] = {
-    var res = Map[String, Int]()
-    if (results != null) {
-      for (resCol <- results.head.keys) {
-        val resColLength = results.maxBy(c => {
-          if (c(resCol) == null) {
-            0
-          } else {
-            c(resCol).toString().length
-          }
-        } )
-        res += (resCol -> resColLength.getOrElse(resCol, "").toString().length)
-      }
+  def getLongestValueLengthPerKey(results: List[Map[String, Any]]): Map[String, Int] = { //TODO change to option
+    results.head.keys.map(colName => {
+      val resColMaxLength = results.maxBy(c => {
+        if (c(colName) == null) {
+          0
+        } else {
+          c(colName).toString().length
+        }
+      })
+      colName -> resColMaxLength.get(colName).toString().length
     }
-    res
+    ).toMap
   }
 
 
-   def addLongestWhitespaceRow(mapList: List[Map[String, Any]],
-                                      longestRowMap: Map[String, Int]): List[Map[String, Any]] = {
+   def addLongestWhitespaceRow(mapList: List[RowObject],
+                                      longestRowMap: Map[String, Int]): List[RowObject] = {
 
     var longestRow = Map[String, Any]()
     for (col <- longestRowMap.keys) {
@@ -74,7 +80,7 @@ case class Common() {
       }
       longestRow = longestRow + (col ->  sb.toString)
     }
-    mapList :+ longestRow
+    mapList :+ RowObject(longestRow, mapList.size+1)
   }
 
    def getMismatchedVals(expectedResultRow: Map[String, Any], actualResultRow: Map[String, Any],
@@ -138,9 +144,5 @@ case class Common() {
   //      "                                                                  \n  " +
   //      "                                                                             ")
   //  }
-
-  // scalastyle:off
-
-
 
 }

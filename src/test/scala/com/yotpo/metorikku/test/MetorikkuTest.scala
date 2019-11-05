@@ -93,6 +93,9 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   7. expected does not match actual - assert the exception's msg gives enough info for the mismatch
   8. give the expected results in unsorted order and check its output keeps the order between results
 
+9. multiple tables
+10. csv
+11. success
 
 
      run all of the above with a table settings that define configured keys and settings which do not define any keys
@@ -110,12 +113,17 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
       tableName = testConf.test.tests.head._1
-      definedKeys = testConf.test.keys.head._2
+      val optionalKeys = testConf.test.keys
+      optionalKeys match {
+        case Some(keys) =>
+          definedKeys = keys.head._2
+        case _ =>
+      }
       allKeys = testConf.test.tests.mapValues(v => v(0).keys.toList).head._2
-      undefinedCols = definedKeys.filter(definedKey => allKeys.contains(definedKey)).toList
+      undefinedCols = definedKeys.filter(definedKey => !allKeys.contains(definedKey)).toList
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.InvalidKeysNonExisting, tableName, definedKeys, allKeys))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.InvalidKeysNonExisting, tableName, undefinedCols, allKeys))
     assert(thrown.getMessage.contains(headerExpectedMsg))
   }
 
@@ -130,7 +138,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     var invalidSchema = Map[String, List[Int]]()
     val mismatchedSchemaIndexes = List[Int](1,2)
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.InvalidSchemaResults, invalidSchema))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.InvalidSchemaResults, invalidSchema))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -145,7 +153,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     var invalidSchema = Map[String, List[Int]]()
     val mismatchedSchemaIndexes = List[Int](1,2)
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.InvalidSchemaResults, invalidSchema))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.InvalidSchemaResults, invalidSchema))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -157,9 +165,9 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=AAAA, id=A", "expected", List(0,3)))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=AAAA, id=A", ResultsType.expected, List(0,3)))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -171,9 +179,9 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=CCCC", "expected", List(0,2)))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=CCCC", ResultsType.expected, List(0,2)))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -185,9 +193,23 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB, id=B", "actual", List(1,3)))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB, id=B", ResultsType.actual, List(1,3)))
+    assert(thrown.getMessage.contains(expectedMsg))
+  }
+
+  test("Test Metorikku should Fail on duplicated actual results with keys") {
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-duplications-actual.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      Tester(testConf).run()
+    }
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    assert(thrown.getMessage.contains(headerExpectedMsg))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB, id=B", ResultsType.actual, List(1,3)))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -199,13 +221,13 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB", "actual", List(1,3)))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB", ResultsType.actual, List(1,3)))
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
-  test("Test Metorikku should Fail on duplicated actual and expected results") {
+  test("Test Metorikku should Fail on duplicated actual anscad expected results") {
     val thrown = intercept[Exception] {
       val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-duplications-actual-exp.json")
       val basePath = new File("src/test/configurations")
@@ -213,11 +235,11 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    val headerExpectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResultsHeader))
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val actualResMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB, id=B", "actual", List(1,3)))
+    val actualResMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=BBBB, id=B", ResultsType.actual, List(1,3)))
     assert(thrown.getMessage.contains(actualResMsg))
-    val expectedResMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=AAAA, id=A", "expected", List(0,1)))
+    val expectedResMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.DuplicatedResults, "app_key=AAAA, id=A", ResultsType.expected, List(0,1)))
     assert(thrown.getMessage.contains(expectedResMsg))
   }
 
@@ -256,7 +278,13 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.keys.head._2
+
+      val optionalKeys = testConf.test.keys
+      optionalKeys match {
+        case Some(keys) =>
+          definedKeys = keys.head._2
+        case _ =>
+      }
       Tester(testConf).run()
     }
     var expectedRow = Map("app_key" -> "BBBB", "id" -> "B1")
@@ -274,7 +302,12 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.keys.head._2
+      val optionalKeys = testConf.test.keys
+      optionalKeys match {
+        case Some(keys) =>
+          definedKeys = keys.head._2
+        case _ =>
+      }
       Tester(testConf).run()
     }
     var expectedRow = Map("app_key" -> "CCC", "id" -> "CC")
@@ -290,7 +323,12 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.keys.head._2
+      val optionalKeys = testConf.test.keys
+      optionalKeys match {
+        case Some(keys) =>
+          definedKeys = keys.head._2
+        case _ =>
+      }
       Tester(testConf).run()
     }
     var actualRow: Map[String, Any] = Map("app_key" -> "FFFF", "id" -> "F")
@@ -306,7 +344,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     expectedRow = Map("app_key" -> "CCCC", "id" -> "CC")
     assertMismatch(definedKeys, thrown.getMessage, actualRow, expectedRow, 2)
   }
-
 
   test("Test Metorikku should Fail on different results count") {
     var definedKeys = List[String]()
@@ -327,27 +364,27 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any]) = {
-    assertMismatchByType(definedKeys, thrownMsg, expectedRow, ErrorType.MismatchedResultsExpected, 1, 0)
+    assertMismatchByType(definedKeys, thrownMsg, expectedRow, ErrorType.MismatchedKeyResultsExpected, 1, 0)
   }
 
   private def assertMismatchActual(definedKeys: List[String], thrownMsg: String, actualRow: Map[String, Any]) = {
-    assertMismatchByType(definedKeys, thrownMsg, actualRow, ErrorType.MismatchedResultsActual, 0, 1)
+    assertMismatchByType(definedKeys, thrownMsg, actualRow, ErrorType.MismatchedKeyResultsActual, 0, 1)
   }
 
   private def assertMismatchByType(definedKeys: List[String], thrownMsg: String, row: Map[String, Any], errorType: ErrorType.Value, expectedCount: Int, actualCount: Int) = {
-    val tableKeysVal = KeyColumns().getRowKey(row, definedKeys)
-    val outputKey = KeyColumns().formatOutputKey(tableKeysVal, definedKeys)
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(errorType, expectedCount, outputKey, actualCount))
+    val tableKeysVal = KeyColumns.getRowKey(row, definedKeys)
+    val outputKey = KeyColumns.formatOutputKey(tableKeysVal, definedKeys)
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(errorType, expectedCount, outputKey, actualCount))
     assert(thrownMsg.contains(expectedMsg))
   }
 
   private def assertMismatch(definedKeys: List[String], thrownMsg: String, actualRow: Map[String, Any], expectedRow: Map[String, Any], expectedRowIndex: Int) = {
 
-    val mismatchingCols = Common().getMismatchingColumns(actualRow, expectedRow)
-    val tableKeysVal = KeyColumns().getRowKey(expectedRow, definedKeys)
-    val outputKey = KeyColumns().formatOutputKey(tableKeysVal, definedKeys)
-    val mismatchingVals = Common().getMismatchedVals(expectedRow, actualRow, mismatchingCols).toList
-    val expectedMsg = ErrorMsgs().getErrorByType(ErrorData(ErrorType.MismatchedResultsAllCols, outputKey, expectedRowIndex, 6, mismatchingCols.toList, mismatchingVals))
+    val mismatchingCols = TestUtil.getMismatchingColumns(actualRow, expectedRow)
+    val tableKeysVal = KeyColumns.getRowKey(expectedRow, definedKeys)
+    val outputKey = KeyColumns.formatOutputKey(tableKeysVal, definedKeys)
+    val mismatchingVals = TestUtil.getMismatchedVals(expectedRow, actualRow, mismatchingCols).toList
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorData(ErrorType.MismatchedResultsAllCols, outputKey, expectedRowIndex, 6, mismatchingCols.toList, mismatchingVals))
     assert(thrownMsg.contains(expectedMsg))
   }
 }

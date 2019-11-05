@@ -23,6 +23,6 @@
     ]
   },
   "keys" : {
-    "accountsDf": ["app_key, user_id"]
+    "accountsDf": ["app_key", "user_id"]
   }
 }
