@@ -11,103 +11,107 @@ object ResultsType extends Enumeration {
   val actual = Value("Actual")
   val noRes = Value("")
 }
-case class ErrorData(errorType: ErrorType.Value, tableName: String, undefinedCols: List[String], allColsKeys: List[String]
-                     , outputKey: String, resultType: ResultsType.Value, duplicatedRes: List[Int]
-                     , expCount: Int, keyToOutput: String
-                     , actCount: Int, expectedRowIndex: Int, sortedRowIndex: Int,
-                     mismatchingCols: List[String], mismatchingVals: List[String],
-                     invalidSchemaMap: Map[String, List[Int]])
 
-object ErrorData {
+
+
+case class ErrorMsgData(errorType: ErrorType.Value, tableName: String,
+                        undefinedCols: List[String], allColsKeys: List[String]
+                        , outputKey: String, resultType: ResultsType.Value, duplicatedRes: List[Int]
+                        , expCount: Int, keyToOutput: String
+                        , actCount: Int,
+                        expectedRowIndex: Int, actualRowIndex: Int,
+                        mismatchingCols: List[String], mismatchingVals: List[String],
+                        invalidSchemaMap: Map[String, List[Int]],
+                        errorRowId: Int)
+
+object ErrorMsgData {
 
   def apply(errorType: ErrorType.Value, outputKey: String, expectedRowIndex: Int, sortedRowIndex: Int,
-            mismatchingCols: List[String], mismatchingVals: List[String]): ErrorData = {
-    new ErrorData(errorType: ErrorType.Value, "", List[String](), List[String](),
+            mismatchingCols: List[String], mismatchingVals: List[String]): ErrorMsgData = {
+    new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String](),
        outputKey, ResultsType.noRes, List[Int](), 0, "", 0,
-      expectedRowIndex: Int, sortedRowIndex: Int, mismatchingCols: List[String], mismatchingVals: List[String], Map[String, List[Int]]())
+      expectedRowIndex: Int, sortedRowIndex: Int, mismatchingCols: List[String], mismatchingVals: List[String], Map[String, List[Int]](), -1)
   }
-  def apply(errorType: ErrorType.Value): ErrorData = {
-    new ErrorData(errorType: ErrorType.Value, "", List[String](), List[String](),
-       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]]())
-  }
-
-  def apply(errorType: ErrorType.Value, tableName: String, undefinedCols: List[String], allColsKeys: List[String]): ErrorData = {
-    new ErrorData(errorType, tableName, undefinedCols, allColsKeys,
-      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]]())
+  def apply(errorType: ErrorType.Value): ErrorMsgData = {
+    new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String](),
+       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
   }
 
-  def apply(errorType: ErrorType.Value, tableName: String): ErrorData = {
-    new ErrorData(errorType, tableName, List[String](), List[String](),
-      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]]())
+  def apply(errorType: ErrorType.Value, tableName: String, undefinedCols: List[String], allColsKeys: List[String]): ErrorMsgData = {
+    new ErrorMsgData(errorType, tableName, undefinedCols, allColsKeys,
+      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
+  }
+
+  def apply(errorType: ErrorType.Value, tableName: String): ErrorMsgData = {
+    new ErrorMsgData(errorType, tableName, List[String](), List[String](),
+      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
   }
 
   def apply(errorType: ErrorType.Value,
-            outputKey: String, resType: ResultsType.Value, duplicatedRes: List[Int]): ErrorData = {
-    new ErrorData(errorType, "", List[String](), List[String](), outputKey,
+            outputKey: String, resType: ResultsType.Value, duplicatedRes: List[Int]): ErrorMsgData = {
+    new ErrorMsgData(errorType, "", List[String](), List[String](), outputKey,
       resType, duplicatedRes, 0, "", 0, 0, 0,
-      List[String](), List[String](), Map[String, List[Int]]())
+      List[String](), List[String](), Map[String, List[Int]](), -1)
   }
 
-  def apply(errorType: ErrorType.Value, expCount: Int, keyToOutput: String, actCount: Int): ErrorData = {
-    new ErrorData(errorType: ErrorType.Value, "", List[String](), List[String]()
+  def apply(errorType: ErrorType.Value, expCount: Int, keyToOutput: String, actCount: Int, errorRowindex: Int): ErrorMsgData = {
+    new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String]()
       , "", ResultsType.noRes, List[Int]()
       , expCount, keyToOutput
-      , actCount, 0, 0, List[String](), List[String](), Map[String, List[Int]]())
+      , actCount, 0, 0, List[String](), List[String](), Map[String, List[Int]](), errorRowindex)
   }
 
   def apply(errorType: ErrorType.Value,
-            invalidSchemaMap: Map[String, List[Int]]): ErrorData = {
-    new ErrorData(errorType, "", List[String](), List[String](),
+            invalidSchemaMap: Map[String, List[Int]]): ErrorMsgData = {
+    new ErrorMsgData(errorType, "", List[String](), List[String](),
       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0,
-      List[String](), List[String](), invalidSchemaMap)
+      List[String](), List[String](), invalidSchemaMap, -1)
   }
 }
 
 
 object ErrorMsgs {
 
-  def getErrorByType(errorData: ErrorData ): String =
-    errorData.errorType match {
+  def getErrorByType(errorMsgData: ErrorMsgData ): String =
+    errorMsgData.errorType match {
       case ErrorType.DuplicatedResultsHeader => {
         "Error: Found duplications in the results: "
       }
 
 
       case ErrorType.InvalidKeysNonExisting => {
-        s"Defined non existing columns as keys for table ${errorData.tableName}: " +
-          s"The bad defined keys: ${errorData.undefinedCols.sortWith(_ < _).mkString(", ")}. " +
-          s"All columns defined for ${errorData.tableName} table: ${errorData.allColsKeys.sortWith(_ < _).mkString(", ")}"
+        s"Defined non existing columns as keys for table ${errorMsgData.tableName}: " +
+          s"The bad defined keys: ${errorMsgData.undefinedCols.sortWith(_ < _).mkString(", ")}. " +
+          s"All columns defined for ${errorMsgData.tableName} table: ${errorMsgData.allColsKeys.sortWith(_ < _).mkString(", ")}"
       }
 
       case ErrorType.InvalidKeysNonDefined => {
-        s"Unable to read columns defined as keys for table ${errorData.tableName} :<"
+        s"Unable to read columns defined as keys for table ${errorMsgData.tableName} :<"
       }
 
       case ErrorType.DuplicatedResults => {
-        s"Key = [${errorData.outputKey}] in ${errorData.resultType} rows: ${errorData.duplicatedRes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
+        s"Key = [${errorMsgData.outputKey}] in ${errorMsgData.resultType} rows: ${errorMsgData.duplicatedRes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
       }
 
       case ErrorType.MismatchedKeyResultsExpected => {
-        s"Error: Expected to find 1 " +
-          s"time a row with a key [${errorData.keyToOutput}] - found it" +
-          s" 0 times"
+        s"Error: Expected to find " +
+          s"a row with a key [${errorMsgData.keyToOutput}] - (expected row_number ${errorMsgData.errorRowId})"
       }
 
       case ErrorType.MismatchedKeyResultsActual => {
         s"Error: Didn't expect to find " +
-          s"a row with a key [${errorData.keyToOutput}]  - expected for it" +
-          s" 0 times"
+          s"a row with a key [${errorMsgData.keyToOutput}] (printed row_number ${errorMsgData.errorRowId})"
       }
 
       case ErrorType.MismatchedResultsAllCols => {
-        s"Error: Failed on row ${errorData.expectedRowIndex} with key " +
-          s"[${errorData.outputKey}]. \n " +
-          s"Column values mismatch on [${errorData.mismatchingCols.sortWith(_ < _).mkString(", ")}] fields " +
-          s"with the values [${errorData.mismatchingVals.sortWith(_ < _).mkString(", ")}]"
+        s"Error: Failed on expected row number ${errorMsgData.expectedRowIndex} with key " +
+          s"[${errorMsgData.outputKey}] - The corresponding key actual row number is ${errorMsgData.actualRowIndex}\n " +
+          s"Column values mismatch on [${errorMsgData.mismatchingCols.sortWith(_ < _).mkString(", ")}] fields " +
+          s"with the values [${errorMsgData.mismatchingVals.sortWith(_ < _).mkString(", ")}]"
       }
 
       case ErrorType.InvalidSchemaResults => {
-        val invalidResStr = errorData.invalidSchemaMap.map{case (k, v) => "Table Name = " + k + ", " +
+        val invalidResStr = errorMsgData.invalidSchemaMap.map{case (k, v) => "Table Name = " + k + ", " +
           s"inconsistent result indexes: ${v.sortWith(_ < _).mkString(", ")}"}.mkString("|")
 
         "Error: Failed while validating the schema of the expected results.  \n" +

@@ -3,7 +3,7 @@
   "mocks": [
     {
       "name": "accounts",
-      "path": "mocks/accounts_xl.jsonl"
+      "path": "mocks/accounts_xl_unsorted.jsonl"
     }
   ],
   "tests": {
