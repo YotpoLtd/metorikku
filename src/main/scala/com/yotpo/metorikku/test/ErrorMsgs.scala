@@ -94,13 +94,13 @@ object ErrorMsgs {
       }
 
       case ErrorType.MismatchedKeyResultsExpected => {
-        s"Error: Expected to find " +
-          s"a row with a key [${errorMsgData.keyToOutput}] - (expected row_number ${errorMsgData.errorRowId})"
+        s"Error: Missing expected " +
+          s"row with the key [${errorMsgData.keyToOutput}] - (expected row_number = ${errorMsgData.errorRowId})"
       }
 
       case ErrorType.MismatchedKeyResultsActual => {
-        s"Error: Didn't expect to find " +
-          s"a row with a key [${errorMsgData.keyToOutput}] (printed row_number ${errorMsgData.errorRowId})"
+        s"Error: Got unexpected result - didn't expect to find " +
+          s"a row with the key [${errorMsgData.keyToOutput}] (printed row_number in actual results = ${errorMsgData.errorRowId})"
       }
 
       case ErrorType.MismatchedResultsAllCols => {

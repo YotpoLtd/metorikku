@@ -31,7 +31,7 @@ case class Tester(config: TesterConfig) {
         log.info(s"Starting testing ${metric}")
         errors = errors ++ compareActualToExpected(metric)
       })
-      case None => log.warn("No metrics were defined, exiting")
+      case None => log.error("No metrics were defined, exiting")
     }
 
     job.sparkSession.stop()
@@ -285,20 +285,37 @@ case class Tester(config: TesterConfig) {
     Array(ErrorMsgs.getErrorByType(errorData))
   }
 
+  def showDfToConsoleOrLogger(redirectDfShowToLogger: Boolean, df: DataFrame, size: Int, truncate: Boolean) = {
+    redirectDfShowToLogger match {
+      case true => log.warn(TestUtil.getDfShowStr(df, size, truncate))
+      case _ => df.show(size, truncate)
+    }
+  }
+
   private def logSubtablesErrors(sortedExpectedResults: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]],
-                                 errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int]) = {
+                                 errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean) = {
     val isExpectedErrors = errorsIndexArrExpected.size > 1 //whitespace line
     val isActualErrors = errorsIndexArrActual.size > 1
     val expectedKeys = "row_number" +: sortedExpectedResults.head.keys.toList
     if (isExpectedErrors) {
-      log.info("**********************  Expected with Mismatches  ************************")
+      log.warn("**********************  Expected with Mismatches  ************************")
       val subExpectedError = TestUtil.getSubTable(sortedExpectedResults, errorsIndexArrExpected.sorted)
-      transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(errorsIndexArrExpected.size, false)
+      showDfToConsoleOrLogger(redirectDfShowToLogger, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), errorsIndexArrExpected.size, false)
+
+//      redirectDfShowToLogger match {
+//        case true => log.warn(TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys),errorsIndexArrExpected.size, false))
+//        case _ => transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(errorsIndexArrExpected.size, false)
+//      }
+     // showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), errorsIndexArrExpected.size, false)
+     // log.warn(TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys),errorsIndexArrExpected.size, false))
+      //  transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(errorsIndexArrExpected.size, false)
     }
     if (isActualErrors) {
-      log.info("***********************  Actual with Mismatches  *************************")
+      log.warn("***********************  Actual with Mismatches  *************************")
       val subActualError = TestUtil.getSubTable(sortedActualResults, errorsIndexArrActual.sorted)
-      transformListMapToDfWitIdCol(subActualError, expectedKeys).show(errorsIndexArrActual.size, false)
+      //transformListMapToDfWitIdCol(subActualError, expectedKeys).show(errorsIndexArrActual.size, false)
+      showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false)
+   //   TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false)
     }
   }
 
@@ -372,7 +389,7 @@ case class Tester(config: TesterConfig) {
           arrErrors.flatMap(tableErr => tableErr.expectedMismatchedActualIndexesMap).distinct.toList)}
     var res = Array[String]()
     logAllResults(expectedResults, actualResults)
-    log.error("******************************  Errors  **********************************")
+    log.warn("******************************  Errors  **********************************")
     for (tableErrorData <- errorsGrouped) {
       val isExpectedErrored = tableErrorData.expectedErrorRowsIndexes.nonEmpty
       val isActualErrored = tableErrorData.actualErrorRowsIndexes.nonEmpty
@@ -409,7 +426,7 @@ case class Tester(config: TesterConfig) {
                                             metricName, tableName, tableKeys, expectedResults)
 
         case ErrorType.MismatchedResultsAllCols => {
-          logSubtablesErrors(expectedResults, actualResults, tableErrorData.expectedErrorRowsIndexes, tableErrorData.actualErrorRowsIndexes)
+          logSubtablesErrors(expectedResults, actualResults, tableErrorData.expectedErrorRowsIndexes, tableErrorData.actualErrorRowsIndexes, true)
           res = res ++
             getMismatchedAllColsErrorMsg(tableErrorData.expectedMismatchedActualIndexesMap, expectedResults, actualResults, tableKeys)
         }
@@ -449,15 +466,22 @@ case class Tester(config: TesterConfig) {
 
 
   private def logAllResults(sortedExpectedRows: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]]) = {
-    log.error("**************************************************************************")
-    log.error("****************************  Test failed  *******************************")
-    log.error("**************************************************************************")
-    log.error("**************************  Expected results  ****************************")
+    log.warn("**************************************************************************")
+    log.warn("****************************  Test failed  *******************************")
+    log.warn("**************************************************************************")
+    log.warn("**************************  Expected results  ****************************")
     val emptySeq = Seq[Int]()
     val expectedKeys = sortedExpectedRows.head.keys
-    transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList).show(sortedExpectedRows.size, false)
-    log.error("***************************  Actual results  *****************************")
-    transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList).show(sortedActualResults.size, false)
+    // transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList).show(sortedExpectedRows.size, false)
+    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList), sortedExpectedRows.size, false)
+   // TestUtil.getDfShowStr(transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList), sortedExpectedRows.size, false)
+    log.warn("***************************  Actual results  *****************************")
+    //   transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList).show(sortedActualResults.size, false)
+    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList),
+      sortedExpectedRows.size, false)
+
+//    TestUtil.getDfShowStr(transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList),
+//      sortedExpectedRows.size, false)
   }
 
   private def removeLastIndex(tableErrorDatas: TableErrorData, resType: ResultsType.Value): TableErrorData = {
@@ -481,12 +505,14 @@ case class Tester(config: TesterConfig) {
 
   private def logDuplicationError(results: List[Map[String, Any]], tableKeys: List[String], outputKey: String,
                                   duplicatedIndexes: List[Int], resultType: ResultsType.Value) = {
-    log.info(s"The key [${outputKey}] was found in the ${resultType} results rows: ${duplicatedIndexes.map(_ + 1)
+    log.error(s"The key [${outputKey}] was found in the ${resultType} results rows: ${duplicatedIndexes.map(_ + 1)
       .sortWith(_ < _).dropRight(1).mkString(", ")}")
-    log.info(s"*****************  ${resultType} results with Duplications  *******************")
+    log.warn(s"*****************  ${resultType} results with Duplications  *******************")
     val subExpectedError = TestUtil.getSubTable(results, duplicatedIndexes)
     val expectedKeys = "row_number" +: results.head.keys.toList
-    transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(results.size, false)
+   // transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(results.size, false)
+    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), results.size, false)
+//    TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys), results.size, false)
   }
 
   private def logTableKeysMismatchedErrors(errorIndexes: Map[ResultsType.Value, List[Int]], tableErrors: Array[String],
@@ -499,9 +525,9 @@ case class Tester(config: TesterConfig) {
       case x if x.contains(ResultsType.actual) => errorIndexes(ResultsType.actual)
       case _ => List[Int]()
     }
-    logSubtablesErrors(expectedResults, actualResults, expectedErrorIndexes, actualErrorIndexes)
+    logSubtablesErrors(expectedResults, actualResults, expectedErrorIndexes, actualErrorIndexes, true)
     for (error <- tableErrors) {
-      log.info(error)
+      log.error(error)
     }
   }
 

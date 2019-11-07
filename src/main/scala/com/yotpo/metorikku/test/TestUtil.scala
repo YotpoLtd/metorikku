@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.test
 
+import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable.ArrayBuffer
@@ -101,6 +102,14 @@ object TestUtil {
       }
     }
     mismatchingCols
+  }
+
+  def getDfShowStr(df: DataFrame, size: Int, truncate: Boolean): String = {
+    val outCapture = new java.io.ByteArrayOutputStream
+    Console.withOut(outCapture) {
+      df.show(size, truncate)
+    }
+    "\n" + new String(outCapture.toByteArray)
   }
 
   //  private def printMetorikkuLogo(): Unit =

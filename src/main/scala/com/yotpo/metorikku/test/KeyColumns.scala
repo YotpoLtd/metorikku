@@ -31,9 +31,9 @@ object KeyColumns {
 
   def formatRowOutputKey(row: Map[String, Any], tableKeys: List[String]): String = {
     tableKeys.map { tableKey =>
-      row.get(tableKey) match {
-        case Some(x) => tableKey + "=" + x.toString
-        case None => ""
+      row(tableKey) match {
+        case x if (x != null) => tableKey + "=" + x.toString
+        case _ => ""
       }
     }.mkString(", ")
     //Key1=Value1, Key2=Value2
