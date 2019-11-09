@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.test
 
-import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, when}
 
@@ -55,6 +54,8 @@ object TestUtil {
 
 
   def getLongestValueLengthPerKey(results: List[Map[String, Any]]): Map[String, Int] = { //TODO change to option
+    // the  keys of head result should be from the expected format
+    // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
     results.head.keys.map(colName => {
       val resColMaxLength = results.maxBy(c => {
         if (c(colName) == null) {
@@ -68,17 +69,14 @@ object TestUtil {
     ).toMap
   }
 
-
   def addLongestWhitespaceRow(mapList: List[RowObject],
                               longestRowMap: Map[String, Int]): List[RowObject] = {
-
-    var longestRow = Map[String, Any]()
-    for (col <- longestRowMap.keys) {
+    val longestRow = longestRowMap.map { case (col, maxColValLength) =>
       val sb = new StringBuilder
-      for (i <- 0 to longestRowMap(col)) {
+      for (_ <- 0 to maxColValLength) {
         sb.append(" ")
       }
-      longestRow = longestRow + (col -> sb.toString)
+      col -> sb.toString
     }
     mapList :+ RowObject(longestRow, mapList.size + 1)
   }
