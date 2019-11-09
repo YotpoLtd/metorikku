@@ -175,7 +175,7 @@ case class Tester(config: TesterConfig) {
             case _ =>
           }
         }
-        case _ =>
+        case _ => {
           if (expectedKeys.sorted.deep != actualKeys.sorted.deep) {
             val errorIndexes = compareKeys(expectedKeys, actualKeys)
 
@@ -189,7 +189,6 @@ case class Tester(config: TesterConfig) {
           else {
             val sorter = TesterSortData(tableKeys)
             val sortedExpectedResultObjects = expectedResultsObjects.sortWith(sorter.sortRows)
-
             val sortedActualResultObjects = actualResultsObjects.sortWith(sorter.sortRows)
             val sortedActualResults = TestUtil.getMapListFromRowObjectList(sortedActualResultObjects)
 
@@ -199,30 +198,30 @@ case class Tester(config: TesterConfig) {
                 case Some(x) => x.index
                 case _ => -1
               }
-
               val actualResultRow = sortedActualResults(sortedIndex)
               val mismatchingCols = TestUtil.getMismatchingColumns(actualResultRow, expectedResult.row)
               if (mismatchingCols.length > 0) {
-
-                errorsIndexArr = errorsIndexArr :+ sortedIndex
-                tableErrorDataArr = tableErrorDataArr :+ TableErrorData(ErrorType.MismatchedResultsAllCols,
+                errorsIndexArr :+= sortedIndex
+                tableErrorDataArr :+= TableErrorData(ErrorType.MismatchedResultsAllCols,
                   List[Int](expectedIndex, whitespaceRowExpIndex),
                   List[Int](actualIndex, whitespaceRowActIndex), List[(Int, Int)]() :+ (expectedIndex, actualIndex))
               }
             }
-            if (!tableErrorMsgs.isEmpty) {
-              for (error <- tableErrorMsgs) {
-                log.error(error)
-              }
-            }
+
           }
+        }
       }
       if (!tableErrorDataArr.isEmpty) {
-        tableErrorMsgs = tableErrorMsgs ++ logAndGetTableErrorsFromData(tableErrorDataArr, TestUtil.getMapListFromRowObjectList(printableExpectedResults),
+        tableErrorMsgs ++= logAndGetTableErrorsFromData(tableErrorDataArr, TestUtil.getMapListFromRowObjectList(printableExpectedResults),
           TestUtil.getMapListFromRowObjectList(printableActualResults), tableKeys, tableName, metricName)
       }
-      errors = errors ++ tableErrorMsgs
+      errors ++= tableErrorMsgs
     })
+    if (!errors.isEmpty) {
+      for (error <- errors) {
+        log.error(error)
+      }
+    }
     errors
   }
 
@@ -308,9 +307,7 @@ case class Tester(config: TesterConfig) {
     if (isActualErrors) {
       log.warn("***********************  Actual with Mismatches  *************************")
       val subActualError = TestUtil.getSubTable(sortedActualResults, errorsIndexArrActual.sorted)
-      //transformListMapToDfWitIdCol(subActualError, expectedKeys).show(errorsIndexArrActual.size, false)
       showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false, sortedActualResults.size)
-   //   TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false)
     }
   }
 
@@ -321,13 +318,13 @@ case class Tester(config: TesterConfig) {
       if (v == null) {
         ""
       } else {
-        v.toString()
+        v.toString
       }
     }
     ))
     val rows = mapStrList.map(m => spark.sql.Row(m.values.toSeq: _*))
     val x: java.util.List[Row] = scala.collection.JavaConversions.seqAsJavaList(rows)
-    val schema = org.apache.spark.sql.types.StructType(schemaKeys.map(fieldName => StructField(fieldName, StringType, true)))
+    val schema = org.apache.spark.sql.types.StructType(schemaKeys.map(fieldName => StructField(fieldName, StringType, nullable = true)))
     val df = job.sparkSession.createDataFrame(x, schema)
     val isColContained = schemaKeys.contains(rowIdField)
     val indexedDf = isColContained match {
@@ -335,29 +332,27 @@ case class Tester(config: TesterConfig) {
       case _ => df
     }
 
-    val allColsWihoutIndex = isColContained match {
+    val allColsWithoutIndex = isColContained match {
       case true => schemaKeys.filter(col => col != rowIdField)
       case _ => schemaKeys
     }
-    val resDf = indexedDf.select(rowIdField, allColsWihoutIndex: _*)
+    val resDf = indexedDf.select(rowIdField, allColsWithoutIndex: _*)
     resDf
   }
 
   private def compareKeys(expRowKeyList: Array[String], actualRowKeysList: Array[String]): Map[ResultsType.Value, List[Int]] = {
-    var resToErrorRowIndexes = Map[ResultsType.Value, List[Int]]()
-    resToErrorRowIndexes = resToErrorRowIndexes ++ getMissingRowsIndexes(expRowKeyList, actualRowKeysList, ResultsType.expected)
-    resToErrorRowIndexes = resToErrorRowIndexes ++ getMissingRowsIndexes(actualRowKeysList, expRowKeyList, ResultsType.actual)
-    resToErrorRowIndexes
+    getMissingRowsIndexes(expRowKeyList, actualRowKeysList, ResultsType.expected) ++
+      getMissingRowsIndexes(actualRowKeysList, expRowKeyList, ResultsType.actual)
   }
 
   private def getMissingRowsIndexes(expRowKeyList: Array[String], actualRowKeysList: Array[String],
                                     resType: ResultsType.Value): Map[ResultsType.Value, List[Int]] = {
-    var resToErrorRowIndexes = Map[ResultsType.Value, List[Int]]()
-    for ((expKey, expIndex) <- expRowKeyList.zipWithIndex) {
+   val resToErrorRowIndexes =
+    expRowKeyList.zipWithIndex.flatMap{ case (expKey, expIndex) => 
       if (!actualRowKeysList.contains(expKey)) {
-        resToErrorRowIndexes = resToErrorRowIndexes + addIndexByType(resToErrorRowIndexes, resType, expIndex)
-      }
-    }
+          Some(addIndexByType(Map[ResultsType.Value, List[Int]](), resType, expIndex))
+      } else None
+    }.groupBy(_._1).mapValues(arrOfTuplesResTypeToindexList => arrOfTuplesResTypeToindexList.flatMap(_._2).toList )
     resToErrorRowIndexes + addIndexByType(resToErrorRowIndexes, resType, expRowKeyList.length)
   }
 
