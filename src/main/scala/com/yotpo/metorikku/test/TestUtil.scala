@@ -2,6 +2,7 @@ package com.yotpo.metorikku.test
 
 import org.apache.commons.io.output.ByteArrayOutputStream
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.{col, when}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
@@ -104,10 +105,11 @@ object TestUtil {
     mismatchingCols
   }
 
-  def getDfShowStr(df: DataFrame, size: Int, truncate: Boolean): String = {
+  def getDfShowStr(df: DataFrame, size: Int, truncate: Boolean, lastRowIndexStr: String): String = {
     val outCapture = new java.io.ByteArrayOutputStream
     Console.withOut(outCapture) {
-      df.show(size, truncate)
+      df.withColumn("row_number", when(col("row_number").equalTo(lastRowIndexStr), "  ")
+        .otherwise(col("row_number"))).show(size, truncate)
     }
     "\n" + new String(outCapture.toByteArray)
   }

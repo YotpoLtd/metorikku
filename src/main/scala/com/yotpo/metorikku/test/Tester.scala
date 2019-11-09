@@ -285,10 +285,13 @@ case class Tester(config: TesterConfig) {
     Array(ErrorMsgs.getErrorByType(errorData))
   }
 
-  def showDfToConsoleOrLogger(redirectDfShowToLogger: Boolean, df: DataFrame, size: Int, truncate: Boolean) = {
+  def showDfToConsoleOrLogger(redirectDfShowToLogger: Boolean, df: DataFrame, size: Int, truncate: Boolean, lastRowIndex: Int) = {
+    val lastRowIndexStr = lastRowIndex.toString
     redirectDfShowToLogger match {
-      case true => log.warn(TestUtil.getDfShowStr(df, size, truncate))
-      case _ => df.show(size, truncate)
+      case true => log.warn(TestUtil.getDfShowStr(df, size, truncate, lastRowIndexStr))
+      case _ => df.withColumn("row_number", when(col("row_number").equalTo(lastRowIndexStr), "  ")
+        .otherwise(col("row_number")))
+        .show(size, truncate)
     }
   }
 
@@ -300,21 +303,13 @@ case class Tester(config: TesterConfig) {
     if (isExpectedErrors) {
       log.warn("**********************  Expected with Mismatches  ************************")
       val subExpectedError = TestUtil.getSubTable(sortedExpectedResults, errorsIndexArrExpected.sorted)
-      showDfToConsoleOrLogger(redirectDfShowToLogger, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), errorsIndexArrExpected.size, false)
-
-//      redirectDfShowToLogger match {
-//        case true => log.warn(TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys),errorsIndexArrExpected.size, false))
-//        case _ => transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(errorsIndexArrExpected.size, false)
-//      }
-     // showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), errorsIndexArrExpected.size, false)
-     // log.warn(TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys),errorsIndexArrExpected.size, false))
-      //  transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(errorsIndexArrExpected.size, false)
+      showDfToConsoleOrLogger(redirectDfShowToLogger, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), errorsIndexArrExpected.size, false, sortedExpectedResults.size)
     }
     if (isActualErrors) {
       log.warn("***********************  Actual with Mismatches  *************************")
       val subActualError = TestUtil.getSubTable(sortedActualResults, errorsIndexArrActual.sorted)
       //transformListMapToDfWitIdCol(subActualError, expectedKeys).show(errorsIndexArrActual.size, false)
-      showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false)
+      showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false, sortedActualResults.size)
    //   TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subActualError, expectedKeys), errorsIndexArrActual.size, false)
     }
   }
@@ -472,16 +467,11 @@ case class Tester(config: TesterConfig) {
     log.warn("**************************  Expected results  ****************************")
     val emptySeq = Seq[Int]()
     val expectedKeys = sortedExpectedRows.head.keys
-    // transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList).show(sortedExpectedRows.size, false)
-    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList), sortedExpectedRows.size, false)
-   // TestUtil.getDfShowStr(transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList), sortedExpectedRows.size, false)
+    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq), expectedKeys.toList), sortedExpectedRows.size, false, sortedExpectedRows.size)
     log.warn("***************************  Actual results  *****************************")
-    //   transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList).show(sortedActualResults.size, false)
     showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList),
-      sortedExpectedRows.size, false)
+      sortedExpectedRows.size, false, sortedActualResults.size)
 
-//    TestUtil.getDfShowStr(transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq), expectedKeys.toList),
-//      sortedExpectedRows.size, false)
   }
 
   private def removeLastIndex(tableErrorDatas: TableErrorData, resType: ResultsType.Value): TableErrorData = {
@@ -510,9 +500,7 @@ case class Tester(config: TesterConfig) {
     log.warn(s"*****************  ${resultType} results with Duplications  *******************")
     val subExpectedError = TestUtil.getSubTable(results, duplicatedIndexes)
     val expectedKeys = "row_number" +: results.head.keys.toList
-   // transformListMapToDfWitIdCol(subExpectedError, expectedKeys).show(results.size, false)
-    showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), results.size, false)
-//    TestUtil.getDfShowStr(transformListMapToDfWitIdCol(subExpectedError, expectedKeys), results.size, false)
+   showDfToConsoleOrLogger(true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys), results.size, false, results.size)
   }
 
   private def logTableKeysMismatchedErrors(errorIndexes: Map[ResultsType.Value, List[Int]], tableErrors: Array[String],
