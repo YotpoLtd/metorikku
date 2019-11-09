@@ -122,10 +122,10 @@ case class Tester(config: TesterConfig) {
       val (whitespaceRowExpIndex, whitespaceRowActIndex) = (printableExpectedResults.length - 1, printableActualResults.length - 1)
 
       val tableErrorDataArr: Array[TableErrorData] = expectedResultsDuplications.nonEmpty || actualResultsDuplications.nonEmpty match {
-        case true => getTableErrorDataArrByDuplications(ResultsType.expected, expectedResultsDuplications, whitespaceRowExpIndex) ++
-                        getTableErrorDataArrByDuplications(ResultsType.actual, actualResultsDuplications, whitespaceRowActIndex)
+        case true => getTableErrorDataByDuplications(ResultsType.expected, expectedResultsDuplications, whitespaceRowExpIndex) ++
+                        getTableErrorDataByDuplications(ResultsType.actual, actualResultsDuplications, whitespaceRowActIndex)
         case _ => if (expectedKeys.sorted.deep != actualKeys.sorted.deep) {
-            getTableErrorDataArrByMismatchedKeys(expectedKeys, actualKeys)
+            getTableErrorDataByMismatchedKeys(expectedKeys, actualKeys)
           } else {
             getTableErrorDataByMismatchedAllCols(tableKeys, expectedResultsObjects, actualResultsObjects, whitespaceRowExpIndex, whitespaceRowActIndex).toArray
           }
@@ -141,7 +141,7 @@ case class Tester(config: TesterConfig) {
     errors
   }
 
-  private def getTableErrorDataArrByDuplications(resType: ResultsType.Value, resultsDuplications: Map[String, List[Int]],
+  private def getTableErrorDataByDuplications(resType: ResultsType.Value, resultsDuplications: Map[String, List[Int]],
                                                  whitespaceRowIndex: Int) = {
     if (resultsDuplications.nonEmpty) {
       resultsDuplications.map(resDuplication => {
@@ -183,7 +183,7 @@ case class Tester(config: TesterConfig) {
     }
   }
 
-  private def getTableErrorDataArrByMismatchedKeys(expectedKeys: Array[String], actualKeys: Array[String]) = {
+  private def getTableErrorDataByMismatchedKeys(expectedKeys: Array[String], actualKeys: Array[String]) = {
     val errorIndexes = compareKeys(expectedKeys, actualKeys)
     Array[TableErrorData](TableErrorData(ErrorType.MismatchedKeyResultsExpected, errorIndexes.getOrElse(ResultsType.expected, List[Int]()),
       List[Int](), List[(Int, Int)]()),
