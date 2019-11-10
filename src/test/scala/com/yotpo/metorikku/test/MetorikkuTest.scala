@@ -81,26 +81,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
 
-  //TODO Add the following tests for metorikku tester:
-  /*
-  failures:
-  1. define invalid keys for table
-  2. duplications in expected results
-  3. duplications in partial - keyed results (same values for key columns in more than 1 expected result)
-  4. duplications in actual results
-  5. duplications in actual and expected results
-  6. different scheme for part of the expected results
-  7. expected does not match actual - assert the exception's msg gives enough info for the mismatch
-  8. give the expected results in unsorted order and check its output keeps the order between results
-
-9. multiple tables
-10. csv
-11. success
-
-
-     run all of the above with a table settings that define configured keys and settings which do not define any keys
-  *
-  */
 
   test("Test Metorikku should Fail on invalid keys configuration") {
     var tableName = ""
@@ -318,11 +298,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow,1)
   }
 
-  def printErrorMsg(msg: String) = {
-        println("-----------------Test ended. Thrown msg:-----------------")
-        println(msg)
-  }
-
   test("Test Metorikku should keep order of unsorted expected results with keys") {
     var definedKeys = List[String]()
     val thrown = intercept[Exception] {
@@ -338,7 +313,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       }
       Tester(testConf).run()
     }
-    //printErrorMsg(thrown.getMessage)
     var actualRow: Map[String, Any] = Map("app_key" -> "FFFF", "id" -> "F")
     var expectedRow: Map[String, Any] = Map("app_key" -> "FFFF", "id" -> "FF")
     assertMismatch(definedKeys, thrown.getMessage, actualRow, expectedRow, 6, 6)
@@ -399,23 +373,12 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
   test("Test Metorikku should pass when results match") {
-    var definedKeys = List[String]()
-    val thrown = intercept[Exception] {
-      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-diff-count-results.json")
-      val basePath = new File("src/test/configurations")
-      val preview = 5
-      val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.tests.head._2(0).keys.toList
-      Tester(testConf).run()
-    }
-    var expectedRow = Map("app_key" -> "DDDD", "id" -> "D")
-    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 4)
-    expectedRow = Map("app_key" -> "EEEE", "id" -> "E")
-    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 5)
-    expectedRow = Map("app_key" -> "FFFF", "id" -> "F")
-    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 6)
+    val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-valid.json")
+    val basePath = new File("src/test/configurations")
+    val preview = 5
+    val testConf = TesterConfig(test, basePath, preview)
+    Tester(testConf).run()
   }
-
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int) = {
     assertMismatchByType(definedKeys, thrownMsg, expectedRow, ErrorType.MismatchedKeyResultsExpected, 1, 0, rowIndex)
   }
@@ -439,5 +402,10 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val mismatchingVals = TestUtil.getMismatchedVals(expectedRow, actualRow, mismatchingCols).toList
     val expectedMsg = ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.MismatchedResultsAllCols, outputKey, expectedRowIndex, actualRowIndex, mismatchingCols.toList, mismatchingVals))
     assert(thrownMsg.contains(expectedMsg))
+  }
+
+  private def printErrorMsg(msg: String) = {
+    println("-----------------Test ended. Thrown msg:-----------------")
+    println(msg)
   }
 }
