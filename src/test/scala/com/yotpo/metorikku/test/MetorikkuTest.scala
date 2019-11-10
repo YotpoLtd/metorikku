@@ -371,6 +371,51 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 6)
   }
 
+  test("Test Metorikku should Fail on multiple df errors - duplicated keyed actual results and mismatch in all columns with keys") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-duplications-actual-with-keys-df-mismatch-results-with-keys.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+
+      val optionalKeys = testConf.test.keys
+      optionalKeys match {
+        case Some(keys) =>
+          definedKeys = keys.head._2
+        case _ =>
+      }
+      Tester(testConf).run()
+    }
+    val headerExpectedMsg = ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.DuplicatedResultsHeader))
+    assert(thrown.getMessage.contains(headerExpectedMsg))
+    val expectedMsg = ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.DuplicatedResults, "app_key=BBBB", ResultsType.actual, List(1,3)))
+    assert(thrown.getMessage.contains(expectedMsg))
+
+    val expectedRow = Map("app_key" -> "CCCC", "id" -> "d")
+    val actualRow = Map("app_key" -> "CCCC", "id" -> "C")
+    assertMismatch(definedKeys, thrown.getMessage, actualRow, expectedRow, 2, 3)
+
+  }
+
+  test("Test Metorikku should pass when results match") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-diff-count-results.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      Tester(testConf).run()
+    }
+    var expectedRow = Map("app_key" -> "DDDD", "id" -> "D")
+    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 4)
+    expectedRow = Map("app_key" -> "EEEE", "id" -> "E")
+    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 5)
+    expectedRow = Map("app_key" -> "FFFF", "id" -> "F")
+    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 6)
+  }
+
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int) = {
     assertMismatchByType(definedKeys, thrownMsg, expectedRow, ErrorType.MismatchedKeyResultsExpected, 1, 0, rowIndex)
   }

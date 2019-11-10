@@ -312,9 +312,8 @@ case class Tester(config: TesterConfig) {
 
   private def addIndexByType(resToErrorRowIndexes: Map[ResultsType.Value, List[Int]], resType: ResultsType.Value,
                              resIndex: Int): (ResultsType.Value, List[Int]) = {
-    val currErrorsIndexes = {
+    val currErrorsIndexes =
       if (resToErrorRowIndexes.contains(resType)) resToErrorRowIndexes(resType) else List[Int]()
-    }
     val newActErrIndexs = currErrorsIndexes :+ resIndex
     resType -> newActErrIndexs
   }
@@ -332,7 +331,7 @@ case class Tester(config: TesterConfig) {
     for (tableErrorData <- errorsGrouped) {
       var resTypeToIndexErrors = Map[ResultsType.Value, List[Int]]()
       tableErrorData.errorType match {
-        case ErrorType.DuplicatedResults => {
+        case ErrorType.DuplicatedResults =>
           log.error("Duplicated results are not allowed - The following duplications were found:")
           res :+= ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.DuplicatedResultsHeader))
           if (tableErrorData.expectedErrorRowsIndexes.nonEmpty) {
@@ -345,7 +344,6 @@ case class Tester(config: TesterConfig) {
             res ++= logAndGetDuplicationError(actualResults, removeLastIndex(tableErrorData, ResultsType.actual),
               tableKeys, outputKey, tableErrorData.actualErrorRowsIndexes, ResultsType.actual)
           }
-        }
         case ErrorType.MismatchedKeyResultsActual =>
           resTypeToIndexErrors = resTypeToIndexErrors + ((ResultsType.actual, tableErrorData.actualErrorRowsIndexes))
           logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults)
@@ -356,11 +354,12 @@ case class Tester(config: TesterConfig) {
           logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults)
           res ++= getKeyMismatchedErrorMsgs(ResultsType.expected, tableErrorData.expectedErrorRowsIndexes.dropRight(1),
                                             metricName, tableName, tableKeys, expectedResults)
-        case ErrorType.MismatchedResultsAllCols => {
+        case ErrorType.MismatchedResultsAllCols =>
           logSubtablesErrors(expectedResults, actualResults, tableErrorData.expectedErrorRowsIndexes, tableErrorData.actualErrorRowsIndexes, true)
           res ++=
             getMismatchedAllColsErrorMsg(tableErrorData.expectedMismatchedActualIndexesMap, expectedResults, actualResults, tableKeys)
-        }
+
+        case _ => assert(false, "Only DuplicatedResults, MismatchedKeyResultsActual, MismatchedKeyResultsExpected, MismatchedResultsAllCols are expected")
       }
     }
     res
