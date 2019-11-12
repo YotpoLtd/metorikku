@@ -60,7 +60,13 @@ inputs:
       table: table
       keySpace: keySpace
       options:
-        ....
+  input_7:
+    elasticsearch:
+      nodes: localhost:9200
+      user: user
+      password: password
+      index: index
+
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -72,6 +78,8 @@ output:
   # elasticsearch Database argument: (host:port) specifying host (under nodes option) is mandatory.
   elasticsearch:
     nodes: localhost:9200
+    user: user
+    password: password
   # cassandra Database arguments: host is mandatory. username and password are supported
   cassandra:
     host: example.cassandra.db
