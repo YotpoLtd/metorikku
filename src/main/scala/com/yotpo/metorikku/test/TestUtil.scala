@@ -53,7 +53,7 @@ object TestUtil {
   }
 
 
-  def getLongestValueLengthPerKey(results: List[Map[String, Any]]): Map[String, Int] = { //TODO change to option
+  def getLongestValueLengthPerKey(results: List[Map[String, Any]]): Map[String, Int] = {
     // the  keys of head result should be from the expected format
     // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
     results.head.keys.map(colName => {
