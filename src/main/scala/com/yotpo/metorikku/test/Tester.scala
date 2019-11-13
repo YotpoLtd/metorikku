@@ -10,6 +10,7 @@ import com.yotpo.metorikku.exceptions.MetorikkuTesterTestFailedException
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
 import org.apache.spark
+import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.functions._
@@ -284,7 +285,7 @@ case class Tester(config: TesterConfig) {
     val df = job.sparkSession.createDataFrame(x, schema)
     val isColContained = schemaKeys.contains(rowIdField)
     val indexedDf = isColContained match {
-      case false => df.withColumn(rowIdField, monotonically_increasing_id() + 1)
+      case false => df.withColumn(rowIdField, row_number().over(Window.orderBy(monotonically_increasing_id())))
       case _ => df
     }
 
@@ -305,8 +306,12 @@ case class Tester(config: TesterConfig) {
                                     resType: ResultsType.Value): Map[ResultsType.Value, List[Int]] = {
    val resToErrorRowIndexes =
     expRowKeyList.zipWithIndex.flatMap{ case (expKey, expIndex) =>
-      if (!actualRowKeysList.contains(expKey)) Some(addIndexByType(Map[ResultsType.Value, List[Int]](), resType, expIndex)) else None
-    }.groupBy(_._1).mapValues(arrOfTuplesResTypeToindexList => arrOfTuplesResTypeToindexList.flatMap(_._2).toList )
+      if (!actualRowKeysList.contains(expKey))  {
+        Some(addIndexByType(Map[ResultsType.Value, List[Int]](), resType, expIndex))
+      } else {
+        None
+      }
+    }.groupBy(_._1).mapValues(arrResTypeToIndexList => arrResTypeToIndexList.flatMap(_._2).toList )
     resToErrorRowIndexes + addIndexByType(resToErrorRowIndexes, resType, expRowKeyList.length)
   }
 
