@@ -124,7 +124,9 @@ tests:
   - id: 300
     name: test2
 keys:
-  df2: id
+  df2: 
+  - id
+  - name
 ```
 
 And the corresponding `mocks/table_1.jsonl`:
