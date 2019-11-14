@@ -46,17 +46,17 @@ object KeyColumns {
     }.mkString(", ")
   }
 
-  def removeUnexpectedColumns(mapList: List[mutable.LinkedHashMap[String, Any]],
-                              schemaKeys: Iterable[String]): List[mutable.LinkedHashMap[String, Any]] = {
+  def getPartialMapByPartialKeys(mapList: List[mutable.LinkedHashMap[String, Any]],
+                                 wantedKeys: Iterable[String]): List[mutable.LinkedHashMap[String, Any]] = {
     var res = List[mutable.LinkedHashMap[String, Any]]()
     for (mapRes <- mapList) {
       var row = mutable.LinkedHashMap[String, Any]()
-      for (key <- schemaKeys) {
+      for (key <- wantedKeys) {
         if (mapRes.contains(key)) {
           row += (key -> mapRes(key))
         }
       }
-      res = res :+ row
+      res :+= row
     }
     res
   }

@@ -274,7 +274,7 @@ case class Tester(config: TesterConfig) {
 
   private def transformListMapToDfWitIdCol(mapList: List[mutable.LinkedHashMap[String, Any]], schemaKeys: List[String]): DataFrame = {
     val rowIdField = "row_number"
-    val mapSchemaKeysList = KeyColumns.removeUnexpectedColumns(mapList, schemaKeys)
+    val mapSchemaKeysList = KeyColumns.getPartialMapByPartialKeys(mapList, schemaKeys)
     val mapStrList = mapSchemaKeysList.map(x => x.mapValues(v => {
       if (v == null) "" else v.toString
     }
