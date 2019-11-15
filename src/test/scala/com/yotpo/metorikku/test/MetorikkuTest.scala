@@ -114,8 +114,8 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    var invalidSchema = Map[String, List[Int]]()
-    val mismatchedSchemaIndexes = List[Int](1, 2)
+    var invalidSchema = Map[String, List[InvalidSchemaData]]()
+    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String]("bad_col")),InvalidSchemaData(2, List[String]("bad_column", "bad_column2")))
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
     val expectedMsg = ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.InvalidSchemaResults, invalidSchema))
     assert(thrown.getMessage.contains(expectedMsg))
@@ -129,8 +129,8 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val testConf = TesterConfig(test, basePath, preview)
       Tester(testConf).run()
     }
-    var invalidSchema = Map[String, List[Int]]()
-    val mismatchedSchemaIndexes = List[Int](1, 2)
+    var invalidSchema = Map[String, List[InvalidSchemaData]]()
+    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String]("bad_col")), InvalidSchemaData(2, List[String]("bad_column", "bad_column2")))
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
     val expectedMsg = ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.InvalidSchemaResults, invalidSchema))
     assert(thrown.getMessage.contains(expectedMsg))

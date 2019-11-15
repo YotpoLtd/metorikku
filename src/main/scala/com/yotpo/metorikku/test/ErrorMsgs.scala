@@ -12,6 +12,7 @@ object ResultsType extends Enumeration {
   val noRes = Value("")
 }
 
+case class InvalidSchemaData(rowIndex: Int, unexpectedColumns: List[String])
 
 
 case class ErrorMsgData(errorType: ErrorType.Value, tableName: String,
@@ -21,7 +22,7 @@ case class ErrorMsgData(errorType: ErrorType.Value, tableName: String,
                         , actCount: Int,
                         expectedRowIndex: Int, actualRowIndex: Int,
                         mismatchingCols: List[String], mismatchingVals: List[String],
-                        invalidSchemaMap: Map[String, List[Int]],
+                        invalidSchemaMap: Map[String, List[InvalidSchemaData]],
                         errorRowId: Int)
 
 object ErrorMsgData {
@@ -30,39 +31,39 @@ object ErrorMsgData {
             mismatchingCols: List[String], mismatchingVals: List[String]): ErrorMsgData = {
     new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String](),
        outputKey, ResultsType.noRes, List[Int](), 0, "", 0,
-      expectedRowIndex: Int, sortedRowIndex: Int, mismatchingCols: List[String], mismatchingVals: List[String], Map[String, List[Int]](), -1)
+      expectedRowIndex: Int, sortedRowIndex: Int, mismatchingCols: List[String], mismatchingVals: List[String], Map[String, List[InvalidSchemaData]](), -1)
   }
   def apply(errorType: ErrorType.Value): ErrorMsgData = {
     new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String](),
-       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
+       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[InvalidSchemaData]](), -1)
   }
 
   def apply(errorType: ErrorType.Value, tableName: String, undefinedCols: List[String], allColsKeys: List[String]): ErrorMsgData = {
     new ErrorMsgData(errorType, tableName, undefinedCols, allColsKeys,
-      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
+      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[InvalidSchemaData]](), -1)
   }
 
   def apply(errorType: ErrorType.Value, tableName: String): ErrorMsgData = {
     new ErrorMsgData(errorType, tableName, List[String](), List[String](),
-      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[Int]](), -1)
+      "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0, List[String](), List[String](), Map[String, List[InvalidSchemaData]](), -1)
   }
 
   def apply(errorType: ErrorType.Value,
             outputKey: String, resType: ResultsType.Value, duplicatedRes: List[Int]): ErrorMsgData = {
     new ErrorMsgData(errorType, "", List[String](), List[String](), outputKey,
       resType, duplicatedRes, 0, "", 0, 0, 0,
-      List[String](), List[String](), Map[String, List[Int]](), -1)
+      List[String](), List[String](), Map[String, List[InvalidSchemaData]](), -1)
   }
 
   def apply(errorType: ErrorType.Value, expCount: Int, keyToOutput: String, actCount: Int, errorRowindex: Int): ErrorMsgData = {
     new ErrorMsgData(errorType: ErrorType.Value, "", List[String](), List[String]()
       , "", ResultsType.noRes, List[Int]()
       , expCount, keyToOutput
-      , actCount, 0, 0, List[String](), List[String](), Map[String, List[Int]](), errorRowindex)
+      , actCount, 0, 0, List[String](), List[String](), Map[String, List[InvalidSchemaData]](), errorRowindex)
   }
 
   def apply(errorType: ErrorType.Value,
-            invalidSchemaMap: Map[String, List[Int]]): ErrorMsgData = {
+            invalidSchemaMap: Map[String, List[InvalidSchemaData]]): ErrorMsgData = {
     new ErrorMsgData(errorType, "", List[String](), List[String](),
       "", ResultsType.noRes, List[Int](), 0, "", 0, 0, 0,
       List[String](), List[String](), invalidSchemaMap, -1)
@@ -111,12 +112,14 @@ object ErrorMsgs {
       }
 
       case ErrorType.InvalidSchemaResults => {
-        val invalidResStr = errorMsgData.invalidSchemaMap.map{case (k, v) => "Table Name = " + k + ", " +
-          s"inconsistent result indexes: ${v.sortWith(_ < _).mkString(", ")}"}.mkString("|")
-
-        "Error: Failed while validating the schema of the expected results.  \n" +
-          "You must define the same structure (fields) for all expected results. \n" +
-          s"The following tables had invalid schema: \n ${invalidResStr}"
+        val invalidResStr = errorMsgData.invalidSchemaMap.map { case (tableName, listOfSchemaErrData) =>
+          s"Table Name = ${tableName} \n" +
+            listOfSchemaErrData.map(schemaErrData =>
+              s"\texpected row number ${schemaErrData.rowIndex} had the following unexpected columns: [${schemaErrData.unexpectedColumns.mkString(", ")}]\n").mkString("") +
+            "\nError: Failed while validating the schema of the expected results.  \n" +
+            "All expected results must have an identical structure - same columns as the one defined for the first expected result"
+        }
+        s"The following tables had invalid schema: \n${invalidResStr.mkString("\n")}"
       }
     }
 }

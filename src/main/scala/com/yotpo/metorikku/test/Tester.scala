@@ -193,7 +193,7 @@ case class Tester(config: TesterConfig) {
         List[(Int, Int)]()))
   }
 
-  private def getTableNameToInvalidRowStructureIndexes(results: Map[String, List[Map[String, Any]]]): Map[String, List[Int]] = {
+  private def getTableNameToInvalidRowStructureIndexes(results: Map[String, List[Map[String, Any]]]): Map[String, List[InvalidSchemaData]] = {
     results.flatMap { case (tableName, tableRows) =>
       val columnNamesHeader = tableRows.head.keys.toList
 
@@ -201,7 +201,7 @@ case class Tester(config: TesterConfig) {
         val columnNames = row.keys.toList
         columnNames match {
           case _ if columnNames.equals(columnNamesHeader) => None
-          case _ => Option(index)
+          case _ => Option(InvalidSchemaData(index, columnNames.diff(columnNamesHeader)))
         }
       }
 
@@ -212,7 +212,7 @@ case class Tester(config: TesterConfig) {
     }
   }
 
-  private def getInvalidSchemaErrors(invalidSchemaMap: Map[String, List[Int]]): Array[String] = {
+  private def getInvalidSchemaErrors(invalidSchemaMap: Map[String, List[InvalidSchemaData]]): Array[String] = {
     val errorData = ErrorMsgData(ErrorType.InvalidSchemaResults, invalidSchemaMap)
     Array(ErrorMsgs.getErrorByType(errorData))
   }
