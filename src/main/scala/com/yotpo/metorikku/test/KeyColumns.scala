@@ -1,8 +1,6 @@
 package com.yotpo.metorikku.test
 import org.apache.spark.sql.DataFrame
 
-import scala.collection.mutable
-
 case class KeyColumns(tableKeys: List[String]) {
 
   def getKeyMapFromMap(resultRows: List[Map[String, Any]]): Array[Map[String, String]] = {
@@ -39,18 +37,16 @@ case class KeyColumns(tableKeys: List[String]) {
   }
 
 
-  def getPartialMapByPartialKeys(mapList: List[mutable.LinkedHashMap[String, Any]],
-                                 wantedKeys: Iterable[String]): List[mutable.LinkedHashMap[String, Any]] = {
-    var res = List[mutable.LinkedHashMap[String, Any]]()
-    for (mapRes <- mapList) {
-      var row = mutable.LinkedHashMap[String, Any]()
-      for (key <- wantedKeys) {
-        if (mapRes.contains(key)) {
-          row += (key -> mapRes(key))
-        }
+  def getPartialMapByPartialKeys(mapList: List[RowObject],
+                                 wantedKeys: Iterable[String]): List[RowObject] = {
+    mapList.map(mapRes => {
+      if (mapRes.row.keys != wantedKeys) {
+        val row = wantedKeys.map(key => key -> mapRes.row(key)).toMap
+        RowObject(row, mapRes.index)
       }
-      res :+= row
-    }
-    res
+      else {
+        mapRes
+      }
+    })
   }
 }

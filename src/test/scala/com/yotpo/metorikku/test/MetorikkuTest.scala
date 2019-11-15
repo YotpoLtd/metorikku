@@ -387,6 +387,23 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
   }
 
 
+  test("Test Metorikku should Fail when results mismatch and more actual columns than expected") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-valid-more-act.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      Tester(testConf).run()
+    }
+    val expectedRow = Map("app_key" -> "DDDD", "id" -> "D")
+    val keyColumns = KeyColumns(List[String]("app_key", "id"))
+    assertMismatchExpected(definedKeys, thrown.getMessage, expectedRow, 4, keyColumns)
+    val actualRow = Map("app_key" -> "DDD", "id" -> "D")
+    assertMismatchActual(definedKeys, thrown.getMessage, actualRow, 4, keyColumns)
+  }
+
   test("Test Metorikku should pass when results unsorted") {
     val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-unsorted-columns.json")
     val basePath = new File("src/test/configurations")

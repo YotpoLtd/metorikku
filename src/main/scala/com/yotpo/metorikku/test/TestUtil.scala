@@ -4,7 +4,7 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, when}
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq, mutable}
+import scala.collection.{Seq}
 
 object TestUtil {
 
@@ -22,8 +22,7 @@ object TestUtil {
 
   def flattenWthoutDuplications(array: Array[List[Int]]): List[Int] = array.flatten.groupBy(identity).keys.toList.sorted
 
-  def getSubTable(sortedExpectedRows: List[Map[String, Any]], errorsIndexArr: Seq[Int]): List[mutable.LinkedHashMap[String, Any]] = {
-    var res = List[mutable.LinkedHashMap[String, Any]]()
+  def getSubTable(sortedExpectedRows: List[RowObject], errorsIndexArr: Seq[Int]): List[RowObject] = {
     val indexesToCollect = errorsIndexArr.length match {
       case 0 => sortedExpectedRows.indices
       case _ =>
@@ -32,17 +31,7 @@ object TestUtil {
           case _ => errorsIndexArr
         }
     }
-    for (index <- indexesToCollect) {
-      var tempRes = mutable.LinkedHashMap[String, Any]()
-      val resIndx = index + 1
-      tempRes += ("row_number" -> resIndx)
-      val sortedRow = sortedExpectedRows(index)
-      for (col <- sortedRow.keys) {
-        tempRes += (col -> sortedRow(col))
-      }
-      res = res :+ tempRes
-    }
-    res
+    indexesToCollect.map(index => sortedExpectedRows(index)).toList
   }
 
   def getMapFromDf(dfRows: DataFrame): List[Map[String, Any]] = {
@@ -78,7 +67,7 @@ object TestUtil {
       }
       col -> sb.toString
     }
-    mapList :+ RowObject(longestRow, mapList.size + 1)
+    mapList :+ RowObject(longestRow, mapList.size)
   }
 
   def getMismatchedVals(expectedResultRow: Map[String, Any], actualResultRow: Map[String, Any],
