@@ -2,7 +2,7 @@ package com.yotpo.metorikku.test
 
 object ErrorType extends Enumeration {
   val InvalidKeysNonExisting, InvalidKeysNonDefined, DuplicatedResults, DuplicatedResultsHeader,
-      MismatchedKeyResultsExpected, MismatchedKeyResultsActual, MismatchedResultsAllCols, InvalidSchemaResults = Value
+      MismatchedKeyResultsExpected, MismatchedKeyResultsActual, MismatchedResultsAllCols, InvalidSchemaResults, NoError = Value
 }
 
 
@@ -115,7 +115,8 @@ object ErrorMsgs {
         val invalidResStr = errorMsgData.invalidSchemaMap.map { case (tableName, listOfSchemaErrData) =>
           s"Table Name = ${tableName} \n" +
             listOfSchemaErrData.map(schemaErrData =>
-              s"\texpected row number ${schemaErrData.rowIndex} had the following unexpected columns: [${schemaErrData.unexpectedColumns.mkString(", ")}]\n").mkString("") +
+              s"\texpected row number ${schemaErrData.rowIndex} had the following unexpected columns: " +
+                s"[${schemaErrData.unexpectedColumns.mkString(", ")}]\n").mkString("") +
             "\nError: Failed while validating the schema of the expected results.  \n" +
             "All expected results must have an identical structure - same columns as the one defined for the first expected result"
         }

@@ -15,7 +15,7 @@ object TestUtil {
     allRows.map { rowObject => rowObject.row }
   }
 
-  def getKeyToIndexesMap(keys: Array[String]): Map[String, List[Int]] = {
+  def getKeyToIndexesMap(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
     keys.zipWithIndex.groupBy(s => s._1).filter(x => x._2.length > 1).
       mapValues(arrayOfTuples => arrayOfTuples.map(tupleIn => tupleIn._2).toList)
   }
