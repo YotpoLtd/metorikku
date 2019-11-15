@@ -3,9 +3,9 @@ import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable
 
-object KeyColumns {
+case class KeyColumns(tableKeys: List[String]) {
 
-  def getKeyListFromMap(resultRows: List[Map[String, Any]], tableKeys: List[String]): Array[String] = {
+  def getKeyListFromMap(resultRows: List[Map[String, Any]]): Array[String] = {
     resultRows.map(row => {
       tableKeys.map(currKey => {
         val res = if (row(currKey) == null) {
@@ -18,18 +18,18 @@ object KeyColumns {
     }).toArray
   }
 
-  def getKeyListFromDF(resultRows: DataFrame, tableKeys: List[String]): Array[String] = {
+  def getKeyListFromDF(resultRows: DataFrame): Array[String] = {
     val metricActualResultsMap = TestUtil.getMapFromDf(resultRows)
-    KeyColumns.getKeyListFromMap(metricActualResultsMap, tableKeys)
+    getKeyListFromMap(metricActualResultsMap)
   }
 
-  def getRowKey(row: Map[String, Any], tableKeys: List[String]): String = {
+  def getRowKey(row: Map[String, Any]): String = {
     tableKeys.map(key => {
       row.getOrElse(key, 0).toString
     }).mkString("#")
   }
 
-  def formatRowOutputKey(row: Map[String, Any], tableKeys: List[String]): String = {
+  def formatRowOutputKey(row: Map[String, Any]): String = {
     tableKeys.map { tableKey =>
       row(tableKey) match {
         case x if (x != null) => tableKey + "=" + x.toString
@@ -39,7 +39,7 @@ object KeyColumns {
     //Key1=Value1, Key2=Value2
   }
 
-  def formatOutputKey(key: String, tableKeys: List[String]): String = {
+  def formatOutputKey(key: String): String = {
     val outputVals = key.split("#")
     tableKeys.zipWithIndex.map { case (tableKey, index) =>
       tableKey + "=" + outputVals(index)

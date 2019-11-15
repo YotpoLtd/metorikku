@@ -106,7 +106,7 @@ case class Tester(config: TesterConfig) {
                                                             TestUtil.getRowObjectListFromMapList(actualResultsMap))
       val colToMaxLengthValMap = TestUtil.getLongestValueLengthPerKey(expectedResults ++ actualResultsMap)
       val tableConfiguredKeys = getConfiguredKeysByTableName(configuredKeys, tableName)
-      val tableKeys = tableConfiguredKeys match {
+      val tableKeys = tableConfiguredKeys match { //TODO: Move to func "getTableKeys" with calling getConfiguredKeysByTableName as well
         case Some(configuredKeys) => //defined
           getInvalidConfiguredKeysTable(configuredKeys, allExpectedFieldsTable) match {
             case Some(invalidKeys) => return getInvalidKeysNonExistingTableErrors(allExpectedFields, invalidKeys, tableName)
@@ -116,7 +116,8 @@ case class Tester(config: TesterConfig) {
         case _ => log.warn(s"[metricName - $tableName]: Hint: Define key columns for ${tableName} for better performance")
           allExpectedFieldsTable //undefined keys
       }
-      val (expectedKeys, actualKeys) = (KeyColumns.getKeyListFromMap(expectedResults, tableKeys), KeyColumns.getKeyListFromDF(actualResults, tableKeys))
+      val keyColumns = KeyColumns(tableKeys)
+      val (expectedKeys, actualKeys) = (keyColumns.getKeyListFromMap(expectedResults), keyColumns.getKeyListFromDF(actualResults))
       val (expectedResultsDuplications, actualResultsDuplications) = (TestUtil.getKeyToIndexesMap(expectedKeys), TestUtil.getKeyToIndexesMap(actualKeys))
       val (printableExpectedResults, printableActualResults) = (TestUtil.addLongestWhitespaceRow(expectedResultsObjects, colToMaxLengthValMap),
                                                                  TestUtil.addLongestWhitespaceRow(actualResultsObjects, colToMaxLengthValMap))
@@ -134,7 +135,7 @@ case class Tester(config: TesterConfig) {
       if (tableErrorDataArr.nonEmpty) {
         errors ++= logAndGetTableErrorsFromData(tableErrorDataArr,TestUtil.getMapListFromRowObjectList(printableExpectedResults),
                                                                    TestUtil.getMapListFromRowObjectList(printableActualResults),
-                                                                    tableKeys, tableName, metricName)
+                                                                    tableKeys, tableName, metricName, keyColumns)
       }
     })
     for (error <- errors)
@@ -254,27 +255,27 @@ case class Tester(config: TesterConfig) {
   }
 
   private def logSubtablesErrors(sortedExpectedResults: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]],
-                                 errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean): Unit = {
+                                 errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean, keyColumns: KeyColumns): Unit = {
     val isExpectedErrors = errorsIndexArrExpected.size > 1 //whitespace line
     val isActualErrors = errorsIndexArrActual.size > 1
     val expectedKeys = "row_number" +: sortedExpectedResults.head.keys.toList
     if (isExpectedErrors) {
       log.warn("**********************  Expected with Mismatches  ************************")
       val subExpectedError = TestUtil.getSubTable(sortedExpectedResults, errorsIndexArrExpected.sorted)
-      showDfToConsoleOrLogger(redirectDfShowToLogger, transformListMapToDfWitIdCol(subExpectedError, expectedKeys),
+      showDfToConsoleOrLogger(redirectDfShowToLogger, transformListMapToDfWitIdCol(subExpectedError, expectedKeys, keyColumns),
                                 errorsIndexArrExpected.size, truncate = false, sortedExpectedResults.size)
     }
     if (isActualErrors) {
       log.warn("***********************  Actual with Mismatches  *************************")
       val subActualError = TestUtil.getSubTable(sortedActualResults, errorsIndexArrActual.sorted)
-      showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(subActualError, expectedKeys),
+      showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(subActualError, expectedKeys, keyColumns),
                                 errorsIndexArrActual.size, truncate = false, sortedActualResults.size)
     }
   }
 
-  private def transformListMapToDfWitIdCol(mapList: List[mutable.LinkedHashMap[String, Any]], schemaKeys: List[String]): DataFrame = {
+  private def transformListMapToDfWitIdCol(mapList: List[mutable.LinkedHashMap[String, Any]], schemaKeys: List[String], keyColumns: KeyColumns): DataFrame = {
     val rowIdField = "row_number"
-    val mapSchemaKeysList = KeyColumns.getPartialMapByPartialKeys(mapList, schemaKeys)
+    val mapSchemaKeysList = keyColumns.getPartialMapByPartialKeys(mapList, schemaKeys)
     val mapStrList = mapSchemaKeysList.map(x => x.mapValues(v => {
       if (v == null) "" else v.toString
     }
@@ -325,13 +326,13 @@ case class Tester(config: TesterConfig) {
 
   private def logAndGetTableErrorsFromData(tableErrorsData: Array[TableErrorData], expectedResults: List[Map[String, Any]],
                                            actualResults: List[Map[String, Any]], tableKeys: List[String],
-                                           tableName: String, metricName: String): Array[String] = {
+                                           tableName: String, metricName: String, keyColumns: KeyColumns): Array[String] = {
     val errorsGrouped = tableErrorsData.groupBy(_.errorType).map { case (errType, arrErrors) =>
       TableErrorData(errType, TestUtil.flattenWthoutDuplications(arrErrors.map(tableErr => tableErr.expectedErrorRowsIndexes)),
                       TestUtil.flattenWthoutDuplications(arrErrors.map(tableErr => tableErr.actualErrorRowsIndexes)),
                       arrErrors.flatMap(tableErr => tableErr.expectedMismatchedActualIndexesMap).distinct.toList)}
     var res = Array[String]()
-    logAllResults(expectedResults, actualResults)
+    logAllResults(expectedResults, actualResults, keyColumns)
     log.warn("******************************  Errors  **********************************")
     for (tableErrorData <- errorsGrouped) {
       var resTypeToIndexErrors = Map[ResultsType.Value, List[Int]]()
@@ -340,29 +341,29 @@ case class Tester(config: TesterConfig) {
           log.error("Duplicated results are not allowed - The following duplications were found:")
           res :+= ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.DuplicatedResultsHeader))
           if (tableErrorData.expectedErrorRowsIndexes.nonEmpty) {
-            val outputKey = KeyColumns.formatRowOutputKey(expectedResults(tableErrorData.expectedErrorRowsIndexes.head), tableKeys)
+            val outputKey = keyColumns.formatRowOutputKey(expectedResults(tableErrorData.expectedErrorRowsIndexes.head))
             res ++= logAndGetDuplicationError(expectedResults, removeLastIndex(tableErrorData, ResultsType.expected),
-              tableKeys, outputKey, tableErrorData.expectedErrorRowsIndexes, ResultsType.expected)
+              tableKeys, outputKey, tableErrorData.expectedErrorRowsIndexes, ResultsType.expected, keyColumns)
           }
           if (tableErrorData.actualErrorRowsIndexes.nonEmpty) {
-            val outputKey = KeyColumns.formatRowOutputKey(actualResults(tableErrorData.actualErrorRowsIndexes.head), tableKeys)
+            val outputKey = keyColumns.formatRowOutputKey(actualResults(tableErrorData.actualErrorRowsIndexes.head))
             res ++= logAndGetDuplicationError(actualResults, removeLastIndex(tableErrorData, ResultsType.actual),
-              tableKeys, outputKey, tableErrorData.actualErrorRowsIndexes, ResultsType.actual)
+              tableKeys, outputKey, tableErrorData.actualErrorRowsIndexes, ResultsType.actual, keyColumns)
           }
         case ErrorType.MismatchedKeyResultsActual =>
           resTypeToIndexErrors = resTypeToIndexErrors + ((ResultsType.actual, tableErrorData.actualErrorRowsIndexes))
-          logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults)
+          logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults, keyColumns)
           res ++= getKeyMismatchedErrorMsgs(ResultsType.actual, tableErrorData.actualErrorRowsIndexes.dropRight(1),
-                                            metricName, tableName, tableKeys, actualResults)
+                                            metricName, tableName, tableKeys, actualResults, keyColumns)
         case ErrorType.MismatchedKeyResultsExpected =>
           resTypeToIndexErrors = resTypeToIndexErrors + ((ResultsType.expected, tableErrorData.expectedErrorRowsIndexes))
-          logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults)
+          logTableKeysMismatchedErrors(resTypeToIndexErrors, Array[String](), expectedResults, actualResults, keyColumns)
           res ++= getKeyMismatchedErrorMsgs(ResultsType.expected, tableErrorData.expectedErrorRowsIndexes.dropRight(1),
-                                            metricName, tableName, tableKeys, expectedResults)
+                                            metricName, tableName, tableKeys, expectedResults, keyColumns)
         case ErrorType.MismatchedResultsAllCols =>
-          logSubtablesErrors(expectedResults, actualResults, tableErrorData.expectedErrorRowsIndexes, tableErrorData.actualErrorRowsIndexes, true)
+          logSubtablesErrors(expectedResults, actualResults, tableErrorData.expectedErrorRowsIndexes, tableErrorData.actualErrorRowsIndexes, true, keyColumns)
           res ++=
-            getMismatchedAllColsErrorMsg(tableErrorData.expectedMismatchedActualIndexesMap, expectedResults, actualResults, tableKeys)
+            getMismatchedAllColsErrorMsg(tableErrorData.expectedMismatchedActualIndexesMap, expectedResults, actualResults, tableKeys, keyColumns)
 
         case _ => assert(false, "Only DuplicatedResults, MismatchedKeyResultsActual, MismatchedKeyResultsExpected, MismatchedResultsAllCols are expected")
       }
@@ -371,15 +372,15 @@ case class Tester(config: TesterConfig) {
   }
 
   private def getMismatchedAllColsErrorMsg(expectedMismatchedActualIndexesMap: List[(Int, Int)], expectedResults: List[Map[String, Any]],
-                                           actualResults: List[Map[String, Any]], tableKeys: List[String]): Array[String] = {
+                                           actualResults: List[Map[String, Any]], tableKeys: List[String], keyColumns: KeyColumns): Array[String] = {
     expectedMismatchedActualIndexesMap.map {
       case (expectedErrorIndex, actualErrorIndex) =>
         expectedResults.lift(expectedErrorIndex) match {
           case Some(expRow) =>
             actualResults.lift(actualErrorIndex) match {
               case Some(actRow) =>
-                val tableKeysVal = KeyColumns.getRowKey(expRow, tableKeys)
-                val outputKey = KeyColumns.formatOutputKey(tableKeysVal, tableKeys)
+                val tableKeysVal = keyColumns.getRowKey(expRow)
+                val outputKey = keyColumns.formatOutputKey(tableKeysVal)
                 val mismatchingCols = TestUtil.getMismatchingColumns(actRow, expRow)
                 val mismatchingVals = TestUtil.getMismatchedVals(expRow, actRow, mismatchingCols).toList
                 val errorData = ErrorMsgData(ErrorType.MismatchedResultsAllCols, outputKey, expectedErrorIndex + 1,
@@ -393,7 +394,7 @@ case class Tester(config: TesterConfig) {
   }
 
 
-  private def logAllResults(sortedExpectedRows: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]]): Unit = {
+  private def logAllResults(sortedExpectedRows: List[Map[String, Any]], sortedActualResults: List[Map[String, Any]], keyColumns: KeyColumns): Unit = {
     log.warn("**************************************************************************")
     log.warn("****************************  Test failed  *******************************")
     log.warn("**************************************************************************")
@@ -401,10 +402,10 @@ case class Tester(config: TesterConfig) {
     val emptySeq = Seq[Int]()
     val expectedKeys = sortedExpectedRows.head.keys
     showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedExpectedRows, emptySeq),
-                            expectedKeys.toList), sortedExpectedRows.size, truncate = false, sortedExpectedRows.size)
+                            expectedKeys.toList, keyColumns), sortedExpectedRows.size, truncate = false, sortedExpectedRows.size)
     log.warn("***************************  Actual results  *****************************")
     showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(TestUtil.getSubTable(sortedActualResults, emptySeq),
-      expectedKeys.toList), sortedActualResults.size, truncate = false, sortedActualResults.size)
+      expectedKeys.toList, keyColumns), sortedActualResults.size, truncate = false, sortedActualResults.size)
   }
 
   private def removeLastIndex(tableErrorDatas: TableErrorData, resType: ResultsType.Value): TableErrorData = {
@@ -421,24 +422,24 @@ case class Tester(config: TesterConfig) {
 
   private def logAndGetDuplicationError(results: List[Map[String, Any]], tableErrorData: TableErrorData,
                                         tableKeys: List[String], outputKey: String, duplicatedIndexes: List[Int],
-                                        resultType: ResultsType.Value): Array[String] = {
-    logDuplicationError(results, tableKeys, outputKey, duplicatedIndexes, resultType)
+                                        resultType: ResultsType.Value, keyColumns: KeyColumns): Array[String] = {
+    logDuplicationError(results, tableKeys, outputKey, duplicatedIndexes, resultType, keyColumns)
     getDuplicationErrorMsg(results, tableErrorData, tableKeys, outputKey, resultType)
   }
 
   private def logDuplicationError(results: List[Map[String, Any]], tableKeys: List[String], outputKey: String,
-                                  duplicatedIndexes: List[Int], resultType: ResultsType.Value): Unit = {
+                                  duplicatedIndexes: List[Int], resultType: ResultsType.Value, keyColumns: KeyColumns): Unit = {
     log.error(s"The key [${outputKey}] was found in the ${resultType} results rows: ${duplicatedIndexes.map(_ + 1)
       .sortWith(_ < _).dropRight(1).mkString(", ")}")
     log.warn(s"*****************  ${resultType} results with Duplications  *******************")
     val subExpectedError = TestUtil.getSubTable(results, duplicatedIndexes)
     val expectedKeys = "row_number" +: results.head.keys.toList
-   showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys),
+   showDfToConsoleOrLogger(redirectDfShowToLogger = true, transformListMapToDfWitIdCol(subExpectedError, expectedKeys, keyColumns),
                             results.size, truncate = false, results.size)
   }
 
   private def logTableKeysMismatchedErrors(errorIndexes: Map[ResultsType.Value, List[Int]], tableErrors: Array[String],
-                                           expectedResults: List[Map[String, Any]], actualResults: List[Map[String, Any]]): Unit = {
+                                           expectedResults: List[Map[String, Any]], actualResults: List[Map[String, Any]], keyColumns: KeyColumns): Unit = {
     val expectedErrorIndexes = errorIndexes match {
       case x if x.contains(ResultsType.expected) => errorIndexes(ResultsType.expected)
       case _ => List[Int]()
@@ -447,25 +448,25 @@ case class Tester(config: TesterConfig) {
       case x if x.contains(ResultsType.actual) => errorIndexes(ResultsType.actual)
       case _ => List[Int]()
     }
-    logSubtablesErrors(expectedResults, actualResults, expectedErrorIndexes, actualErrorIndexes, redirectDfShowToLogger = true)
+    logSubtablesErrors(expectedResults, actualResults, expectedErrorIndexes, actualErrorIndexes, redirectDfShowToLogger = true, keyColumns)
     for (error <- tableErrors) {
       log.error(error)
     }
   }
 
   private def getKeyMismatchedErrorMsgs(resultType: ResultsType.Value, listOfErrorRowIndexes: List[Int], metricName: String, tableName: String,
-                                        tableKeys: List[String], results: List[Map[String, Any]]): Array[String] = {
+                                        tableKeys: List[String], results: List[Map[String, Any]], keyColumns: KeyColumns): Array[String] = {
 
     var errors = Array[String]()
     resultType match {
       case ResultsType.expected =>
         for (rowIndex <- listOfErrorRowIndexes) {
-          val keyToOutput = KeyColumns.formatRowOutputKey(results(rowIndex), tableKeys)
+          val keyToOutput = keyColumns.formatRowOutputKey(results(rowIndex))
           errors :+= ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.MismatchedKeyResultsExpected, 1, keyToOutput, 0, rowIndex + 1))
         }
       case _ =>
         for (rowIndex <- listOfErrorRowIndexes) {
-          val actKeyToOutput = KeyColumns.formatRowOutputKey(results(rowIndex), tableKeys)
+          val actKeyToOutput = keyColumns.formatRowOutputKey(results(rowIndex))
           errors :+= ErrorMsgs.getErrorByType(ErrorMsgData(ErrorType.MismatchedKeyResultsActual, 0, actKeyToOutput, 1, rowIndex + 1))
         }
     }
