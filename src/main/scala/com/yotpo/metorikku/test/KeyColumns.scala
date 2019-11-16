@@ -27,7 +27,7 @@ case class KeyColumns(tableKeys: List[String]) {
     }).toMap
   }
 
-  def formatRowOutputKey(row: Map[String, Any]): String = {
+  def getRowKeyStr(row: Map[String, Any]): String = {
     tableKeys.map { tableKey =>
       row(tableKey) match {
         case x if (x != null) => tableKey -> x.toString
