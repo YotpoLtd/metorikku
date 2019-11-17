@@ -1,80 +1,50 @@
 package com.yotpo.metorikku.test
 
+import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, when}
-
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Seq}
 
 object TestUtil {
 
-  def getRowObjectListFromMapList(allRows: List[Map[String, Any]]): List[RowObject] =
-    allRows.zipWithIndex.map { case (row, index) => RowObject(row, index) }
+  val log = LogManager.getLogger(this.getClass)
 
-  def getMapListFromRowObjectList(allRows: List[RowObject]): List[Map[String, Any]] = {
-    allRows.map { rowObject => rowObject.row }
-  }
-
-  def getKeyToIndexesMap(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
+  def getElementToIndexesMap(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
     keys.zipWithIndex.groupBy(s => s._1).filter(x => x._2.length > 1).
       mapValues(arrayOfTuples => arrayOfTuples.map(tupleIn => tupleIn._2).toList)
   }
 
-  def flattenWthoutDuplications(array: Array[List[Int]]): List[Int] = array.flatten.groupBy(identity).keys.toList.sorted
+  def flattenWithoutDuplications(array: Array[List[Int]]): List[Int] = array.flatten.groupBy(identity).keys.toList.sorted
 
-  def getSubTable(sortedExpectedRows: List[RowObject], errorsIndexArr: Seq[Int]): List[RowObject] = {
-    val indexesToCollect = errorsIndexArr.length match {
-      case 0 => sortedExpectedRows.indices
-      case _ =>
-        errorsIndexArr.contains(sortedExpectedRows.length - 1) match {
-          case true => errorsIndexArr
-          case _ => errorsIndexArr
-        }
-    }
-    indexesToCollect.map(index => sortedExpectedRows(index)).toList
-  }
-
-  def getMapFromDf(dfRows: DataFrame): List[Map[String, Any]] = {
-    dfRows.rdd.map {
+  def getRowsFromDf(df: DataFrame): List[Map[String, Any]] = {
+    df.rdd.map {
       dfRow =>
         dfRow.getValuesMap[Any](dfRow.schema.fieldNames)
     }.collect().toList
   }
 
 
-  def getLongestValueLengthPerKey(results: List[Map[String, Any]]): Map[String, Int] = {
+  def getColToMaxLengthValue(resultRows: List[Map[String, Any]]): Map[String, Int] = {
     // the  keys of head result should be from the expected format
     // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
-    results.head.keys.map(colName => {
-      val resColMaxLength = results.maxBy(c => {
+    resultRows.head.keys.map(colName => {
+      val valMaxLength = resultRows.maxBy(c => {
         if (c(colName) == null) {
           0
         } else {
           c(colName).toString.length
         }
       })
-      colName -> resColMaxLength.get(colName).toString.length
+      colName -> valMaxLength.get(colName).toString.length
     }
     ).toMap
   }
 
-  def addLongestWhitespaceRow(mapList: List[RowObject],
-                              longestRowMap: Map[String, Int]): List[RowObject] = {
-    val longestRow = longestRowMap.map { case (col, maxColValLength) =>
-      val sb = new StringBuilder
-      for (_ <- 0 to maxColValLength) {
-        sb.append(" ")
-      }
-      col -> sb.toString
-    }
-    mapList :+ RowObject(longestRow, mapList.size)
-  }
 
-  def getMismatchedVals(expectedResultRow: Map[String, Any], actualResultRow: Map[String, Any],
-                        mismatchingCols: ArrayBuffer[String]): ArrayBuffer[String] = {
+  def getMismatchedVals(expectedRow: Map[String, Any], actualRow: Map[String, Any], mismatchingCols: ArrayBuffer[String]): ArrayBuffer[String] = {
     var res = ArrayBuffer[String]()
     for (mismatchCol <- mismatchingCols) {
-      res +:= s"${mismatchCol} - Expected = ${expectedResultRow(mismatchCol)}, Actual = ${actualResultRow(mismatchCol)}"
+      res +:= s"${mismatchCol} - Expected = ${expectedRow(mismatchCol)}, Actual = ${actualRow(mismatchCol)}"
     }
     res
   }
@@ -92,12 +62,17 @@ object TestUtil {
     mismatchingCols
   }
 
-  def getDfShowStr(df: DataFrame, size: Int, truncate: Boolean, lastRowIndexStr: String): String = {
+  def replaceColVal(df: DataFrame, colName: String, currValStr: String, newValStr: String): DataFrame = {
+    df.withColumn(colName, when(col(colName).equalTo(currValStr), newValStr)
+      .otherwise(col(colName)))
+  }
+
+  def dfToString(df: DataFrame, size: Int, truncate: Boolean): String = {
     val outCapture = new java.io.ByteArrayOutputStream
     Console.withOut(outCapture) {
-      df.withColumn("row_number", when(col("row_number").equalTo(lastRowIndexStr), "  ")
-        .otherwise(col("row_number"))).show(size, truncate)
+      df.show(size, truncate)
     }
     "\n" + new String(outCapture.toByteArray)
   }
+
 }
