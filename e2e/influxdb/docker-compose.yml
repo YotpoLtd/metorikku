@@ -23,7 +23,7 @@ services:
     logging:
       driver: none
   influxdb:
-    image: influxdb
+    image: influxdb:1.7.8
     environment:
       - INFLUXDB_ADMIN_USER=user
       - INFLUXDB_ADMIN_PASSWORD=pass
