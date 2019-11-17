@@ -480,6 +480,20 @@ Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details
 
 Also check the full list of configurations possible with hudi [here](http://hudi.incubator.apache.org/configurations.html).
 
+#### Apache Atlas
+Metorikku supports Data Lineage and Governance using [Apache Atlas](https://atlas.apache.org/) and the [Spark Atlas Connector](https://github.com/hortonworks-spark/spark-atlas-connector) 
 
+Atlas is an open source Data Governance and Metadata framework for Hadoop which provides open metadata management and governance capabilities for organizations to build a catalog of their data assets, classify and govern these assets and provide collaboration capabilities around these data assets for data scientists, analysts and the data governance team.
+
+In order to use the spark-atlas-connector with Metorikku  you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
+an external JAR from here: https://github.com/YotpoLtd/spark-atlas-connector/releases/download/latest/spark-atlas-connector-assembly.jar
+
+To integrate the connector with Metorikku docker, you need to pass `USE_ATLAS=true` as en environment variable and the following config will be automatically added to `spark-default.conf`:
+```properties
+spark.extraListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker
+spark.sql.queryExecutionListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker
+spark.sql.streaming.streamingQueryListeners=com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker
+```
+For a full example please refer to examples/docker-compose-atlas.yml
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

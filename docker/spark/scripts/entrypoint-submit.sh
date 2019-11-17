@@ -8,6 +8,10 @@ MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
+
+# Atlas
+/scripts/add-atlas-integration.sh
+
 # Logs
 /scripts/init-logs-metrics.sh
 
