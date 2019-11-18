@@ -56,7 +56,7 @@ class DuplicatedHeaderErrorMessage() extends ErrorMessage {
 }
 
 class DuplicationErrorMessage(keyDataStr: String, resultType: ResultsType.Value, duplicationIndexes: List[Int], tableName: String,
-                              results: Option[List[EnrichedRow]] = None) extends ErrorMessage {
+                              results: Option[EnrichedRows] = None) extends ErrorMessage {
 
   override def logError(sparkSession: Option[SparkSession] = None): Unit = {
     if (sparkSession.get != null) {
@@ -64,21 +64,20 @@ class DuplicationErrorMessage(keyDataStr: String, resultType: ResultsType.Value,
         duplicationIndexes.map(_ + 1).sortWith(_ < _).mkString(", ")
       }")
       log.warn(s"*****************  $tableName $resultType results with Duplications  *******************")
-      val subExpectedError = EnrichedRow.getSubTable(results.get, duplicationIndexes :+ results.get.size-1)
-      val expectedKeys = results.get.head.row.keys.toList
-      val dfWithId = EnrichedRow.toDF(resultType, subExpectedError, expectedKeys, sparkSession.get)
-      log.warn(TestUtil.dfToString(TestUtil.replaceColVal(dfWithId, "row_number", results.get.size.toString, "  "), subExpectedError.size, truncate = false ))
+      val subExpectedError = results.get.getSubTable(duplicationIndexes :+ results.get.size()-1)
+      val expectedKeys = results.get.getHeadRowKeys()
+      val dfWithId = subExpectedError.toDF(resultType, expectedKeys, sparkSession.get)
+      log.warn(TestUtil.dfToString(TestUtil.replaceColVal(dfWithId, "row_number", results.get.size().toString, "  "), subExpectedError.size, truncate = false ))
     }
   }
 
   override def toString(): String = {
     s"Key = [${keyDataStr}] in ${resultType} rows: ${duplicationIndexes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
   }
-
 }
 
 class MismatchedKeyResultsErrorMessage(resTypeToErroredRowIndexes: Map[ResultsType.Value, List[Int]],
-                                       expectedResults: List[EnrichedRow], actualResults: List[EnrichedRow],
+                                       expectedResults: EnrichedRows, actualResults: EnrichedRows,
                                        keyColumns: KeyColumns, tableName: String) extends ErrorMessage {
 
   override def logError(sparkSession: Option[SparkSession] = None): Unit = {
@@ -90,7 +89,7 @@ class MismatchedKeyResultsErrorMessage(resTypeToErroredRowIndexes: Map[ResultsTy
       case x if x.contains(ResultsType.actual) => resTypeToErroredRowIndexes(ResultsType.actual)
       case _ => List[Int]()
     }
-    EnrichedRow.logSubtableErrors(expectedResults, actualResults,
+    EnrichedRows.logSubtableErrors(expectedResults, actualResults,
       expectedErrorIndexes, actualErrorIndexes, true, sparkSession.get, tableName)
   }
 
@@ -99,13 +98,13 @@ class MismatchedKeyResultsErrorMessage(resTypeToErroredRowIndexes: Map[ResultsTy
       resType match {
         case ResultsType.expected =>
           indexes.map(errorRowindex => {
-            val keyToOutput = keyColumns.getRowKeyStr(expectedResults.lift(errorRowindex).get.row)
+            val keyToOutput = keyColumns.getRowKeyStr(expectedResults.getEnrichedRowByIndex(errorRowindex).getRow())
           s"Error: Missing expected " +
             s"row with the key [${keyToOutput}] - (expected row_number = ${errorRowindex + 1})" }).mkString(",\n")
 
         case _ =>
           indexes.map(errorRowindex => {
-            val keyToOutput = keyColumns.getRowKeyStr(actualResults.lift(errorRowindex).get.row)
+            val keyToOutput = keyColumns.getRowKeyStr(actualResults.getEnrichedRowByIndex(errorRowindex).getRow)
             s"Error: Got unexpected result - didn't expect to find " +
               s"a row with the key [${keyToOutput}] (printed row_number in actual results = ${errorRowindex + 1})"}).mkString(",\n")
           }
@@ -113,11 +112,11 @@ class MismatchedKeyResultsErrorMessage(resTypeToErroredRowIndexes: Map[ResultsTy
   }
 }
 
-class MismatchedResultsAllColsErrorMsg(expectedResults: List[EnrichedRow], actualResults: List[EnrichedRow],
+class MismatchedResultsAllColsErrorMsg(expectedResults: EnrichedRows, actualResults: EnrichedRows,
                                        mismatchData: List[MismatchData], tableName: String) extends ErrorMessage {
 
   override def logError(sparkSession: Option[SparkSession] = None): Unit = {
-    EnrichedRow.logSubtableErrors(expectedResults, actualResults,
+    EnrichedRows.logSubtableErrors(expectedResults, actualResults,
       mismatchData.map(_.expectedIndex) :+ expectedResults.size - 1, mismatchData.map(_.actualIndex) :+ actualResults.size - 1,
       true, sparkSession.get, tableName)
   }
@@ -169,7 +168,7 @@ class MismatchedResultsAllColsErrorMsgTest(rowKeyStr: String, expectedRowIndex: 
 object ErrorMessage {
 
   def getErrorMessagesByDuplications(resType: ResultsType.Value, duplicatedRowToIndexes: Map[Map[String, String], List[Int]],
-                                     results: List[EnrichedRow], tableName: String): Array[ErrorMessage] = {
+                                     results: EnrichedRows, tableName: String): Array[ErrorMessage] = {
     if (duplicatedRowToIndexes.nonEmpty) {
       duplicatedRowToIndexes.map(resDuplication => {
         new DuplicationErrorMessage(resDuplication._1.mkString(", "), resType, resDuplication._2, tableName, Option(results))
@@ -179,22 +178,15 @@ object ErrorMessage {
     }
   }
 
-  def getErrorMessagesByMismatchedAllCols(tableKeys: List[String], expectedEnrichedRows: List[EnrichedRow], actualEnrichedRows: List[EnrichedRow],
+  def getErrorMessagesByMismatchedAllCols(tableKeys: List[String], expectedEnrichedRows: EnrichedRows, actualEnrichedRows: EnrichedRows,
                                           sparkSession: SparkSession, tableName: String): Array[ErrorMessage] = {
     val sorter = TesterSortData(tableKeys)
     val (sortedExpectedEnrichedRows, sortedActualEnrichedRows) = (expectedEnrichedRows.sortWith(sorter.sortEnrichedRows),
       actualEnrichedRows.sortWith(sorter.sortEnrichedRows))
-    val sortedActualResults = EnrichedRow.getRowsFromEnrichedRows(sortedActualEnrichedRows)
-
     sortedExpectedEnrichedRows.zipWithIndex.flatMap { case (expectedResult, sortedIndex) =>
       val expectedIndex = expectedResult.index
-      val actualIndex = sortedActualEnrichedRows.lift(sortedIndex) match {
-        case Some(x) => x.index
-        case _ =>
-          assert(sortedActualEnrichedRows.size == sortedExpectedEnrichedRows.size)
-          sortedIndex
-      }
-      val actualResultRow = sortedActualResults(sortedIndex)
+      val actualIndex = sortedActualEnrichedRows.getEnrichedRowByIndex(sortedIndex).index
+      val actualResultRow = sortedActualEnrichedRows.getEnrichedRowByIndex(sortedIndex).getRow()
       val mismatchingCols = TestUtil.getMismatchingColumns(actualResultRow, expectedResult.row)
       if (mismatchingCols.nonEmpty) {
         getMismatchedAllColsErrorMsg(List[(Int, Int)]() :+ (expectedIndex, actualIndex), expectedEnrichedRows, actualEnrichedRows,
@@ -205,17 +197,17 @@ object ErrorMessage {
     }.flatten.toArray
   }
 
-  def getMismatchedAllColsErrorMsg(expectedMismatchedActualIndexesMap: List[(Int, Int)], expectedResults: List[EnrichedRow],
-                                   actualResults: List[EnrichedRow], tableKeys: List[String],
+  def getMismatchedAllColsErrorMsg(expectedMismatchedActualIndexesMap: List[(Int, Int)], expectedResults: EnrichedRows,
+                                   actualResults: EnrichedRows, tableKeys: List[String],
                                    sparkSession: SparkSession, tableName: String): Array[ErrorMessage] = {
     val mismatchDataArr = expectedMismatchedActualIndexesMap.map {
       case (expIndex, actIndex) => {
-        val expRow = expectedResults.lift(expIndex).get.row
-        val actRow = actualResults.lift(actIndex).get.row
-        val mismatchingCols = TestUtil.getMismatchingColumns(actRow, expRow)
-        val mismatchingVals = TestUtil.getMismatchedVals(expRow, actRow, mismatchingCols).toList
+        val expRow = expectedResults.getEnrichedRowByIndex(expIndex)
+        val actRow = actualResults.getEnrichedRowByIndex(actIndex)
+        val mismatchingCols = TestUtil.getMismatchingColumns(actRow.getRow(), expRow.getRow())
+        val mismatchingVals = TestUtil.getMismatchedVals(expRow.getRow(), actRow.getRow(), mismatchingCols).toList
         val keyColumns = KeyColumns(tableKeys)
-        val tableKeysVal = keyColumns.getKeysMapFromRow(expRow)
+        val tableKeysVal = keyColumns.getKeysMapFromRow(expRow.getRow())
         val keyDataStr = tableKeysVal.mkString(", ")
         MismatchData(expIndex, actIndex, mismatchingCols.toList, mismatchingVals, keyDataStr)
       }
@@ -223,7 +215,7 @@ object ErrorMessage {
     Array[ErrorMessage](new MismatchedResultsAllColsErrorMsg(expectedResults, actualResults, mismatchDataArr, tableName))
   }
 
-  def getErrorMessageByMismatchedKeys(expectedResults: List[EnrichedRow], actualResults: List[EnrichedRow],
+  def getErrorMessageByMismatchedKeys(expectedResults: EnrichedRows, actualResults: EnrichedRows,
                                       errorIndexes: Map[ResultsType.Value, List[Int]], keyColumns: KeyColumns, tableName: String): Array[ErrorMessage] = {
     Array[ErrorMessage](new MismatchedKeyResultsErrorMessage(errorIndexes, expectedResults, actualResults, keyColumns, tableName))
   }

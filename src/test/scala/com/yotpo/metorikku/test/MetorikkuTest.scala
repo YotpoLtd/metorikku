@@ -67,7 +67,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assert(thrown.getCause.getMessage.startsWith("cannot resolve '`non_existing_column`'"))
   }
 
-
   test("Test Metorikku should not fail on invalid query when ignoreOnFailures is set to true") {
     Metorikku.main(Array(
       "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-ignore-step.yaml"))
@@ -80,7 +79,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     testOutput.cache
     assert(testOutput.count === 5)
   }
-
 
   test("Test Metorikku should Fail on invalid keys configuration") {
     var tableName = ""

@@ -6,7 +6,7 @@ case class KeyColumns(tableKeys: List[String]) {
   def getKeysMapFromRows(rows: List[Map[String, Any]]): Array[Map[String, String]] = {
     rows.map(row => {
       getKeysMapFromRow(row)
-      }).toArray
+    }).toArray
   }
 
   def getKeysMapFromDF(df: DataFrame): Array[Map[String, String]] = {
