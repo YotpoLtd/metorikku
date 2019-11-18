@@ -48,11 +48,8 @@ object EnrichedRow {
   }
 
   def getSubTable(enrichedRows: List[EnrichedRow], indexesToCollect: Seq[Int]): List[EnrichedRow] = {
-    val indexes = indexesToCollect.length match {
-      case 0 => enrichedRows.indices
-      case _ => indexesToCollect
-    }
-    indexes.map(index => enrichedRows(index)).toList
+    assert(indexesToCollect.nonEmpty)
+    indexesToCollect.map(index => enrichedRows(index)).toList
   }
 
   def addAlignmentRow(enrichedRows: List[EnrichedRow],
@@ -68,20 +65,21 @@ object EnrichedRow {
   }
 
   def logSubtableErrors(sortedExpectedResults: List[EnrichedRow], sortedActualResults: List[EnrichedRow],
-                        errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean, sparkSession: SparkSession): Unit = {
+                        errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean,
+                        sparkSession: SparkSession, tableName: String): Unit = {
     val expectedKeys = sortedExpectedResults.head.row.keys.toList
     if (errorsIndexArrExpected.nonEmpty) {
-      logErrorByResType(ResultsType.expected, sortedExpectedResults, errorsIndexArrExpected, expectedKeys, sparkSession)
+      logErrorByResType(ResultsType.expected, sortedExpectedResults, errorsIndexArrExpected, expectedKeys, sparkSession, tableName)
 
       if (errorsIndexArrActual.nonEmpty) {
-        logErrorByResType(ResultsType.actual, sortedActualResults, errorsIndexArrActual, expectedKeys, sparkSession)
+        logErrorByResType(ResultsType.actual, sortedActualResults, errorsIndexArrActual, expectedKeys, sparkSession, tableName)
       }
     }
   }
 
   private def logErrorByResType(resType: ResultsType.Value, enrichedRows: List[EnrichedRow], indexesOfErroredRows: Seq[Int],
-                                keys: List[String], sparkSession: SparkSession) = {
-    log.warn(s"**********************  ${resType} with Mismatches  ************************")
+                                keys: List[String], sparkSession: SparkSession, tableName: String) = {
+    log.warn(s"**********************  $tableName $resType results with Mismatches  ************************")
     val indexesToCollect = indexesOfErroredRows.sorted
     val subtableErrored = EnrichedRow.getSubTable(enrichedRows, indexesToCollect)
     val df = EnrichedRow.toDF(resType, subtableErrored, keys, sparkSession)

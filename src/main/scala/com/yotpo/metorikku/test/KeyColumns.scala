@@ -3,18 +3,18 @@ import org.apache.spark.sql.DataFrame
 
 case class KeyColumns(tableKeys: List[String]) {
 
-  def getKeyMapFromRows(resultRows: List[Map[String, Any]]): Array[Map[String, String]] = {
-    resultRows.map(row => {
-      getKeyMapFromRow(row)
+  def getKeysMapFromRows(rows: List[Map[String, Any]]): Array[Map[String, String]] = {
+    rows.map(row => {
+      getKeysMapFromRow(row)
       }).toArray
   }
 
-  def getKeyMapFromDF(resultRows: DataFrame): Array[Map[String, String]] = {
-    val rows = TestUtil.getRowsFromDf(resultRows)
-    getKeyMapFromRows(rows)
+  def getKeysMapFromDF(df: DataFrame): Array[Map[String, String]] = {
+    val rows = TestUtil.getRowsFromDf(df)
+    getKeysMapFromRows(rows)
   }
 
-  def getKeyMapFromRow(row: Map[String, Any]): Map[String, String] = {
+  def getKeysMapFromRow(row: Map[String, Any]): Map[String, String] = {
     tableKeys.map(currKey => {
       if (row(currKey) == null) {
         currKey -> ""

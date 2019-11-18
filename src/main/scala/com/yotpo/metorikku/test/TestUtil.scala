@@ -9,7 +9,7 @@ object TestUtil {
 
   val log = LogManager.getLogger(this.getClass)
 
-  def getElementToIndexesMap(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
+  def getDuplicatedRowToIndexes(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
     keys.zipWithIndex.groupBy(s => s._1).filter(x => x._2.length > 1).
       mapValues(arrayOfTuples => arrayOfTuples.map(tupleIn => tupleIn._2).toList)
   }
@@ -24,11 +24,11 @@ object TestUtil {
   }
 
 
-  def getColToMaxLengthValue(resultRows: List[Map[String, Any]]): Map[String, Int] = {
+  def getColToMaxLengthValue(rows: List[Map[String, Any]]): Map[String, Int] = {
     // the  keys of head result should be from the expected format
     // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
-    resultRows.head.keys.map(colName => {
-      val valMaxLength = resultRows.maxBy(c => {
+    rows.head.keys.map(colName => {
+      val valMaxLength = rows.maxBy(c => {
         if (c(colName) == null) {
           0
         } else {
