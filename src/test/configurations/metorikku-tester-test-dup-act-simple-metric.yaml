@@ -1,0 +1,23 @@
+steps:
+  - dataFrameName: accountsDf_dup
+    sql:
+      SELECT *
+      FROM accounts_duplicated
+
+  - dataFrameName: accountsDf
+    sql:
+      SELECT *
+      FROM accounts
+
+output:
+  - dataFrameName: accountsDf_dup
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: accountsDf.parquet
+
+  - dataFrameName: accountsDf
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: accountsDf.parquet

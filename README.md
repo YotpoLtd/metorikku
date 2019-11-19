@@ -123,6 +123,10 @@ tests:
     name: test
   - id: 300
     name: test2
+keys:
+  df2: 
+  - id
+  - name
 ```
 
 And the corresponding `mocks/table_1.jsonl`:
@@ -131,6 +135,17 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 300, "name": "test2" }
 { "id": 1, "name": "test3" }
 ```
+
+The Keys section allows the user to define the unique columns of every DataFrame's expected results - 
+every expected row result should have a unique combination for the values of the key columns. 
+This part is optional and can be used to define only part of the expected DataFrames - 
+for the DataFrames that don't have a key definition, all of the columns defined in the first row result 
+will be taken by default as the unique keys. 
+Defining a shorter list of key columns will result in better performances and a more detailed error message in case of test failure.
+
+The structure of the defined expected dataFrame's result must be identical for all rows, and the keys must be valid 
+(defined as columns of the expected results of the same DataFrame)
+
 
 #### Running Metorikku Tester
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
