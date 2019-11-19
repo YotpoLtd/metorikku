@@ -15,6 +15,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
                                       preActions: String,
                                       postActions: String,
                                       maxStringSize: String,
+                                      tempFormat: String,
                                       extraOptions: Option[Map[String, String]])
 
   val log = LogManager.getLogger(this.getClass)
@@ -24,6 +25,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
                                            props.getOrElse("preActions",""),
                                            props.getOrElse("postActions",""),
                                            props.getOrElse("maxStringSize",""),
+                                           props.getOrElse("tempFormat","AVRO"),
                                            props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   override def write(dataFrame: DataFrame): Unit = {
@@ -48,6 +50,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
           .option("forward_spark_s3_credentials", true)
           .option("tempdir", redshiftDBConf.tempS3Dir)
           .option("dbtable", dbOptions.dbTable)
+          .option("tempformat", dbOptions.tempFormat)
           .mode(dbOptions.saveMode)
 
         if (!dbOptions.preActions.isEmpty) {
