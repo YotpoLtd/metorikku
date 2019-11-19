@@ -111,7 +111,6 @@ case class Tester(config: TesterConfig) {
       val colToMaxLengthValMap = TestUtil.getColToMaxLengthValue(expectedResults ++ actualResults) //alignment per column should be same width for all tables
       val (printableExpectedResults, printableActualResults) = (expectedResultsObjects.addAlignmentRow(colToMaxLengthValMap),
         actualResultsObjects.addAlignmentRow(colToMaxLengthValMap))
-
       val tableErrorDataArr: Array[ErrorMessage] = expectedResultsDuplications.nonEmpty || actualResultsDuplications.nonEmpty match {
         case true =>
           Array[ErrorMessage](new DuplicatedHeaderErrorMessage()) ++
@@ -121,8 +120,9 @@ case class Tester(config: TesterConfig) {
         case _ =>
           val sorter = TesterSortData(tableKeys)
           if (expectedKeys.sortWith(sorter.sortStringRows).deep != actualKeys.sortWith(sorter.sortStringRows).deep) {
-            val errorIndexes = compareKeys(expectedKeys, actualKeys)
-            ErrorMessage.getErrorMessageByMismatchedKeys(printableExpectedResults, printableActualResults, errorIndexes, keyColumns, tableName)
+            val (expErrorIndexes, actErrorIndexes) = compareKeys(expectedKeys, actualKeys)
+            ErrorMessage.getErrorMessageByMismatchedKeys(printableExpectedResults, printableActualResults,
+                                                          expErrorIndexes, actErrorIndexes, keyColumns, tableName)
           } else {
             ErrorMessage.getErrorMessagesByMismatchedAllCols(tableKeys, printableExpectedResults, printableActualResults, job.sparkSession, tableName)
           }
@@ -146,7 +146,7 @@ case class Tester(config: TesterConfig) {
       val inconsistentRowsIndexes = tableRows.zipWithIndex.flatMap { case (row, index) =>
         val columnNames = row.keys.toList
         columnNames match {
-          case _ if columnNames.equals(columnNamesHeader) => None
+          case _ if columnNames.sorted.equals(columnNamesHeader.sorted) => None
           case _ => Option(InvalidSchemaData(index, columnNames.diff(columnNamesHeader)))
         }
       }
@@ -221,33 +221,23 @@ case class Tester(config: TesterConfig) {
   }
 
 
-  private def compareKeys(expRowKeyList: Array[Map[String, String]], actualRowKeysList: Array[Map[String, String]]): Map[ResultsType.Value, List[Int]] = {
-    val expectedMismatchedTuple = getResultTypeToUnmatchedKeysIndexes(expRowKeyList, actualRowKeysList, ResultsType.expected)
-    val actualMismatchedTuple = getResultTypeToUnmatchedKeysIndexes(actualRowKeysList, expRowKeyList, ResultsType.actual)
-    val expectedMismatchedWithAlignmentIndex = addIndexByType(expectedMismatchedTuple, ResultsType.expected, expRowKeyList.size)
-    val actualMismatchedWithAlignmentIndex = addIndexByType(actualMismatchedTuple, ResultsType.actual, actualRowKeysList.size)
-    Map[ResultsType.Value, List[Int]](expectedMismatchedWithAlignmentIndex, actualMismatchedWithAlignmentIndex)
+  private def compareKeys(expRowKeyList: Array[Map[String, String]], actualRowKeysList: Array[Map[String, String]]): (List[Int], List[Int]) = {
+    val expectedMismatchedIndexes = getUnmatchedKeysIndexes(expRowKeyList, actualRowKeysList, ResultsType.expected)
+    val actualMismatchedIndexes = getUnmatchedKeysIndexes(actualRowKeysList, expRowKeyList, ResultsType.actual)
+    (expectedMismatchedIndexes, actualMismatchedIndexes)
   }
 
-  private def getResultTypeToUnmatchedKeysIndexes(expRowKeys: Array[Map[String, String]], actualRowKeys: Array[Map[String, String]],
-                                                  resType: ResultsType.Value): Map[ResultsType.Value, List[Int]] = {
+  private def getUnmatchedKeysIndexes(expRowKeys: Array[Map[String, String]], actualRowKeys: Array[Map[String, String]],
+                                                  resType: ResultsType.Value): List[Int] = {
     val resToErrorRowIndexes =
       expRowKeys.zipWithIndex.flatMap { case (expKey, expIndex) =>
         if (!actualRowKeys.contains(expKey)) {
-          Some(addIndexByType(Map[ResultsType.Value, List[Int]](), resType, expIndex))
+          Some(expIndex)
         } else {
           None
         }
-      }.groupBy(_._1).mapValues(arrResTypeToIndexList => arrResTypeToIndexList.flatMap(_._2).toList)
+      }.toList
     resToErrorRowIndexes
-  }
-
-  private def addIndexByType(resTypeToIndexes: Map[ResultsType.Value, List[Int]], resType: ResultsType.Value,
-                             indexToAdd: Int): (ResultsType.Value, List[Int]) = {
-    val currErrorsIndexes =
-      if (resTypeToIndexes.contains(resType)) resTypeToIndexes(resType) else List[Int]()
-    val newActErrIndexs = currErrorsIndexes :+ indexToAdd
-    resType -> newActErrIndexs
   }
 
 }

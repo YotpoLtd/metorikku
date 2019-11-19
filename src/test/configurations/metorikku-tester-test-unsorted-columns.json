@@ -9,16 +9,16 @@
   "tests": {
     "accountsDf": [
       {
-        "app_key": "AAAA",
-        "id": "A"
+        "id": "A",
+        "app_key": "AAAA"
       },
       {
         "app_key": "BBBB",
         "id": "B"
       },
       {
-        "app_key": "CCCC",
-        "id": "C"
+        "id": "C",
+        "app_key": "CCCC"
       }
     ]
   }

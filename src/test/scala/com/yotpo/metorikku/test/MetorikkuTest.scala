@@ -453,7 +453,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       case ResultsType.actual => row
       case _ => Map[String, Any]()
     }
-    val expectedMsg = new MismatchedKeyResultsErrorMessageTest(resType -> rowIndex, expectedRow, actRow, keyColumns).toString
+    val expectedMsg = new MismatchedResultsKeysErrMsgMock(resType -> rowIndex, expectedRow, actRow, keyColumns).toString
     assert(thrownMsg.contains(expectedMsg))
   }
 
@@ -465,7 +465,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val tableKeysVal = keyColumns.getKeysMapFromRow(expectedRow)
     val outputKey = tableKeysVal.mkString(", ")
     val mismatchingVals = TestUtil.getMismatchedVals(expectedRow, actualRow, mismatchingCols).toList
-    val expectedMsg = new MismatchedResultsAllColsErrorMsgTest(outputKey, expectedRowIndex, actualRowIndex, mismatchingCols.toList, mismatchingVals, keyColumns)
+    val expectedMsg = new MismatchedResultsColsErrMsgMock(outputKey, expectedRowIndex, actualRowIndex, mismatchingCols.toList, mismatchingVals, keyColumns)
     assert(thrownMsg.contains(expectedMsg.toString()))
   }
 
