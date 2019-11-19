@@ -2,9 +2,8 @@ sudo: required
 language: scala
 services:
   - docker
-dist: trusty
 jdk:
-  - oraclejdk8
+  - openjdk8
 cache:
   directories:
   - "$HOME/.ivy2/cache"
