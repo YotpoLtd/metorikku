@@ -12,7 +12,7 @@ case class MismatchData(expectedIndex: Int, actualIndex: Int,
                         mismatchingCols: List[String], mismatchingVals: List[String],
                         keyDataStr: String)
 
-case class InvalidSchemaData(rowIndex: Int, invalidColumns: List[String])
+case class InvalidSchemaData(rowIndex: Int, invalidColumnsMissing: List[String], invalidColumnsUnexpected: List[String])
 
 trait ErrorMessage {
   val log = LogManager.getLogger(this.getClass)
@@ -36,13 +36,24 @@ class InvalidSchemaResultsErrorMessage(tableToInvalidSchemaData: Map[String, Lis
 
   override def toString: String = {
     val invalidTableSchemaMessage = tableToInvalidSchemaData.map { case (tableName, listOfSchemaErrData) =>
+
       s"Table Name = ${tableName} \n" +
-        listOfSchemaErrData.map(schemaErrData =>
-          s"\texpected row number ${schemaErrData.rowIndex} had the following unexpected columns: " +
-            s"[${schemaErrData.invalidColumns.mkString(", ")}]\n").mkString("") +
-        "\nError: Failed while validating the schema of the expected results.  \n" +
-        "All expected results must have an identical structure - same columns as the one defined for the first expected result"
-    }
+        listOfSchemaErrData.map(schemaErrData => {
+          val invalidColumnsUnexpected = schemaErrData.invalidColumnsUnexpected.nonEmpty match {
+            case true => s"\texpected row number ${schemaErrData.rowIndex} had the following unexpected columns: " +
+              s"[${schemaErrData.invalidColumnsUnexpected.mkString(", ")}]\n"
+            case _ => ""
+          }
+          val invalidColumnsMissing = schemaErrData.invalidColumnsMissing.nonEmpty match {
+            case true => s"\texpected row number ${schemaErrData.rowIndex} didn't had the following expected columns: " +
+                          s"[${schemaErrData.invalidColumnsMissing.mkString(", ")}]\n"
+            case _ => ""
+          }
+          invalidColumnsMissing + invalidColumnsUnexpected
+        }).mkString("\n")
+        }
+    "\nError: Failed while validating the schema of the expected results.  \n" +
+      "All expected results must have an identical structure - same columns as the one defined for the first expected result\n" +
     s"The following tables had invalid schema: \n${invalidTableSchemaMessage.mkString("\n")}"
   }
 }
@@ -54,25 +65,24 @@ class DuplicatedHeaderErrorMessage() extends ErrorMessage {
     "Error: Found duplications in the results"
   }
 }
-
-class DuplicationErrorMessage(keyDataStr: String, resultType: ResultsType.Value, duplicationIndexes: List[Int], tableName: String,
-                              results: Option[EnrichedRows] = None) extends ErrorMessage {
-
-  override def logError(sparkSession: Option[SparkSession] = None): Unit = {
-    if (sparkSession.get != null) {
-      log.error(s"$tableName Duplications - The key [${keyDataStr}] was found in the ${resultType} results rows: ${
-        duplicationIndexes.map(_ + 1).sortWith(_ < _).mkString(", ")
-      }")
-      log.warn(s"*****************  $tableName $resultType results with Duplications  *******************")
-      val subExpectedError = results.get.getSubTable(duplicationIndexes :+ results.get.size()-1)
-      val expectedKeys = results.get.getHeadRowKeys()
-      val dfWithId = subExpectedError.toDF(resultType, expectedKeys, sparkSession.get)
-      log.warn(TestUtil.dfToString(TestUtil.replaceColVal(dfWithId, "row_number", results.get.size().toString, "  "), subExpectedError.size, truncate = false ))
+class DuplicationsErrorMessage(resultType: ResultsType.Value, duplicatedRowsToIndexes: Map[Map[String, String], List[Int]],
+                               results: Option[EnrichedRows], tableName: String, keyColumns: KeyColumns) extends ErrorMessage {
+  override def logError(sparkSession: Option[SparkSession]): Unit = {
+    if (sparkSession.isDefined) {
+      log.error(toString)
     }
+    log.warn(s"*****************  $tableName $resultType results with Duplications  *******************")
+    val indexes = duplicatedRowsToIndexes.flatMap(_._2).toList
+    val subExpectedError = results.get.getSubTable(indexes :+ results.get.size() - 1)
+    val expectedKeys = results.get.getHeadRowKeys()
+    val dfWithId = subExpectedError.toDF(resultType, expectedKeys, sparkSession.get)
+    log.warn(TestUtil.dfToString(TestUtil.replaceColVal(dfWithId, "row_number", results.get.size().toString, "  "), subExpectedError.size, truncate = false))
   }
 
-  override def toString(): String = {
-    s"Key = [${keyDataStr}] in ${resultType} rows: ${duplicationIndexes.map(_ + 1).sortWith(_ < _).mkString(", ")}"
+  override def toString: String = {
+    s"$tableName Duplications - ${duplicatedRowsToIndexes.map{case (row, indexes) =>
+      s"The key [${keyColumns.getRowKeyStr(row)}] was found in the ${resultType} results rows: " +
+        s"${indexes.map(_ + 1).sortWith(_ < _).mkString(", ")}"}.mkString("\n")}"
   }
 }
 
@@ -113,9 +123,10 @@ class MismatchedResultsAllColsErrorMsg(expectedResults: EnrichedRows, actualResu
 
   override def toString(): String = mismatchData.map(errData => {
     s"Error: Failed on expected row number ${errData.expectedIndex + 1} with key " +
-      s"[${errData.keyDataStr}] - The corresponding key actual row number is ${errData.actualIndex + 1}\n " +
+      s"[${errData.keyDataStr}] - \n" +
       s"Column values mismatch on [${errData.mismatchingCols.sortWith(_ < _).mkString(", ")}] fields " +
-      s"with the values [${errData.mismatchingVals.sortWith(_ < _).mkString(", ")}]"
+      s"with the values [${errData.mismatchingVals.sortWith(_ < _).mkString(", ")}].\n" +
+      s"The actual result row with the same key is number ${errData.actualIndex + 1}\n "
   }).mkString(",\n")
 }
 
@@ -148,20 +159,19 @@ class MismatchedResultsColsErrMsgMock(rowKeyStr: String, expectedRowIndex: Int, 
 
   override def toString(): String = {
     s"Error: Failed on expected row number ${expectedRowIndex} with key " +
-      s"[${rowKeyStr}] - The corresponding key actual row number is ${actualRowIndex}\n " +
+      s"[${rowKeyStr}] - \n" +
       s"Column values mismatch on [${mismatchingCols.sortWith(_ < _).mkString(", ")}] fields " +
-      s"with the values [${mismatchingVals.sortWith(_ < _).mkString(", ")}]"
+      s"with the values [${mismatchingVals.sortWith(_ < _).mkString(", ")}].\n" +
+      s"The actual result row with the same key is number $actualRowIndex\n "
   }
 }
 
 object ErrorMessage {
 
   def getErrorMessagesByDuplications(resType: ResultsType.Value, duplicatedRowToIndexes: Map[Map[String, String], List[Int]],
-                                     results: EnrichedRows, tableName: String): Array[ErrorMessage] = {
+                                     results: EnrichedRows, tableName: String, keyColumns: KeyColumns): Array[ErrorMessage] = {
     if (duplicatedRowToIndexes.nonEmpty) {
-      duplicatedRowToIndexes.map(resDuplication => {
-        new DuplicationErrorMessage(resDuplication._1.mkString(", "), resType, resDuplication._2, tableName, Option(results))
-      }).toArray
+      Array[ErrorMessage](new DuplicationsErrorMessage(resType, duplicatedRowToIndexes, Option(results), tableName, keyColumns))
     } else {
       Array[ErrorMessage]()
     }
