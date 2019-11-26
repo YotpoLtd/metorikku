@@ -1,0 +1,42 @@
+{
+  "metric": "metorikku-tester-test-simple-metric.yaml",
+  "mocks": [
+    {
+      "name": "accounts",
+      "path": "mocks/accounts_xl.jsonl"
+    }
+  ],
+  "tests": {
+    "accountsDf": [
+      {
+        "app_key": "AAAA",
+        "id": "A"
+      },
+      {
+        "app_key": "BBBB",
+        "id": "B1"
+      },
+      {
+        "app_key": "CCCC",
+        "id": "C"
+      },
+      {
+        "app_key": "DDDD",
+        "id": "D1"
+      },
+      {
+        "app_key": "EEEE",
+        "id": "E"
+      },
+      {
+        "app_key": "FFFF",
+        "id": "F"
+      }
+    ]
+  },
+  "keys": {
+    "accountsDf": [
+      "app_key"
+    ]
+  }
+}

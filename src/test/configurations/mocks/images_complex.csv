@@ -1,0 +1,4 @@
+id,user_id,image_file_name,image_content_type,image_file_size,image_updated_at,image_width,image_height,imageable_id,imageable_type,created_at,updated_at,kind,image_fingerprint,published
+10028909,null,nG20_image.jpeg,image/jpeg,310397,2018-09-03T12:39:33.000+0000,810,1080,27717585,Review,2016-05-05T22:37:36.000+0000,2018-09-03T12:39:34.000+0000,review_image,null,false
+10028958,null,TMRD_image.jpeg,image/jpeg,718420,2018-09-03T12:39:39.000+0000,1080,1080,27717601,Review,2016-05-05T22:41:54.000+0000,2018-09-03T12:39:44.000+0000,review_image,null,false
+10028979,null,uki9_image.jpg,image/jpeg,164133,2018-09-03T12:39:36.000+0000,640,647,27717611,Review,2016-05-05T22:43:36.000+0000,2018-09-03T12:39:37.000+0000,review_image,null,false

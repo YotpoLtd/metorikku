@@ -1,0 +1,31 @@
+steps:
+  - dataFrameName: factImages
+    sql:
+      SELECT
+      CURRENT_TIMESTAMP AS dwh_updated_at
+      ,im.id AS image_id
+      ,im.imageable_type AS imageable_type
+      ,im.created_at AS image_created_at
+      ,im.updated_at AS image_updated_at
+      ,im.kind AS image_kind
+      ,(CASE WHEN im.published = TRUE THEN 1 ELSE 0 END) AS is_published
+      ,s.id AS store_id
+      ,(CASE WHEN lower(imageable_type) = 'review' THEN r.user_id
+      ELSE NULL
+      END) AS end_user_id
+      ,im.imageable_id AS imageable_id
+      ,s.organization_id AS organization_id
+      FROM images im
+      LEFT JOIN reviews r
+      ON LOWER(im.imageable_type) = 'review' AND im.imageable_id = r.id
+      LEFT JOIN accounts s
+      ON (LOWER(im.imageable_type) IN ('account', 'app') AND im.imageable_id = s.id) OR
+      (LOWER(im.imageable_type) = 'review' AND r.app_key = s.app_key)
+output:
+  - dataFrameName: factImages
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: fact_images.parquet
+      tableName: fact_images
+      alwaysUpdateSchemaInCatalog: true

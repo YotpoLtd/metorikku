@@ -123,6 +123,10 @@ tests:
     name: test
   - id: 300
     name: test2
+keys:
+  df2: 
+  - id
+  - name
 ```
 
 And the corresponding `mocks/table_1.jsonl`:
@@ -131,6 +135,17 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 300, "name": "test2" }
 { "id": 1, "name": "test3" }
 ```
+
+The Keys section allows the user to define the unique columns of every DataFrame's expected results - 
+every expected row result should have a unique combination for the values of the key columns. 
+This part is optional and can be used to define only part of the expected DataFrames - 
+for the DataFrames that don't have a key definition, all of the columns defined in the first row result 
+will be taken by default as the unique keys. 
+Defining a shorter list of key columns will result in better performances and a more detailed error message in case of test failure.
+
+The structure of the defined expected dataFrame's result must be identical for all rows, and the keys must be valid 
+(defined as columns of the expected results of the same DataFrame)
+
 
 #### Running Metorikku Tester
 You can run Metorikku tester in any of the above methods (just like a normal Metorikku).
@@ -480,6 +495,20 @@ Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details
 
 Also check the full list of configurations possible with hudi [here](http://hudi.incubator.apache.org/configurations.html).
 
+#### Apache Atlas
+Metorikku supports Data Lineage and Governance using [Apache Atlas](https://atlas.apache.org/) and the [Spark Atlas Connector](https://github.com/hortonworks-spark/spark-atlas-connector) 
 
+Atlas is an open source Data Governance and Metadata framework for Hadoop which provides open metadata management and governance capabilities for organizations to build a catalog of their data assets, classify and govern these assets and provide collaboration capabilities around these data assets for data scientists, analysts and the data governance team.
+
+In order to use the spark-atlas-connector with Metorikku  you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
+an external JAR from here: https://github.com/YotpoLtd/spark-atlas-connector/releases/download/latest/spark-atlas-connector-assembly.jar
+
+To integrate the connector with Metorikku docker, you need to pass `USE_ATLAS=true` as en environment variable and the following config will be automatically added to `spark-default.conf`:
+```properties
+spark.extraListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker
+spark.sql.queryExecutionListeners=com.hortonworks.spark.atlas.SparkAtlasEventTracker
+spark.sql.streaming.streamingQueryListeners=com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker
+```
+For a full example please refer to examples/docker-compose-atlas.yml
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).

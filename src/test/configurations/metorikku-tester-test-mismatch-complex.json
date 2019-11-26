@@ -1,0 +1,62 @@
+{
+  "metric": "fact_images.yaml",
+  "mocks": [
+    {
+      "name": "images",
+      "path": "mocks/images_complex.csv"
+    },
+    {
+      "name": "reviews",
+      "path": "mocks/reviews_complex.csv"
+    },
+    {
+      "name": "accounts",
+      "path": "mocks/accounts_complex.csv"
+    }
+  ],
+  "tests": {
+    "factImages": [
+      {
+        "image_id": "10028909",
+        "imageable_type": "Review",
+        "image_created_at": "2016-05-05 22:37:36.000+0000",
+        "image_updated_at": "2018-09-03 12:39:34.000+0000",
+        "image_kind": "review_image",
+        "is_published": 0,
+        "store_id": "154880",
+        "end_user_id": "6466573",
+        "imageable_id": "2771758",
+        "organization_id": "155150"
+      },
+      {
+        "image_id": "10028958",
+        "imageable_type": "Review",
+        "image_created_at": "2016-05-05T22:41:54.000+0000",
+        "image_updated_at": "2018-09-03T12:39:44.000+0000",
+        "image_kind": "review_image",
+        "is_published": 0,
+        "store_id": null,
+        "end_user_id": null,
+        "imageable_id": "27717601",
+        "organization_id": null
+      },
+      {
+        "image_id": "10028979",
+        "imageable_type": "Review",
+        "image_created_at": "2016-05-05T22:43:36.000+0000",
+        "image_updated_at": "2018-09-03T12:39:37.000+0000",
+        "image_kind": "review_image",
+        "is_published": 0,
+        "store_id": null,
+        "end_user_id": null,
+        "imageable_id": "27717611",
+        "organization_id": null
+      }
+    ]
+  },
+  "keys": {
+    "factImages": [
+      "image_id"
+    ]
+  }
+}

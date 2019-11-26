@@ -6,6 +6,7 @@ SCHEMA_VERIFICATION=${SCHEMA_VERIFICATION:=false}
 METASTORE_PORT=${METASTORE_PORT:=9083}
 DEFAULT_FS=${DEFAULT_FS:=file:///}
 DB_TYPE=${DB_TYPE:=mysql}
+USE_ATLAS=${USE_ATLAS:=false}
 
 if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
@@ -71,8 +72,39 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>fs.s3n.awsSecretAccessKey</name>
         <value>${AWS_SECRET_KEY}</value>
      </property>
+EOL
+
+if [[ ! -z ${USE_ATLAS} ]] ; then
+cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
+     <property>
+        <name>hive.exec.post.hooks</name>
+        <value>org.apache.atlas.hive.hook.HiveHook</value>
+     </property>
 </configuration>
 EOL
+# hive-env extra jars
+cat >>${HIVE_HOME}/conf/hive-env.sh <<EOL
+export HIVE_AUX_JARS_PATH=${ATLAS_HOME}/hook/hive
+EOL
+# Atlas application properties
+cat >${HIVE_HOME}/conf/atlas-application.properties <<EOL
+atlas.hook.hive.synchronous=true
+atlas.hook.hive.numRetries=3
+atlas.hook.hive.queueSize=10000
+atlas.cluster.name=primary
+atlas.kafka.zookeeper.connection.timeout.ms=30000
+atlas.kafka.zookeeper.session.timeout.ms=60000
+atlas.kafka.zookeeper.sync.time.ms=20
+atlas.kafka.data=${sys:atlas.home}/data/kafka
+atlas.kafka.zookeeper.connect=${ZOOKEEPER_CONNECT}
+atlas.kafka.bootstrap.servers=${BOOTSTRAP_SERVERS}
+atlas.rest.address=${ATLAS_ADDR}
+EOL
+else
+cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
+</configuration>
+EOL
+fi
 
 $HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
 
