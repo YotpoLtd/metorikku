@@ -1,11 +1,11 @@
 package com.yotpo.metorikku.output.writers.jdbc
 
-import java.sql.{Date, DriverManager, PreparedStatement, Timestamp}
+import java.sql.{Connection, Date, DriverManager, PreparedStatement, ResultSet, Timestamp}
 
 import com.yotpo.metorikku.configuration.job.output.JDBC
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types.{ArrayType, BinaryType, MapType, StructType}
 
 class JDBCUpsertWriter(props: Map[String, String], config: Option[JDBC]) extends Writer {
@@ -26,49 +26,39 @@ class JDBCUpsertWriter(props: Map[String, String], config: Option[JDBC]) extends
       case Some(config) =>
         alignPartitions(dataFrame, options.minPartitions, options.maxPartitions).foreachPartition(partition => {
           val conn = DriverManager.getConnection(config.connectionUrl, config.user, config.password)
-          val queryFields = options.queryFields.split(",");
-          val updateFields = options.updateFields.split(",");
-          val insertFields = options.insertFields.split(",");
-          var insertStmt: PreparedStatement = conn.prepareStatement(options.insert);
-          var updateStmt: PreparedStatement = conn.prepareStatement(options.update);
-          var insertSize = 0;
-          var updateSize = 0;
-          val batchSize = options.maxBatchSize;
+          val queryFields = options.queryFields.split(",")
+          val updateFields = options.updateFields.split(",")
+          val insertFields = options.insertFields.split(",")
+          var queryStmt: PreparedStatement = conn.prepareStatement(options.query)
+          var insertStmt: PreparedStatement = conn.prepareStatement(options.insert)
+          var updateStmt: PreparedStatement = conn.prepareStatement(options.update)
+          var insertSize = 0
+          var updateSize = 0
+          val batchSize = options.maxBatchSize
           partition.foreach(row => {
-            var queryStmt = conn.prepareStatement(options.query)
-
-            for (i <- 1 to queryFields.size) {
-              addValueToStatement(row.getAs(queryFields(i - 1)), queryStmt, i)
-            }
-            val rs = queryStmt.executeQuery();
-            var count = 0;
+            val rs = doQuery(conn, queryStmt, queryFields, row)
+            var count = 0
             while (rs.next()) {
-              count = 1;
+              count = 1
             }
             if (count == 0) {
-              for (i <- 1 to insertFields.size) {
-                addValueToStatement(row.getAs(insertFields(i - 1)), insertStmt, i)
-              }
-              insertSize = insertSize + 1;
-              insertStmt.addBatch();
+              insertSize = insertSize + 1
+              doInsert(conn, insertStmt, insertFields, row)
             } else {
-              for (i <- 1 to updateFields.size) {
-                addValueToStatement(row.getAs(updateFields(i - 1)), updateStmt, i)
-              }
-              updateSize = updateSize + 1;
-              updateStmt.addBatch();
+              updateSize = updateSize + 1
+              doUpdate(conn, updateStmt, updateFields, row)
             }
             if (insertSize >= batchSize) {
               insertSize = 0
-              insertStmt.executeBatch();
+              insertStmt.executeBatch()
             }
             if (updateSize >= batchSize) {
               updateSize = 0
-              updateStmt.executeBatch();
+              updateStmt.executeBatch()
             }
           })
-          insertStmt.executeBatch();
-          updateStmt.executeBatch();
+          insertStmt.executeBatch()
+          updateStmt.executeBatch()
           insertStmt.close()
           updateStmt.close()
           conn.close()
@@ -78,7 +68,27 @@ class JDBCUpsertWriter(props: Map[String, String], config: Option[JDBC]) extends
     }
   }
 
-  // scalastyle:off cyclomatic.complexity
+  def doQuery(conn: Connection, queryStmt: PreparedStatement, queryFields: Array[String], row: Row): ResultSet = {
+    for (i <- 1 to queryFields.size) {
+      addValueToStatement(row.getAs(queryFields(i - 1)), queryStmt, i)
+    }
+    queryStmt.executeQuery();
+  }
+
+  def doInsert(conn: Connection, insertStmt: PreparedStatement, insertFields: Array[String], row: Row): Unit = {
+    for (i <- 1 to insertFields.size) {
+      addValueToStatement(row.getAs(insertFields(i - 1)), insertStmt, i)
+    }
+    insertStmt.addBatch();
+  }
+
+  def doUpdate(conn: Connection, updateStmt: PreparedStatement, updateFields: Array[String], row: Row): Unit = {
+    for (i <- 1 to updateFields.size) {
+      addValueToStatement(row.getAs(updateFields(i - 1)), updateStmt, i)
+    }
+    updateStmt.addBatch();
+  }
+
   def addValueToStatement(v: Any, stmt: PreparedStatement, i: Int): Unit = {
     v match {
       case v: Boolean => stmt.setBoolean(i, v.asInstanceOf[Boolean])
@@ -99,8 +109,6 @@ class JDBCUpsertWriter(props: Map[String, String], config: Option[JDBC]) extends
       case _ => stmt.setObject(i, v)
     }
   }
-
-  // scalastyle:on cyclomatic.complexity
 
   def alignPartitions(dataFrame: DataFrame, minPartitions: Option[Int], maxPartitions: Option[Int]): DataFrame = {
     val current = dataFrame.rdd.getNumPartitions
