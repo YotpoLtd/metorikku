@@ -7,7 +7,7 @@ import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.file._
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
-import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
+import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter, JDBCUpsertWriter}
 import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
@@ -38,6 +38,7 @@ object WriterFactory {
         outputConfig.dataFrameName, metricName, job.instrumentationFactory)
       case OutputType.JDBC => new JDBCOutputWriter(metricOutputOptions, output.jdbc)
       case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions, output.jdbc)
+      case OutputType.JDBCUpsert => new JDBCUpsertWriter(metricOutputOptions, output.jdbc)
       case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions, output.kafka)
       case OutputType.Elasticsearch => new ElasticsearchOutputWriter(metricOutputOptions, output.elasticsearch.get)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")

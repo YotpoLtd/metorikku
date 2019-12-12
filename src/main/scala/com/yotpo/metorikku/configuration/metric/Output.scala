@@ -23,10 +23,14 @@ object OutputType extends Enumeration {
   Instrumentation,
   JDBC,
   JDBCQuery,
+  JDBCUpsert,
   Elasticsearch,
   File,
   Kafka,
   Hudi = Value
+
+
+
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

@@ -92,6 +92,31 @@ output:
       minPartitions: 5
       # This will repartition the data if it has too many partitions
       maxPartitions: 10
+   - dataFrameName: table1
+     outputType: JDBCUpsert
+     outputOptions:
+     # Run this query to check whether to do an insert or update operation.
+     query:
+       select * from table
+       where id = ?
+     #the fields to be used to extract value in previous dataframe or flow.
+     queryFields: id
+     # do update operation
+     update:
+       update table set name = ? where id = ?
+     updateFields: name,id
+     #do insert operation
+     insert:
+       INSERT INTO table
+       (id, name)
+       VALUES (?, ?)
+     insertFields: id,name
+     # Size of the insert batch before committing
+     maxBatchSize: 10
+     # This will repartition the data if it doesn't have enough partitions
+     minPartitions: 5
+     # This will repartition the data if it has too many partitions
+     maxPartitions: 10
   - dataFrameName: table1
     outputType: Kafka
     outputOptions:
