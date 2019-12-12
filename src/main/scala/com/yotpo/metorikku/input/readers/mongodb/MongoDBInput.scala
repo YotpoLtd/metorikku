@@ -10,7 +10,7 @@ case class MongoDBInput(name: String, uri: String, database: String, collection:
 
     mongoDBOptions ++= options.getOrElse(Map())
 
-    val dbTable = sparkSession.read.format("mongo").options(mongoDBOptions).load()
-    dbTable
+    sparkSession.read.format("mongo").options(mongoDBOptions).load()
+
   }
 }
