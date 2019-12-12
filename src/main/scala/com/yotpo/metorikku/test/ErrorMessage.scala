@@ -182,18 +182,24 @@ object ErrorMessage {
     val sorter = TesterSortData(tableKeys)
     val (sortedExpectedEnrichedRows, sortedActualEnrichedRows) = (expectedEnrichedRows.sortWith(sorter.sortEnrichedRows),
       actualEnrichedRows.sortWith(sorter.sortEnrichedRows))
-    sortedExpectedEnrichedRows.zipWithIndex.flatMap { case (expectedResult, sortedIndex) =>
+    val mismatcheddDataTuples =
+      sortedExpectedEnrichedRows.zipWithIndex.flatMap { case (expectedResult, sortedIndex) =>
       val expectedIndex = expectedResult.index
       val actualIndex = sortedActualEnrichedRows.getEnrichedRowByIndex(sortedIndex).index
       val actualResultRow = sortedActualEnrichedRows.getEnrichedRowByIndex(sortedIndex).getRow()
       val mismatchingCols = TestUtil.getMismatchingColumns(actualResultRow, expectedResult.row)
       if (mismatchingCols.nonEmpty) {
-        getMismatchedAllColsErrorMsg(List[(Int, Int)]() :+ (expectedIndex, actualIndex), expectedEnrichedRows, actualEnrichedRows,
-          tableKeys, sparkSession, tableName).map(Some(_))
+        Some(expectedIndex, actualIndex)
       } else {
         None
       }
-    }.flatten.toArray
+    }.toArray
+    mismatcheddDataTuples.size match {
+      case 0 => Array[ErrorMessage]()
+      case _ => getMismatchedAllColsErrorMsg(mismatcheddDataTuples.toList, expectedEnrichedRows, actualEnrichedRows,
+        tableKeys, sparkSession, tableName)
+    }
+
   }
 
   def getMismatchedAllColsErrorMsg(expectedMismatchedActualIndexesMap: List[(Int, Int)], expectedResults: EnrichedRows,

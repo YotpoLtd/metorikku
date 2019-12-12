@@ -105,10 +105,10 @@ object EnrichedRows {
                         errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean,
                         sparkSession: SparkSession, tableName: String): Unit = {
     val expectedCols = sortedExpectedResults.getHeadRowKeys()
-    if (errorsIndexArrExpected.nonEmpty) {
+    if (errorsIndexArrExpected.size > 1) {
       sortedExpectedResults.logErrorByResType(ResultsType.expected, errorsIndexArrExpected, expectedCols, sparkSession, tableName)
 
-      if (errorsIndexArrActual.nonEmpty) {
+      if (errorsIndexArrActual.size > 1) {
         sortedActualResults.logErrorByResType(ResultsType.actual, errorsIndexArrActual, expectedCols, sparkSession, tableName)
       }
     }
