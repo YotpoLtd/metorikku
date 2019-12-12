@@ -9,9 +9,9 @@ case class MongoDB(uri: String,
                    collection: String,
                    options: Option[Map[String, String]]
                   ) extends InputConfig {
-  require(Option(uri).isDefined, "Mongo input: uri is mandatory")
-  require(Option(database).isDefined, "Mongo input: database is mandatory")
-  require(Option(collection).isDefined, "Mongo input: collection is mandatory")
+  require(Option(uri).isDefined, "MongoDB input: uri is mandatory")
+  require(Option(database).isDefined, "MongoDB input: database is mandatory")
+  require(Option(collection).isDefined, "MongoDB input: collection is mandatory")
 
   override def getReader(name: String): Reader = MongoDBInput(name=name, uri=uri, database=database, collection=collection, options=options);
 }
