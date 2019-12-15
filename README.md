@@ -59,7 +59,7 @@ Also make sure to check out all our [examples](examples).
 #### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC, Kafka, Cassandra**
+**CSV, JSON, parquet, JDBC, Kafka, Cassandra, Elasticsearch**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
