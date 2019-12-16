@@ -21,7 +21,7 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
         val connectionProperties = new Properties()
         connectionProperties.put("user", jdbcConf.user)
         connectionProperties.put("password", jdbcConf.password)
-
+        connectionProperties.put("driver", jdbcConf.driver)
         var df = dataFrame
         val writer = df.write.format(jdbcConf.driver)
           .mode(dbOptions.saveMode)
