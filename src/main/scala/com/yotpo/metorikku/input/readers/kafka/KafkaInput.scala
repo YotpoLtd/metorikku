@@ -3,9 +3,10 @@ package com.yotpo.metorikku.input.readers.kafka
 import java.util.Properties
 
 import com.yotpo.metorikku.input.Reader
-import com.yotpo.metorikku.input.readers.kafka.deserialize.SchemaRegistryDeserializer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import za.co.absa.abris.avro.read.confluent.SchemaManager
+import org.apache.spark.sql.functions.col
 
 
 case class KafkaInput(name: String, servers: Seq[String], topic: Option[String], topicPattern: Option[String], consumerGroup: Option[String],
@@ -45,8 +46,13 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val schemaRegistryDeserializer = new SchemaRegistryDeserializer(url, topic.getOrElse(""), schemaSubject)
-        schemaRegistryDeserializer.getDeserializedDataframe(sparkSession, kafkaDataFrame)
+        val schemaRegistryConfig = Map(
+          SchemaManager.PARAM_SCHEMA_REGISTRY_URL                  -> url.toString,
+          SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC                -> topic.getOrElse(""),
+          SchemaManager.PARAM_VALUE_SCHEMA_NAMING_STRATEGY         -> SchemaManager.SchemaStorageNamingStrategies.TOPIC_NAME,
+          SchemaManager.PARAM_VALUE_SCHEMA_ID                      -> "latest"
+        )
+        kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaRegistryConfig) as "value").select("value.*")
       }
       case None => kafkaDataFrame
     }

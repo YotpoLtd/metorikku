@@ -28,9 +28,7 @@ case class Streaming(triggerMode: Option[String],
         writer.trigger(Trigger.Once())
       case (Some("Continuous"), Some(duration)) =>
         writer.trigger(Trigger.Continuous(duration))
-      case _ => throw MetorikkuWriteFailedException("Trigger option is not valid, only ProcessingTime, " +
-        "Once and Continuous are available. " +
-        "Both ProcessingTime and Continuous also require a triggerDuration option as well.")
+      case _ => writer
     }
 
     extraOptions match {
