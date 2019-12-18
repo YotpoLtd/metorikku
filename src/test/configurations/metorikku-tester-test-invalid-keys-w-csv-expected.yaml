@@ -1,0 +1,12 @@
+---
+metric: metorikku-tester-test-simple-metric.yaml
+mocks:
+  - name: accounts
+    path: mocks/accounts.jsonl
+testsFiles:
+  - name: accountsDf
+    path: mocks/accounts_expected.csv
+keys:
+  accountsDf:
+    - app_key
+    - user_id

@@ -87,14 +87,31 @@ case class Tester(config: TesterConfig) {
     }
   }
 
+  private def getExpected(configuration: TesterConfig, sparkSession: SparkSession): Map[String, List[Map[String, Any]]] = {
+
+    val testsMocks = getMockFilesFromDir(configuration.test.testsFiles, configuration.basePath)
+
+    testsMocks match {
+
+      case Some(x) => x.mapValues{ v => TestUtil.getRowsFromDf(v.getReader("").read(sparkSession)) }
+
+      case None => configuration.test.tests.get
+
+      }
+  }
+
+
   private def compareActualToExpected(metricName: String): Array[String] = {
     var errors = Array[ErrorMessage]()
-    val (metricExpectedTests, configuredKeys) = (config.test.tests, config.test.keys)
+    val metricExpectedTests = getExpected(config, job.sparkSession)
+    val configuredKeys = config.test.keys
+
     val invalidSchemaMap = getTableNameToInvalidRowStructureIndexes(metricExpectedTests)
     if (invalidSchemaMap.nonEmpty) return getInvalidSchemaErrors(invalidSchemaMap)
 
     metricExpectedTests.keys.foreach(tableName => {
       val actualResultsDf = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
+
       val (expectedResults, actualResults) = (metricExpectedTests(tableName), TestUtil.getRowsFromDf(actualResultsDf))
       val (expectedResultsObjects, actualResultsObjects) = (EnrichedRows(expectedResults), EnrichedRows(actualResults))
       val tableNameToAllExpectedColumns = metricExpectedTests.mapValues(v => v.head.keys.toList)

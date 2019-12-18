@@ -7,6 +7,6 @@ mocks:
 params:
   variables:
     myFavoriteMovie: Lord of the Rings, The (1978)
-testFiles:
-- name: my_favorite_movie_rated
+testsFiles:
+- name: myFavoriteMovieRated
   path: expected_outputs/my_favorite_movie_rated.csv
