@@ -19,11 +19,6 @@ developers := List(
 
 scalaVersion := "2.11.12"
 val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.4")
-val sparkCassandraVersion = sparkVersion match {
-  case "2.4.3" => "2.4.2"
-  case "2.2.0" => "2.0.11"
-  case other => other
-}
 val jacksonVersion = "2.9.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
@@ -39,7 +34,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
-  "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraVersion,
+  "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.2",
   "org.apache.avro" % "avro" % "1.8.2",
   "com.holdenkarau" %% "spark-testing-base" % "2.4.3_0.12.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
