@@ -18,10 +18,9 @@ developers := List(
 )
 
 scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.3")
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.4")
 val sparkCassandraVersion = sparkVersion match {
-  case "2.4.3" => "2.4.1"
-  case "2.4.2" => "2.4.1"
+  case "2.4.3" => "2.4.2"
   case "2.2.0" => "2.0.11"
   case other => other
 }
@@ -42,7 +41,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraVersion,
   "org.apache.avro" % "avro" % "1.8.2",
-  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.12.0" % "test",
+  "com.holdenkarau" %% "spark-testing-base" % "2.4.3_0.12.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
