@@ -136,6 +136,29 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 1, "name": "test3" }
 ```
 
+Note that it is also possible to use csv mocks for the Expected output. In this case use the `testsFiles` option instead of `tests` like this - 
+
+```yaml
+metric: "/path/to/metric"
+mocks:
+- name: table_1
+  path: mocks/table_1.jsonl
+testsFiles:
+- name: expected
+  path: "/path/to/expected.csv"
+keys:
+  df2: 
+  - id
+  - name
+```
+
+while the csv file under "/path/to/expected.csv" will look like this -
+```csv
+id,name
+200,test
+300,test2
+```
+
 The Keys section allows the user to define the unique columns of every DataFrame's expected results - 
 every expected row result should have a unique combination for the values of the key columns. 
 This part is optional and can be used to define only part of the expected DataFrames - 

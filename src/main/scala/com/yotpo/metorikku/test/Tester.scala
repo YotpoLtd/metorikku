@@ -105,22 +105,19 @@ case class Tester(config: TesterConfig) {
     var errors = Array[ErrorMessage]()
     val metricExpectedTests = getExpected(config, job.sparkSession)
     val configuredKeys = config.test.keys
-
     val invalidSchemaMap = getTableNameToInvalidRowStructureIndexes(metricExpectedTests)
     if (invalidSchemaMap.nonEmpty) return getInvalidSchemaErrors(invalidSchemaMap)
 
     metricExpectedTests.keys.foreach(tableName => {
       val actualResultsDf = extractTableContents(job.sparkSession, tableName, config.test.outputMode.get)
-
       val (expectedResults, actualResults) = (metricExpectedTests(tableName), TestUtil.getRowsFromDf(actualResultsDf))
       val (expectedResultsObjects, actualResultsObjects) = (EnrichedRows(expectedResults), EnrichedRows(actualResults))
       val tableNameToAllExpectedColumns = metricExpectedTests.mapValues(v => v.head.keys.toList)
       val allExpectedColumns = tableNameToAllExpectedColumns.getOrElse(tableName, List[String]())
-      val (isConfiguredKeysValid, keys) = getConfiguredKeysValidToTableKeys(configuredKeys, tableName, allExpectedColumns, tableName)
+      val (isConfiguredKeysValid, tableKeys) = getConfiguredKeysValidToTableKeys(configuredKeys, tableName, allExpectedColumns, tableName)
       if (!isConfiguredKeysValid) {
-        return getInvalidKeysNonExistingErrors(allExpectedColumns, keys, tableName)
+        return getInvalidKeysNonExistingErrors(allExpectedColumns, tableKeys, tableName)
       }
-      val tableKeys = keys
       val keyColumns = KeyColumns(tableKeys)
       val (expectedKeys, actualKeys) = (keyColumns.getKeysMapFromRows(expectedResults), keyColumns.getKeysMapFromDF(actualResultsDf))
       val (expectedResultsDuplications, actualResultsDuplications) = (TestUtil.getDuplicatedRowToIndexes(expectedKeys),
@@ -133,16 +130,13 @@ case class Tester(config: TesterConfig) {
           Array[ErrorMessage](new DuplicatedHeaderErrorMessage()) ++
             ErrorMessage.getErrorMessagesByDuplications(ResultsType.expected, expectedResultsDuplications, printableExpectedResults, tableName, keyColumns) ++
             ErrorMessage.getErrorMessagesByDuplications(ResultsType.actual, actualResultsDuplications, printableActualResults, tableName, keyColumns)
-
         case _ =>
           val sorter = TesterSortData(tableKeys)
           if (expectedKeys.sortWith(sorter.sortStringRows).deep != actualKeys.sortWith(sorter.sortStringRows).deep) {
             val (expErrorIndexes, actErrorIndexes) = compareKeys(expectedKeys, actualKeys)
-            ErrorMessage.getErrorMessageByMismatchedKeys(printableExpectedResults, printableActualResults,
-                                                          expErrorIndexes, actErrorIndexes, keyColumns, tableName)
-          } else {
-            ErrorMessage.getErrorMessagesByMismatchedAllCols(tableKeys, printableExpectedResults, printableActualResults, job.sparkSession, tableName)
-          }
+            ErrorMessage.getErrorMessageByMismatchedKeys(printableExpectedResults, printableActualResults, expErrorIndexes, actErrorIndexes,
+              keyColumns, tableName)
+          } else {ErrorMessage.getErrorMessagesByMismatchedAllCols(tableKeys, printableExpectedResults, printableActualResults, job.sparkSession, tableName)}
       }
       if (tableErrorDataArr.nonEmpty) {
         errors ++= tableErrorDataArr
