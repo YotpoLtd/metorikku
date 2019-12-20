@@ -25,8 +25,8 @@ lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name =
 lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
 lazy val excludeHoodieTimeLineService = ExclusionRule(organization = "com.uber.hoodie", name = "hoodie-timeline-service")
-lazy val exclueAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
-lazy val exclueSpark = ExclusionRule(organization = "org.apache.spark")
+lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
+lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
 
 //lazy val exclueAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
 
@@ -39,7 +39,6 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.2",
-  "org.apache.avro" % "avro" % "1.8.2",
   "com.holdenkarau" %% "spark-testing-base" % "2.4.3_0.12.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
@@ -64,9 +63,10 @@ libraryDependencies ++= Seq(
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
-  "za.co.absa" % "abris_2.11" % "3.1.1" excludeAll(exclueAvro, exclueSpark),
+  "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
   "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
+  "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )
 
