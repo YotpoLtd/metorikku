@@ -72,8 +72,8 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
         val schemaTopicPatternRegistryConfig = schemaRegistryConfig + (SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> topicPatternGenericSchemaName)
         kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaTopicPatternRegistryConfig) as "value").select("value.*")
       }
-      case (_, _, _) => throw MetorikkuReadFailedException("schema registry url was passed in function but " +
-        "no topic or topic pattern and topicPatternGenericSchemaName were passed with the url")
+      case (_, _, _) => throw MetorikkuReadFailedException("schema registry url and pattern were passed to function but " +
+        "topicPatternGenericSchemaName is missing")
     }
   }
 
