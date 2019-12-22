@@ -6,11 +6,13 @@ import com.yotpo.metorikku.input.Reader
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import za.co.absa.abris.avro.read.confluent.SchemaManager
+import com.yotpo.metorikku.exceptions.MetorikkuReadFailedException
 import org.apache.spark.sql.functions.col
 
 
 case class KafkaInput(name: String, servers: Seq[String], topic: Option[String], topicPattern: Option[String], consumerGroup: Option[String],
-                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject: Option[String]) extends Reader {
+                      options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject: Option[String],
+                      registeredSchemaVersion: Option[String], topicPatternGenericSchemaName: Option[String]) extends Reader {
   @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
 
@@ -46,15 +48,32 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val schemaRegistryConfig = Map(
-          SchemaManager.PARAM_SCHEMA_REGISTRY_URL                  -> url.toString,
-          SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC                -> topic.getOrElse(""),
-          SchemaManager.PARAM_VALUE_SCHEMA_NAMING_STRATEGY         -> SchemaManager.SchemaStorageNamingStrategies.TOPIC_NAME,
-          SchemaManager.PARAM_VALUE_SCHEMA_ID                      -> "latest"
-        )
-        kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaRegistryConfig) as "value").select("value.*")
+        parseStreamDataFrameUsingSchemaRegistry(kafkaDataFrame, url, topic, topicPattern, registeredSchemaVersion, topicPatternGenericSchemaName)
       }
       case None => kafkaDataFrame
+    }
+  }
+
+  private def parseStreamDataFrameUsingSchemaRegistry(kafkaDataFrame: DataFrame, schemaRegistryUrl: String, topic: Option[String],
+                                                      topicPattern: Option[String], registeredSchemaVersion: Option[String],
+                                                      topicPatternGenericSchemaName: Option[String]): DataFrame = {
+    val registeredSchemaVersionValue = registeredSchemaVersion.getOrElse("latest")
+    val schemaRegistryConfig = Map(
+      SchemaManager.PARAM_SCHEMA_REGISTRY_URL -> schemaRegistryUrl,
+      SchemaManager.PARAM_VALUE_SCHEMA_NAMING_STRATEGY -> SchemaManager.SchemaStorageNamingStrategies.TOPIC_NAME,
+      SchemaManager.PARAM_VALUE_SCHEMA_ID -> registeredSchemaVersionValue
+    )
+    (topic, topicPattern, topicPatternGenericSchemaName) match {
+      case (Some(topic), None, _) => {
+        val schemaTopicRegistryConfig = schemaRegistryConfig + (SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> topic)
+        kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaTopicRegistryConfig) as "value").select("value.*")
+      }
+      case (None, Some(topicPattern), Some(topicPatternGenericSchemaName)) => {
+        val schemaTopicPatternRegistryConfig = schemaRegistryConfig + (SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> topicPatternGenericSchemaName)
+        kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaTopicPatternRegistryConfig) as "value").select("value.*")
+      }
+      case (_, _, _) => throw MetorikkuReadFailedException("schema registry url was passed in function but " +
+        "no topic or topic pattern and topicPatternGenericSchemaName were passed with the url")
     }
   }
 
