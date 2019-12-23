@@ -6,13 +6,13 @@ import com.yotpo.metorikku.input.Reader
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import za.co.absa.abris.avro.read.confluent.SchemaManager
-import com.yotpo.metorikku.exceptions.MetorikkuSchemaRegistryConfigException
+import za.co.absa.abris.avro.functions.from_confluent_avro
 import org.apache.spark.sql.functions.col
 
 
 case class KafkaInput(name: String, servers: Seq[String], topic: Option[String], topicPattern: Option[String], consumerGroup: Option[String],
                       options: Option[Map[String, String]], schemaRegistryUrl: Option[String], schemaSubject: Option[String],
-                      registeredSchemaID: Option[String]) extends Reader {
+                      schemaId: Option[String]) extends Reader {
   @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
 
@@ -48,32 +48,22 @@ case class KafkaInput(name: String, servers: Seq[String], topic: Option[String],
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {
       case Some(url) => {
-        val schemaRegistryMap = createSchemaRegistryConfig(url, topic, topicPattern, registeredSchemaID, schemaSubject)
-        kafkaDataFrame.select(za.co.absa.abris.avro.functions.from_confluent_avro(col("value"), schemaRegistryMap) as "value").select("value.*")
+        val schemaRegistryMap = createSchemaRegistryConfig(url, schemaSubject.getOrElse(topic.get) ,schemaId)
+        kafkaDataFrame.select(from_confluent_avro(col("value"), schemaRegistryMap) as "result").select("result.*")
       }
       case None => kafkaDataFrame
     }
   }
 
-  private def createSchemaRegistryConfig(schemaRegistryUrl: String, topic: Option[String],
-                                         topicPattern: Option[String], registeredSchemaID: Option[String],
-                                         schemaSubject: Option[String]): Map[String,String] = {
-    val registeredSchemaIDValue = registeredSchemaID.getOrElse("latest")
+  private def createSchemaRegistryConfig(schemaRegistryUrl: String, schemaRegistryTopic: String, schemaId: Option[String]): Map[String,String] = {
+    val schemaIdValue = schemaId.getOrElse("latest")
     val schemaRegistryConfig = Map(
       SchemaManager.PARAM_SCHEMA_REGISTRY_URL -> schemaRegistryUrl,
+      SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> schemaRegistryTopic,
       SchemaManager.PARAM_VALUE_SCHEMA_NAMING_STRATEGY -> SchemaManager.SchemaStorageNamingStrategies.TOPIC_NAME,
-      SchemaManager.PARAM_VALUE_SCHEMA_ID -> registeredSchemaIDValue
+      SchemaManager.PARAM_VALUE_SCHEMA_ID -> schemaIdValue
     )
-    (topic, schemaSubject) match {
-      case (Some(topic), None) => {
-        schemaRegistryConfig + (SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> topic)
-      }
-      case (None, Some(schemaSubject)) => {
-        schemaRegistryConfig + (SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC -> schemaSubject)
-      }
-      case (_, _) => throw MetorikkuSchemaRegistryConfigException("schema registry url and pattern were passed to function but " +
-        "schemaSubject is missing")
-    }
+    schemaRegistryConfig
   }
 
   private def createKafkaConsumer(consumerGroupID: String) = {

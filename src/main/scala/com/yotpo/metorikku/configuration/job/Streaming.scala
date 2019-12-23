@@ -3,7 +3,6 @@ package com.yotpo.metorikku.configuration.job
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import org.apache.spark.sql.streaming.{DataStreamWriter, Trigger}
 
-
 case class Streaming(triggerMode: Option[String],
                      triggerDuration: Option[String],
                      outputMode: Option[String],
@@ -31,7 +30,7 @@ case class Streaming(triggerMode: Option[String],
       case (Some("Continuous"), Some(duration)) =>
         writer.trigger(Trigger.Continuous(duration))
       case _ =>
-        log.warn(s"no triggerMode was passed. writer will be returned with default trigger mode")
+        log.warn("no triggerMode was passed or trigger sent is invalid. writer will be returned with default trigger mode")
         writer
     }
 

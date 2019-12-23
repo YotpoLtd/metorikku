@@ -8,14 +8,22 @@ steps:
            title,
            genres,
            now() as ts,
-           from_unixtime(timestamp, "yyyy/MM/dd") as date
+           from_unixtime(timestamp, "yyyy/MM/dd") as date,
+           false AS _hoodie_delete
     FROM ratings
     JOIN movies ON ratings.movieid = movies.movieid
     WHERE from_unixtime(timestamp) BETWEEN '2014-11-01' AND '2014-11-03'
 - dataFrameName: deleteDayAndNight
   sql:
-    SELECT *,
-    true AS _hoodie_delete
+    SELECT userkey,
+           movieId,
+           rating,
+           timestamp,
+           title,
+           genres,
+           ts,
+           date,
+           true as _hoodie_delete
     FROM moviesWithRatings
     WHERE title = 'Day & Night (2010)'
 output:
