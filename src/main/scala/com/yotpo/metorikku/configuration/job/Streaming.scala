@@ -3,12 +3,14 @@ package com.yotpo.metorikku.configuration.job
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import org.apache.spark.sql.streaming.{DataStreamWriter, Trigger}
 
+
 case class Streaming(triggerMode: Option[String],
                      triggerDuration: Option[String],
                      outputMode: Option[String],
                      checkpointLocation: Option[String],
                      batchMode: Option[Boolean],
                      extraOptions: Option[Map[String, String]]) {
+  @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
   def applyOptions(writer: DataStreamWriter[_]): Unit = {
     checkpointLocation match {
@@ -28,7 +30,9 @@ case class Streaming(triggerMode: Option[String],
         writer.trigger(Trigger.Once())
       case (Some("Continuous"), Some(duration)) =>
         writer.trigger(Trigger.Continuous(duration))
-      case _ => writer
+      case _ =>
+        log.warn(s"no triggerMode was passed. writer will be returned with default trigger mode")
+        writer
     }
 
     extraOptions match {

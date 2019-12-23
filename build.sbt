@@ -28,8 +28,6 @@ lazy val excludeHoodieTimeLineService = ExclusionRule(organization = "com.uber.h
 lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
 lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
 
-//lazy val exclueAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
-
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",

@@ -259,7 +259,7 @@ When using kafka input, writing is only available to ```File``` and ```Kafka```,
 * In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input.
 This will commit the offsets to kafka, as a new dummy consumer group.
 
-* In order to deserialize your kafka stream messages with confluent's [Schema Registry](https://docs.confluent.io/current/schema-registry/docs/index.html), add the  ```schemaRegistryUrl``` option to the kafka input config 
+* In order to deserialize your kafka stream messages with ABRiS Lib (https://github.com/AbsaOSS/ABRiS/tree/ab29bf20d68c21cd54ccf6d836a027a87a4850ae), add the  ```schemaRegistryUrl``` option to the kafka input config 
 
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 
