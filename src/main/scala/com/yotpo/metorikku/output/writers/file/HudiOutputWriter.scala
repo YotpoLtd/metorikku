@@ -23,7 +23,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
                                   extraOptions: Option[Map[String, String]],
-                                  alignToPreviousSchema: Option[Boolean])
+                                  alignToPreviousSchema: Option[Boolean],
+                                  supportNullableFields: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -34,7 +35,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
-    props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]])
+    props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
+    props.get("supportNullableFields").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -47,10 +49,13 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     log.info(s"Starting to write dataframe to hudi")
     var df = dataFrame
     // To support schema evolution all fields should be nullable
-    df = supportNullableFields(df)
+    df = this.hudiOutputProperties.supportNullableFields match {
+      case Some(true) => supportNullableFields(df)
+      case _ => df
+    }
 
     df = this.hudiOutputProperties.alignToPreviousSchema match {
-      case Some(true) => alignToPreviousSchema(df)
+      case Some(true) => alignToPreviousSchema(supportNullableFields(df))
       case _ => df
     }
 
