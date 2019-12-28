@@ -14,7 +14,7 @@ output:
     dir: /examples/output
     parallelism: 1
     operation: upsert
-    storageType: COPY_ON_WRITE
+    storageType: MERGE_ON_READ
     maxVersions: 2
     hiveDB: default
     hiveJDBCURL: jdbc:hive2://hive:10000
