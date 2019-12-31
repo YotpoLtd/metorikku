@@ -1,14 +1,11 @@
 package com.yotpo.metorikku.test
 
-import java.io.{File, FileNotFoundException}
+import java.io.{FileNotFoundException}
 import java.io.File
-import java.nio.file.{Files, Paths}
 
 import com.yotpo.metorikku.Metorikku
-import com.yotpo.metorikku.configuration.test.{Configuration, Mock, Params}
 import com.yotpo.metorikku.configuration.test.ConfigurationParser.{TesterConfig, parseConfigurationFile}
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
-import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
@@ -90,20 +87,21 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      tableName = testConf.test.tests.head._1
+      tableName = testConf.test.tests.get.head._1
       val optionalKeys = testConf.test.keys
       optionalKeys match {
         case Some(keys) =>
           definedKeys = keys.head._2
         case _ =>
       }
-      allKeys = testConf.test.tests.mapValues(v => v(0).keys.toList).head._2
+      allKeys = testConf.test.tests.get.mapValues(v => v(0).keys.toList).head._2
       undefinedCols = definedKeys.filter(definedKey => !allKeys.contains(definedKey)).toList
       Tester(testConf).run()
     }
     val headerExpectedMsg = new InvalidKeysNonExistingErrorMessage(tableName, undefinedCols, allKeys).toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
   }
+
 
   test("Test Metorikku should Fail on inconsistent schema extra columns") {
     val thrown = intercept[Exception] {
@@ -278,7 +276,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      definedKeys = testConf.test.tests.get.head._2(0).keys.toList
       Tester(testConf).run()
     }
     println("-----------------Test ended. Thrown msg:-----------------")
@@ -361,7 +359,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
         case Some(keys) =>
           definedKeys = keys.head._2
         case _ =>
-          definedKeys = testConf.test.tests.head._2.head.keys.toList
+          definedKeys = testConf.test.tests.get.head._2.head.keys.toList
       }
       Tester(testConf).run()
     }
@@ -417,7 +415,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      definedKeys = testConf.test.tests.get.head._2(0).keys.toList
       Tester(testConf).run()
     }
     var expectedRow = Map("app_key" -> "DDDD", "id" -> "D")
@@ -476,7 +474,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      definedKeys = testConf.test.tests.get.head._2(0).keys.toList
       Tester(testConf).run()
     }
     val expectedRow = Map("app_key" -> "DDDD", "id" -> "D")
@@ -518,7 +516,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       val basePath = new File("src/test/configurations")
       val preview = 5
       val testConf = TesterConfig(test, basePath, preview)
-      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      definedKeys = testConf.test.tests.get.head._2(0).keys.toList
       Tester(testConf).run()
     }
 
@@ -528,8 +526,6 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val keyColumns = KeyColumns(List[String]("image_id"))
     assertMismatch(definedKeys, thrown.getMessage, actualRow, expectedRow, 1, 1, keyColumns)
   }
-
-
 
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int, keyColumns: KeyColumns) = {
     assertMismatchByType(ResultsType.expected, definedKeys, thrownMsg, expectedRow, 1, 0, rowIndex, keyColumns)

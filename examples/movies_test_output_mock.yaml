@@ -1,0 +1,12 @@
+metric: movies_metric.yaml
+mocks:
+- name: movies
+  path: mocks/movies.jsonl
+- name: ratings
+  path: mocks/ratings.jsonl
+params:
+  variables:
+    myFavoriteMovie: Lord of the Rings, The (1978)
+testsFiles:
+- name: myFavoriteMovieRated
+  path: expected_outputs/my_favorite_movie_rated.csv
