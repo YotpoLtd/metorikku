@@ -114,8 +114,8 @@ case class Tester(config: TesterConfig) {
       val tableErrorDataArr: Array[ErrorMessage] = expectedResultsDuplications.nonEmpty || actualResultsDuplications.nonEmpty match {
         case true =>
           Array[ErrorMessage](new DuplicatedHeaderErrorMessage()) ++
-            ErrorMessage.getErrorMessagesByDuplications(ResultsType.expected, expectedResultsDuplications, printableExpectedResults, tableName) ++
-            ErrorMessage.getErrorMessagesByDuplications(ResultsType.actual, actualResultsDuplications, printableActualResults, tableName)
+            ErrorMessage.getErrorMessagesByDuplications(ResultsType.expected, expectedResultsDuplications, printableExpectedResults, tableName, keyColumns) ++
+            ErrorMessage.getErrorMessagesByDuplications(ResultsType.actual, actualResultsDuplications, printableActualResults, tableName, keyColumns)
 
         case _ =>
           val sorter = TesterSortData(tableKeys)
@@ -147,7 +147,7 @@ case class Tester(config: TesterConfig) {
         val columnNames = row.keys.toList
         columnNames match {
           case _ if columnNames.sorted.equals(columnNamesHeader.sorted) => None
-          case _ => Option(InvalidSchemaData(index, columnNames.diff(columnNamesHeader)))
+          case _ => Option(InvalidSchemaData(index, columnNamesHeader.diff(columnNames).sorted, columnNames.diff(columnNamesHeader).sorted))
         }
       }
 

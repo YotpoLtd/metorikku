@@ -105,7 +105,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assert(thrown.getMessage.contains(headerExpectedMsg))
   }
 
-  test("Test Metorikku should Fail on inconsistent schema") {
+  test("Test Metorikku should Fail on inconsistent schema extra columns") {
     val thrown = intercept[Exception] {
       val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-invalid-results.json")
       val basePath = new File("src/test/configurations")
@@ -114,7 +114,26 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       Tester(testConf).run()
     }
     var invalidSchema = Map[String, List[InvalidSchemaData]]()
-    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String]("bad_col")),InvalidSchemaData(2, List[String]("bad_column", "bad_column2")))
+    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String](), List[String]("bad_col")),
+      InvalidSchemaData(2, List[String](), List[String]("bad_column", "bad_column2")))
+    invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
+    val expectedMsg = new InvalidSchemaResultsErrorMessage(invalidSchema).toString
+    assert(thrown.getMessage.contains(expectedMsg))
+  }
+
+
+  test("Test Metorikku should Fail on inconsistent schema missing columns") {
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-invalid-results-missing-col.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      Tester(testConf).run()
+    }
+    var invalidSchema = Map[String, List[InvalidSchemaData]]()
+    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String]("extra_col1", "extra_col2", "extra_col3", "extra_col4"),List[String]()),
+      InvalidSchemaData(2, List[String]("extra_col1", "extra_col2", "extra_col3", "extra_col4"),List[String]("bad_column", "bad_column2")))
+
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
     val expectedMsg = new InvalidSchemaResultsErrorMessage(invalidSchema).toString
     assert(thrown.getMessage.contains(expectedMsg))
@@ -129,7 +148,8 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
       Tester(testConf).run()
     }
     var invalidSchema = Map[String, List[InvalidSchemaData]]()
-    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String]("bad_col")), InvalidSchemaData(2, List[String]("bad_column", "bad_column2")))
+    val mismatchedSchemaIndexes = List[InvalidSchemaData](InvalidSchemaData(1, List[String](), List[String]("bad_col")),
+      InvalidSchemaData(2, List[String](), List[String]("bad_column", "bad_column2")))
     invalidSchema += ("accountsDf" -> mismatchedSchemaIndexes)
     val expectedMsg = new InvalidSchemaResultsErrorMessage(invalidSchema).toString
     assert(thrown.getMessage.contains(expectedMsg))
@@ -145,7 +165,15 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"AAAA", "id"->"A").mkString(", "), ResultsType.expected, List(0, 3), "accountsDf").toString()
+    /*
+    resultType: ResultsType.Value, duplicatedRowsToIndexes: Map[Map[String, String], List[Int]],
+                               results: Option[EnrichedRows], tableName: String, keyColumns: KeyColumns
+     */
+
+    val row = Map[String, String]("app_key"->"AAAA", "id"->"A")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(0, 3))
+    val expectedMsg = new DuplicationsErrorMessage(ResultsType.expected, dupRowToIndxs, None, "accountsDf",
+                      KeyColumns(List[String]("app_key", "id"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -159,9 +187,12 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    var expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"CCCC").mkString(", "), ResultsType.expected, List(0, 2),"accountsDf").toString()
-    assert(thrown.getMessage.contains(expectedMsg))
-    expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB").mkString(", "), ResultsType.expected, List(1, 3),"accountsDf").toString()
+
+    val row = Map[String, String]("app_key"->"BBBB")
+    val row2 = Map[String, String]("app_key"->"CCCC")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row->List(1,3),row2 -> List(0, 2))
+    var expectedMsg = new DuplicationsErrorMessage(ResultsType.expected, dupRowToIndxs, None, "accountsDf",
+      KeyColumns(List[String]("app_key"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -175,7 +206,10 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB", "id"->"B").mkString(", "), ResultsType.actual, List(1, 3), "accountsDf").toString()
+    val row = Map[String, String]("app_key"->"BBBB", "id"->"B")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(1, 3))
+    val expectedMsg = new DuplicationsErrorMessage(ResultsType.actual, dupRowToIndxs, None, "accountsDf",
+      KeyColumns(List[String]("app_key", "id"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -189,8 +223,12 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB", "id"->"B").mkString(", ")
-     , ResultsType.actual, List(1, 3), "accountsDf").toString()
+
+
+    val row = Map[String, String]("app_key"->"BBBB", "id"->"B")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(1, 3))
+    val expectedMsg = new DuplicationsErrorMessage(ResultsType.actual, dupRowToIndxs, None, "accountsDf",
+      KeyColumns(List[String]("app_key", "id"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -204,7 +242,10 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB").mkString(", "), ResultsType.actual, List(1, 3), "accountsDf").toString()
+    val row = Map[String, String]("app_key"->"BBBB")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(1, 3))
+    val expectedMsg = new DuplicationsErrorMessage(ResultsType.actual, dupRowToIndxs, None, "accountsDf",
+      KeyColumns(List[String]("app_key"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
   }
 
@@ -218,9 +259,15 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val actualResMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB", "id"->"B").mkString(", "), ResultsType.actual, List(1, 3),"accountsDf").toString()
+    val row = Map[String, String]("app_key"->"BBBB", "id"->"B")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(1, 3))
+    val actualResMsg = new DuplicationsErrorMessage(ResultsType.actual, dupRowToIndxs, None, "accountsDf",
+      KeyColumns(List[String]("app_key", "id"))).toString
     assert(thrown.getMessage.contains(actualResMsg))
-    val expectedResMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"AAAA", "id"->"A").mkString(", "), ResultsType.expected, List(0, 1),"accountsDf").toString()
+    val row2 = Map[String, String]("app_key"->"AAAA", "id"->"A")
+    val dupRowToIndxs2 = Map[Map[String, String], List[Int]](row2 -> List(0, 1))
+    val expectedResMsg = new DuplicationsErrorMessage(ResultsType.expected, dupRowToIndxs2, None, "accountsDf",
+      KeyColumns(List[String]("app_key", "id"))).toString
     assert(thrown.getMessage.contains(expectedResMsg))
   }
 
@@ -400,7 +447,10 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
     val headerExpectedMsg = new DuplicatedHeaderErrorMessage().toString()
     assert(thrown.getMessage.contains(headerExpectedMsg))
-    val expectedMsg = new DuplicationErrorMessage(Map[String, String]("app_key"->"BBBB").mkString(", "), ResultsType.actual, List(1, 3), "accountsDf").toString()
+    val row = Map[String, String]("app_key"->"BBBB")
+    val dupRowToIndxs = Map[Map[String, String], List[Int]](row -> List(1, 3))
+    val expectedMsg = new DuplicationsErrorMessage(ResultsType.actual, dupRowToIndxs, None, "accountsDf_dup",
+      KeyColumns(List[String]("app_key"))).toString
     assert(thrown.getMessage.contains(expectedMsg))
 
     val expectedRow = Map("app_key" -> "CCCC", "id" -> "d")

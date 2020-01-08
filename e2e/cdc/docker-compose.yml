@@ -110,7 +110,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars http://central.maven.org/maven2/com/uber/hoodie/hoodie-spark-bundle/0.4.7/hoodie-spark-bundle-0.4.7.jar --repositories http://packages.confluent.io/maven/ --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.3,org.apache.kafka:kafka_2.11:2.2.0,org.apache.spark:spark-avro_2.11:2.4.3,io.confluent:kafka-avro-serializer:5.1.2 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
+      - SUBMIT_COMMAND=spark-submit --repositories http://packages.confluent.io/maven/ --jars https://github.com/YotpoLtd/incubator-hudi/releases/download/0.4.7-patch/hoodie-spark-bundle-0.4.7.jar,https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.4,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.4,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0,org.apache.kafka:kafka_2.11:2.2.0 --conf spark.sql.hive.convertMetastoreParquet=false --conf spark.serializer=org.apache.spark.serializer.KryoSerializer --conf spark.sql.catalogImplementation=hive --conf spark.hadoop.hive.metastore.uris=thrift://hive:9083 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
     entrypoint:
       - /scripts/entrypoint-submit.sh
     volumes:
