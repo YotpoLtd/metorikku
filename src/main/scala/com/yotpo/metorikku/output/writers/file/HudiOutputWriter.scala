@@ -1,9 +1,11 @@
 package com.yotpo.metorikku.output.writers.file
+import com.codahale.metrics.MetricFilter
+import com.uber.hoodie.metrics.Metrics
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import org.apache.spark.sql.functions.{col, lit, when, max}
+import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql._
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
@@ -119,7 +121,18 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
 
+    // If using hudi metrics in streaming we need to reset all metrics prior to running the next batch
+    resetMetrics()
     writer.save()
+  }
+
+  private def resetMetrics(): Unit = {
+    try {
+      Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to reset hudi metrics ${e.getMessage}")
+    }
   }
 
   private def updateJobConfig(config: Hudi, writer: DataFrameWriter[_]): Unit = {
