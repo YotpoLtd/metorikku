@@ -1,0 +1,13 @@
+steps:
+  - dataFrameName: organization_monthly_df
+    sql:
+      SELECT *
+      FROM organization_monthly
+
+
+output:
+  - dataFrameName: organization_monthly_df
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: organization_monthly.parquet
