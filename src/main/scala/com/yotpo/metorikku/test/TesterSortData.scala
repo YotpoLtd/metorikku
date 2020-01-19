@@ -5,7 +5,7 @@ case class TesterSortData(keys: List[String]) {
   def sortEnrichedRows(a: EnrichedRow, b: EnrichedRow): Boolean = {
     for (colName <- keys) {
       if (a.row.get(colName) != b.row.get(colName)) {
-        return a.row.getOrElse(colName, 0).hashCode() < b.row.getOrElse(colName, 0).hashCode()
+        return a.row.getOrElse(colName, 0).toString().hashCode() < b.row.getOrElse(colName, 0).toString().hashCode()
       }
     }
     false
