@@ -9,14 +9,14 @@ RUN wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-$
     && rm -f /spark/jars/hadoop*2.7* \
     && cd /
 
-ARG HADOOP_VERSION=2.9.2
+ARG HADOOP_VERSION=3.2.0
     
 RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
     && tar -xzf hadoop-${HADOOP_VERSION}.tar.gz -C /opt/ \
     && rm hadoop-${HADOOP_VERSION}.tar.gz
 
 RUN ln -s /opt/hadoop-${HADOOP_VERSION}/etc/hadoop /etc/hadoop
-RUN cp /etc/hadoop/mapred-site.xml.template /etc/hadoop/mapred-site.xml
+#RUN cp /etc/hadoop/mapred-site.xml.template /etc/hadoop/mapred-site.xml
 RUN mkdir /opt/hadoop-${HADOOP_VERSION}/logs
 
 ENV HADOOP_PREFIX=/opt/hadoop-${HADOOP_VERSION}
