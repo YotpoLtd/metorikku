@@ -59,7 +59,6 @@ libraryDependencies ++= Seq(
   "com.groupon.dse" % "spark-metrics" % "2.0.0",
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
-  "org.apache.httpcomponents" % "httpclient" % "4.5.9",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
