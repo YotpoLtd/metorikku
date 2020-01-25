@@ -16,7 +16,7 @@ branches:
 env:
   global:
     - SPARK_VERSION=2.4.4
-    - HADOOP_VERSION=3.2.0
+    - HADOOP_VERSION=2.9.2
     - HIVE_VERSION=1.2.2
 before_script:
   - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
