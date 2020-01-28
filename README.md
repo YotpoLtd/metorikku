@@ -11,6 +11,9 @@ The platform also includes a simple way to write unit and E2E tests.
 ### Getting started
 To run Metorikku you must first define 2 files.
 
+### java version
+To run Metorikku you must first have java 8, in case you have an advance version we recommend using java environment manager
+
 #### Metric file
 A metric file defines the steps and queries of the ETL as well as where and what to output.
 
