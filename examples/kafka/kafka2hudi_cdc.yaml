@@ -6,7 +6,7 @@ steps:
       before,
       after
       FROM cdc_events
-      WHERE op IN ('d', 'u', 'c')
+      WHERE op IN ('d', 'u', 'c', 'r')
   - dataFrameName: cdc_by_event
     sql:
       SELECT ts_ms,
