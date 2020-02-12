@@ -75,10 +75,11 @@ There are currently 3 options to run Metorikku.
 #### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
 * Download the [last released Standalone JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
+* Metorikku is required to be running with `Java 1.8`
 * Run the following command:
-`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
+`java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
 * Also job in a JSON format is supported, run following command:
-`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
+`java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
  
 *Run locally in intellij:*
 
