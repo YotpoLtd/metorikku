@@ -105,3 +105,13 @@ VALUES (default, '2016-01-16', 1001, 1, 102),
        (default, '2016-01-17', 1002, 2, 105),
        (default, '2016-02-19', 1002, 2, 106),
        (default, '2016-02-21', 1003, 1, 107);
+
+
+
+INSERT INTO products
+VALUES (default,"scooter","Small 2-wheel scooter",3.78);
+
+ALTER TABLE products add column moshe int;
+
+INSERT INTO products
+VALUES (default,"scooter","Small 2-wheel scooter",3.78, 8);

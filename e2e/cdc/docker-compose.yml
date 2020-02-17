@@ -25,6 +25,8 @@ services:
       - MYSQL_DATABASE=hive
     volumes:
       - ./scripts/inventory.sql:/docker-entrypoint-initdb.d/inventory.sql
+    ports:
+      - 3306:3307
   schema-registry:
     image: confluentinc/cp-schema-registry
     environment:
@@ -32,8 +34,18 @@ services:
       - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
       - SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL=zookeeper:2181
       - SCHEMA_REGISTRY_HOST_NAME=schema-registry
-#    ports:
-#      - 8081:8081
+    ports:
+      - 8081:8081
+  schema-registry-ui:
+    image: landoop/schema-registry-ui:0.9.4
+    hostname: kafka-schema-registry-ui
+    ports:
+      - "8001:8000"
+    environment:
+      SCHEMAREGISTRY_URL: http://schema-registry:8081/
+      PROXY: "true"
+    depends_on:
+      - schema-registry
   kafka-wait:
     image: wurstmeister/kafka:2.12-2.2.0
     environment:
@@ -84,6 +96,21 @@ services:
     depends_on:
       - mysql
   # Spark Resources
+  mysql-client-seed-two:
+    image: debezium/example-mysql:0.9
+    volumes:
+      - ./scripts:/scripts
+    command: /scripts/mysql-client-seed.sh
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: mysqluser
+      MYSQL_PASSWORD: mysqlpw
+      MYSQL_DB: inventory
+      SCRIPT_PATH: /scripts/products_table_updates.sql
+      MAX_RETRIES: 45
+    depends_on:
+      - mysql
   spark-master:
     image: metorikku/spark
     entrypoint:
