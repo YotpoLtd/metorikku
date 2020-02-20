@@ -23,7 +23,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   hivePartitions: Option[String],
                                   extraOptions: Option[Map[String, String]],
                                   alignToPreviousSchema: Option[Boolean],
-                                  supportNullableFields: Option[Boolean])
+                                  supportNullableFields: Option[Boolean],
+                                  removeNullColumns: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -35,7 +36,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
-    props.get("supportNullableFields").asInstanceOf[Option[Boolean]])
+    props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
+    props.get("removeNullColumns").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -207,7 +209,10 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df = alignToSchemaColumns(df, previousSchema)
 
     // // By default we will remove completely null columns (will return them if existed in previous schemas), you can disable this behaviour
-    removeNullColumns(df, previousSchema)
+    this.hudiOutputProperties.removeNullColumns match {
+      case Some(true) => removeNullColumns(df, previousSchema)
+      case _ => df
+    }
 
   }
 
@@ -224,12 +229,13 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         case Some(sch) => {
           // scalastyle:off null
           val missingColumns = sch.fields.filter(f => !f.name.startsWith("_hoodie") &&
-            !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).as(f.name))
+            !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).cast(f.dataType).as(f.name))
           // scalastyle:on null
           df.select(col("*") +: missingColumns :_*)
           }
           case None => df
         }
+
     }
 
   def removeNullColumns(dataFrame: DataFrame, previousSchema: Option[StructType]): DataFrame = {
