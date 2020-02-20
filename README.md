@@ -491,6 +491,10 @@ dataFrameName: test
     hivePartitions: year,month,day
     # Hive table to save the results to
     tableName: test_table
+    # Add missing columns according to previous schema, if exists
+    alignToPreviousSchema: true
+    # Remove completely null columns
+    removeNullColumns: true
 ```
 
 In order to delete send in your dataframe a boolean column called ```_hoodie_delete```, if it's true that row will be deleted.
