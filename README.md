@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
+[![Gitter](https://badges.gitter.im/metorikku/Lobby.svg)](https://gitter.im/metorikku/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
 
 It is based on simple YAML configuration files and runs on any Spark cluster.
