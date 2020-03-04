@@ -72,6 +72,10 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>fs.s3n.awsSecretAccessKey</name>
         <value>${AWS_SECRET_KEY}</value>
      </property>
+       <property>
+        <name>hive.security.authorization.enabled</name>
+        <value>false</value>
+     </property>
 EOL
 
 if [[ ! -z ${USE_ATLAS} ]] ; then
@@ -109,4 +113,5 @@ fi
 $HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
 
 nohup ${HIVE_HOME}/bin/hive --service metastore -p ${METASTORE_PORT} &
+sleep 10s
 ${HIVE_HOME}/bin/hiveserver2 --hiveconf hive.root.logger=INFO,console
