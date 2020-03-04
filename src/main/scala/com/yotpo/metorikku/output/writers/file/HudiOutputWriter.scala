@@ -2,13 +2,13 @@ package com.yotpo.metorikku.output.writers.file
 import java.util.concurrent.TimeUnit
 
 import com.codahale.metrics.{MetricFilter, ScheduledReporter}
-import com.uber.hoodie.metrics.Metrics
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql._
+import org.apache.spark.sql.functions.{col, lit, max, when}
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -64,7 +64,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     val writer = df.write
 
-    writer.format("com.uber.hoodie")
+    writer.format("org.apache.hudi")
 
     // Handle hudi job configuration
     hudiOutput match {
@@ -107,15 +107,15 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     hudiOutputProperties.partitionBy match {
       case Some(partitionBy) => {
         writer.option("hoodie.datasource.write.partitionpath.field", partitionBy)
-        writer.option("hoodie.datasource.write.keygenerator.class", "com.uber.hoodie.SimpleKeyGenerator")
+        writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.SimpleKeyGenerator].getName)
       }
-      case None => writer.option("hoodie.datasource.write.keygenerator.class", "com.uber.hoodie.NonpartitionedKeyGenerator")
+      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.NonpartitionedKeyGenerator].getName)
     }
 
     hudiOutputProperties.hivePartitions match {
       case Some(hivePartitions) => {
         writer.option("hoodie.datasource.hive_sync.partition_fields", hivePartitions)
-        writer.option("hoodie.datasource.hive_sync.partition_extractor_class", "com.uber.hoodie.hive.MultiPartKeysValueExtractor")
+        writer.option("hoodie.datasource.hive_sync.partition_extractor_class", classOf[org.apache.hudi.hive.MultiPartKeysValueExtractor].getName)
       }
       case None =>
     }
