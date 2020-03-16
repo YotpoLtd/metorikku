@@ -141,6 +141,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
   private def resetMetrics(): Unit = {
+    val reporterScheduledPeriodInSeconds = 30
     try {
       Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
     }
@@ -149,7 +150,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
 
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].start(30, TimeUnit.SECONDS)
+      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
     }
     catch {
       case e: Throwable => log.info(s"Failed to start scheduled metrics ${e.getMessage}")
