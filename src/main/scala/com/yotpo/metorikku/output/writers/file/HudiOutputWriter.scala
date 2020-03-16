@@ -1,5 +1,7 @@
 package com.yotpo.metorikku.output.writers.file
-import com.codahale.metrics.MetricFilter
+import java.util.concurrent.TimeUnit
+
+import com.codahale.metrics.{MetricFilter, ScheduledReporter}
 import com.uber.hoodie.metrics.Metrics
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
@@ -126,14 +128,32 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     // If using hudi metrics in streaming we need to reset all metrics prior to running the next batch
     resetMetrics()
     writer.save()
+    writeMetrics()
+  }
+
+  private def writeMetrics(): Unit = {
+    try {
+      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].report()
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to report metrics ${e.getMessage}")
+    }
   }
 
   private def resetMetrics(): Unit = {
+    val reporterScheduledPeriodInSeconds = 30
     try {
       Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
     }
     catch {
       case e: Throwable => log.info(s"Failed to reset hudi metrics ${e.getMessage}")
+    }
+
+    try {
+      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to start scheduled metrics ${e.getMessage}")
     }
   }
 
