@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.output.writers.file
 import java.util.concurrent.TimeUnit
-
+import com.yotpo.metorikku.utils.FileUtils
 import com.codahale.metrics.{MetricFilter, ScheduledReporter}
 import com.uber.hoodie.metrics.Metrics
 import com.yotpo.metorikku.configuration.job.output.Hudi
@@ -9,6 +9,8 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql._
+import org.apache.spark.sql.{DataFrame, SparkSession}
+
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -45,6 +47,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
   override def write(dataFrame: DataFrame): Unit = {
+
     if (dataFrame.head(1).isEmpty) {
       log.info("Skipping writing to hudi on empty dataframe")
       return
@@ -66,14 +69,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     writer.format("com.uber.hoodie")
 
-    // Handle hudi job configuration
-    hudiOutput match {
-      case Some(config) => {
-        updateJobConfig(config, writer)
-      }
-      case None =>
-    }
-
     // Handle path
     val path: Option[String] = (hudiOutputProperties.path, hudiOutput) match {
       case (Some(path), Some(output)) => Option(output.dir + "/" + path)
@@ -82,6 +77,15 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
     path match {
       case Some(filePath) => writer.option("path", filePath)
+      case None =>
+    }
+
+    // Handle hudi job configuration
+    hudiOutput match {
+      case Some(config) => {
+        updateJobConfig(config, writer)
+        hardDisableRollback(config, path, df.sparkSession)
+      }
       case None =>
     }
 
@@ -158,6 +162,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
   private def updateJobConfig(config: Hudi, writer: DataFrameWriter[_]): Unit = {
+
     config.parallelism match {
       case Some(parallelism) => {
         writer.option("hoodie.insert.shuffle.parallelism", parallelism)
@@ -312,6 +317,19 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
 
+  def hardDisableRollback(config: Hudi, path: Option[String], sparkSession: SparkSession): Unit ={
+    config.hardDisableRollback match {
+      case Some(true) => { path match {
+          case Some(path) => {
+            val files = FileUtils.getListOfFiles(path)
+            files.filter(file => (file.getName.endsWith(".inflight") || file.getName.endsWith(".compaction.request"))).
+              foreach(file => FileUtils.removeFileWithHadoop(file.getAbsolutePath, sparkSession))
+          }
+          case _ =>
+      }}
+      case _ =>
+    }
+  }
    }
 // scalastyle:on cyclomatic.complexity
 // scalastyle:on method.length

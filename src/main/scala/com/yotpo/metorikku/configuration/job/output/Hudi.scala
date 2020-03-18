@@ -10,6 +10,7 @@ case class Hudi(dir: String,
                 hiveJDBCURL: Option[String],
                 hiveUserName: Option[String],
                 hivePassword: Option[String],
+                hardDisableRollback: Option[Boolean],
                 options: Option[Map[String, String]]
                ) {
   require(Option(dir).isDefined, "Hudi file directory: dir is mandatory.")

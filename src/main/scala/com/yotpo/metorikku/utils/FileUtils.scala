@@ -9,6 +9,7 @@ import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.sql.SparkSession
 import org.json4s.DefaultFormats
 import org.json4s.native.JsonMethods
@@ -70,5 +71,14 @@ object FileUtils {
     val fsFile = fs.open(file)
     val reader = new BufferedReader(new InputStreamReader(fsFile))
     reader.lines.collect(Collectors.joining)
+  }
+
+  def removeFileWithHadoop(path: String, sparkSession: SparkSession): AnyVal = {
+    val file = new Path(path)
+    val hadoopConf = sparkSession.sessionState.newHadoopConf()
+    val fs = FileSystem.get(hadoopConf)
+    if (fs.exists(file)){
+      fs.delete(file, true)
+    }
   }
 }
