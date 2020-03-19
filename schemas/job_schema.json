@@ -142,6 +142,7 @@
             "operation": { "type": "string" },
             "storageType": { "type": "string" },
             "maxVersions": { "type": "string" },
+            "recordSizeEstimate": { "type": "string"},
             "hiveDB": { "type": "string" },
             "hiveJDBCURL": { "type": "string" },
             "hiveUserName": { "type": "string" },

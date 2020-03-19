@@ -185,6 +185,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       case None =>
     }
+    config.recordSizeEstimate match {
+      case Some(recordSizeEstimate) => {
+        writer.option("hoodie.copyonwrite.record.size.estimate", recordSizeEstimate)
+      }
+      case None =>
+    }
     config.hiveJDBCURL match {
       case Some(hiveJDBCURL) => {
         writer.option("hoodie.datasource.hive_sync.jdbcurl", hiveJDBCURL)
