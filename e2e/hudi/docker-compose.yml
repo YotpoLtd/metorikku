@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle/0.5.0-incubating/hudi-spark-bundle-0.5.0-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.4 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -15,7 +15,7 @@ services:
   hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle/0.5.0-incubating/hudi-spark-bundle-0.5.0-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.4 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/

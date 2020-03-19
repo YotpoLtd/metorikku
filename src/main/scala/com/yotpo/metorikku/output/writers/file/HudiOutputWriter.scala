@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 import com.codahale.metrics.{MetricFilter, ScheduledReporter}
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
 import org.apache.spark.sql._
@@ -107,9 +108,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     hudiOutputProperties.partitionBy match {
       case Some(partitionBy) => {
         writer.option("hoodie.datasource.write.partitionpath.field", partitionBy)
-        writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.SimpleKeyGenerator].getName)
+        writer.option("hoodie.datasource.write.keygenerator.class", classOf[SimpleKeyGenerator].getName)
       }
-      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.NonpartitionedKeyGenerator].getName)
+      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[NonpartitionedKeyGenerator].getName)
     }
 
     hudiOutputProperties.hivePartitions match {
