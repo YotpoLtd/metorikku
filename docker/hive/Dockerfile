@@ -13,7 +13,7 @@ RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION
     && rm hadoop-$HADOOP_VERSION.tar.gz
 
 ENV HIVE_HOME=/opt/hive
-ENV HIVE_VERSION=2.3.3
+ENV HIVE_VERSION=1.2.2
 RUN wget -q https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz \
 	&& tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz \
 	&& mv apache-hive-$HIVE_VERSION-bin $HIVE_HOME \

@@ -22,19 +22,6 @@ RUN mkdir /opt/hadoop-${HADOOP_VERSION}/logs
 ENV HADOOP_PREFIX=/opt/hadoop-${HADOOP_VERSION}
 ENV HADOOP_CONF_DIR=/etc/hadoop
 
-ENV HIVE_HOME=/opt/hive
-ENV HIVE_VERSION=2.3.3
-RUN wget -q https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz \
-	&& tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz \
-	&& mv apache-hive-$HIVE_VERSION-bin $HIVE_HOME \
-	&& rm apache-hive-$HIVE_VERSION-bin.tar.gz
-
-ENV HUDI_VERSION=0.5.1-incubating
-RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hive-bundle/$HUDI_VERSION/hudi-hive-bundle-$HUDI_VERSION.jar \
-    && mv hudi-hive-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
-RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hadoop-mr-bundle/$HUDI_VERSION/hudi-hadoop-mr-bundle-$HUDI_VERSION.jar \
-    && mv hudi-hadoop-mr-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
-
 RUN apt-get update \
     && apt-get install -y coreutils jq less inotify-tools python3 python3-setuptools \
     && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \

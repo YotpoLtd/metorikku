@@ -8,7 +8,6 @@ MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
-HIVE_VERSION=${HIVE_VERSION:=2.3.3}
 
 # Atlas
 /scripts/add-atlas-integration.sh
@@ -45,8 +44,7 @@ if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
 echo -e "
 spark.sql.catalogImplementation=hive
 spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
-spark.sql.hive.metastore.version=$HIVE_VERSION
-spark.sql.hive.metastore.jars=/opt/hive/lib/*
+spark.sql.hive.convertMetastoreParquet=false
 " >> /spark/conf/spark-defaults.conf
 fi
 
