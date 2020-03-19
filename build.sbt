@@ -26,6 +26,7 @@ lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
 lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
 lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
+lazy val excludeFasterXML = ExclusionRule(organization = "com.fasterxml.jackson.module", name= "jackson-module-scala_2.12")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -60,9 +61,9 @@ libraryDependencies ++= Seq(
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
-  "org.apache.hudi" % "hudi-spark" % "0.5.0-incubating" % "provided",
-  "org.apache.hudi" % "hudi-hadoop-mr" % "0.5.0-incubating" % "provided",
-  "org.apache.hudi" % "hudi-common" % "0.5.0-incubating" % "provided",
+  "org.apache.hudi" %% "hudi-spark" % "0.5.1-incubating" % "provided" excludeAll excludeFasterXML,
+  "org.apache.hudi" % "hudi-hadoop-mr" % "0.5.1-incubating" % "provided",
+  "org.apache.hudi" % "hudi-common" % "0.5.1-incubating" % "provided",
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )

@@ -7,7 +7,7 @@ import org.apache.hudi.common.util.Option;
 
 import java.io.IOException;
 
-public class OverwriteWithLatestAvroPayloadWithDelete extends org.apache.hudi.OverwriteWithLatestAvroPayload {
+public class OverwriteWithLatestAvroPayloadWithDelete extends org.apache.hudi.common.model.OverwriteWithLatestAvroPayload {
     private GenericRecord record;
 
     public OverwriteWithLatestAvroPayloadWithDelete(GenericRecord record, Comparable orderingVal) {

@@ -107,9 +107,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     hudiOutputProperties.partitionBy match {
       case Some(partitionBy) => {
         writer.option("hoodie.datasource.write.partitionpath.field", partitionBy)
-        writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.SimpleKeyGenerator].getName)
+        writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.keygen.SimpleKeyGenerator].getName)
       }
-      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.NonpartitionedKeyGenerator].getName)
+      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[org.apache.hudi.keygen.NonpartitionedKeyGenerator].getName)
     }
 
     hudiOutputProperties.hivePartitions match {
