@@ -27,6 +27,8 @@ lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "nett
 lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
 lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
 lazy val excludeFasterXML = ExclusionRule(organization = "com.fasterxml.jackson.module", name= "jackson-module-scala_2.12")
+lazy val excludeMetricsCore = ExclusionRule(organization = "io.dropwizard.metrics", name= "metrics-core")
+
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -45,7 +47,7 @@ libraryDependencies ++= Seq(
   "io.netty" % "netty" % "3.10.6.Final",
   "com.google.guava" % "guava" % "16.0.1",
   "com.typesafe.play" %% "play-json" % "2.6.2",
-  "com.databricks" %% "spark-redshift" % "3.0.0-preview1",
+  "com.databricks" %% "spark-redshift" % "3.0.0-preview1" excludeAll excludeAvro,
   "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001",
   "com.segment.analytics.java" % "analytics" % "2.0.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
@@ -56,14 +58,13 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
-  "com.groupon.dse" % "spark-metrics" % "2.0.0",
+  "com.groupon.dse" % "spark-metrics" % "2.0.0" excludeAll excludeMetricsCore,
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
-  "org.apache.hudi" %% "hudi-spark" % "0.5.1-incubating" % "provided" excludeAll excludeFasterXML,
-  "org.apache.hudi" % "hudi-hadoop-mr" % "0.5.1-incubating" % "provided",
-  "org.apache.hudi" % "hudi-common" % "0.5.1-incubating" % "provided",
+  "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.1-incubating" % "provided" excludeAll excludeFasterXML,
+  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )

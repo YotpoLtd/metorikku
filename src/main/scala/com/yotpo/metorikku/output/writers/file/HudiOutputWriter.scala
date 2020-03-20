@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.output.writers.file
 import java.util.concurrent.TimeUnit
 
-import com.codahale.metrics.{MetricFilter, ScheduledReporter}
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.hudi.metrics.Metrics
@@ -133,27 +132,27 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
   private def writeMetrics(): Unit = {
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].report()
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter].report()
     }
     catch {
-      case e: Throwable => log.info(s"Failed to report metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to report metrics", e)
     }
   }
 
   private def resetMetrics(): Unit = {
-    val reporterScheduledPeriodInSeconds = 30
+    val reporterScheduledPeriodInSeconds: java.lang.Long = 30L
     try {
-      Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
+      Metrics.getInstance().getRegistry().removeMatching(org.apache.hudi.com.codahale.metrics.MetricFilter.ALL)
     }
     catch {
-      case e: Throwable => log.info(s"Failed to reset hudi metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to reset hudi metrics", e)
     }
 
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter].start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
     }
     catch {
-      case e: Throwable => log.info(s"Failed to start scheduled metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to start scheduled metrics", e)
     }
   }
 
