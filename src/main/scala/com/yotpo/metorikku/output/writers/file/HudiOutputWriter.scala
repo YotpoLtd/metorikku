@@ -1,11 +1,9 @@
 package com.yotpo.metorikku.output.writers.file
-import java.util.concurrent.TimeUnit
-
-import com.codahale.metrics.{MetricFilter, ScheduledReporter}
+import com.codahale.metrics.MetricFilter
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
-import org.apache.hudi.metrics.Metrics
+import org.apache.hudi.metrics.{Metrics, MetricsReporter}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, lit, max, when}
@@ -134,7 +132,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
   private def writeMetrics(): Unit = {
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].report()
+      Metrics.getInstance().getReporter.asInstanceOf[MetricsReporter].report()
     }
     catch {
       case e: Throwable => log.info(s"Failed to report metrics ${e.getMessage}")
@@ -142,7 +140,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
   private def resetMetrics(): Unit = {
-    val reporterScheduledPeriodInSeconds = 30
     try {
       Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
     }
@@ -151,7 +148,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
 
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[ScheduledReporter].start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
+      Metrics.getInstance().getReporter.asInstanceOf[MetricsReporter].start()
     }
     catch {
       case e: Throwable => log.info(s"Failed to start scheduled metrics ${e.getMessage}")
