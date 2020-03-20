@@ -265,7 +265,7 @@ This will commit the offsets to kafka, as a new dummy consumer group.
 * we use ABRiS as a provided jar In order to deserialize your kafka stream messages (https://github.com/AbsaOSS/ABRiS), add the  ```schemaRegistryUrl``` option to the kafka input config
 spark-submit command should look like so:
 
-```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.4,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.4,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.5,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
  
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 

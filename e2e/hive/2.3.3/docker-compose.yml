@@ -3,24 +3,26 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
-      - HIVE_METASTORE_URI=hive:9083
-      - USE_BUILTIN_HIVE_METASTORE=false
-    volumes:
-      - ./output/:/examples/output/
+    - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
+    - HIVE_METASTORE_URI=hive:9083
+    - USE_BUILTIN_HIVE_METASTORE=false
     entrypoint:
       - /scripts/entrypoint-submit.sh
+    volumes:
+      - ./output/:/examples/output/
     depends_on:
       - spark-master
       - spark-worker
+      - hive
   hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
       - USE_BUILTIN_HIVE_METASTORE=false
     volumes:
       - ./output/:/examples/output/
+      - ./warehouse:/warehouse
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
@@ -38,6 +40,7 @@ services:
       - /scripts/entrypoint-worker.sh
     volumes:
       - ./output/:/examples/output/
+      - ./warehouse:/warehouse
     logging:
       driver: none
   hive:
@@ -46,12 +49,10 @@ services:
       - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
       - CONNECTION_USER_NAME=root
       - CONNECTION_PASSWORD=pass
-      - WAREHOUSE_DIR=file:///tmp
+      - WAREHOUSE_DIR=file:///warehouse
       - WAIT_HOSTS=hive-db:3306
     depends_on:
       - hive-db
-    volumes:
-      - ./output/:/examples/output/
   hive-db:
     image: mysql:5.7.25
     environment:

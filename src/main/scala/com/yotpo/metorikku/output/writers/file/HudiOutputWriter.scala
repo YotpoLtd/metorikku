@@ -1,13 +1,14 @@
 package com.yotpo.metorikku.output.writers.file
-import com.codahale.metrics.MetricFilter
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
-import org.apache.hudi.metrics.{Metrics, MetricsReporter}
+import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import java.util.concurrent.TimeUnit
+
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -132,26 +133,28 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
   private def writeMetrics(): Unit = {
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[MetricsReporter].report()
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter].report()
     }
     catch {
-      case e: Throwable => log.info(s"Failed to report metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to report metrics", e)
     }
   }
 
   private def resetMetrics(): Unit = {
+    val reporterScheduledPeriodInSeconds: java.lang.Long = 30L
     try {
-      Metrics.getInstance().getRegistry.removeMatching(MetricFilter.ALL)
+      Metrics.getInstance().getRegistry().removeMatching(org.apache.hudi.com.codahale.metrics.MetricFilter.ALL)
     }
     catch {
-      case e: Throwable => log.info(s"Failed to reset hudi metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to reset hudi metrics", e)
     }
 
     try {
-      Metrics.getInstance().getReporter.asInstanceOf[MetricsReporter].start()
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter]
+        .start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
     }
     catch {
-      case e: Throwable => log.info(s"Failed to start scheduled metrics ${e.getMessage}")
+      case e: Throwable => log.info(s"Failed to start scheduled metrics", e)
     }
   }
 
@@ -169,7 +172,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
     config.storageType match {
-      case Some(storageType) => writer.option("hoodie.datasource.write.storage.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
+      case Some(storageType) => writer.option("hoodie.datasource.write.table.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
       case None =>
     }
     config.operation match {

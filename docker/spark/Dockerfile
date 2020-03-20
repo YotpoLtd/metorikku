@@ -1,6 +1,6 @@
 FROM openjdk:8u212-b04-jre-stretch
 
-ARG SPARK_VERSION=2.4.4
+ARG SPARK_VERSION=2.4.5
 
 RUN wget -q https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz \
     && tar -xzf spark-${SPARK_VERSION}-bin-hadoop2.7.tgz \

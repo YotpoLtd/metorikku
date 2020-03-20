@@ -42,7 +42,7 @@ services:
     logging:
       driver: none
   hive:
-    image: metorikku/hive
+    image: metorikku/hive:1.2.2
     environment:
       - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
       - CONNECTION_USER_NAME=root

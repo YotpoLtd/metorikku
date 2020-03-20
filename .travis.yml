@@ -15,9 +15,12 @@ branches:
     - /^v[\d\.]+$/
 env:
   global:
-    - SPARK_VERSION=2.4.4
+    - SPARK_VERSION=2.4.5
     - HADOOP_VERSION=2.9.2
-    - HIVE_VERSION=2.3.3
+    - HIVE1_VERSION=1.2.2
+    - HIVE2_VERSION=2.3.3
+    - HUDI_OLD_VERSION=0.4.7
+    - HUDI_NEW_VERSION=0.5.1-incubating
 before_script:
   - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
   - docker pull metorikku/spark:latest
@@ -45,7 +48,8 @@ script:
   # Create all relevant docker images
   - travis_fold start "docker"
   - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
-  - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
+  - docker build -t metorikku/hive:$HIVE1_VERSION --cache-from metorikku/hive:$HIVE1_VERSION -t metorikku/hive:$HIVE1_VERSION --build-arg HIVE_VERSION=$HIVE1_VERSION --build-arg HUDI_OLD_VERSION=$HUDI_OLD_VERSION -f docker/hive/1.2.2/Dockerfile docker/hive || travis_terminate 1;
+  - docker build -t metorikku/hive:$HIVE2_VERSION --cache-from metorikku/hive:$HIVE2_VERSION -t metorikku/hive:$HIVE2_VERSION --build-arg HIVE_VERSION=$HIVE2_VERSION --build-arg HUDI_NEW_VERSION=$HUDI_NEW_VERSION -f docker/hive/2.3.3/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
   - travis_fold end "docker"
   # Kafka to Kafka E2E
@@ -81,7 +85,7 @@ deploy:
       condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
   - provider: script
     skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker tag metorikku/hive metorikku/hive:$HIVE1_VERSION && docker push metorikku/hive && docker push metorikku/hive:$HIVE2_VERSION && docker push metorikku/metorikkumetorikku/hive:$HIVE2_VERSION
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*
