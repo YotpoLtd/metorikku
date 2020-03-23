@@ -85,7 +85,7 @@ deploy:
       condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
   - provider: script
     skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker tag metorikku/hive metorikku/hive:$HIVE1_VERSION && docker tag metorikku/hive1 metorikku/hive:$HIVE1_VERSION && docker tag metorikku/hive2 metorikku/hive:$HIVE_VERSION && docker push metorikku/hive &&  docker push metorikku/hive1 &&  docker push metorikku/hive2 && docker push metorikku/hive:$HIVE_VERSION && docker push metorikku/metorikku
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker tag metorikku/hive metorikku/hive:$HIVE_VERSION && docker tag metorikku/hive1 metorikku/hive:$HIVE1_VERSION && docker tag metorikku/hive2 metorikku/hive:$HIVE_VERSION && docker push metorikku/hive &&  docker push metorikku/hive1 &&  docker push metorikku/hive2 && docker push metorikku/hive:$HIVE_VERSION && docker push metorikku/metorikku
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*
