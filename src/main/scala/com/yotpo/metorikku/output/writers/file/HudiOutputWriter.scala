@@ -1,13 +1,15 @@
 package com.yotpo.metorikku.output.writers.file
+import java.util.concurrent.TimeUnit
+
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.hudi.common.model.OverwriteWithLatestAvroPayload
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import java.util.concurrent.TimeUnit
 
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
@@ -89,7 +91,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     writer.option("hoodie.datasource.write.recordkey.field",  hudiOutputProperties.keyColumn.get)
     writer.option("hoodie.datasource.write.precombine.field", hudiOutputProperties.timeColumn.get)
 
-    writer.option("hoodie.datasource.write.payload.class", classOf[OverwriteWithLatestAvroPayloadWithDelete].getName)
+    writer.option("hoodie.datasource.write.payload.class", classOf[OverwriteWithLatestAvroPayload].getName)
 
     hudiOutputProperties.saveMode match {
       case Some(saveMode) => writer.mode(saveMode)

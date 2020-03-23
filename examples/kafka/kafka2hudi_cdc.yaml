@@ -11,13 +11,13 @@ steps:
     sql:
       SELECT ts_ms,
       CASE WHEN op = 'd' THEN before ELSE after END AS cdc_fields,
-      CASE WHEN op = 'd' THEN true ELSE false END AS _hoodie_delete
+      CASE WHEN op = 'd' THEN true ELSE false END AS _hoodie_is_deleted
       FROM cdc_filtered
   - dataFrameName: cdc_with_fields
     sql:
       SELECT ts_ms,
       cdc_fields.*,
-      _hoodie_delete
+      _hoodie_is_deleted
       FROM cdc_by_event
   - dataFrameName: cdc_table
     sql:
