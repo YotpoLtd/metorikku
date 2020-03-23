@@ -15,9 +15,12 @@ branches:
     - /^v[\d\.]+$/
 env:
   global:
-    - SPARK_VERSION=2.4.4
+    - SPARK_VERSION=2.4.5
     - HADOOP_VERSION=2.9.2
-    - HIVE_VERSION=1.2.2
+    - HIVE1_VERSION=1.2.2
+    - HUDI_HIVE1_VERSION=0.4.7
+    - HIVE_VERSION=2.3.3
+    - HUDI_VERSION=0.5.1-incubating
 before_script:
   - docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/spark/Dockerfile)
   - docker pull metorikku/spark:latest
@@ -45,7 +48,8 @@ script:
   # Create all relevant docker images
   - travis_fold start "docker"
   - docker build -t metorikku/spark:$SPARK_VERSION --cache-from metorikku/spark:latest -t metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark || travis_terminate 1;
-  - docker build -t metorikku/hive:$HIVE_VERSION --cache-from metorikku/hive:latest -t metorikku/hive:latest --build-arg HIVE_VERSION=$HIVE_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
+  - docker build -t metorikku/hive:1 --cache-from metorikku/hive:1 -t metorikku/hive:HIVE1_VERSION --build-arg HIVE_VERSION=$HIVE1_VERSION --build-arg HUDI_HIVE1_VERSION=$HUDI_HIVE1_VERSION -f docker/hive1/Dockerfile docker/hive1 || travis_terminate 1;
+  - docker build -t metorikku/hive --cache-from metorikku/hive -t metorikku/hive:HIVE_VERSION --build-arg HIVE_VERSION=$HIVE_VERSION --build-arg HUDI_VERSION=$HUDI_VERSION -f docker/hive/Dockerfile docker/hive || travis_terminate 1;
   - docker build -t metorikku/metorikku:latest -f docker/metorikku/Dockerfile . || travis_terminate 1;
   - travis_fold end "docker"
   # Kafka to Kafka E2E
@@ -56,10 +60,14 @@ script:
   - travis_fold start "file_to_influx_e2e"
   - (cd e2e/influxdb && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_influx_e2e"
-  # File to hive E2E
+  # File to hive2 E2E
   - travis_fold start "file_to_hive_e2e"
   - (cd e2e/hive && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_hive_e2e"
+  # File to hive1 E2E
+  - travis_fold start "file_to_hive1_e2e"
+  - (cd e2e/hive1 && ./test.sh) || travis_terminate 1;
+  - travis_fold end "file_to_hive1_e2e"
   # File to Elasticsearch E2E
   - travis_fold start "file_to_elasticsearch_e2e"
   - (cd e2e/elasticsearch && ./test.sh) || travis_terminate 1;
@@ -81,7 +89,7 @@ deploy:
       condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
   - provider: script
     skip_cleanup: true
-    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/metorikku
+    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/hive:1 && docker push metorikku/metorikku
     on:
       all_branches: true
       condition: $TRAVIS_TAG =~ ^v.*

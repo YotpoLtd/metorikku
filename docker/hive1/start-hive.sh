@@ -113,5 +113,4 @@ fi
 $HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
 
 nohup ${HIVE_HOME}/bin/hive --service metastore -p ${METASTORE_PORT} &
-sleep 10s
 ${HIVE_HOME}/bin/hiveserver2 --hiveconf hive.root.logger=INFO,console
