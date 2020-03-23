@@ -125,7 +125,7 @@ services:
       - spark-worker
   # Hive table with the spark job output
   hive:
-    image: metorikku/hive2
+    image: metorikku/hive
     environment:
       - CONNECTION_URL=jdbc:mysql://mysql:3306/hive?useSSL=false
       - CONNECTION_USER_NAME=mysqluser
