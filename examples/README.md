@@ -6,7 +6,7 @@
 ### The Data
 Let's analyze a small movie lens data set!
 
-We have our movies.csv in our inputs folder 
+We have our movies.csv in our file_inputs folder 
 ```
 +-------+-------------------------------------------------------------------------------+-------------------------------------------+
 |movieId|title                                                                          |genres                                     |
