@@ -224,6 +224,14 @@ SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
 ##### Optional Parameters:
 * **keyColumn** - key that can be used to perform de-duplication when reading 
 
+#### Periodic job
+Periodic job configuration allows to schedule a batch job to execute repeatedly every configured duration of time.
+This is an example of a periodic configuraion:
+```yaml
+periodic:
+  triggerDuration: 20 minutes
+```
+
 ### Streaming Input
 Using streaming input will convert your application into a streaming application build on top of Spark Structured Streaming.
 
