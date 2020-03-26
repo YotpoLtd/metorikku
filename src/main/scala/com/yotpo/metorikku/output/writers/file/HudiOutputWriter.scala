@@ -9,6 +9,8 @@ import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import java.util.concurrent.TimeUnit
 
+import org.apache.spark
+
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -26,7 +28,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   extraOptions: Option[Map[String, String]],
                                   alignToPreviousSchema: Option[Boolean],
                                   supportNullableFields: Option[Boolean],
-                                  removeNullColumns: Option[Boolean])
+                                  removeNullColumns: Option[Boolean],
+                                  hiveSyncManually: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -39,7 +42,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
     props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
-    props.get("removeNullColumns").asInstanceOf[Option[Boolean]])
+    props.get("removeNullColumns").asInstanceOf[Option[Boolean]],
+    props.get("hiveSyncManually").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -59,6 +63,11 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     df = this.hudiOutputProperties.alignToPreviousSchema match {
       case Some(true) => alignToPreviousSchema(df)
+      case _ => df
+    }
+
+    this.hudiOutputProperties.hiveSyncManually match {
+      case Some(true) => hiveSyncManually(df)
       case _ => df
     }
 
@@ -312,8 +321,42 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
+  def hiveSyncManually(dataFrame: DataFrame): Unit ={
+    var df = dataFrame
+    val ss = df.sparkSession
 
-   }
+    df = this.hudiOutputProperties.path match {
+      case Some(path) => {
+        ss.read.format("org.apache.hudi").option("path", path).load()
+      }
+    }
+
+    val partitionColumnName = this.hudiOutputProperties.partitionBy match {
+      case Some(partitionBy) => {
+        partitionBy
+      }
+      case None => None
+    }
+
+
+    this.hudiOutputProperties.tableName match {
+      case Some(tableName) => {
+        val catalog = ss.catalog
+        ss.sharedState.externalCatalog.alterTableDataSchema(
+          catalog.currentDatabase,
+          tableName,
+          df.drop(partitionColumnName.toString).schema
+        )
+      }
+      case None => None
+    }
+
+  }
+
+
+
+
+}
 // scalastyle:on cyclomatic.complexity
 // scalastyle:on method.length
 
