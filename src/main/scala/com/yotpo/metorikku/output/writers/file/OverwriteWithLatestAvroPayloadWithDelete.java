@@ -21,6 +21,8 @@ public class OverwriteWithLatestAvroPayloadWithDelete extends OverwriteWithLates
     }
 
     private Boolean isDeleteRecord() {
+        if (record == null)
+            return false;
         Object deleteField = record.get("_hoodie_delete");
         return (deleteField instanceof Boolean && (Boolean) deleteField);
     }
