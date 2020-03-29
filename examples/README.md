@@ -59,8 +59,8 @@ metrics:
   - examples/movies_metric.yaml
 
 inputs:
- movies: examples/inputs/movies.csv
- ratings: examples/inputs/ratings.csv
+ movies: examples/file_inputs/movies.csv
+ ratings: examples/file_inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:
