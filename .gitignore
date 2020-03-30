@@ -7,3 +7,7 @@ metastore_db/
 out/
 metorikku.iml
 examples/output
+e2e/*/output
+e2e/*/*/output
+e2e/*/warehouse
+e2e/*/*/warehouse

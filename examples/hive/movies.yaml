@@ -6,5 +6,5 @@ inputs:
       path: examples/file_inputs/movies.csv
 output:
   file:
-    dir: examples/output
+    dir: /examples/output
 showPreviewLines: 10
