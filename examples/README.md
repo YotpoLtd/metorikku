@@ -126,20 +126,6 @@ output:
   outputOptions:
     saveMode: Overwrite
     path: topFantasyMovies.parquet
-- dataFrameName: topFantasyMovies
-  outputType: CSV
-  outputOptions:
-    saveMode: Overwrite
-    path: topFantasyMovies.csv
-    coalesce: true
-    extraOptions:
-      multiline: "true"
-- dataFrameName: topFantasyMovies
-  outputType: JSON
-  outputOptions:
-    saveMode: Overwrite
-    path: topFantasyMovies.jsonl
-    repartition: 10
 ```
 ### Results
 We are running each step sequentially and here are the results:   
