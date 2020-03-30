@@ -321,35 +321,52 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
-  def hiveSyncManually(dataFrame: DataFrame): Unit ={
+  def hiveSyncManually(dataFrame: DataFrame): DataFrame ={
     var df = dataFrame
     val ss = df.sparkSession
+    val catalog = ss.catalog
 
-    df = this.hudiOutputProperties.path match {
-      case Some(path) => {
-        ss.read.format("org.apache.hudi").option("path", path).load()
-      }
+    // Handle path
+    val hudiPath:String = (hudiOutputProperties.path, hudiOutputProperties.partitionBy) match {
+      case (Some(path), Some(partitionBy)) => path + "/" + partitionBy + "/" + "*.parquet"
+      case (Some(path), None) => path
     }
 
-    val partitionColumnName = this.hudiOutputProperties.partitionBy match {
-      case Some(partitionBy) => {
-        partitionBy
-      }
-      case None => None
-    }
+    df = ss.read.format("org.apache.hudi").option("path", hudiPath).load()
 
+    hudiOutputProperties.tableName match {
+            case Some(tableName) => {
+              ss.catalog.tableExists(tableName) match {
+                case true => ss.sharedState.externalCatalog.alterTableDataSchema(
+                  catalog.currentDatabase,
+                  tableName,
+                  df.drop(hudiOutputProperties.partitionBy).schema
+                )
+                case false => None
+              }
 
-    this.hudiOutputProperties.tableName match {
-      case Some(tableName) => {
-        val catalog = ss.catalog
-        ss.sharedState.externalCatalog.alterTableDataSchema(
-          catalog.currentDatabase,
-          tableName,
-          df.drop(partitionColumnName.toString).schema
-        )
-      }
-      case None => None
-    }
+            }
+            case None => None
+          }
+//
+//    df = this.hudiOutputProperties.path match {
+//      case Some(path) => {
+//        case Some(partitionBy)
+//        ss.read.format("org.apache.hudi").option("path", path).load()
+//      }
+//    }
+
+//    this.hudiOutputProperties.tableName match {
+//      case Some(tableName) => {
+//        val catalog = ss.catalog
+//        ss.sharedState.externalCatalog.alterTableDataSchema(
+//          catalog.currentDatabase,
+//          tableName,
+//          df.drop(partitionColumnName.toString).schema
+//        )
+//      }
+//      case None => None
+//    }
 
   }
 
