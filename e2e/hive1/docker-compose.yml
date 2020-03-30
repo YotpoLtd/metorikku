@@ -13,14 +13,11 @@ services:
       - spark-master
       - spark-worker
       - hive
-  atlas-tester:
+  hive-tester:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://github.com/YotpoLtd/spark-atlas-connector/releases/download/latest/spark-atlas-connector-assembly.jar --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
-      - USE_ATLAS=true
-      - ATLAS_ZOOKEEPER_CONNECT=zookeeper:2181
-      - ATLAS_BOOTSTRAP_SERVERS=kafka:9092
     volumes:
       - ./output/:/examples/output/
       - ./warehouse:/warehouse
@@ -29,8 +26,6 @@ services:
     depends_on:
       - spark-master
       - spark-worker
-      - kafka
-      - hive
   spark-master:
     image: metorikku/metorikku
     entrypoint:
@@ -47,7 +42,7 @@ services:
     logging:
       driver: none
   hive:
-    image: metorikku/hive
+    image: metorikku/hive:1
     environment:
       - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
       - CONNECTION_USER_NAME=root
@@ -61,25 +56,3 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=pass
       - MYSQL_DATABASE=hive
-  zookeeper:
-    image: wurstmeister/zookeeper
-    hostname: zookeeper
-  kafka:
-    container_name: kafka
-    image: wurstmeister/kafka
-    hostname: kafka
-    environment:
-      KAFKA_CREATE_TOPICS: "create_events:1:1,delete_events:1:1,ATLAS_HOOK:1:1"
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_ADVERTISED_PORT: 9092
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    depends_on:
-      - zookeeper
-  atlas-server:
-    image: wbaa/rokku-dev-apache-atlas
-    depends_on:
-      - "zookeeper"
-      - "kafka"
-#    environment:
-#      - ATLAS_PROVISION_EXAMPLES=true

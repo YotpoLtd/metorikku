@@ -3,11 +3,12 @@ package com.yotpo.metorikku.output.writers.file;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.generic.IndexedRecord;
+import org.apache.hudi.common.model.OverwriteWithLatestAvroPayload;
+import org.apache.hudi.common.util.Option;
 
 import java.io.IOException;
-import java.util.Optional;
 
-public class OverwriteWithLatestAvroPayloadWithDelete extends com.uber.hoodie.OverwriteWithLatestAvroPayload {
+public class OverwriteWithLatestAvroPayloadWithDelete extends OverwriteWithLatestAvroPayload {
     private GenericRecord record;
 
     public OverwriteWithLatestAvroPayloadWithDelete(GenericRecord record, Comparable orderingVal) {
@@ -15,21 +16,21 @@ public class OverwriteWithLatestAvroPayloadWithDelete extends com.uber.hoodie.Ov
         this.record = record;
     }
 
-    public OverwriteWithLatestAvroPayloadWithDelete(Optional<GenericRecord> record) {
+    public OverwriteWithLatestAvroPayloadWithDelete(Option<GenericRecord> record) {
         super(record);
     }
 
     private Boolean isDeleteRecord() {
+        if (record == null)
+            return false;
         Object deleteField = record.get("_hoodie_delete");
-        return (deleteField != null &&
-                deleteField instanceof Boolean &&
-                (Boolean)deleteField == true);
+        return (deleteField instanceof Boolean && (Boolean) deleteField);
     }
 
     @Override
-    public Optional<IndexedRecord> getInsertValue(Schema schema) throws IOException {
+    public Option<IndexedRecord> getInsertValue(Schema schema) throws IOException {
         if (isDeleteRecord())
-            return Optional.empty();
+            return Option.empty();
         else
             return super.getInsertValue(schema);
     }

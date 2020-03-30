@@ -1,13 +1,14 @@
 package com.yotpo.metorikku.output.writers.file
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
+import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
-import org.apache.spark
-import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import org.apache.spark.sql.functions.{col, lit}
 import org.apache.spark.sql._
+import org.apache.spark.sql.functions.{col, lit, max, when}
+import org.apache.spark.sql.types.{DataType, StructField, StructType}
+import java.util.concurrent.TimeUnit
 
-import scala.collection.mutable.ListBuffer
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
 // http://hudi.incubator.apache.org/configurations.html
@@ -23,7 +24,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   tableName: Option[String],
                                   hivePartitions: Option[String],
                                   extraOptions: Option[Map[String, String]],
-                                  alignToPreviousSchema: Option[Boolean])
+                                  alignToPreviousSchema: Option[Boolean],
+                                  supportNullableFields: Option[Boolean],
+                                  removeNullColumns: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -34,7 +37,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
-    props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]])
+    props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
+    props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
+    props.get("removeNullColumns").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -47,7 +52,10 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     log.info(s"Starting to write dataframe to hudi")
     var df = dataFrame
     // To support schema evolution all fields should be nullable
-    df = supportNullableFields(df)
+    df = this.hudiOutputProperties.supportNullableFields match {
+      case Some(true) => supportNullableFields(df)
+      case _ => df
+    }
 
     df = this.hudiOutputProperties.alignToPreviousSchema match {
       case Some(true) => alignToPreviousSchema(df)
@@ -56,7 +64,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     val writer = df.write
 
-    writer.format("com.uber.hoodie")
+    writer.format("org.apache.hudi")
 
     // Handle hudi job configuration
     hudiOutput match {
@@ -99,15 +107,15 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     hudiOutputProperties.partitionBy match {
       case Some(partitionBy) => {
         writer.option("hoodie.datasource.write.partitionpath.field", partitionBy)
-        writer.option("hoodie.datasource.write.keygenerator.class", "com.uber.hoodie.SimpleKeyGenerator")
+        writer.option("hoodie.datasource.write.keygenerator.class", classOf[SimpleKeyGenerator].getName)
       }
-      case None => writer.option("hoodie.datasource.write.keygenerator.class", "com.uber.hoodie.NonpartitionedKeyGenerator")
+      case None => writer.option("hoodie.datasource.write.keygenerator.class", classOf[NonpartitionedKeyGenerator].getName)
     }
 
     hudiOutputProperties.hivePartitions match {
       case Some(hivePartitions) => {
         writer.option("hoodie.datasource.hive_sync.partition_fields", hivePartitions)
-        writer.option("hoodie.datasource.hive_sync.partition_extractor_class", "com.uber.hoodie.hive.MultiPartKeysValueExtractor")
+        writer.option("hoodie.datasource.hive_sync.partition_extractor_class", classOf[org.apache.hudi.hive.MultiPartKeysValueExtractor].getName)
       }
       case None =>
     }
@@ -117,7 +125,37 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
 
+    // If using hudi metrics in streaming we need to reset all metrics prior to running the next batch
+    resetMetrics()
     writer.save()
+    writeMetrics()
+  }
+
+  private def writeMetrics(): Unit = {
+    try {
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter].report()
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to report metrics", e)
+    }
+  }
+
+  private def resetMetrics(): Unit = {
+    val reporterScheduledPeriodInSeconds: java.lang.Long = 30L
+    try {
+      Metrics.getInstance().getRegistry().removeMatching(org.apache.hudi.com.codahale.metrics.MetricFilter.ALL)
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to reset hudi metrics", e)
+    }
+
+    try {
+      Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter]
+        .start(reporterScheduledPeriodInSeconds, TimeUnit.SECONDS)
+    }
+    catch {
+      case e: Throwable => log.info(s"Failed to start scheduled metrics", e)
+    }
   }
 
   private def updateJobConfig(config: Hudi, writer: DataFrameWriter[_]): Unit = {
@@ -134,7 +172,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
     config.storageType match {
-      case Some(storageType) => writer.option("hoodie.datasource.write.storage.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
+      case Some(storageType) => writer.option("hoodie.datasource.write.table.type", storageType) // MERGE_ON_READ/COPY_ON_WRITE
       case None =>
     }
     config.operation match {
@@ -192,7 +230,10 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df = alignToSchemaColumns(df, previousSchema)
 
     // // By default we will remove completely null columns (will return them if existed in previous schemas), you can disable this behaviour
-    removeNullColumns(df, previousSchema)
+    this.hudiOutputProperties.removeNullColumns match {
+      case Some(true) => removeNullColumns(df, previousSchema)
+      case _ => df
+    }
 
   }
 
@@ -203,36 +244,44 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     dataFrame.sparkSession.createDataFrame(dataFrame.rdd, schema)
   }
 
-  def isOnlyNullColumn(df: DataFrame, name: String): Boolean = {
-    df.select(name).filter(col(name).isNotNull).limit(1).count() == 0
-  }
-
   def alignToSchemaColumns(df: DataFrame, previousSchema: Option[StructType]) : DataFrame = {
     val lowerCasedColumns = df.columns.map(f => f.toLowerCase)
     previousSchema match {
         case Some(sch) => {
           // scalastyle:off null
           val missingColumns = sch.fields.filter(f => !f.name.startsWith("_hoodie") &&
-            !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).as(f.name))
+            !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).cast(f.dataType).as(f.name))
           // scalastyle:on null
           df.select(col("*") +: missingColumns :_*)
           }
           case None => df
         }
+
     }
 
   def removeNullColumns(dataFrame: DataFrame, previousSchema: Option[StructType]): DataFrame = {
     var df = dataFrame
+    val nullColumns = df
+      .select(df.schema.fields.map(
+        f =>
+          when(
+            max(col(f.name)).isNull, true)
+            .otherwise(false)):_*)
+      .collect()(0)
+
     var fieldMap = Map[String, DataType]()
 
-    val schema = StructType(df.schema.fields.flatMap(
-      field => {
+    val schema = StructType(df.schema.fields.zipWithIndex.flatMap(
+      a => {
+        val field = a._1.copy(nullable = true)
+        val index = a._2
+
         // Add nullability, not on by default
         val fieldName = field.name
         var returnedFields = List[StructField]()
 
         // Column is detected as having only null values, we need to remove it
-        isOnlyNullColumn(df, fieldName) match {
+        nullColumns(index).asInstanceOf[Boolean] match {
             case true => {
               df = df.drop(fieldName)
 

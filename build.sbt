@@ -18,19 +18,16 @@ developers := List(
 )
 
 scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.3")
-val sparkCassandraVersion = sparkVersion match {
-  case "2.4.3" => "2.4.1"
-  case "2.4.2" => "2.4.1"
-  case "2.2.0" => "2.0.11"
-  case other => other
-}
+val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.5")
 val jacksonVersion = "2.9.9"
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
 lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
-lazy val excludeHoodieTimeLineService = ExclusionRule(organization = "com.uber.hoodie", name = "hoodie-timeline-service")
+lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
+lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
+lazy val excludeFasterXML = ExclusionRule(organization = "com.fasterxml.jackson.module", name= "jackson-module-scala_2.12")
+lazy val excludeMetricsCore = ExclusionRule(organization = "io.dropwizard.metrics", name= "metrics-core")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -40,9 +37,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
-  "com.datastax.spark" %% "spark-cassandra-connector" % sparkCassandraVersion,
-  "org.apache.avro" % "avro" % "1.8.2",
-  "com.holdenkarau" %% "spark-testing-base" % s"${sparkVersion}_0.12.0" % "test",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.2",
+  "com.holdenkarau" %% "spark-testing-base" % "2.4.3_0.12.0" % "test",
   "com.github.scopt" %% "scopt" % "3.6.0",
   "RedisLabs" % "spark-redis" % "0.3.2",
   "org.json4s" %% "json4s-native" % "3.5.2",
@@ -50,7 +46,7 @@ libraryDependencies ++= Seq(
   "io.netty" % "netty" % "3.10.6.Final",
   "com.google.guava" % "guava" % "16.0.1",
   "com.typesafe.play" %% "play-json" % "2.6.2",
-  "com.databricks" %% "spark-redshift" % "3.0.0-preview1",
+  "com.databricks" %% "spark-redshift" % "3.0.0-preview1" excludeAll excludeAvro,
   "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001",
   "com.segment.analytics.java" % "analytics" % "2.0.0",
   "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
@@ -61,14 +57,15 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
-  "com.groupon.dse" % "spark-metrics" % "2.0.0",
+  "com.groupon.dse" % "spark-metrics" % "2.0.0" excludeAll excludeMetricsCore,
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
-  "io.confluent" % "kafka-avro-serializer" % "5.1.2" % "provided",
-  "com.uber.hoodie" % "hoodie-spark" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
-  "com.uber.hoodie" % "hoodie-common" % "0.4.7" % "provided" excludeAll(excludeHoodieTimeLineService),
-  "org.apache.hive" % "hive-jdbc" % "1.2.2" % "provided" excludeAll(excludeNetty, excludeNettyAll)
+  "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
+  "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.1-incubating" % "provided" excludeAll excludeFasterXML,
+  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
+  "org.apache.avro" % "avro" % "1.8.2" % "provided",
+  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll)
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
@@ -97,8 +94,19 @@ assemblyMergeStrategy in (Test, assembly) := {
   case PathList("LICENSE", xs@_*) => MergeStrategy.discard
   case PathList("META-INF", "services", xs@_*) => MergeStrategy.filterDistinctLines
   case PathList("META-INF", xs@_*) => MergeStrategy.discard
+  case "log4j.properties" => MergeStrategy.first
   case _ => MergeStrategy.first
 }
+
+assemblyMergeStrategy in assembly := {
+  case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
+  case PathList("LICENSE", xs@_*) => MergeStrategy.discard
+  case PathList("META-INF", "services", xs@_*) => MergeStrategy.filterDistinctLines
+  case PathList("META-INF", xs@_*) => MergeStrategy.discard
+  case "log4j.properties" => MergeStrategy.first
+  case _ => MergeStrategy.first
+}
+
 assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )

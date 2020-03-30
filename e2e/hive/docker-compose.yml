@@ -5,6 +5,7 @@ services:
     environment:
     - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
     - HIVE_METASTORE_URI=hive:9083
+    - USE_BUILTIN_HIVE_METASTORE=false
     entrypoint:
       - /scripts/entrypoint-submit.sh
     volumes:
@@ -18,6 +19,7 @@ services:
     environment:
       - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
+      - USE_BUILTIN_HIVE_METASTORE=false
     volumes:
       - ./output/:/examples/output/
       - ./warehouse:/warehouse

@@ -9,6 +9,7 @@ case class Streaming(triggerMode: Option[String],
                      checkpointLocation: Option[String],
                      batchMode: Option[Boolean],
                      extraOptions: Option[Map[String, String]]) {
+  @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
   def applyOptions(writer: DataStreamWriter[_]): Unit = {
     checkpointLocation match {
@@ -28,9 +29,9 @@ case class Streaming(triggerMode: Option[String],
         writer.trigger(Trigger.Once())
       case (Some("Continuous"), Some(duration)) =>
         writer.trigger(Trigger.Continuous(duration))
-      case _ => throw MetorikkuWriteFailedException("Trigger option is not valid, only ProcessingTime, " +
-        "Once and Continuous are available. " +
-        "Both ProcessingTime and Continuous also require a triggerDuration option as well.")
+      case _ =>
+        log.warn("no triggerMode was passed or trigger sent is invalid. writer will be returned with default trigger mode")
+        writer
     }
 
     extraOptions match {

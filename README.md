@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
+[![Gitter](https://badges.gitter.im/metorikku/Lobby.svg)](https://gitter.im/metorikku/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 Metorikku is a library that simplifies writing and executing ETLs on top of [Apache Spark](http://spark.apache.org/).
 
 It is based on simple YAML configuration files and runs on any Spark cluster.
@@ -59,7 +61,7 @@ Also make sure to check out all our [examples](examples).
 #### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC, Kafka, Cassandra**
+**CSV, JSON, parquet, JDBC, Kafka, Cassandra, Elasticsearch**
 
 And the following outputs:
 **CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
@@ -75,10 +77,11 @@ There are currently 3 options to run Metorikku.
 #### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
 * Download the [last released Standalone JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
+* Metorikku is required to be running with `Java 1.8`
 * Run the following command:
-`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
+`java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
 * Also job in a JSON format is supported, run following command:
-`java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
+`java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
  
 *Run locally in intellij:*
 
@@ -221,6 +224,14 @@ SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
 ##### Optional Parameters:
 * **keyColumn** - key that can be used to perform de-duplication when reading 
 
+#### Periodic job
+Periodic job configuration allows to schedule a batch job to execute repeatedly every configured duration of time.
+This is an example of a periodic configuraion:
+```yaml
+periodic:
+  triggerDuration: 20 minutes
+```
+
 ### Streaming Input
 Using streaming input will convert your application into a streaming application build on top of Spark Structured Streaming.
 
@@ -259,8 +270,11 @@ When using kafka input, writing is only available to ```File``` and ```Kafka```,
 * In order to measure your consumer lag you can use the ```consumerGroup``` parameter to track your application offsets against your kafka input.
 This will commit the offsets to kafka, as a new dummy consumer group.
 
-* In order to deserialize your kafka stream messages with confluent's [Schema Registry](https://docs.confluent.io/current/schema-registry/docs/index.html), add the  ```schemaRegistryUrl``` option to the kafka input config 
+* we use ABRiS as a provided jar In order to deserialize your kafka stream messages (https://github.com/AbsaOSS/ABRiS), add the  ```schemaRegistryUrl``` option to the kafka input config
+spark-submit command should look like so:
 
+```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.5,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+ 
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 
 ###### Topic Pattern
@@ -441,7 +455,7 @@ Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/
 Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
 
 In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
-an external JAR from here: http://central.maven.org/maven2/com/uber/hoodie/hoodie-spark-bundle/0.4.7/hoodie-spark-bundle-0.4.7.jar
+an external JAR from here: https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar
 
 To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
 ```properties
@@ -487,6 +501,10 @@ dataFrameName: test
     hivePartitions: year,month,day
     # Hive table to save the results to
     tableName: test_table
+    # Add missing columns according to previous schema, if exists
+    alignToPreviousSchema: true
+    # Remove completely null columns
+    removeNullColumns: true
 ```
 
 In order to delete send in your dataframe a boolean column called ```_hoodie_delete```, if it's true that row will be deleted.

@@ -1,6 +1,8 @@
 package com.yotpo.metorikku
 
-import com.yotpo.metorikku.configuration.job.ConfigurationParser
+import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
+
+import com.yotpo.metorikku.configuration.job.{ConfigurationParser, Periodic}
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
 
@@ -8,7 +10,22 @@ object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
   val session = Job(ConfigurationParser.parse(args))
-  runMetrics(session)
+
+  session.config.periodic match {
+    case Some(periodic) => {
+      executePeriodicTask(periodic)
+    }
+    case _ => runMetrics(session)
+  }
+
+  private def executePeriodicTask(periodic: Periodic) = {
+    val task = new Runnable {
+      def run() = runMetrics(session)
+    }
+    val ex = new ScheduledThreadPoolExecutor(1)
+    val initialDelay = 0
+    ex.scheduleAtFixedRate(task, initialDelay, periodic.getTriggerDurationInSeconds(), TimeUnit.SECONDS)
+  }
 
   def runMetrics(job: Job): Unit = {
     job.config.metrics match {

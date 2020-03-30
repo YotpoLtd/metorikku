@@ -66,6 +66,11 @@ inputs:
       user: user
       password: password
       index: index
+  input_8:
+    mongo:
+      uri: mongodb://localhost:27017
+      database: test
+      collection: users
 
 
 # Set custom variables that would be accessible from the SQL

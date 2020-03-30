@@ -529,6 +529,42 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assertMismatch(definedKeys, thrown.getMessage, actualRow, expectedRow, 1, 1, keyColumns)
   }
 
+  test("Test Metorikku should not Fail on complex date keys") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-sort-date-keys-results.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      Tester(testConf).run()
+    }
+  }
+
+  test("Test Metorikku should not Fail on complex float keys") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-sort-float-keys-results.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      Tester(testConf).run()
+    }
+  }
+
+  test("Test Metorikku should not Fail on complex list keys") {
+    var definedKeys = List[String]()
+    val thrown = intercept[Exception] {
+      val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-sort-list-keys-results.json")
+      val basePath = new File("src/test/configurations")
+      val preview = 5
+      val testConf = TesterConfig(test, basePath, preview)
+      definedKeys = testConf.test.tests.head._2(0).keys.toList
+      Tester(testConf).run()
+    }
+  }
+
 
 
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int, keyColumns: KeyColumns) = {

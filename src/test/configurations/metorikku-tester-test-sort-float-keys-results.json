@@ -1,0 +1,32 @@
+{
+  "metric": "metorikku-tester-test-simple-metric.yaml",
+  "mocks": [
+    {
+      "name": "organization_monthly",
+      "path": "mocks/organization_monthly.csv"
+    }
+  ],
+  "tests": {
+    "organization_monthly_df": [
+      {
+        "organization_key": "7BotqJW5qNeOzPWF2M6bVQhTr3jDT3Q0JBJLWJFb",
+        "organization_id": "442947",
+        "product_family": "VMS",
+        "month": "2020-02-01",
+        "billing_providers": ["Zuora"],
+        "current_mrr": 55.5
+      },
+      {
+        "organization_key": "7BotqJW5qNeOzPWF2M6bVQhTr3jDT3Q0JBJLWJFb",
+        "organization_id": "442947",
+        "product_family": "VMS",
+        "month": "2020-01-01",
+        "billing_providers": ["Zuora"],
+        "current_mrr": 55.6
+      }
+    ]
+  },
+  "keys" : {
+    "organization_monthly_df": ["organization_key", "product_family", "current_mrr"]
+  }
+}
