@@ -6,7 +6,7 @@
 ### The Data
 Let's analyze a small movie lens data set!
 
-We have our movies.csv in our inputs folder 
+We have our movies.csv in our file_inputs folder 
 ```
 +-------+-------------------------------------------------------------------------------+-------------------------------------------+
 |movieId|title                                                                          |genres                                     |
@@ -59,8 +59,8 @@ metrics:
   - examples/movies_metric.yaml
 
 inputs:
- movies: examples/inputs/movies.csv
- ratings: examples/inputs/ratings.csv
+ movies: examples/file_inputs/movies.csv
+ ratings: examples/file_inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -121,11 +121,11 @@ steps:
     FROM topFantasyMovies
     WHERE title = ${myFavoriteMovie}
 output:
-- dataFrameName: moviesWithRatings
+- dataFrameName: topFantasyMovies
   outputType: Parquet
   outputOptions:
     saveMode: Overwrite
-    path: moviesWithRatings.parquet
+    path: topFantasyMovies.parquet
 ```
 ### Results
 We are running each step sequentially and here are the results:   
