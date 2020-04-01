@@ -1,18 +1,17 @@
 version: '3'
 services:
  hive:
-   image: localhive:latest
+   image: hive:latest
    environment:
      - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
      - CONNECTION_USER_NAME=root
      - CONNECTION_PASSWORD=pass
      - WAREHOUSE_DIR=file:///tmp
      - WAIT_HOSTS=hive-db:3306
-     - AWS_ACCESS_KEY=???
-     - AWS_SECRET_KEY=???
    depends_on:
      - hive-db
    ports:
+     - "9083:9083"
      - "10000:10000"
  hive-db:
    image: mysql:5.7.25

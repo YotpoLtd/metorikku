@@ -1,48 +1,46 @@
 version: '3'
 services:
-  spark-submit:
-    image: metorikku/metorikku
-    environment:
-    - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
-    - HIVE_METASTORE_URI=hive:9083
-    - USE_BUILTIN_HIVE_METASTORE=false
-    entrypoint:
-      - /scripts/entrypoint-submit.sh
-    volumes:
-      - ./output/:/examples/output/
-    depends_on:
-      - spark-master
-      - spark-worker
-      - hive
-  hive-tester:
-    image: metorikku/metorikku
-    environment:
-      - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
-      - HIVE_METASTORE_URI=hive:9083
-      - USE_BUILTIN_HIVE_METASTORE=false
-    volumes:
-      - ./output/:/examples/output/
-      - ./warehouse:/warehouse
-    entrypoint:
-      - /scripts/entrypoint-submit.sh
-    depends_on:
-      - spark-master
-      - spark-worker
-  spark-master:
-    image: metorikku/metorikku
-    entrypoint:
-      - /scripts/entrypoint-master.sh
-    logging:
-      driver: none
-  spark-worker:
-    image: metorikku/metorikku
-    entrypoint:
-      - /scripts/entrypoint-worker.sh
-    volumes:
-      - ./output/:/examples/output/
-      - ./warehouse:/warehouse
-    logging:
-      driver: none
+#  spark-submit:
+#    image: metorikku/metorikku
+#    environment:
+#    - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
+#    - HIVE_METASTORE_URI=hive:9083
+#    entrypoint:
+#      - /scripts/entrypoint-submit.sh
+#    volumes:
+#      - ./output/:/examples/output/
+#    depends_on:
+#      - spark-master
+#      - spark-worker
+#      - hive
+#  hive-tester:
+#    image: metorikku/metorikku
+#    environment:
+#      - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
+#      - HIVE_METASTORE_URI=hive:9083
+#    volumes:
+#      - ./output/:/examples/output/
+#      - ./warehouse:/warehouse
+#    entrypoint:
+#      - /scripts/entrypoint-submit.sh
+#    depends_on:
+#      - spark-master
+#      - spark-worker
+#  spark-master:
+#    image: metorikku/metorikku
+#    entrypoint:
+#      - /scripts/entrypoint-master.sh
+#    logging:
+#      driver: none
+#  spark-worker:
+#    image: metorikku/metorikku
+#    entrypoint:
+#      - /scripts/entrypoint-worker.sh
+#    volumes:
+#      - ./output/:/examples/output/
+#      - ./warehouse:/warehouse
+#    logging:
+#      driver: none
   hive:
     image: metorikku/hive
     environment:
@@ -51,6 +49,9 @@ services:
       - CONNECTION_PASSWORD=pass
       - WAREHOUSE_DIR=file:///warehouse
       - WAIT_HOSTS=hive-db:3306
+    ports:
+      - 9083:9083
+      - 10000:10000
     depends_on:
       - hive-db
   hive-db:
