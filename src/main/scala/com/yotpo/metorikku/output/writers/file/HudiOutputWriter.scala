@@ -6,6 +6,7 @@ import com.yotpo.metorikku.output.Writer
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
+import scala.collection.immutable.Map
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
@@ -63,6 +64,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
     log.info(s"Starting to write dataframe to hudi")
     var df = dataFrame
+
     // To support schema evolution all fields should be nullable
     df = this.hudiOutputProperties.supportNullableFields match {
       case Some(true) => supportNullableFields(df)
@@ -96,10 +98,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
 
-    this.hudiOutputProperties.hiveSyncManually match {
-      case Some(true) => hiveSyncManually(df, path, hudiOutput)
-      case _ => df
-    }
 
     // Mandatory
     writer.option("hoodie.datasource.write.recordkey.field", hudiOutputProperties.keyColumn.get)
@@ -145,6 +143,11 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     resetMetrics()
     writer.save()
     writeMetrics()
+
+    this.hudiOutputProperties.hiveSyncManually match {
+      case Some(true) => hiveSyncManually(df, path, hudiOutput)
+      case _ => df
+    }
   }
 
   private def writeMetrics(): Unit = {
@@ -329,18 +332,16 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   }
 
   def hiveSyncManually(dataFrame: DataFrame, path: Option[String], hudiOutput: Option[Hudi]): DataFrame = {
-    var df = dataFrame
-    val ss = df.sparkSession
-    val catalog = ss.catalog
 
-    df = getHudiDf(df, ss, path)
+    val ss = dataFrame.sparkSession
+    val catalog = ss.catalog
+    val df = getHudiDf(dataFrame, ss, path)
 
     val tablesToSync = getTablesToSyncByStorageType(hudiOutput, hudiOutputProperties.tableName.get)
+    val tableType = CatalogTableType("EXTERNAL")
 
     for ((table, tableInputFormat) <- tablesToSync) {
       val identifier = new TableIdentifier(table, Option(catalog.currentDatabase))
-      val tableType = CatalogTableType("EXTERNAL")
-
       val storage = new CatalogStorageFormat(Option(new URI(path.get)),
         Option(tableInputFormat),
         Option("org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"),
@@ -348,29 +349,33 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         false,
         Map[String, String]())
 
-      val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema)
+      val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema,
+        partitionColumnNames = hudiOutputProperties.partitionExpressionManual match {
+          case Some(partitions) => Seq(partitions.keySet.toSeq: _*)
+          case _ => Seq.empty
+        })
       ss.sharedState.externalCatalog.createTable(tableDefinition, true)
-      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, df.schema)
-      // Handle partitions
-      //ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
-        //Seq(CatalogTablePartition(hudiOutputProperties.partitionExpressionManual.get, storage)), true)
+      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table,
+        df.drop(hudiOutputProperties.partitionExpressionManual.get.keySet.toList: _*).schema)
 
+      // Handle partitions
+      val partitons = collection.immutable.Map(hudiOutputProperties.partitionExpressionManual.get.toSeq: _*)
+      ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
+        Seq(CatalogTablePartition(partitons, storage)), true)
+
+      }
+      return df
     }
-    return df
-  }
+
 
 
   def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String]): DataFrame = {
 
-    var df = dataFrame
-
-    val hudiPath: String = (hudiOutputProperties.partitionExpressionManual) match {
-      case (Some(partitionExpressionManual)) => path.get + "/*/*.parquet"
-      case (None) => path.get
+    val hudiPath = hudiOutputProperties.partitionExpressionManual match {
+      case Some(partitionExpressionManual) => path.get + "/**/*.parquet"
+      case None => path.get + "/*.parquet"
     }
-    df = ss.read.format("org.apache.hudi").option("path", hudiPath).load()
-    hudiOutputProperties.partitionExpressionManual.get.foreach(partition => df.drop(partition._1))
-    return df
+    ss.read.format("org.apache.hudi").option("path", hudiPath).load()
   }
 
   def getTablesToSyncByStorageType(hudiOutput: Option[Hudi], tableName:String): Map[String, String] = {
