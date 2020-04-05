@@ -1,0 +1,15 @@
+metric: get_from_manual_hive_metric.yaml
+mocks:
+  - name: ratings
+    path: ../mocks/ratings.jsonl
+tests:
+  manual_hive_sync_test:
+    - movieId: 1
+      rating: 2.5
+      timestamp: 1260759144
+      hoodie_partition: default
+  manual_hive_sync_test_rt:
+    - movieId: 1
+      rating: 2.5
+      timestamp: 1260759144
+      hoodie_partition: default

@@ -6,13 +6,18 @@ import com.yotpo.metorikku.output.Writer
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
+
 import scala.collection.immutable.Map
 import org.apache.spark.sql._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import java.util.concurrent.TimeUnit
 
+import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 import org.apache.hadoop.hive.ql.parse.PTFInvocationSpec.PartitionExpression
+import org.apache.hudi.hadoop.HoodieParquetInputFormat
+import org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat
 import org.apache.spark
 import org.apache.spark.sql.catalyst.TableIdentifier
 import org.apache.spark.sql.catalyst.catalog.CatalogTypes.TablePartitionSpec
@@ -36,8 +41,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   alignToPreviousSchema: Option[Boolean],
                                   supportNullableFields: Option[Boolean],
                                   removeNullColumns: Option[Boolean],
-                                  hiveSyncManually: Option[Boolean],
-                                  partitionExpressionManual: Option[Map[String,String]])
+                                  manualHiveSync: Option[Boolean],
+                                  manualHiveSyncPartitions: Option[Map[String,String]])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -51,8 +56,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
     props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
     props.get("removeNullColumns").asInstanceOf[Option[Boolean]],
-    props.get("hiveSyncManually").asInstanceOf[Option[Boolean]],
-    props.get("partitionExpressionManual").asInstanceOf[Option[Map[String, String]]])
+    props.get("manualHiveSync").asInstanceOf[Option[Boolean]],
+    props.get("manualHiveSyncPartitions").asInstanceOf[Option[Map[String, String]]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -144,8 +149,8 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     writer.save()
     writeMetrics()
 
-    this.hudiOutputProperties.hiveSyncManually match {
-      case Some(true) => hiveSyncManually(df, path, hudiOutput)
+    this.hudiOutputProperties.manualHiveSync match {
+      case Some(true) => manualHiveSync(df, path, hudiOutput)
       case _ => df
     }
   }
@@ -331,7 +336,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
-  def hiveSyncManually(dataFrame: DataFrame, path: Option[String], hudiOutput: Option[Hudi]): DataFrame = {
+  def manualHiveSync(dataFrame: DataFrame, path: Option[String], hudiOutput: Option[Hudi]): DataFrame = {
 
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
@@ -339,27 +344,26 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     val tablesToSync = getTablesToSyncByStorageType(hudiOutput, hudiOutputProperties.tableName.get)
     val tableType = CatalogTableType("EXTERNAL")
-
     for ((table, tableInputFormat) <- tablesToSync) {
       val identifier = new TableIdentifier(table, Option(catalog.currentDatabase))
       val storage = new CatalogStorageFormat(Option(new URI(path.get)),
         Option(tableInputFormat),
-        Option("org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"),
-        Option("org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"),
+        Option(classOf[MapredParquetOutputFormat].getName),
+        Option(classOf[ParquetHiveSerDe].getName),
         false,
         Map[String, String]())
 
       val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema,
-        partitionColumnNames = hudiOutputProperties.partitionExpressionManual match {
+        partitionColumnNames = hudiOutputProperties.manualHiveSyncPartitions match {
           case Some(partitions) => Seq(partitions.keySet.toSeq: _*)
           case _ => Seq.empty
         })
       ss.sharedState.externalCatalog.createTable(tableDefinition, true)
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table,
-        df.drop(hudiOutputProperties.partitionExpressionManual.get.keySet.toList: _*).schema)
+        df.drop(hudiOutputProperties.manualHiveSyncPartitions.get.keySet.toList: _*).schema)
 
       // Handle partitions
-      val partitons = collection.immutable.Map(hudiOutputProperties.partitionExpressionManual.get.toSeq: _*)
+      val partitons = collection.immutable.Map(hudiOutputProperties.manualHiveSyncPartitions.get.toSeq: _*)
       ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
         Seq(CatalogTablePartition(partitons, storage)), true)
 
@@ -371,7 +375,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
   def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String]): DataFrame = {
 
-    val hudiPath = hudiOutputProperties.partitionExpressionManual match {
+    val hudiPath = hudiOutputProperties.manualHiveSyncPartitions match {
       case Some(partitionExpressionManual) => path.get + "/**/*.parquet"
       case None => path.get + "/*.parquet"
     }
@@ -381,9 +385,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   def getTablesToSyncByStorageType(hudiOutput: Option[Hudi], tableName:String): Map[String, String] = {
     hudiOutput match {
       case Some(hudiOutput) => hudiOutput.storageType match{
-        case Some("MERGE_ON_READ") => Map(tableName -> "org.apache.hudi.hadoop.HoodieParquetInputFormat",
-                                          tableName + "_rt" -> "org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat")
-        case _ => Map(tableName -> "org.apache.hudi.hadoop.HoodieParquetInputFormat")
+        case Some("MERGE_ON_READ") => Map(tableName -> classOf[HoodieParquetInputFormat].getName,
+                                          tableName + "_rt" -> classOf[HoodieParquetRealtimeInputFormat].getName)
+        case _ => Map(tableName -> classOf[HoodieParquetInputFormat].getName)
       }
     }
   }
