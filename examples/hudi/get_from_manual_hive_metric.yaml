@@ -3,11 +3,11 @@ steps:
   sql:
     SELECT movieId,
            rating
-    FROM hive_sync_test
+    FROM manual_hive_sync
     WHERE userId=1
 - dataFrameName: manual_hive_sync_test_rt
   sql:
     SELECT movieId,
            rating
-    FROM hive_sync_test_rt
+    FROM manual_hive_sync_rt
     WHERE userId=1
