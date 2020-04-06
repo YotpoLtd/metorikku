@@ -14,6 +14,9 @@ output:
     hiveJDBCURL: jdbc:hive2://hive:10000
     hiveUserName: root
     hivePassword: pass
+    manualHiveSync: true
+    manualHiveSyncPartitions:
+      hoodie_partition: default
     options:
       hoodie.datasource.hive_sync.enable: false
       hoodie.metrics.on: false

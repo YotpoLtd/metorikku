@@ -1,4 +1,5 @@
 package com.yotpo.metorikku.configuration.job.output
+import scala.collection.immutable.Map
 
 case class Hudi(dir: String,
                 parallelism: Option[String],
@@ -10,7 +11,10 @@ case class Hudi(dir: String,
                 hiveJDBCURL: Option[String],
                 hiveUserName: Option[String],
                 hivePassword: Option[String],
+                manualHiveSync: Option[Boolean],
+                manualHiveSyncPartitions: Option[Map[String,String]],
                 options: Option[Map[String, String]]
                ) {
+
   require(Option(dir).isDefined, "Hudi file directory: dir is mandatory.")
 }

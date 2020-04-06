@@ -149,9 +149,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     writer.save()
     writeMetrics()
 
-    this.hudiOutputProperties.manualHiveSync match {
-      case Some(true) => manualHiveSync(df, path, hudiOutput)
-      case _ => df
+    hudiOutput match {
+      case Some(config) => {
+        config.manualHiveSync match {
+          case Some(true) => manualHiveSync(df, path, config.manualHiveSyncPartitions)
+        }
+      }
     }
   }
 
@@ -336,11 +339,11 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
-  def manualHiveSync(dataFrame: DataFrame, path: Option[String], hudiOutput: Option[Hudi]): DataFrame = {
+  def manualHiveSync(dataFrame: DataFrame, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): DataFrame = {
 
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
-    val df = getHudiDf(dataFrame, ss, path)
+    val df = getHudiDf(dataFrame, ss, path, manualHiveSyncPartitions)
 
     val tablesToSync = getTablesToSyncByStorageType(hudiOutput, hudiOutputProperties.tableName.get)
     val tableType = CatalogTableType("EXTERNAL")
@@ -354,16 +357,16 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         Map[String, String]())
 
       val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema,
-        partitionColumnNames = hudiOutputProperties.manualHiveSyncPartitions match {
+        partitionColumnNames = manualHiveSyncPartitions match {
           case Some(partitions) => Seq(partitions.keySet.toSeq: _*)
           case _ => Seq.empty
         })
       ss.sharedState.externalCatalog.createTable(tableDefinition, true)
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table,
-        df.drop(hudiOutputProperties.manualHiveSyncPartitions.get.keySet.toList: _*).schema)
+        df.drop(manualHiveSyncPartitions.get.keySet.toList: _*).schema)
 
       // Handle partitions
-      val partitons = collection.immutable.Map(hudiOutputProperties.manualHiveSyncPartitions.get.toSeq: _*)
+      val partitons = collection.immutable.Map(manualHiveSyncPartitions.get.toSeq: _*)
       ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
         Seq(CatalogTablePartition(partitons, storage)), true)
 
@@ -373,9 +376,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
 
 
-  def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String]): DataFrame = {
+  def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): DataFrame = {
 
-    val hudiPath = hudiOutputProperties.manualHiveSyncPartitions match {
+    val hudiPath = manualHiveSyncPartitions match {
       case Some(partitionExpressionManual) => path.get + "/**/*.parquet"
       case None => path.get + "/*.parquet"
     }
