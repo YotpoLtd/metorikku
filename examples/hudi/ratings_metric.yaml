@@ -6,16 +6,13 @@ steps:
       'default' AS hoodie_partition
       FROM ratings
 output:
-  - dataFrameName: hive_sync_test
-    outputType: Hudi
-    outputOptions:
-      path: table_view
-      keyColumn: hoodie_key
-      timeColumn: timestamp
-      partitionBy: hoodie_partition
-      hivePartitions: default
-      tableName: manual_hive_sync
-      saveMode: Append
-      manualHiveSync: true
-      manualHiveSyncPartitions:
-        default: default
+- dataFrameName: hive_sync_test
+  outputType: Hudi
+  outputOptions:
+    path: table_view
+    keyColumn: hoodie_key
+    timeColumn: timestamp
+    partitionBy: hoodie_partition
+    hivePartitions: default
+    tableName: manual_hive_sync
+    saveMode: Append

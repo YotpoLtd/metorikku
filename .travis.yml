@@ -76,10 +76,10 @@ script:
   - travis_fold start "file_to_hudi_e2e"
   - (cd e2e/hudi && ./test.sh) || travis_terminate 1;
   - travis_fold end "file_to_hudi_e2e"
-  # Hudi to Hive E2E
-  - travis_fold start "hudi_to_hive_e2e"
-  - (cd e2e/hudi_hive && ./test.sh) || travis_terminate 1;
-  - travis_fold end "hudi_to_hive_e2e"
+  # Hudi Manual Hive Sync E2E
+  - travis_fold start "hudi_manual_hive_sync_e2e"
+  - (cd e2e/hudi_manual_hive_sync && ./test.sh) || travis_terminate 1;
+  - travis_fold end "hudi_manual_hive_sync_e2e"
   # CDC E2E
   - travis_fold start "cdc_e2e"
   - (cd e2e/cdc && ./test.sh) || travis_terminate 1;
