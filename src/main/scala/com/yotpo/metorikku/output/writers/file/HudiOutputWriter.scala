@@ -13,6 +13,7 @@ import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import java.util.concurrent.TimeUnit
 
+import org.apache.avro.generic.GenericData.StringType
 import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
 import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 import org.apache.hadoop.hive.ql.parse.PTFInvocationSpec.PartitionExpression
@@ -152,11 +153,17 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     hudiOutput match {
       case Some(config) => {
         config.manualHiveSync match {
-          case Some(true) => manualHiveSync(df, path, config.manualHiveSyncPartitions)
+          case Some(hiveSync) => {
+            hiveSync match {
+              case true => manualHiveSync(df, path, config.manualHiveSyncPartitions)
+            }
+          }
+          case None =>
         }
       }
     }
-  }
+
+    }
 
   private def writeMetrics(): Unit = {
     try {
@@ -363,13 +370,17 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         })
       ss.sharedState.externalCatalog.createTable(tableDefinition, true)
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table,
+        //df.drop(manualHiveSyncPartitions.keySet.last).schema)
         df.drop(manualHiveSyncPartitions.get.keySet.toList: _*).schema)
-
+      ss.sharedState.externalCatalog.alterTable(tableDefinition)
       // Handle partitions
-      val partitons = collection.immutable.Map(manualHiveSyncPartitions.get.toSeq: _*)
-      ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
-        Seq(CatalogTablePartition(partitons, storage)), true)
-
+      manualHiveSyncPartitions match {
+        case Some(partitons) => {
+          ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
+            Seq(CatalogTablePartition(collection.immutable.Map(partitons.toSeq: _*), storage)), true)
+        }
+        case _ => None
+      }
       }
       return df
     }
@@ -379,10 +390,14 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): DataFrame = {
 
     val hudiPath = manualHiveSyncPartitions match {
-      case Some(partitionExpressionManual) => path.get + "/**/*.parquet"
-      case None => path.get + "/*.parquet"
+      case Some(partitionExpressionManual) => path.get + "/**/*"
+      case None => path.get + "/*"
     }
-    ss.read.format("org.apache.hudi").option("path", hudiPath).load()
+    val df = ss.read.format("org.apache.hudi").option("path", hudiPath).load()
+    (hudiOutputProperties.partitionBy, manualHiveSyncPartitions) match {
+      case (Some(partitionBy),Some(manualHiveSyncPartitions)) => df.withColumn(manualHiveSyncPartitions.keySet.last, col(partitionBy))
+      case (_, _) => df
+    }
   }
 
   def getTablesToSyncByStorageType(hudiOutput: Option[Hudi], tableName:String): Map[String, String] = {

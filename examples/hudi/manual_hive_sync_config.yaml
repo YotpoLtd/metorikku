@@ -16,10 +16,10 @@ output:
     hivePassword: pass
     manualHiveSync: true
     manualHiveSyncPartitions:
-      hoodie_partition: default
+      default: default
     options:
-      hoodie.datasource.hive_sync.enable: false
-      hoodie.metrics.on: false
+      hoodie.datasource.hive_sync.enable: 'false'
+      hoodie.metrics.on: 'false'
 explain: true
 logLevel: WARN
 appName: manualHiveSyncApp

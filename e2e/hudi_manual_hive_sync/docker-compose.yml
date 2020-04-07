@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/ratings_metric.yaml
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_config.yaml
       - HIVE_METASTORE_URI=hive:9083
       - USE_BUILTIN_HIVE_METASTORE=false
     volumes:
