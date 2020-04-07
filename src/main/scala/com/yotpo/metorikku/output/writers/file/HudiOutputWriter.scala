@@ -369,17 +369,38 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           case _ => Seq.empty
         })
       ss.sharedState.externalCatalog.createTable(tableDefinition, true)
-      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table,
-        //df.drop(manualHiveSyncPartitions.keySet.last).schema)
-        df.drop(manualHiveSyncPartitions.get.keySet.toList: _*).schema)
+      val schema =  manualHiveSyncPartitions match {
+        case Some(manualHiveSyncPartitions) => df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
+        case _ => df.schema
+      }
+      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
+
+
       // Handle partitions
       manualHiveSyncPartitions match {
-        case Some(partitons) => {
-          ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
-            Seq(CatalogTablePartition(collection.immutable.Map(partitons.toSeq: _*), storage)), true)
+        case Some(partitions) => {
+          partitions.foreach( partition => {
+            val partitionStorage = new CatalogStorageFormat(Option(new URI(path.get + "/" + partition._2)),
+              Option(tableInputFormat),
+              Option(classOf[MapredParquetOutputFormat].getName),
+              Option(classOf[ParquetHiveSerDe].getName),
+              false,
+              Map[String, String]())
+            ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
+              Seq(CatalogTablePartition(Map(partition._1 -> partition._2), partitionStorage)), true)
+          }
+          )
+
         }
-        case _ => None
+        case _ => {
+          ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table).size match {
+            case 0 => None
+            case _ => ss.sharedState.externalCatalog.listPartitions(ss.catalog.currentDatabase, table).foreach( part => {
+              ss.sharedState.externalCatalog.dropPartitions(ss.catalog.currentDatabase, table, Seq(part.spec), true, true, true)
+            })
+          }
+        }
       }
       }
       return df
