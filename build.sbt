@@ -112,6 +112,11 @@ assemblyShadeRules in (Test, assembly) := Seq(
 )
 assemblyJarName in assembly := "metorikku.jar"
 assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(cacheOutput = false)
+assemblyOption in assembly := (assemblyOption in assembly).value.copy(cacheUnzip = false)
+assemblyOption in (Test, assembly) := (assemblyOption in (Test, assembly)).value.copy(cacheOutput = false)
+assemblyOption in (Test, assembly) := (assemblyOption in (Test, assembly)).value.copy(cacheUnzip = false)
+
 
 logLevel in assembly := Level.Error
 logLevel in (Test, assembly) := Level.Error
