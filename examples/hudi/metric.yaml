@@ -1,0 +1,38 @@
+steps:
+  - dataFrameName: cdc_filtered
+    sql:
+      SELECT ts_ms,
+      op,
+      before,
+      after
+      FROM cdc_events
+      WHERE op IN ('d', 'u', 'c')
+  - dataFrameName: cdc_by_event
+    sql:
+      SELECT ts_ms,
+      CASE WHEN op = 'd' THEN before ELSE after END AS cdc_fields,
+      CASE WHEN op = 'd' THEN true ELSE false END AS _hoodie_delete
+      FROM cdc_filtered
+  - dataFrameName: cdc_with_fields
+    sql:
+      SELECT ts_ms + 4000 as ts_ms,
+      cdc_fields.*,
+      _hoodie_delete
+      FROM cdc_by_event
+  - dataFrameName: cdc_table
+    sql:
+      SELECT *,
+      'default' AS hoodie_partition,
+      'mook5' AS shook
+      FROM cdc_with_fields
+output:
+  - dataFrameName: cdc_table
+    outputType: Hudi
+    outputOptions:
+      path: table_view
+      keyColumn: id
+      timeColumn: ts_ms
+      partitionBy: hoodie_partition
+      tableName: test_table
+      saveMode: Append
+      hivePartitions: hoodie_partition
