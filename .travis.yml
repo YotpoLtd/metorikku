@@ -31,6 +31,7 @@ jobs:
     - name: Build
       stage: compile
       script: scripts/build.sh
+      after_success: scripts/docker_dev_save.sh
       before_script: echo "Skipping loading from cache"
       before_cache: scripts/before_cache.sh
 #    - name: Main tests & Influx DB E2E
@@ -49,11 +50,10 @@ jobs:
 #    - name: File to Hudi E2E
 #      script: (cd e2e/hudi && ./test.sh)
 #    - name: CDC E2E
-#      before_script: scripts/load_from_cache.sh
 #      script: (cd e2e/cdc && ./test.sh)
     - name: Publish to maven, docker and github
       stage: deploy
-      script: skip
+      script: sbt publishSigned
       deploy:
         - provider: script
           script: scripts/publish.sh
