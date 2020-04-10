@@ -25,7 +25,9 @@ env:
     - HUDI_VERSION=0.5.1-incubating
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
-before_script: scripts/load_from_cache.sh
+before_script:
+  - scripts/load_from_cache.sh
+  - export -f travis_fold
 jobs:
   include:
     - name: Build
@@ -34,23 +36,23 @@ jobs:
       after_success: scripts/docker_dev_save.sh
       before_script: echo "Skipping loading from cache"
       before_cache: scripts/before_cache.sh
-#    - name: Main tests & Influx DB E2E
-#      stage: test
-#      script:
-#        - scripts/test.sh
-#        - (cd e2e/influxdb && ./test.sh)
-#    - name: Kafka to Kafka E2E & File to Elasticsearch E2E
-#      script:
-#        - (cd e2e/kafka && ./test.sh)
-#        - (cd e2e/elasticsearch && ./test.sh)
-#    - name: File to hive E2E
-#      script:
-#        - (cd e2e/hive1 && ./test.sh)
-#        - (cd e2e/hive && ./test.sh)
-#    - name: File to Hudi E2E
-#      script: (cd e2e/hudi && ./test.sh)
-#    - name: CDC E2E
-#      script: (cd e2e/cdc && ./test.sh)
+    - name: Main tests & Influx DB E2E
+      stage: test
+      script:
+        - scripts/test.sh
+        - (cd e2e/influxdb && ./test.sh)
+    - name: Kafka to Kafka E2E & File to Elasticsearch E2E
+      script:
+        - (cd e2e/kafka && ./test.sh)
+        - (cd e2e/elasticsearch && ./test.sh)
+    - name: File to hive E2E
+      script:
+        - (cd e2e/hive1 && ./test.sh)
+        - (cd e2e/hive && ./test.sh)
+    - name: File to Hudi E2E
+      script: (cd e2e/hudi && ./test.sh)
+    - name: CDC E2E
+      script: (cd e2e/cdc && ./test.sh)
     - name: Publish to maven, docker and github
       stage: deploy
       script: sbt publishSigned
@@ -59,7 +61,7 @@ jobs:
           script: scripts/publish.sh
           on:
             all_branches: true
-#            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
+            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
         - provider: script
           script: scripts/docker_publish.sh
           on:
