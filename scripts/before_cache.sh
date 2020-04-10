@@ -10,3 +10,4 @@ rm -rf target/streams/\$global/assembly target/streams/\$global/assemblyOption t
 cp -r target $TARGET_CACHE
 
 #./scripts/save_docker_to_cache.sh
+./scripts/docker_dev_save.sh
