@@ -9,11 +9,4 @@ echo "Saving metorikku JAR to cache"
 rm -rf target/streams/\$global/assembly target/streams/\$global/assemblyOption target/streams/test/assemblyOption target/streams/test/assembly
 cp -r target $TARGET_CACHE
 
-echo "Saving docker images to cache"
-docker save -o $DOCKER_CACHE/images.tar $(docker images -a -q)
-docker images | sed '1d' | awk '{print $1 " " $2 " " $3}' > $DOCKER_CACHE/images.list
-
-ls -l $TARGET_CACHE
-du -h $TARGET_CACHE/
-ls -l $DOCKER_CACHE
-du -h $DOCKER_CACHE/
+#./scripts/save_docker_to_cache.sh

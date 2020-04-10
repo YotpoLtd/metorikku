@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
 
-./scripts/assembly.sh
-./scripts/docker.sh
+echo "Building metorikku JAR"
+sbt -DsparkVersion=$SPARK_VERSION clean scalastyle assembly "set test in (Test, assembly) := {}" test:assembly
+
+#./scripts/docker.sh
