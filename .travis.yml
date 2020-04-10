@@ -10,7 +10,6 @@ cache:
     - $HOME/.sbt
     - $TARGET_CACHE
     - $DOCKER_CACHE
-before_cache: scripts/before_cache.sh
 branches:
   only:
     - master
@@ -30,31 +29,31 @@ jobs:
     - name: Build
       stage: compile
       script: scripts/build.sh
+      before_cache: scripts/before_cache.sh
     - name: Main tests
       stage: test
       before_script: scripts/load_from_cache.sh
       script: scripts/test.sh
     - name: Kafka to Kafka E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/kafka/test.sh
+      script: (cd e2e/kafka && ./test.sh)
     - name: File to InfluxDB E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/influxdb/test.sh
-    - name: File to hive2 E2E
+      script: (cd e2e/influxdb && ./test.sh)
+    - name: File to hive E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/hive/test.sh
-    - name: File to hive1 E2E
-      before_script: scripts/load_from_cache.sh
-      script: e2e/hive1/test.sh
+      script:
+        - (cd e2e/hive1 && ./test.sh)
+        - (cd e2e/hive && ./test.sh)
     - name: File to Elasticsearch E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/elasticsearch/test.sh
+      script: (cd e2e/elasticsearch && ./test.sh)
     - name: File to Hudi E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/hudi/test.sh
+      script: (cd e2e/hudi && ./test.sh)
     - name: CDC E2E
       before_script: scripts/load_from_cache.sh
-      script: e2e/cdc/test.sh
+      script: (cd e2e/cdc && ./test.sh)
 #deploy:
 #  - provider: script
 #    skip_cleanup: true

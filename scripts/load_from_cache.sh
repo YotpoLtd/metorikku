@@ -1,9 +1,8 @@
 #!/bin/bash
 set -e
 
+echo "Loading metorikku JAR"
 cp -r $TARGET_CACHE/target .
 
-docker load -i $DOCKER_CACHE/spark.gz
-docker load -i $DOCKER_CACHE/metorikku.gz
-docker load -i $DOCKER_CACHE/hive.gz
-docker load -i $DOCKER_CACHE/hive1.gz
+echo "Loading docker cache"
+docker load -i $DOCKER_CACHE/images.tar
