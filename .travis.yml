@@ -51,25 +51,24 @@ jobs:
     - name: CDC E2E
       before_script: scripts/load_from_cache.sh
       script: (cd e2e/cdc && ./test.sh)
-#deploy:
-#  - provider: script
-#    skip_cleanup: true
-#    script: sbt publishSigned sonatypeReleaseAll
-#    on:
-#      all_branches: true
-#      condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
-#  - provider: script
-#    skip_cleanup: true
-#    script: echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && docker tag metorikku/metorikku metorikku/metorikku:"$TRAVIS_TAG"_spark_"$SPARK_VERSION" && docker push metorikku/spark && docker push metorikku/hive && docker push metorikku/hive:1 && docker push metorikku/metorikku
-#    on:
-#      all_branches: true
-#      condition: $TRAVIS_TAG =~ ^v.*
-#  - provider: releases
-#    skip_cleanup: true
-#    api_key:
-#      secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
-#    file_glob: true
-#    file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
-#    on:
-#      all_branches: true
-#      condition: $TRAVIS_TAG =~ ^v.*
+    - name: Publish to maven, docker and github
+      stage: deploy
+      deploy:
+        - provider: script
+          script: scripts/publish.sh
+          on:
+            all_branches: true
+#            condition: ($TRAVIS_BRANCH = master) || ($TRAVIS_TAG =~ ^v.*)
+        - provider: script
+          script: scripts/docker_publish.sh
+          on:
+            all_branches: true
+            condition: $TRAVIS_TAG =~ ^v.*
+        - provider: releases
+          token:
+            secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
+          file_glob: true
+          file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
+          on:
+            all_branches: true
+            condition: $TRAVIS_TAG =~ ^v.*
