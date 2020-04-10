@@ -1,5 +1,6 @@
-sudo: required
 language: scala
+dist: bionic
+os: linux
 services:
   - docker
 jdk:
