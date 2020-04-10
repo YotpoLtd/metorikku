@@ -24,32 +24,28 @@ env:
     - HUDI_VERSION=0.5.1-incubating
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
     - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
+before_script: scripts/load_from_cache.sh
 jobs:
   include:
     - name: Build
       stage: compile
       script: scripts/build.sh
+      before_script: echo "Skipping loading from cache"
       before_cache: scripts/before_cache.sh
-    - name: Main tests
+    - name: Main tests & Influx DB E2E
       stage: test
-      before_script: scripts/load_from_cache.sh
-      script: scripts/test.sh
-    - name: Kafka to Kafka E2E
-      before_script: scripts/load_from_cache.sh
-      script: (cd e2e/kafka && ./test.sh)
-    - name: File to InfluxDB E2E
-      before_script: scripts/load_from_cache.sh
-      script: (cd e2e/influxdb && ./test.sh)
+      script:
+        - scripts/test.sh
+        - (cd e2e/influxdb && ./test.sh)
+    - name: Kafka to Kafka E2E & File to Elasticsearch E2E
+      script:
+        - (cd e2e/kafka && ./test.sh)
+        - (cd e2e/elasticsearch && ./test.sh)
     - name: File to hive E2E
-      before_script: scripts/load_from_cache.sh
       script:
         - (cd e2e/hive1 && ./test.sh)
         - (cd e2e/hive && ./test.sh)
-    - name: File to Elasticsearch E2E
-      before_script: scripts/load_from_cache.sh
-      script: (cd e2e/elasticsearch && ./test.sh)
     - name: File to Hudi E2E
-      before_script: scripts/load_from_cache.sh
       script: (cd e2e/hudi && ./test.sh)
     - name: CDC E2E
       before_script: scripts/load_from_cache.sh
