@@ -13,6 +13,7 @@ branches:
   only:
     - master
     - /^v[\d\.]+$/
+if: NOT commit_message =~ /^Setting version to.*SNAPSHOT$/
 env:
   global:
     - SPARK_VERSION=2.4.5
