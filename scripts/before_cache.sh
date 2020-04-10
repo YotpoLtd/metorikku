@@ -11,6 +11,7 @@ cp -r target $TARGET_CACHE
 
 echo "Saving docker images to cache"
 docker save -o $DOCKER_CACHE/images.tar $(docker images -a -q)
+docker images | sed '1d' | awk '{print $1 " " $2 " " $3}' > $DOCKER_CACHE/images.list
 
 ls -l $TARGET_CACHE
 du -h $TARGET_CACHE/
