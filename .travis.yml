@@ -34,7 +34,7 @@ jobs:
       stage: compile
       script: scripts/build.sh
       after_success: scripts/docker_dev_save.sh
-      before_script: echo "Skipping loading from cache"
+      before_script: export -f travis_fold
       before_cache: scripts/before_cache.sh
     - name: Main tests & Influx DB E2E
       stage: test
