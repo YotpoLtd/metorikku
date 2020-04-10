@@ -22,8 +22,8 @@ env:
     - HUDI_HIVE1_VERSION=0.4.7
     - HIVE_VERSION=2.3.3
     - HUDI_VERSION=0.5.1-incubating
-    - TARGET_CACHE=$HOME/target-cache
-    - DOCKER_CACHE=$HOME/docker-cache
+    - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
+    - DOCKER_CACHE=$HOME/docker-cache/${TRAVIS_COMMIT}
 jobs:
   include:
     - name: Build

@@ -11,3 +11,8 @@ cp -r target $TARGET_CACHE
 
 echo "Saving docker images to cache"
 docker save -o $DOCKER_CACHE/images.tar $(docker images -a -q)
+
+ls -l $TARGET_CACHE
+du -h $TARGET_CACHE/
+ls -l $DOCKER_CACHE
+du -h $DOCKER_CACHE/
