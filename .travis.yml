@@ -33,26 +33,27 @@ jobs:
       script: scripts/build.sh
       before_script: echo "Skipping loading from cache"
       before_cache: scripts/before_cache.sh
-    - name: Main tests & Influx DB E2E
-      stage: test
-      script:
-        - scripts/test.sh
-        - (cd e2e/influxdb && ./test.sh)
-    - name: Kafka to Kafka E2E & File to Elasticsearch E2E
-      script:
-        - (cd e2e/kafka && ./test.sh)
-        - (cd e2e/elasticsearch && ./test.sh)
-    - name: File to hive E2E
-      script:
-        - (cd e2e/hive1 && ./test.sh)
-        - (cd e2e/hive && ./test.sh)
-    - name: File to Hudi E2E
-      script: (cd e2e/hudi && ./test.sh)
-    - name: CDC E2E
-      before_script: scripts/load_from_cache.sh
-      script: (cd e2e/cdc && ./test.sh)
+#    - name: Main tests & Influx DB E2E
+#      stage: test
+#      script:
+#        - scripts/test.sh
+#        - (cd e2e/influxdb && ./test.sh)
+#    - name: Kafka to Kafka E2E & File to Elasticsearch E2E
+#      script:
+#        - (cd e2e/kafka && ./test.sh)
+#        - (cd e2e/elasticsearch && ./test.sh)
+#    - name: File to hive E2E
+#      script:
+#        - (cd e2e/hive1 && ./test.sh)
+#        - (cd e2e/hive && ./test.sh)
+#    - name: File to Hudi E2E
+#      script: (cd e2e/hudi && ./test.sh)
+#    - name: CDC E2E
+#      before_script: scripts/load_from_cache.sh
+#      script: (cd e2e/cdc && ./test.sh)
     - name: Publish to maven, docker and github
       stage: deploy
+      script: skip
       deploy:
         - provider: script
           script: scripts/publish.sh
