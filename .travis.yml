@@ -22,7 +22,10 @@ env:
     - HUDI_HIVE1_VERSION=0.4.7
     - HIVE_VERSION=2.3.3
     - HUDI_VERSION=0.5.1-incubating
-before_script: export -f travis_fold
+before_script:
+  - export -f travis_fold
+  - export -f travis_time_start
+  - export -f travis_time_finish
 script: scripts/full_build.sh
 before_cache: scripts/before_cache.sh
 deploy:

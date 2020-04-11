@@ -9,4 +9,3 @@ travis_fold end "build"
 travis_fold start "docker"
 ./scripts/docker.sh
 travis_fold end "docker"
-

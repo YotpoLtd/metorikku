@@ -4,12 +4,17 @@ set -e
 ./scripts/build.sh
 
 travis_fold start "tests"
-./scripts/test.sh
+  travis_time_start
+    ./scripts/test.sh
+  travis_time_finish
 travis_fold end "tests"
 
 travis_fold start "influxdb"
-(cd e2e/influxdb && ./test.sh)
+  travis_time_start
+    (cd e2e/influxdb && ./test.sh)
+  travis_time_finish
 travis_fold end "influxdb"
+
 
 travis_fold start "kafka"
 (cd e2e/kafka && ./test.sh)
