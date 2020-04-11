@@ -26,7 +26,8 @@ before_script:
   - export -f travis_fold
   - export -f travis_time_start
   - export -f travis_time_finish
-script: scripts/full_build.sh
+  - export -f travis_nanoseconds
+script: scripts/travis_build.sh
 before_cache: scripts/before_cache.sh
 deploy:
   - provider: script
