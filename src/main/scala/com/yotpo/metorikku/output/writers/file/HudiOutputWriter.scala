@@ -248,7 +248,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
     config.hiveSync match {
       case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
+      case None =>
     }
+
     config.options match {
       case Some(options) => writer.options(options)
       case None =>

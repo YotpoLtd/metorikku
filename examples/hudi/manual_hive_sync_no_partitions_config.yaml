@@ -6,7 +6,7 @@ inputs:
       path: examples/file_inputs/ratings.csv
 output:
   hudi:
-    dir: /examples/output2
+    dir: /examples/output
     operation: upsert
     storageType: MERGE_ON_READ
     maxVersions: 1
