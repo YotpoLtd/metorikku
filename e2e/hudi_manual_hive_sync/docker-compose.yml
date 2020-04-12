@@ -26,6 +26,32 @@ services:
     depends_on:
       - spark-master
       - spark-worker
+  spark-submit-non-partition:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_no_partitions_config.yaml
+      - HIVE_METASTORE_URI=hive:9083
+      - USE_BUILTIN_HIVE_METASTORE=false
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  hive-tester-no-partition:
+    image: metorikku/metorikku
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_no_partitions_test.yaml
+      - HIVE_METASTORE_URI=hive:9083
+      - USE_BUILTIN_HIVE_METASTORE=false
+    volumes:
+      - ./output/:/examples/output/
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
   spark-master:
     image: metorikku/metorikku
     entrypoint:

@@ -42,9 +42,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   extraOptions: Option[Map[String, String]],
                                   alignToPreviousSchema: Option[Boolean],
                                   supportNullableFields: Option[Boolean],
-                                  removeNullColumns: Option[Boolean],
-                                  manualHiveSync: Option[Boolean],
-                                  manualHiveSyncPartitions: Option[Map[String,String]])
+                                  removeNullColumns: Option[Boolean])
 
   val hudiOutputProperties = HudiOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
@@ -57,9 +55,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
     props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
-    props.get("removeNullColumns").asInstanceOf[Option[Boolean]],
-    props.get("manualHiveSync").asInstanceOf[Option[Boolean]],
-    props.get("manualHiveSyncPartitions").asInstanceOf[Option[Map[String, String]]])
+    props.get("removeNullColumns").asInstanceOf[Option[Boolean]])
 
 
   // scalastyle:off cyclomatic.complexity
@@ -250,6 +246,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case Some(hivePassword) => writer.option("hoodie.datasource.hive_sync.password", hivePassword)
       case None =>
     }
+    config.hiveSync match {
+      case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
+    }
     config.options match {
       case Some(options) => writer.options(options)
       case None =>
@@ -357,7 +356,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df
   }
 
-  def manualHiveSync(dataFrame: DataFrame, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): DataFrame = {
+  def manualHiveSync(dataFrame: DataFrame, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): Unit= {
 
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
@@ -380,22 +379,33 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           case _ => Seq.empty
         })
 
+      // create table
+      ss.sharedState.externalCatalog.createTable(tableDefinition, true)
       val schema =  manualHiveSyncPartitions match {
-        case Some(manualHiveSyncPartitions) => {
-          ss.sharedState.externalCatalog.createTable(tableDefinition, true)
+          //  case manual partitions were defined, we need to drop partition columns from schema
+        case Some(manualHiveSyncPartitions) =>
           df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
-        }
         case _ => {
-          ss.sharedState.externalCatalog.dropTable(catalog.currentDatabase, table, true, true)
-          ss.sharedState.externalCatalog.createTable(tableDefinition, false)
+          // case no partitions were defined, need to remove previous partitions if existed
+          ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table) match {
+            case Seq() =>
+            case _ =>  {
+              ss.sharedState.externalCatalog.dropTable(catalog.currentDatabase,table, true, true)
+              // create table
+              ss.sharedState.externalCatalog.createTable(tableDefinition, true)
+            }
+
+          }
           df.schema
         }
       }
+      // alter table with current schema
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
+      // alter location if needed
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
 
 
-      // Handle partitions
+      // Create partitions
       manualHiveSyncPartitions match {
         case Some(partitions) => {
           partitions.foreach( partition => {
@@ -411,35 +421,32 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           )
 
         }
-        case _ => {
-          ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table).size match {
-            case 0 => None
-            case _ => ss.sharedState.externalCatalog.listPartitions(ss.catalog.currentDatabase, table).foreach( part => {
-              ss.sharedState.externalCatalog.dropPartitions(ss.catalog.currentDatabase, table, Seq(part.spec), true, false, true)
-            })
-          }
-        }
+        case _ =>
       }
     }
-    return df
   }
 
 
 
   def getHudiDf(dataFrame: DataFrame, ss: SparkSession, path: Option[String], manualHiveSyncPartitions: Option[Map[String, String]]): DataFrame = {
-
+    // get path to hudi parquet, according to partitions
     val hudiPath = manualHiveSyncPartitions match {
       case Some(partitionExpressionManual) => path.get + "/**/*"
       case None => path.get + "/*"
     }
-    val df = ss.read.format("org.apache.hudi").option("path", hudiPath).load()
+    var df = ss.read.format("org.apache.hudi").option("path", hudiPath).load()
+    // add partition columns to df schema, if partitions were defined and partitionBy
     (hudiOutputProperties.partitionBy, manualHiveSyncPartitions) match {
-      case (Some(partitionBy),Some(manualHiveSyncPartitions)) => df.withColumn(manualHiveSyncPartitions.keySet.last, col(partitionBy))
+      case (Some(partitionBy),Some(manualHiveSyncPartitions)) => {
+        manualHiveSyncPartitions.foreach(part => df = df.withColumn(part._1, lit(part._2)))
+        df
+      }
       case (_, _) => df
     }
   }
 
   def getTablesToSyncByStorageType(hudiOutput: Option[Hudi], tableName:String): Map[String, String] = {
+    // get hudi tables and their input format according to the storage format defined
     hudiOutput match {
       case Some(hudiOutput) => hudiOutput.storageType match{
         case Some("MERGE_ON_READ") => Map(tableName -> classOf[HoodieParquetInputFormat].getName,

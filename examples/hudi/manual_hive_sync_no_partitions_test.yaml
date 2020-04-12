@@ -3,8 +3,8 @@ tests:
   manual_hive_sync_test:
     - movieId: 2600
       rating: 4.0
-      hoodie_partition: 0
+      test_partitions: no_partitions
   manual_hive_sync_test_rt:
     - movieId: 2600
       rating: 4.0
-      hoodie_partition: 0
+      test_partitions: no_partitions
