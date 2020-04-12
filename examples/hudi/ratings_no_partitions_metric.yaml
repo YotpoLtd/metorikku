@@ -9,7 +9,7 @@ output:
 - dataFrameName: hive_sync_test
   outputType: Hudi
   outputOptions:
-    path: table_view
+    path: table_view_manual_hive_sync_no_partitions
     keyColumn: hoodie_key
     timeColumn: timestamp
     tableName: manual_hive_sync
