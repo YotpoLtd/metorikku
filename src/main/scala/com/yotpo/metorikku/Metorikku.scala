@@ -20,7 +20,10 @@ object Metorikku extends App {
 
   private def executePeriodicTask(periodic: Periodic) = {
     val task = new Runnable {
-      def run() = runMetrics(session)
+      def run() = {
+        session.sparkSession.catalog.clearCache()
+        runMetrics(session)
+      }
     }
     val ex = new ScheduledThreadPoolExecutor(1)
     val initialDelay = 0
