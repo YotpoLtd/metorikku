@@ -10,6 +10,8 @@ case class Hudi(dir: String,
                 hiveJDBCURL: Option[String],
                 hiveUserName: Option[String],
                 hivePassword: Option[String],
+                manualHiveSync: Option[Boolean],
+                manualHiveSyncPartitions: Option[Map[String,String]],
                 deletePendingCompactions: Option[Boolean],
                 options: Option[Map[String, String]]
                ) {

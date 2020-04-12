@@ -1,0 +1,15 @@
+steps:
+- dataFrameName: manual_hive_sync_test
+  sql:
+    SELECT movieId,
+    rating,
+    hoodie_partition
+    FROM manual_hive_sync
+    WHERE userId=77 AND movieId=2600
+- dataFrameName: manual_hive_sync_test_rt
+  sql:
+    SELECT movieId,
+    rating,
+    hoodie_partition
+    FROM manual_hive_sync_rt
+    WHERE userId=77 AND movieId=2600

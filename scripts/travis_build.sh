@@ -60,3 +60,9 @@ travis_fold start "cdc"
     (cd e2e/cdc && ./test.sh)
   travis_time_finish
 travis_fold end "cdc"
+
+travis_fold start "hudi_manual_hive_sync"
+  travis_time_start
+    (cd e2e/hudi_manual_hive_sync && ./test.sh)
+  travis_time_finish
+travis_fold end "hudi_manual_hive_sync"
