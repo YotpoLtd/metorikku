@@ -10,13 +10,13 @@ services:
       - spark-master
       - spark-worker
   spark-master:
-    image: metorikku/spark
+    image: metorikku/metorikku
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/spark
+    image: metorikku/metorikku
     entrypoint:
       - /scripts/entrypoint-worker.sh
     logging:

@@ -483,6 +483,8 @@ output:
     hiveJDBCURL: jdbc:hive2://hive:10000
     hiveUserName: root
     hivePassword: pass
+    # Delete inflight and compaction requested of unfinished commit
+    deletePendingCompactions: true
 ```
 
 #### Metric config

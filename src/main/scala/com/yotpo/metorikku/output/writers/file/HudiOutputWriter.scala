@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.output.writers.file
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.utils.HudiUtils
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
@@ -40,7 +41,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
     props.get("supportNullableFields").asInstanceOf[Option[Boolean]],
     props.get("removeNullColumns").asInstanceOf[Option[Boolean]])
-
 
   // scalastyle:off cyclomatic.complexity
   // scalastyle:off method.length
@@ -125,12 +125,21 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None =>
     }
 
+    hudiOutput match {
+      case Some(config) => {
+        config.deletePendingCompactions match {
+          case Some(true) => HudiUtils.deletePendingCompactions(df.sqlContext.sparkContext, path.get)
+          case _ =>
+        }
+      }
+      case None =>
+    }
+
     // If using hudi metrics in streaming we need to reset all metrics prior to running the next batch
     resetMetrics()
     writer.save()
     writeMetrics()
   }
-
   private def writeMetrics(): Unit = {
     try {
       Metrics.getInstance().getReporter.asInstanceOf[org.apache.hudi.com.codahale.metrics.ScheduledReporter].report()
