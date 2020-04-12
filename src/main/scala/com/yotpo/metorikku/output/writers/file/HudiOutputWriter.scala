@@ -13,6 +13,7 @@ import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
 import java.util.concurrent.TimeUnit
 
+import com.yotpo.metorikku.utils.HudiUtils
 import org.apache.avro.generic.GenericData.StringType
 import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
 import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
@@ -142,6 +143,16 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
     hudiOutputProperties.extraOptions match {
       case Some(extraOptions) => writer.options(extraOptions)
+      case None =>
+    }
+
+    hudiOutput match {
+      case Some(config) => {
+        config.deletePendingCompactions match {
+          case Some(true) => HudiUtils.deletePendingCompactions(df.sqlContext.sparkContext, path.get)
+          case _ =>
+        }
+      }
       case None =>
     }
 
