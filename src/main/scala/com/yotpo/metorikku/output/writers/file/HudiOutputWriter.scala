@@ -368,10 +368,17 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           case Some(partitions) => Seq(partitions.keySet.toSeq: _*)
           case _ => Seq.empty
         })
-      ss.sharedState.externalCatalog.createTable(tableDefinition, true)
+
       val schema =  manualHiveSyncPartitions match {
-        case Some(manualHiveSyncPartitions) => df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
-        case _ => df.schema
+        case Some(manualHiveSyncPartitions) => {
+          ss.sharedState.externalCatalog.createTable(tableDefinition, true)
+          df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
+        }
+        case _ => {
+          ss.sharedState.externalCatalog.dropTable(catalog.currentDatabase, table, true, true)
+          ss.sharedState.externalCatalog.createTable(tableDefinition, false)
+          df.schema
+        }
       }
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
@@ -397,7 +404,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table).size match {
             case 0 => None
             case _ => ss.sharedState.externalCatalog.listPartitions(ss.catalog.currentDatabase, table).foreach( part => {
-              ss.sharedState.externalCatalog.dropPartitions(ss.catalog.currentDatabase, table, Seq(part.spec), true, true, true)
+              ss.sharedState.externalCatalog.dropPartitions(ss.catalog.currentDatabase, table, Seq(part.spec), true, false, true)
             })
           }
         }

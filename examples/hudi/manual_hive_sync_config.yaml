@@ -16,7 +16,7 @@ output:
     hivePassword: pass
     manualHiveSync: true
     manualHiveSyncPartitions:
-      default: default
+      part: 0
     options:
       hoodie.datasource.hive_sync.enable: 'false'
       hoodie.metrics.on: 'false'

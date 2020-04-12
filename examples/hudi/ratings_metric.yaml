@@ -3,7 +3,7 @@ steps:
     sql:
       SELECT *,
       userId AS hoodie_key,
-      'default' AS hoodie_partition
+      0 AS hoodie_partition
       FROM ratings
 output:
 - dataFrameName: hive_sync_test
@@ -13,6 +13,6 @@ output:
     keyColumn: hoodie_key
     timeColumn: timestamp
     partitionBy: hoodie_partition
-    hivePartitions: default
+    hivePartitions: part
     tableName: manual_hive_sync
     saveMode: Append

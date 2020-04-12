@@ -4,13 +4,11 @@ mocks:
     path: ../mocks/movies.jsonl
 tests:
   manual_hive_sync_test:
-    - movieId: 1
-      rating: 2.5
-      timestamp: 1260759144
-      hoodie_partition: default
+    - movieId: 2600
+      rating: 4.0
+      hoodie_partition: 0
   manual_hive_sync_test_rt:
-    - movieId: 1
-      rating: 2.5
-      timestamp: 1260759144
-      hoodie_partition: default
+    - movieId: 2600
+      rating: 4.0
+      hoodie_partition: 0
 
