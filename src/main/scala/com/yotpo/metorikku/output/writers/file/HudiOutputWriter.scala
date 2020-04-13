@@ -377,7 +377,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         false,
         Map[String, String]())
 
-      val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema,
+      val tableDefinition = new CatalogTable(identifier, tableType, storage, df.schema, Option("hive"),
         partitionColumnNames = manualHiveSyncPartitions match {
           case Some(partitions) => Seq(partitions.keySet.toSeq: _*)
           case _ => Seq.empty
@@ -407,7 +407,6 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
       // alter location if needed
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
-
 
       // Create partitions
       manualHiveSyncPartitions match {
