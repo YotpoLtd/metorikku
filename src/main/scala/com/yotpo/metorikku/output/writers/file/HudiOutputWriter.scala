@@ -163,11 +163,13 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           case Some(hiveSync) => {
             hiveSync match {
               case true => manualHiveSync(df, path, config.manualHiveSyncPartitions)
+              case false =>
             }
           }
           case None =>
         }
       }
+      case _ =>
     }
 
   }
@@ -248,7 +250,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     }
     config.hiveSync match {
       case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
-      case None =>
+      case _ =>
     }
 
     config.options match {
@@ -450,11 +452,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   def getTablesToSyncByStorageType(hudiOutput: Option[Hudi], tableName:String): Map[String, String] = {
     // get hudi tables and their input format according to the storage format defined
     hudiOutput match {
-      case Some(hudiOutput) => hudiOutput.storageType match{
+      case Some(hudiOutput) => hudiOutput.storageType match {
         case Some("MERGE_ON_READ") => Map(tableName -> classOf[HoodieParquetInputFormat].getName,
           tableName + "_rt" -> classOf[HoodieParquetRealtimeInputFormat].getName)
         case _ => Map(tableName -> classOf[HoodieParquetInputFormat].getName)
       }
+      case _ => Map[String, String]()
     }
   }
 }
