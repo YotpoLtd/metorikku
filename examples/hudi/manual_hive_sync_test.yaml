@@ -1,0 +1,10 @@
+metric: get_from_manual_hive_metric.yaml
+tests:
+  manual_hive_sync_test:
+    - movieId: 2600
+      rating: 4.0
+      hoodie_partition: 0
+  manual_hive_sync_test_rt:
+    - movieId: 2600
+      rating: 4.0
+      hoodie_partition: 0

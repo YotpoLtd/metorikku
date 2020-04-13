@@ -1,0 +1,16 @@
+steps:
+- dataFrameName: hive_sync_test
+  sql:
+    SELECT *,
+    userId AS hoodie_key,
+    'no_partitions' as test_partitions
+    FROM ratings
+output:
+- dataFrameName: hive_sync_test
+  outputType: Hudi
+  outputOptions:
+    path: table_view_manual_hive_sync_no_partitions
+    keyColumn: hoodie_key
+    timeColumn: timestamp
+    tableName: manual_hive_sync
+    saveMode: Append

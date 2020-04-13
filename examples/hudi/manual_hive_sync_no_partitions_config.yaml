@@ -1,0 +1,25 @@
+metrics:
+  - examples/hudi/ratings_no_partitions_metric.yaml
+inputs:
+  ratings:
+    file:
+      path: examples/file_inputs/ratings.csv
+output:
+  hudi:
+    dir: /examples/output
+    operation: upsert
+    storageType: MERGE_ON_READ
+    maxVersions: 1
+    hiveDB: default
+    parallelism: 1
+    hiveJDBCURL: jdbc:hive2://hive:10000
+    hiveUserName: root
+    hivePassword: pass
+    hiveSync: false
+    manualHiveSync: true
+    options:
+      hoodie.metrics.on: 'false'
+explain: true
+logLevel: WARN
+appName: manualHiveSyncApp
+showPreviewLines: 10

@@ -146,6 +146,8 @@
             "hiveJDBCURL": { "type": "string" },
             "hiveUserName": { "type": "string" },
             "hivePassword": { "type": "string" },
+            "manualHiveSync": { "type": "boolean"},
+            "manualHiveSyncPartitions": {"type":  "object"},
             "options": { "type": "string" }
           },
           "required": [

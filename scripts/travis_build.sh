@@ -60,3 +60,4 @@ travis_fold start "cdc"
     (cd e2e/cdc && ./test.sh)
   travis_time_finish
 travis_fold end "cdc"
+
