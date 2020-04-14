@@ -38,6 +38,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
                                   timeColumn: Option[String],
                                   partitionBy: Option[String],
                                   tableName: Option[String],
+                                  hudiTableName: Option[String],
                                   hivePartitions: Option[String],
                                   extraOptions: Option[Map[String, String]],
                                   alignToPreviousSchema: Option[Boolean],
@@ -51,6 +52,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     props.get("timeColumn").asInstanceOf[Option[String]],
     props.get("partitionBy").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
+    props.get("hudiTableName").asInstanceOf[Option[String]],
     props.get("hivePartitions").asInstanceOf[Option[String]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]],
     props.get("alignToPreviousSchema").asInstanceOf[Option[Boolean]],
@@ -113,12 +115,20 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case None => writer.mode(SaveMode.Append)
     }
 
-    hudiOutputProperties.tableName match {
-      case Some(tableName) => {
+    (hudiOutputProperties.hudiTableName, hudiOutputProperties.tableName) match {
+      case (Some(hudiTableName), Some(tableName))=> {
+        writer.option("hoodie.table.name", hudiTableName)
+        writer.option("hoodie.datasource.hive_sync.table", tableName)
+      }
+      case (None, Some(tableName)) => {
         writer.option("hoodie.table.name", tableName)
         writer.option("hoodie.datasource.hive_sync.table", tableName)
       }
-      case None =>
+      case (Some(hudiTableName), None) => {
+        writer.option("hoodie.table.name", hudiTableName)
+        writer.option("hoodie.datasource.hive_sync.table", hudiTableName)
+      }
+      case (None, None) =>
     }
 
     hudiOutputProperties.partitionBy match {
