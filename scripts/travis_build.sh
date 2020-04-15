@@ -9,7 +9,7 @@ travis_fold end "build"
 
 travis_fold start "docker"
   travis_time_start
-    ./scripts/docker.sh
+    ./scripts/docker-without-cache.sh
   travis_time_finish
 travis_fold end "docker"
 
