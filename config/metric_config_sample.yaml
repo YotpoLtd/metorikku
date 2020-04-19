@@ -158,6 +158,8 @@ output:
       partitionBy: date
       # Hive table to save the results to
       tableName: test_table
+      # Optional: Table name that will be used for register hudi metrics
+      hudiTableName: test_table_hudi
       # Optional: Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day) - (default will be split by / of the partitionBy column)
       hivePartitions: year,month,day
       # Optional: Save mode to use (default to Append)

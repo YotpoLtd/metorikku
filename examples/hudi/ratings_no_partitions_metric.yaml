@@ -13,5 +13,5 @@ output:
     keyColumn: hoodie_key
     timeColumn: timestamp
     tableName: manual_hive_sync
-    hudiTableName: manual_hive_sync_cdc
+    hudiTableName: manual_hive_sync_hudi
     saveMode: Append
