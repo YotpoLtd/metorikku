@@ -15,4 +15,5 @@ output:
     partitionBy: hoodie_partition
     hivePartitions: part
     tableName: manual_hive_sync
+    hudiTableName: manual_hive_sync_hudi
     saveMode: Append
