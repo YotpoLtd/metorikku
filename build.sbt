@@ -28,6 +28,8 @@ lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "a
 lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
 lazy val excludeFasterXML = ExclusionRule(organization = "com.fasterxml.jackson.module", name= "jackson-module-scala_2.12")
 lazy val excludeMetricsCore = ExclusionRule(organization = "io.dropwizard.metrics", name= "metrics-core")
+lazy val excludeJavaxJSON = ExclusionRule(organization = "org.glassfish", name= "javax.json")
+lazy val excludeLog4j = ExclusionRule(organization = "org.apache.logging.log4j")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
@@ -65,7 +67,8 @@ libraryDependencies ++= Seq(
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.1-incubating" % "provided" excludeAll excludeFasterXML,
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
-  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll)
+  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll, excludeLog4j),
+  "io.delta" %% "delta-core" % "0.5.0" % "provided" excludeAll(excludeJavaxJSON)
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
