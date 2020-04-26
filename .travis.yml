@@ -17,11 +17,9 @@ if: NOT commit_message =~ /^Setting version to.*SNAPSHOT$/
 env:
   global:
     - SPARK_VERSION=2.4.5
-    - HADOOP_VERSION=2.9.2
-    - HIVE1_VERSION=1.2.2
-    - HUDI_HIVE1_VERSION=0.4.7
+    - HADOOP_VERSION=3.2.1
     - HIVE_VERSION=2.3.3
-    - HUDI_VERSION=0.5.1-incubating
+    - HUDI_VERSION=0.5.2-incubating
 before_script:
   - export -f travis_fold
   - export -f travis_time_start
