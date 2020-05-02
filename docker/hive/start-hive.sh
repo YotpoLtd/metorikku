@@ -4,6 +4,7 @@ CONNECTION_DRIVER_NAME=${CONNECTION_DRIVER_NAME:=com.mysql.jdbc.Driver}
 HIVE_SERVER_PORT=${HIVE_SERVER_PORT:=10000}
 SCHEMA_VERIFICATION=${SCHEMA_VERIFICATION:=false}
 METASTORE_PORT=${METASTORE_PORT:=9083}
+METASTORE_URI=${METASTORE_URI:=localhost}
 DEFAULT_FS=${DEFAULT_FS:=file:///}
 DB_TYPE=${DB_TYPE:=mysql}
 USE_ATLAS=${USE_ATLAS:=false}
@@ -46,7 +47,7 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
     </property>
     <property>
         <name>hive.metastore.uris</name>
-        <value>thrift://localhost:${METASTORE_PORT}</value>
+        <value>thrift://${METASTORE_URI}:${METASTORE_PORT}</value>
     </property>
     <property>
         <name>hive.server2.thrift.port</name>
