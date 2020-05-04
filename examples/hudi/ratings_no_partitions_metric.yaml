@@ -3,11 +3,14 @@ steps:
   sql:
     SELECT *,
     userId AS hoodie_key,
+    CAST(CAST(timestamp AS LONG) AS TIMESTAMP) AS timestamp,
     'no_partitions' as test_partitions
     FROM ratings
 output:
 - dataFrameName: hive_sync_test
   outputType: Hudi
+  reportLag:
+    timeColumn: timestamp
   outputOptions:
     path: table_view_manual_hive_sync_no_partitions
     keyColumn: hoodie_key

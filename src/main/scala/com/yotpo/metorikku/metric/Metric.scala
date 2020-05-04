@@ -10,12 +10,12 @@ import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWr
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-case class StreamingWritingConfiguration(dataFrame: DataFrame, writers: ListBuffer[Writer] = ListBuffer.empty)
+case class StreamingWritingConfiguration(dataFrame: DataFrame, lagColumnTime: Option[Any] = None, writers: ListBuffer[Writer] = ListBuffer.empty)
 
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
@@ -43,21 +43,35 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def writeStream(dataFrameName: String, writerConfig: StreamingWritingConfiguration,
-                          streamingConfig: Option[Streaming]): Unit = {
+  private def writeStream(dataFrameName: String,
+                          writerConfig: StreamingWritingConfiguration,
+                          streamingConfig: Option[Streaming],
+                          instrumentationProvider: InstrumentationProvider): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
-
+    val currentTime = System.currentTimeMillis
     streamingConfig match {
       case Some(config) => {
         val streamWriter = writerConfig.dataFrame.writeStream
         config.applyOptions(streamWriter)
-
         config.batchMode match {
           case Some(true) => {
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
               writerConfig.writers.foreach(writer => writer.write(batchDF))
+
+              writerConfig.lagColumnTime match {
+                case Some(timeColumn) => {
+                  try {
+                    val lagValue = batchDF.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+                    instrumentationProvider.gauge(name= "lag", currentTime - lagValue)
+                  } catch {
+                    case e: ClassCastException => log.info(s"Influx lag column -${timeColumn} cannot be cast to java.sql.Timestamp")
+                  }
+                }
+                case _ =>
+              }
             }).start()
             query.awaitTermination()
+
             // Exit this function after streaming is completed
             return
           }
@@ -81,7 +95,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
                          writer: Writer,
                          outputType: OutputType,
                          instrumentationProvider: InstrumentationProvider,
-                         cacheCountOnOutput: Option[Boolean]): Unit = {
+                         cacheCountOnOutput: Option[Boolean],
+                         lagReporterTimeColumn: Option[Any]): Unit = {
 
     val dataFrameCount = cacheCountOnOutput match {
       case Some(true) => {
@@ -93,8 +108,20 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputType.toString)
     instrumentationProvider.count(name="counter", value=dataFrameCount, tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
+    val currentTime = System.currentTimeMillis
     try {
       writer.write(dataFrame)
+      lagReporterTimeColumn match {
+        case Some(timeColumn) => {
+          try {
+            val lagValue = dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+            instrumentationProvider.gauge(name = "lag", currentTime - lagValue)
+          } catch {
+            case e: ClassCastException => log.info(s"Influx lag column -${timeColumn} cannot be cast to java.sql.Timestamp")
+          }
+        }
+        case _ =>
+      }
     }
     catch {
       case ex: Exception => {
@@ -118,27 +145,34 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 
   def write(job: Job): Unit = {
+
     configuration.output match {
       case Some(output) => {
         val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
-
         output.foreach(outputConfig => {
           val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
           val dataFrameName = outputConfig.dataFrameName
-          val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
+
+          val lagReporterTimeColumn = outputConfig.reportLag match {
+            case Some(reportLag) => reportLag.values.last
+            case _ => None
+          }
+          var dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
           if (dataFrame.isStreaming) {
-            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame))
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame, Option(lagReporterTimeColumn)))
             streamingWriterConfig.writers += writer
             streamingWriterList += (dataFrameName -> streamingWriterConfig)
           }
           else {
             writeBatch(dataFrame, dataFrameName, writer,
-              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput)
+              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput, Option(lagReporterTimeColumn))
           }
         })
 
-        for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming)
+        for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming,
+          job.instrumentationClient)
+
       }
       case None =>
     }
