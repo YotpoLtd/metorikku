@@ -7,6 +7,7 @@ SPARK_MASTER_HOST=${SPARK_MASTER_HOST:=spark-master}
 MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
+SHUFFLE_SERVICE_PORT=${SHUFFLE_SERVICE_PORT:=7337}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
 USE_BUILTIN_HIVE_METASTORE=${USE_BUILTIN_HIVE_METASTORE:=false}
 
@@ -39,6 +40,7 @@ SPARK_MASTER="spark://${SPARK_MASTER_HOST}:${SPARK_MASTER_PORT}"
 echo -e "
 spark.master=$SPARK_MASTER
 spark.ui.port=$SPARK_UI_PORT
+spark.shuffle.service.port=$SHUFFLE_SERVICE_PORT
 " >> /spark/conf/spark-defaults.conf
 
 if [[ ! -z ${HIVE_METASTORE_URI} ]]; then

@@ -30,12 +30,31 @@ object Metorikku extends App {
     ex.scheduleAtFixedRate(task, initialDelay, periodic.getTriggerDurationInSeconds(), TimeUnit.SECONDS)
   }
 
-  def runMetrics(job: Job): Unit = {
-    job.config.metrics match {
-      case Some(metrics) => metrics.foreach(metricSetPath => {
+  def runMetricsInParallel(job: Job, metrics: Seq[String]): Unit = {
+    val threads = metrics.map(metricSetPath => new Thread(new Runnable {
+      def run() {
         val metricSet = new MetricSet(metricSetPath)
         metricSet.run(job)
-      })
+      }
+    })).toList
+
+    threads.foreach(t => t.start())
+    threads.foreach(t => t.join())
+  }
+
+  def runMetrics(job: Job): Unit = {
+    job.config.metrics match {
+      case Some(metrics) => {
+        session.config.parallel match {
+          case Some(true) => runMetricsInParallel(job, metrics)
+          case _ => {
+            metrics.foreach(metricSetPath => {
+              val metricSet = new MetricSet(metricSetPath)
+              metricSet.run(job)
+            })
+          }
+        }
+      }
       case None => log.warn("No mertics were defined, exiting")
     }
   }
