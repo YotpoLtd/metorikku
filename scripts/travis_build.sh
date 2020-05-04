@@ -37,12 +37,6 @@ travis_fold start "elasticsearch"
   travis_time_finish
 travis_fold end "elasticsearch"
 
-travis_fold start "hive1"
-  travis_time_start
-    (cd e2e/hive1 && ./test.sh)
-  travis_time_finish
-travis_fold end "hive1"
-
 travis_fold start "hive"
   travis_time_start
     (cd e2e/hive && ./test.sh)
@@ -61,3 +55,8 @@ travis_fold start "cdc"
   travis_time_finish
 travis_fold end "cdc"
 
+travis_fold start "docker_publish_dev"
+  travis_time_start
+    ./scripts/docker_publish_dev.sh
+  travis_time_finish
+travis_fold end "docker_publish_dev"
