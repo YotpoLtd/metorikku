@@ -36,8 +36,8 @@ fi
 # Run command
 SPARK_MASTER="spark://${SPARK_MASTER_HOST}:${SPARK_MASTER_PORT}"
 echo -e "
-spark.master $SPARK_MASTER
-spark.ui.port $SPARK_UI_PORT
+spark.master=$SPARK_MASTER
+spark.ui.port=$SPARK_UI_PORT
 " >> /spark/conf/spark-defaults.conf
 
 if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
@@ -48,6 +48,17 @@ spark.sql.catalogImplementation=hive
 spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
 spark.hadoop.hive.metastore.schema.verification=false
 spark.hadoop.hive.metastore.schema.verification.record.version=false
+" >> /spark/conf/spark-defaults.conf
+fi
+
+if [[ ! -z ${HADOOP_S3A_COMMITTERS} ]]; then
+echo -e "
+spark.hadoop.fs.s3a.committer.name=partitioned
+spark.hadoop.fs.s3a.committer.staging.conflict-mode=replace
+spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3a=org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory
+spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3=org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory
+spark.sql.sources.commitProtocolClass=org.apache.spark.internal.io.cloud.PathOutputCommitProtocol
+spark.sql.parquet.output.committer.class=org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter
 " >> /spark/conf/spark-defaults.conf
 fi
 
