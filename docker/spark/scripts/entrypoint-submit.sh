@@ -8,6 +8,7 @@ MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
+HADOOP_S3A_COMMITTERS=${HADOOP_S3A_COMMITTERS:=false}
 
 # Atlas
 /scripts/add-atlas-integration.sh
@@ -51,7 +52,7 @@ spark.hadoop.hive.metastore.schema.verification.record.version=false
 " >> /spark/conf/spark-defaults.conf
 fi
 
-if [[ ! -z ${HADOOP_S3A_COMMITTERS} ]]; then
+if [ $HADOOP_S3A_COMMITTERS == "true" ]; then
 echo -e "
 spark.hadoop.fs.s3a.committer.name=partitioned
 spark.hadoop.fs.s3a.committer.staging.conflict-mode=replace
