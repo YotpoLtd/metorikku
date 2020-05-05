@@ -63,7 +63,7 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-text" % "1.6",
   "org.influxdb" % "influxdb-java" % "2.14",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
-  "za.co.absa" % "abris_2.11" % "3.1.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
+  "za.co.absa" % "abris_2.11" % "3.2.0"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.2-incubating" % "provided" excludeAll excludeFasterXML,
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
