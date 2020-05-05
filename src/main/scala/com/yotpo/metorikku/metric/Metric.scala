@@ -10,12 +10,13 @@ import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWr
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
+import org.apache.spark.sql.types.{TimestampType}
 import org.apache.spark.sql.{DataFrame, Dataset}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-case class StreamingWritingConfiguration(dataFrame: DataFrame, lagColumnTime: Option[Any] = None, writers: ListBuffer[Writer] = ListBuffer.empty)
+case class StreamingWritingConfiguration(dataFrame: DataFrame, lagColumnTime: Option[String] = None, writers: ListBuffer[Writer] = ListBuffer.empty)
 
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
@@ -58,15 +59,9 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
               writerConfig.writers.foreach(writer => writer.write(batchDF))
 
-              writerConfig.lagColumnTime match {
-                case Some(timeColumn) => {
-                  try {
-                    val lagValue = batchDF.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
-                    instrumentationProvider.gauge(name= "lag", currentTime - lagValue)
-                  } catch {
-                    case e: ClassCastException => log.info(s"Influx lag column -${timeColumn} cannot be cast to java.sql.Timestamp")
-                  }
-                }
+              val epochLagTimeValue = getEpochLagTime(batchDF, writerConfig.lagColumnTime)
+              epochLagTimeValue match {
+                case Some(epochLagTimeValue) => instrumentationProvider.gauge(name = "lag", currentTime - epochLagTimeValue)
                 case _ =>
               }
             }).start()
@@ -96,7 +91,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
                          outputType: OutputType,
                          instrumentationProvider: InstrumentationProvider,
                          cacheCountOnOutput: Option[Boolean],
-                         lagReporterTimeColumn: Option[Any]): Unit = {
+                         lagReporterTimeColumn: Option[String]): Unit = {
 
     val dataFrameCount = cacheCountOnOutput match {
       case Some(true) => {
@@ -111,15 +106,9 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     val currentTime = System.currentTimeMillis
     try {
       writer.write(dataFrame)
-      lagReporterTimeColumn match {
-        case Some(timeColumn) => {
-          try {
-            val lagValue = dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
-            instrumentationProvider.gauge(name = "lag", currentTime - lagValue)
-          } catch {
-            case e: ClassCastException => log.info(s"Influx lag column -${timeColumn} cannot be cast to java.sql.Timestamp")
-          }
-        }
+      val epochLagTimeValue = getEpochLagTime(dataFrame, lagReporterTimeColumn)
+      epochLagTimeValue match {
+        case Some(epochLagTimeValue) => instrumentationProvider.gauge(name = "lag", currentTime - epochLagTimeValue)
         case _ =>
       }
     }
@@ -144,6 +133,27 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
+  private def getEpochLagTime(dataFrame: DataFrame, lagReporterTimeColumn: Option[String]): Option[Long] ={
+    lagReporterTimeColumn match {
+      case Some(timeColumn) => {
+        try {
+          val maxLagValue = dataFrame.agg({timeColumn.toString -> "max"}).collect()(0)(0)
+          if (maxLagValue.isInstanceOf[java.sql.Timestamp]) {
+            return Option(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime())
+          }
+          else {
+            return Option(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
+          }
+        } catch {
+          case e: ClassCastException => {
+            throw new ClassCastException(s"Influx lag column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
+          }
+        }
+      }
+      case _=> None:Option[Long]
+    }
+  }
+
   def write(job: Job): Unit = {
 
     configuration.output match {
@@ -152,21 +162,17 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
         output.foreach(outputConfig => {
           val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
           val dataFrameName = outputConfig.dataFrameName
-
-          val lagReporterTimeColumn = outputConfig.reportLag match {
-            case Some(reportLag) => reportLag.values.last
-            case _ => None
-          }
           var dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
           if (dataFrame.isStreaming) {
-            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame, Option(lagReporterTimeColumn)))
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName,
+              StreamingWritingConfiguration(dataFrame, outputConfig.reportLag))
             streamingWriterConfig.writers += writer
             streamingWriterList += (dataFrameName -> streamingWriterConfig)
           }
           else {
             writeBatch(dataFrame, dataFrameName, writer,
-              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput, Option(lagReporterTimeColumn))
+              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput, outputConfig.reportLag)
           }
         })
 
