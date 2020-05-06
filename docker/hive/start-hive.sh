@@ -7,6 +7,7 @@ METASTORE_PORT=${METASTORE_PORT:=9083}
 DEFAULT_FS=${DEFAULT_FS:=file:///}
 DB_TYPE=${DB_TYPE:=mysql}
 USE_ATLAS=${USE_ATLAS:=false}
+HIVE_AUTH=${HIVE_AUTH:=NONE}
 
 if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
@@ -52,6 +53,10 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>hive.server2.thrift.port</name>
         <value>${HIVE_SERVER_PORT}</value>
     </property>
+    <property>
+        <name>hive.server2.authentication</name>
+        <value>${HIVE_AUTH}</value>
+     </property>
      <property>
         <name>fs.default.name</name>
         <value>${DEFAULT_FS}</value>
