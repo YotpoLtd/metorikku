@@ -76,6 +76,13 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>hive.security.authorization.enabled</name>
         <value>false</value>
      </property>
+     <property>
+        <name>hive.metastore.disallow.incompatible.col.type.changes</name>
+        <value>false</value>
+        <description>If true (default is false), ALTER TABLE operations which change the type of   a column (say STRING) to an incompatible type (say MAP&lt;STRING, STRING&gt;) are disallowed.    RCFile default SerDe (ColumnarSerDe) serializes the values in such a way that the  datatypes can be converted from string to any type. The map is also serialized as  a string, which can be read as a string as well. However, with any binary   serialization, this is not true. Blocking the ALTER TABLE prevents ClassCastExceptions  when subsequently trying to access old partitions.   Primitive types like INT, STRING, BIGINT, etc are compatible with each other and are   not blocked.
+      See HIVE-4409 for more details.
+        </description>
+     </property>
 EOL
 
 if [[ ! -z ${USE_ATLAS} ]] ; then
