@@ -8,7 +8,7 @@ MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
-HADOOP_S3A_COMMITTERS=${HADOOP_S3A_COMMITTERS:=true}
+USE_BUILTIN_HIVE_METASTORE=${USE_BUILTIN_HIVE_METASTORE:=false}
 
 # Atlas
 /scripts/add-atlas-integration.sh
@@ -43,8 +43,6 @@ spark.ui.port=$SPARK_UI_PORT
 
 if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
 echo -e "
-spark.sql.hive.metastore.version=$HIVE_VERSION
-spark.sql.hive.metastore.jars=/opt/hive/lib/*
 spark.sql.catalogImplementation=hive
 spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
 spark.hadoop.hive.metastore.schema.verification=false
@@ -52,14 +50,10 @@ spark.hadoop.hive.metastore.schema.verification.record.version=false
 " >> /spark/conf/spark-defaults.conf
 fi
 
-if [ $HADOOP_S3A_COMMITTERS == "true" ]; then
+if [[ "${USE_BUILTIN_HIVE_METASTORE}" == false ]]; then
 echo -e "
-spark.hadoop.fs.s3a.committer.name=partitioned
-spark.hadoop.fs.s3a.committer.staging.conflict-mode=replace
-spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3a=org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory
-spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3=org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory
-spark.sql.sources.commitProtocolClass=org.apache.spark.internal.io.cloud.PathOutputCommitProtocol
-spark.sql.parquet.output.committer.class=org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter
+spark.sql.hive.metastore.version=$HIVE_VERSION
+spark.sql.hive.metastore.jars=/opt/hive/lib/*
 " >> /spark/conf/spark-defaults.conf
 fi
 
