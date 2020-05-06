@@ -61,3 +61,8 @@ travis_fold start "cdc"
   travis_time_finish
 travis_fold end "cdc"
 
+travis_fold start "docker_publish_dev"
+  travis_time_start
+    ./scripts/docker_publish_dev.sh
+  travis_time_finish
+travis_fold end "docker_publish_dev"
