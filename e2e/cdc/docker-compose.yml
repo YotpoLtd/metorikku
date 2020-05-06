@@ -132,6 +132,7 @@ services:
       - WAREHOUSE_DIR=file:///tmp
       - WAIT_HOSTS=mysql:3306
       - MAX_RETRIES=45
+      - HIVE_AUTH=NOSASL
     volumes:
       - ./output/:/examples/output/
     depends_on:

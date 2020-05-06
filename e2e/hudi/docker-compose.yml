@@ -94,6 +94,7 @@ services:
       - CONNECTION_PASSWORD=pass
       - WAREHOUSE_DIR=file:///tmp
       - WAIT_HOSTS=hive-db:3306
+      - HIVE_AUTH=NOSASL
     depends_on:
       - hive-db
     volumes:
