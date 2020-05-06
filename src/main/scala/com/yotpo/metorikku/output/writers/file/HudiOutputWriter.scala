@@ -272,6 +272,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
 
 
   private def alignToPreviousSchema(dataFrame: DataFrame): DataFrame = {
+    log.info("Aligning dataframe to previous schema")
     var df = dataFrame
     val ss = dataFrame.sparkSession
 
@@ -279,7 +280,10 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     val previousSchema: Option[StructType] = this.hudiOutputProperties.tableName match {
       case Some(tableName) => {
         ss.catalog.tableExists(tableName) match {
-          case true => Option(ss.table(tableName).schema)
+          case true => {
+            log.info(s"Table ${tableName} exists, with the following schema: ${ss.table(tableName).schema.toString()}")
+            Option(ss.table(tableName).schema)
+          }
           case false => None
         }
       }
@@ -311,6 +315,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         val missingColumns = sch.fields.filter(f => !f.name.startsWith("_hoodie") &&
           !lowerCasedColumns.contains(f.name.toLowerCase)).map(f => lit(null).cast(f.dataType).as(f.name))
         // scalastyle:on null
+        log.info(s"Adding missing columns as NULL according to previous schema: ${missingColumns.toList.toString()}")
         df.select(col("*") +: missingColumns: _*)
       }
       case None => df
@@ -342,6 +347,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
         // Column is detected as having only null values, we need to remove it
         nullColumns(index).asInstanceOf[Boolean] match {
           case true => {
+            log.info(s"Dropping column ${fieldName.toString}, as is detected to have only null values")
             df = df.drop(fieldName)
 
             // Check if removed column existed in a previous schema, if so, use the previous schema definition
@@ -363,6 +369,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     df = df.sparkSession.createDataFrame(df.rdd, schema)
 
     // Add the new columns as null columns
+    log.info(s"Adding removed columns to dataframe as following: ${fieldMap.toString()}")
     for ((name, dataType) <- fieldMap) {
       // scalastyle:off null
       df = df.withColumn(name, lit(null).cast(dataType))
