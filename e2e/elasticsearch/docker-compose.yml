@@ -4,7 +4,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/elasticsearch/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --packages commons-httpclient:commons-httpclient:3.0.1,org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/elasticsearch/movies.yaml
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:

@@ -23,7 +23,7 @@ ENV MYSQL_CONNECTOR_VERSION=5.1.47
 RUN wget -q https://repo1.maven.org/maven2/mysql/mysql-connector-java/$MYSQL_CONNECTOR_VERSION/mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar \
     && mv mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar $HIVE_HOME/lib
 
-ENV HUDI_VERSION=0.5.1-incubating
+ENV HUDI_VERSION=0.5.2-incubating
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hive-bundle/$HUDI_VERSION/hudi-hive-bundle-$HUDI_VERSION.jar \
     && mv hudi-hive-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hadoop-mr-bundle/$HUDI_VERSION/hudi-hadoop-mr-bundle-$HUDI_VERSION.jar \
