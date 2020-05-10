@@ -16,8 +16,8 @@ import org.apache.spark.sql.{DataFrame, Dataset}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-case class StreamingWritingConfiguration(dataFrame: DataFrame, writers: ListBuffer[Writer] = ListBuffer.empty)
-
+case class StreamingWritingConfiguration(dataFrame: DataFrame, outputConfig: Output, writers: ListBuffer[Writer] = ListBuffer.empty)
+case class StreamingWriting(streamingWritingConfiguration: StreamingWritingConfiguration)
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
@@ -45,20 +45,20 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 
   private def writeStream(dataFrameName: String,
-                          writerConfig: (StreamingWritingConfiguration,Output),
+                          writerConfig: StreamingWritingConfiguration,
                           streamingConfig: Option[Streaming],
                           instrumentationProvider: InstrumentationProvider): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
     streamingConfig match {
       case Some(config) => {
-        val streamWriter = writerConfig._1.dataFrame.writeStream
+        val streamWriter = writerConfig.dataFrame.writeStream
         config.applyOptions(streamWriter)
         config.batchMode match {
           case Some(true) => {
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
-              writerConfig._1.writers.foreach(writer => writer.write(batchDF))
-              writerConfig._2.reportLag match {
-                case Some(true) =>  reportLagTime(batchDF, writerConfig._2.reportLagTimeColumn, instrumentationProvider)
+              writerConfig.writers.foreach(writer => writer.write(batchDF))
+              writerConfig.outputConfig.reportLag match {
+                case Some(true) =>  reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn, instrumentationProvider)
                 case _ =>
               }
             }).start()
@@ -74,8 +74,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
 
     // Non batch mode
-    writerConfig._1.writers.size match {
-      case size if size == 1 => writerConfig._1.writers.foreach(writer => writer.writeStream(writerConfig._1.dataFrame, streamingConfig))
+    writerConfig.writers.size match {
+      case size if size == 1 => writerConfig.writers.foreach(writer => writer.writeStream(writerConfig.dataFrame, streamingConfig))
       case size if size > 1 => log.error("Found multiple outputs for a streaming source without using the batch mode, " +
         "skipping streaming writing")
       case _ =>
@@ -128,14 +128,13 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   private def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String], instrumentationProvider: InstrumentationProvider) ={
     reportLagTimeColumn match {
       case Some(timeColumn) => {
-        val currentTime = System.currentTimeMillis
         val timeColumnType = dataFrame.schema.filter(f => f.name == timeColumn).map(f => f.dataType).last
         try {
         val maxDataframeTime = timeColumnType match {
-          case timeColumnType:TimestampType => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+          case _:TimestampType => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
           case _ =>   dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0)
         }
-          instrumentationProvider.gauge(name = "lag", currentTime - maxDataframeTime)
+          instrumentationProvider.gauge(name = "lag", System.currentTimeMillis - maxDataframeTime)
         } catch {
           case e: ClassCastException => {
             throw new ClassCastException(s"Lag instrumentation column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
@@ -150,15 +149,15 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
 
     configuration.output match {
       case Some(output) => {
-        val streamingWriterList: mutable.Map[String, (StreamingWritingConfiguration, Output)] = mutable.Map()
+        val streamingWriterList: mutable.Map[String, StreamingWriting] = mutable.Map()
         output.foreach(outputConfig => {
           val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
           val dataFrameName = outputConfig.dataFrameName
-          var dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
+          val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
           if (dataFrame.isStreaming) {
-            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, (StreamingWritingConfiguration(dataFrame), outputConfig))
-            streamingWriterConfig._1.writers += writer
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWriting(StreamingWritingConfiguration(dataFrame, outputConfig)))
+            streamingWriterConfig.streamingWritingConfiguration.writers += writer
             streamingWriterList += (dataFrameName -> streamingWriterConfig)
           }
           else {
@@ -167,8 +166,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
           }
         })
 
-        for ((dataFrameName, streamingConfig) <- streamingWriterList) writeStream(dataFrameName, streamingConfig, job.config.streaming,
-          job.instrumentationClient)
+        for ((dataFrameName, streamingConfig) <- streamingWriterList) writeStream(dataFrameName,
+          streamingConfig.streamingWritingConfiguration, job.config.streaming, job.instrumentationClient)
 
       }
       case None =>
