@@ -16,7 +16,7 @@ import org.apache.spark.sql.{DataFrame, Dataset}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-case class StreamingWritingConfiguration(dataFrame: DataFrame, lagColumnTime: Option[String] = None, writers: ListBuffer[Writer] = ListBuffer.empty)
+case class StreamingWritingConfiguration(dataFrame: DataFrame, writers: ListBuffer[Writer] = ListBuffer.empty)
 
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
@@ -45,23 +45,20 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 
   private def writeStream(dataFrameName: String,
-                          writerConfig: StreamingWritingConfiguration,
+                          writerConfig: (StreamingWritingConfiguration,Output),
                           streamingConfig: Option[Streaming],
                           instrumentationProvider: InstrumentationProvider): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
-    val currentTime = System.currentTimeMillis
     streamingConfig match {
       case Some(config) => {
-        val streamWriter = writerConfig.dataFrame.writeStream
+        val streamWriter = writerConfig._1.dataFrame.writeStream
         config.applyOptions(streamWriter)
         config.batchMode match {
           case Some(true) => {
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
-              writerConfig.writers.foreach(writer => writer.write(batchDF))
-
-              val epochLagTimeValue = getEpochLagTime(batchDF, writerConfig.lagColumnTime)
-              epochLagTimeValue match {
-                case Some(epochLagTimeValue) => instrumentationProvider.gauge(name = "lag", currentTime - epochLagTimeValue)
+              writerConfig._1.writers.foreach(writer => writer.write(batchDF))
+              writerConfig._2.reportLag match {
+                case Some(true) =>  reportLagTime(batchDF, writerConfig._2.reportLagTimeColumn, instrumentationProvider)
                 case _ =>
               }
             }).start()
@@ -77,8 +74,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
 
     // Non batch mode
-    writerConfig.writers.size match {
-      case size if size == 1 => writerConfig.writers.foreach(writer => writer.writeStream(writerConfig.dataFrame, streamingConfig))
+    writerConfig._1.writers.size match {
+      case size if size == 1 => writerConfig._1.writers.foreach(writer => writer.writeStream(writerConfig._1.dataFrame, streamingConfig))
       case size if size > 1 => log.error("Found multiple outputs for a streaming source without using the batch mode, " +
         "skipping streaming writing")
       case _ =>
@@ -88,10 +85,9 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   private def writeBatch(dataFrame: DataFrame,
                          dataFrameName: String,
                          writer: Writer,
-                         outputType: OutputType,
+                         outputConfig: Output,
                          instrumentationProvider: InstrumentationProvider,
-                         cacheCountOnOutput: Option[Boolean],
-                         lagReporterTimeColumn: Option[String]): Unit = {
+                         cacheCountOnOutput: Option[Boolean]): Unit = {
 
     val dataFrameCount = cacheCountOnOutput match {
       case Some(true) => {
@@ -100,22 +96,18 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
       }
       case _ => 0
     }
-    val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputType.toString)
+    val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputConfig.outputType.toString)
     instrumentationProvider.count(name="counter", value=dataFrameCount, tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
-    val currentTime = System.currentTimeMillis
     try {
       writer.write(dataFrame)
-      val epochLagTimeValue = getEpochLagTime(dataFrame, lagReporterTimeColumn)
-      epochLagTimeValue match {
-        case Some(epochLagTimeValue) => instrumentationProvider.gauge(name = "lag", currentTime - epochLagTimeValue)
+      outputConfig.reportLag match {
+        case Some(true) =>  reportLagTime(dataFrame, outputConfig.reportLagTimeColumn, instrumentationProvider)
         case _ =>
-      }
-    }
-    catch {
+    } } catch {
       case ex: Exception => {
         throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
-          s"$dataFrameName to output: ${outputType} on metric: ${metricName}", ex)
+          s"$dataFrameName to output: ${outputConfig.outputType} on metric: ${metricName}", ex)
       }
     }
   }
@@ -133,50 +125,49 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def getEpochLagTime(dataFrame: DataFrame, lagReporterTimeColumn: Option[String]): Option[Long] ={
-    lagReporterTimeColumn match {
+  private def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String], instrumentationProvider: InstrumentationProvider) ={
+    reportLagTimeColumn match {
       case Some(timeColumn) => {
+        val currentTime = System.currentTimeMillis
+        val timeColumnType = dataFrame.schema.filter(f => f.name == timeColumn).map(f => f.dataType).last
         try {
-          val maxLagValue = dataFrame.agg({timeColumn.toString -> "max"}).collect()(0)(0)
-          if (maxLagValue.isInstanceOf[java.sql.Timestamp]) {
-            return Option(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime())
-          }
-          else {
-            return Option(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
-          }
+        val maxDataframeTime = timeColumnType match {
+          case timeColumnType:TimestampType => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+          case _ =>   dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0)
+        }
+          instrumentationProvider.gauge(name = "lag", currentTime - maxDataframeTime)
         } catch {
           case e: ClassCastException => {
-            throw new ClassCastException(s"Influx lag column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
+            throw new ClassCastException(s"Lag instrumentation column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
           }
         }
       }
-      case _=> None:Option[Long]
+
+      }
     }
-  }
 
   def write(job: Job): Unit = {
 
     configuration.output match {
       case Some(output) => {
-        val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
+        val streamingWriterList: mutable.Map[String, (StreamingWritingConfiguration, Output)] = mutable.Map()
         output.foreach(outputConfig => {
           val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
           val dataFrameName = outputConfig.dataFrameName
           var dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
           if (dataFrame.isStreaming) {
-            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName,
-              StreamingWritingConfiguration(dataFrame, outputConfig.reportLag))
-            streamingWriterConfig.writers += writer
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, (StreamingWritingConfiguration(dataFrame), outputConfig))
+            streamingWriterConfig._1.writers += writer
             streamingWriterList += (dataFrameName -> streamingWriterConfig)
           }
           else {
-            writeBatch(dataFrame, dataFrameName, writer,
-              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput, outputConfig.reportLag)
+            writeBatch(dataFrame, dataFrameName, writer, outputConfig, job.instrumentationClient,
+              job.config.cacheCountOnOutput)
           }
         })
 
-        for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming,
+        for ((dataFrameName, streamingConfig) <- streamingWriterList) writeStream(dataFrameName, streamingConfig, job.config.streaming,
           job.instrumentationClient)
 
       }

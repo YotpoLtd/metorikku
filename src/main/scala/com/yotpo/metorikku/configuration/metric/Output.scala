@@ -6,7 +6,8 @@ import com.fasterxml.jackson.module.scala.JsonScalaEnumeration
 case class Output(name: Option[String],
                   dataFrameName: String,
                   @JsonScalaEnumeration(classOf[OutputTypeReference]) outputType: OutputType.OutputType,
-                  reportLag: Option[String],
+                  reportLag: Option[Boolean],
+                  reportLagTimeColumn: Option[String],
                   repartition: Option[Int],
                   coalesce: Option[Boolean],
                   outputOptions: Map[String, Any])

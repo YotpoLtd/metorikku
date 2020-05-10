@@ -9,7 +9,8 @@ steps:
 output:
 - dataFrameName: hive_sync_test
   outputType: Hudi
-  reportLag: lag_timestamp
+  reportLag: true
+  reportLagTimeColumn: lag_timestamp
   outputOptions:
     path: table_view_manual_hive_sync_no_partitions
     keyColumn: hoodie_key
