@@ -8,6 +8,7 @@ case class Output(name: Option[String],
                   @JsonScalaEnumeration(classOf[OutputTypeReference]) outputType: OutputType.OutputType,
                   reportLag: Option[Boolean],
                   reportLagTimeColumn: Option[String],
+                  reportLagTimeColumnUnits: Option[String],
                   repartition: Option[Int],
                   coalesce: Option[Boolean],
                   outputOptions: Map[String, Any])

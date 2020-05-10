@@ -10,8 +10,9 @@ import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWr
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.types.{TimestampType}
+import org.apache.spark.sql.types.TimestampType
 import org.apache.spark.sql.{DataFrame, Dataset}
+import org.apache.spark.streaming.Seconds
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -58,7 +59,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
               writerConfig.writers.foreach(writer => writer.write(batchDF))
               writerConfig.outputConfig.reportLag match {
-                case Some(true) =>  reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn, instrumentationProvider)
+                case Some(true) =>  reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn,
+                  writerConfig.outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
                 case _ =>
               }
             }).start()
@@ -102,7 +104,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     try {
       writer.write(dataFrame)
       outputConfig.reportLag match {
-        case Some(true) =>  reportLagTime(dataFrame, outputConfig.reportLagTimeColumn, instrumentationProvider)
+        case Some(true) =>  reportLagTime(dataFrame, outputConfig.reportLagTimeColumn, outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
         case _ =>
     } } catch {
       case ex: Exception => {
@@ -125,23 +127,33 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String], instrumentationProvider: InstrumentationProvider) ={
+  private def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
+                            reportLagTimeColumnUnits:Option[String],
+                            instrumentationProvider: InstrumentationProvider) ={
     reportLagTimeColumn match {
       case Some(timeColumn) => {
         val timeColumnType = dataFrame.schema.filter(f => f.name == timeColumn).map(f => f.dataType).last
         try {
         val maxDataframeTime = timeColumnType match {
           case _:TimestampType => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
-          case _ =>   dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0)
+          case _ => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0)
         }
-          instrumentationProvider.gauge(name = "lag", System.currentTimeMillis - maxDataframeTime)
+        val currentTimestamp = reportLagTimeColumnUnits match {
+          case Some(units) => units match {
+            case "seconds" => System.currentTimeMillis / 1000
+            case "minutes" => System.currentTimeMillis / 1000 / 60
+            case _ => System.currentTimeMillis
+          }
+          case _=> System.currentTimeMillis
+        }
+          instrumentationProvider.gauge(name = "lag", currentTimestamp - maxDataframeTime)
         } catch {
           case e: ClassCastException => {
             throw new ClassCastException(s"Lag instrumentation column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
           }
         }
       }
-
+      case _=> throw MetorikkuWriteFailedException("Failed to report lag time, reportLagTimeColumn is not defined")
       }
     }
 
