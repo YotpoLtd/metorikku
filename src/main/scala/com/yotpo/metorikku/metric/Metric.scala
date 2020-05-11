@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.metric
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.Streaming
@@ -132,6 +133,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
                             instrumentationProvider: InstrumentationProvider) ={
     reportLagTimeColumn match {
       case Some(timeColumn) => {
+        dataFrame.cache()
         val timeColumnType = dataFrame.schema.filter(f => f.name == timeColumn).map(f => f.dataType).last
         try {
         val maxDataframeTime = timeColumnType match {
@@ -139,18 +141,19 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
           case _ => dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0)
         }
         val currentTimestamp = reportLagTimeColumnUnits match {
-          case Some(units) => units match {
-            case "seconds" => System.currentTimeMillis / 1000
-            case "minutes" => System.currentTimeMillis / 1000 / 60
-            case _ => System.currentTimeMillis
-          }
+          case Some(units) => TimeUnit.valueOf(units) match {
+              case TimeUnit.SECONDS => TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis)
+              case TimeUnit.MINUTES => TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis)
+              case TimeUnit.MILLISECONDS => System.currentTimeMillis
+            }
           case _=> System.currentTimeMillis
         }
           instrumentationProvider.gauge(name = "lag", currentTimestamp - maxDataframeTime)
         } catch {
-          case e: ClassCastException => {
-            throw new ClassCastException(s"Lag instrumentation column -${timeColumn} cannot be cast to spark.sql.Timestamp or spark.sql.Long")
-          }
+          case e: ClassCastException => throw new ClassCastException(s"Lag instrumentation column -${timeColumn} " +
+            s"cannot be cast to spark.sql.Timestamp or spark.sql.Long")
+          case e: IllegalArgumentException =>  throw new MetorikkuWriteFailedException(
+            s"${reportLagTimeColumnUnits} is not a legal argument for units, use one of the following: [SECONDS,MINUTES,MILLISECONDS]")
         }
       }
       case _=> throw MetorikkuWriteFailedException("Failed to report lag time, reportLagTimeColumn is not defined")

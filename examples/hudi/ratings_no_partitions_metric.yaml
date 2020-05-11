@@ -11,6 +11,7 @@ output:
   outputType: Hudi
   reportLag: true
   reportLagTimeColumn: lag_timestamp
+  reportLagTimeColumnUnits: MINUTES
   outputOptions:
     path: table_view_manual_hive_sync_no_partitions
     keyColumn: hoodie_key
