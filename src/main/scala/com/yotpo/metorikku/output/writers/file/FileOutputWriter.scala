@@ -13,7 +13,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
   val log = LogManager.getLogger(this.getClass)
 
   case class FileOutputProperties( path: Option[String],
-                                   addTimestampToPath: Option[Boolean],
+                                   createUniquePath: Option[Boolean],
                                    saveMode: Option[String],
                                    partitionBy: Option[Seq[String]],
                                    triggerDuration: Option[String],
@@ -24,7 +24,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
   val fileOutputProperties = FileOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
-    props.get("addTimestampToPath").asInstanceOf[Option[Boolean]],
+    props.get("createUniquePath").asInstanceOf[Option[Boolean]],
     props.get("saveMode").asInstanceOf[Option[String]],
     props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
     props.get("triggerDuration").asInstanceOf[Option[String]],
@@ -33,6 +33,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
+  // scalastyle:off cyclomatic.complexity
+  // scalastyle:off method.length
   override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
@@ -58,8 +60,9 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     }
 
     // Handle path
-    val path: Option[String] = (fileOutputProperties.path, outputFile, fileOutputProperties.addTimestampToPath) match {
+    val path: Option[String] = (fileOutputProperties.path, outputFile, fileOutputProperties.createUniquePath) match {
       case (Some(path), Some(file), Some(true)) => Option(file.dir + "/" + currentTimestamp + "/" + path)
+      case (Some(path), Some(file), _) => Option(file.dir + "/" + path)
       case (Some(path), None, Some(true)) => Option(currentTimestamp + "/" + path)
       case (Some(path), None, _) => Option(path)
       case _ => None
@@ -193,3 +196,5 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     }
   }
 }
+// scalastyle:on cyclomatic.complexity
+// scalastyle:on method.length

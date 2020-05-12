@@ -14,7 +14,6 @@ output:
   outputOptions:
     saveMode: Overwrite
     path: comedyFantasyRomanceSciFiMovies.parquet
-    addTimestampToPath: true
     tableName: testMetorikkuHiveExternal
 - dataFrameName: comedyFantasyRomanceSciFiMoviesAddColumn
   outputType: Parquet
