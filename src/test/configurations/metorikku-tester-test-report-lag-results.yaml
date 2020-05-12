@@ -1,0 +1,15 @@
+steps:
+  - dataFrameName: lagResultDf
+    sql:
+      SELECT CAST(updated_at AS TIMESTAMP) AS updated_at,
+             CAST(created_at AS LONG) AS created_at
+      FROM ratings_time
+
+output:
+  - dataFrameName: lagResultDf
+    outputType: Parquet
+    reportLag: true
+    reportLagTimeColumn: updated_at
+    outputOptions:
+      saveMode: Overwrite
+      path: lagResultDfWithOutUnits.parquet
