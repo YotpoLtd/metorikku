@@ -148,6 +148,12 @@ output:
       extraOptions:
         es.index.auto.create: false
   - outputType: Hudi
+    # Optional: If enabled, lag between current timestamp and max dataframe's time column (configurable) will be reported.
+    reportLag: true
+    # Optional: Column name that will be used for calculating the lag, supported types: (Long, Timestamp, Integer), must be provided if "reportLag" is enabled.
+    reportLagTimeColumn: Option[String]
+    # Optional: Represents time durations of the "reportLagTimeColumn" (Long or Integer), at a given unit of granularity, optional values: [MILLISECONDS (Default), SECONDS]
+    reportLagTimeColumnUnits: Option[String]
     outputOptions:
       path: path
       # The key to use for upserts
