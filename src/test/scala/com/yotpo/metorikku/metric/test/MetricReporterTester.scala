@@ -6,7 +6,7 @@ import org.scalatest.{FunSuite, _}
 import org.apache.spark.sql.types._
 
 //noinspection ScalaStyle
-class MetricTester extends FunSuite with BeforeAndAfterEach {
+class MetricReporterTester extends FunSuite with BeforeAndAfterEach {
   private val log: Logger = LogManager.getLogger(this.getClass)
   private var sparkSession : SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
