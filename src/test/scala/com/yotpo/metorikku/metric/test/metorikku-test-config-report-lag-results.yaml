@@ -1,9 +1,0 @@
-metrics:
-  - src/test/configurations/metorikku-tester-test-report-lag-results.yaml
-inputs:
- ratings_time:
-  file:
-    path: src/test/configurations/mocks/ratings_time.csv
-output:
- file:
-  dir: src/test/out/

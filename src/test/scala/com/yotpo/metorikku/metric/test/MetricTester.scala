@@ -1,11 +1,9 @@
 package com.yotpo.metorikku.metric.test
-import java.io.File
-import com.yotpo.metorikku.configuration.metric.{Configuration, Step}
-import com.yotpo.metorikku.metric.Metric
+import com.yotpo.metorikku.metric.{Metric, MetricReporting}
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.scalatest.{FunSuite, _}
-import com.yotpo.metorikku.Metorikku
+import org.apache.spark.sql.types._
 
 //noinspection ScalaStyle
 class MetricTester extends FunSuite with BeforeAndAfterEach {
@@ -20,49 +18,65 @@ class MetricTester extends FunSuite with BeforeAndAfterEach {
       .getOrCreate()
   }
 
-  test("Test getMaxDataframeTime: without reportLagTimeColumnUnits specified") {
+  test("Test getMaxDataframeTime") {
+
+    val schema = StructType(Array(
+      StructField("userId", IntegerType, true),
+      StructField("movieId", IntegerType, true),
+      StructField("rating",  DoubleType, true),
+      StructField("created_at", LongType, true),
+      StructField("updated_at", TimestampType, true)))
+
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
+    val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
+    val metricReport = new MetricReporting()
+    val maxUpdatedAt = metricReport.getMaxDataframeTime(df, Option("updated_at"), None)
+    val maxCreatedAt = metricReport.getMaxDataframeTime(df, Option("created_at"), Option("SECONDS"))
 
-    Metorikku.main(Array(
-      "-c", "src/test/scala/com/yotpo/metorikku/metric/test/metorikku-test-config-report-lag-results.yaml"))
-    val lagResultDf = sparkSession.table("lagResultDf")
-    //val lagResultDfWithUnits = sparkSession.table("lagResultDfWithUnits")
-    val metric = Metric(Configuration(List[Step](), None), new File(""), "test")
-    val maxTime = metric.getMaxDataframeTime(lagResultDf, Option("updated_at"), None)
-    val maxTimeWithUnits = metric.getMaxDataframeTime(lagResultDf, Option("created_at"), Option("SECONDS"))
-
-    lagResultDf.cache
-    assert(maxTime == 1462488216000L)
-    assert(maxTimeWithUnits == 1260759205000L)
+    df.cache
+    assert(maxUpdatedAt == 1462488216000L)
+    assert(maxCreatedAt == 1260759205000L)
   }
 
   test("Test getMaxDataframeTime FAILs with invalid reportLagTimeColumn Units specified") {
+
+    val schema = StructType(Array(
+      StructField("userId", IntegerType, true),
+      StructField("movieId", IntegerType, true),
+      StructField("rating",  DoubleType, true),
+      StructField("created_at", LongType, true),
+      StructField("updated_at", TimestampType, true)))
+
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
 
-    Metorikku.main(Array(
-      "-c", "src/test/scala/com/yotpo/metorikku/metric/test/metorikku-test-config-report-lag-results.yaml"))
-    val lagResultDf = sparkSession.table("lagResultDf")
-    val metric = Metric(Configuration(List[Step](), None), new File(""), "test")
+    val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
+    val metricReport = new MetricReporting()
 
     val thrown = intercept[Exception] {
-       metric.getMaxDataframeTime(lagResultDf, Option("created_at"), Option("HOUR"))
+      metricReport.getMaxDataframeTime(df, Option("created_at"), Option("HOUR"))
     }
     assert(thrown.getMessage.startsWith("Some(HOUR) is not a legal argument for units, use one of the following: [SECONDS,MILLISECONDS]"))
   }
 
   test("Test getMaxDataframeTime FAILs reportLagTimeColumn is not defined") {
+
+    val schema = StructType(Array(
+      StructField("userId", IntegerType, true),
+      StructField("movieId", IntegerType, true),
+      StructField("rating",  DoubleType, true),
+      StructField("created_at", LongType, true),
+      StructField("updated_at", TimestampType, true)))
+
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
 
-    Metorikku.main(Array(
-      "-c", "src/test/scala/com/yotpo/metorikku/metric/test/metorikku-test-config-report-lag-results.yaml"))
-    val lagResultDf = sparkSession.table("lagResultDf")
-    val metric = Metric(Configuration(List[Step](), None), new File(""), "test")
+    val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
+    val metricReport = new MetricReporting()
 
     val thrown = intercept[Exception] {
-      metric.getMaxDataframeTime(lagResultDf, None, None)
+      metricReport.getMaxDataframeTime(df, None, None)
     }
     assert(thrown.getMessage.startsWith("Failed to report lag time, reportLagTimeColumn is not defined"))
   }
