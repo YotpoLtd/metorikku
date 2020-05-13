@@ -60,7 +60,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
               writerConfig.writers.foreach(writer => writer.write(batchDF))
               writerConfig.outputConfig.reportLag match {
-                case Some(true) =>  reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn,
+                case Some(true) =>  new MetricReporting().reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn,
                   writerConfig.outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
                 case _ =>
               }
@@ -105,7 +105,8 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     try {
       writer.write(dataFrame)
       outputConfig.reportLag match {
-        case Some(true) =>  reportLagTime(dataFrame, outputConfig.reportLagTimeColumn, outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
+        case Some(true) =>  new MetricReporting().reportLagTime(dataFrame, outputConfig.reportLagTimeColumn,
+          outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
         case _ =>
     } } catch {
       case ex: Exception => {
@@ -128,37 +129,6 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-   def getMaxDataframeTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
-                                  reportLagTimeColumnUnits:Option[String]): Long ={
-    reportLagTimeColumn match {
-      case Some(timeColumn) => {
-        dataFrame.cache()
-        try {
-          reportLagTimeColumnUnits match {
-            case Some(units) => TimeUnit.valueOf(units) match {
-              case TimeUnit.SECONDS => TimeUnit.SECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
-              case TimeUnit.MILLISECONDS => TimeUnit.MILLISECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
-            }
-            case _=> dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
-          }
-          //instrumentationProvider.gauge(name = "lag", System.currentTimeMillis - maxDataframeTime)
-        } catch {
-          case e: ClassCastException => throw new ClassCastException(s"Lag instrumentation column -${timeColumn} " +
-            s"cannot be cast to spark.sql.Timestamp or spark.sql.Long")
-          case e: IllegalArgumentException =>  throw new MetorikkuWriteFailedException(
-            s"${reportLagTimeColumnUnits} is not a legal argument for units, use one of the following: [SECONDS,MILLISECONDS]")
-        }
-      }
-      case _=> throw MetorikkuWriteFailedException("Failed to report lag time, reportLagTimeColumn is not defined")
-    }
-  }
-
-  private def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
-                            reportLagTimeColumnUnits:Option[String],
-                            instrumentationProvider: InstrumentationProvider) ={
-    val maxDataframeTime = getMaxDataframeTime(dataFrame, reportLagTimeColumn, reportLagTimeColumnUnits)
-    instrumentationProvider.gauge(name = "lag", System.currentTimeMillis - maxDataframeTime)
-    }
 
   def write(job: Job): Unit = {
 
@@ -190,3 +160,37 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   }
 }
 
+class MetricReporting() {
+
+  def getMaxDataframeTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
+                          reportLagTimeColumnUnits:Option[String]): Long ={
+    reportLagTimeColumn match {
+      case Some(timeColumn) => {
+        dataFrame.cache()
+        try {
+          reportLagTimeColumnUnits match {
+            case Some(units) => TimeUnit.valueOf(units) match {
+              case TimeUnit.SECONDS => TimeUnit.SECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
+              case TimeUnit.MILLISECONDS => TimeUnit.MILLISECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
+            }
+            case _=> dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+          }
+        } catch {
+          case e: ClassCastException => throw new ClassCastException(s"Lag instrumentation column -${timeColumn} " +
+            s"cannot be cast to spark.sql.Timestamp or spark.sql.Long")
+          case e: IllegalArgumentException =>  throw new MetorikkuWriteFailedException(
+            s"${reportLagTimeColumnUnits} is not a legal argument for units, use one of the following: [SECONDS,MILLISECONDS]")
+        }
+      }
+      case _=> throw MetorikkuWriteFailedException("Failed to report lag time, reportLagTimeColumn is not defined")
+    }
+  }
+
+   def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
+                            reportLagTimeColumnUnits:Option[String],
+                            instrumentationProvider: InstrumentationProvider) : Unit ={
+    val maxDataframeTime = getMaxDataframeTime(dataFrame, reportLagTimeColumn, reportLagTimeColumnUnits)
+    instrumentationProvider.gauge(name = "lag", System.currentTimeMillis - maxDataframeTime)
+  }
+
+}
