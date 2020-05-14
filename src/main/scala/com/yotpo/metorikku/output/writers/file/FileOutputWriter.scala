@@ -38,7 +38,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
   override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
-    val currentTimestamp = DateTime.now.toString("YYY-MM-dd--HH-mm-ss")
+    val currentTimestamp = System.currentTimeMillis()
     fileOutputProperties.format match {
       case Some(format) => writer.format(format)
       case None => writer.format("parquet")
