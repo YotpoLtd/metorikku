@@ -27,7 +27,7 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
   private def printStep(stepResult: DataFrame, stepName: String): Unit = {
     if (showPreviewLines > 0) {
       log.info(s"Previewing step: ${stepName}")
-      stepResult.printSchema()
+      log.debug("Schema:\n" + stepResult.schema.treeString)
       cacheOnPreview match {
         case Some(true) => {
           log.info(s"Caching step: ${stepName}")
