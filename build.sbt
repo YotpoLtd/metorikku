@@ -82,7 +82,7 @@ resolvers ++= Seq(
 )
 
 fork := true
-javaOptions in Test ++= Seq("-Dspark.master=local[*]")
+javaOptions in Test ++= Seq("-Dspark.master=local[*]", "-Dspark.sql.session.timeZone=UTC", "-Duser.timezone=UTC")
 scalacOptions += "-target:jvm-1.8"
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
 
