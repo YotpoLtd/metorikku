@@ -31,7 +31,6 @@ output:
   outputType: Hudi
   outputOptions:
     path: hoodie_test.parquet
-    createUniquePath: true
     keyColumn: userkey
     timeColumn: ts
     partitionBy: date

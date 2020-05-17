@@ -33,8 +33,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
-  // scalastyle:off cyclomatic.complexity
-  // scalastyle:off method.length
+
   override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
@@ -61,9 +60,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
     // Handle path
     val path: Option[String] = (fileOutputProperties.path, outputFile, fileOutputProperties.createUniquePath) match {
-      case (Some(path), Some(file), Some(true)) => Option(file.dir + "/" + currentTimestamp + "/" + path)
-      case (Some(path), Some(file), _) => Option(file.dir + "/" + path)
-      case (Some(path), None, Some(true)) => Option(currentTimestamp + "/" + path)
+      case (Some(path), Some(file), uniquePath) => getUniquePath(path, file, uniquePath, currentTimestamp.toString)
+      case (Some(path), None, Some(true)) => Option(currentTimestamp.toString + "/" + path)
       case (Some(path), None, _) => Option(path)
       case _ => None
     }
@@ -195,6 +193,13 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
       case _ =>
     }
   }
+
+  def getUniquePath(path: String, file: File, uniquePath: Option[Boolean], currentTimestamp: String): Option[String] ={
+    uniquePath match {
+      case Some(true) => Option(file.dir + "/" + currentTimestamp + "/" + path)
+      case _=> Option(file.dir + "/" + path)
+    }
+  }
 }
-// scalastyle:on cyclomatic.complexity
-// scalastyle:on method.length
+
+
