@@ -36,6 +36,8 @@ output:
       saveMode: Overwrite
       # path of the file (can be omitted if using tableName and writing to warehouse)
       path: file.parquet
+      # Optional: If enabled, adding current timestamp suffix to path of the file
+      createUniquePath: true
       # partition by the following columns
       partitionBy:
         - col1

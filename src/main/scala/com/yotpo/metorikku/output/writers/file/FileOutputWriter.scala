@@ -1,15 +1,19 @@
 package com.yotpo.metorikku.output.writers.file
 
+import java.text.SimpleDateFormat
+
 import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
+import org.joda.time.DateTime
 
 class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
 
   case class FileOutputProperties( path: Option[String],
+                                   createUniquePath: Option[Boolean],
                                    saveMode: Option[String],
                                    partitionBy: Option[Seq[String]],
                                    triggerDuration: Option[String],
@@ -20,6 +24,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
   val fileOutputProperties = FileOutputProperties(
     props.get("path").asInstanceOf[Option[String]],
+    props.get("createUniquePath").asInstanceOf[Option[Boolean]],
     props.get("saveMode").asInstanceOf[Option[String]],
     props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
     props.get("triggerDuration").asInstanceOf[Option[String]],
@@ -28,9 +33,11 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
+
   override def write(dataFrame: DataFrame): Unit = {
     val writer = dataFrame.write
 
+    val currentTimestamp = System.currentTimeMillis()
     fileOutputProperties.format match {
       case Some(format) => writer.format(format)
       case None => writer.format("parquet")
@@ -52,9 +59,10 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     }
 
     // Handle path
-    val path: Option[String] = (fileOutputProperties.path, outputFile) match {
-      case (Some(path), Some(file)) => Option(file.dir + "/" + path)
-      case (Some(path), None) => Option(path)
+    val path: Option[String] = (fileOutputProperties.path, outputFile, fileOutputProperties.createUniquePath) match {
+      case (Some(path), Some(file), uniquePath) => getUniquePath(path, file, uniquePath, currentTimestamp.toString)
+      case (Some(path), None, Some(true)) => Option(currentTimestamp.toString + "/" + path)
+      case (Some(path), None, _) => Option(path)
       case _ => None
     }
     path match {
@@ -185,4 +193,13 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
       case _ =>
     }
   }
+
+  def getUniquePath(path: String, file: File, uniquePath: Option[Boolean], currentTimestamp: String): Option[String] ={
+    uniquePath match {
+      case Some(true) => Option(file.dir + "/" + currentTimestamp + "/" + path)
+      case _=> Option(file.dir + "/" + path)
+    }
+  }
 }
+
+
