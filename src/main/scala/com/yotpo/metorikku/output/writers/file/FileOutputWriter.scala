@@ -113,19 +113,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
         writer.save()
 
-        fileOutputProperties.protectFromEmptyOutput match {
-          case Some(true) => {
-              log.info(s"Applying protection from updating Hive table: ${tableName} with empty parquets")
-              val dfFromFile = fileOutputProperties.format match {
-                case Some(format) => {
-                  ss.read.format(format.toLowerCase).load(path.get)
-                  }
-                case _=> ss.read.parquet(path.get)
-              } if (dfFromFile.isEmpty) {
-                throw MetorikkuWriteFailedException(s"Aborting Hive external table update -> ${tableName} is empty!")
-          }}
-          case _ =>
-        }
+        protectFromEmptyOutput(ss, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
+
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
           case true => {
@@ -214,6 +203,26 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
       case _=> Option(file.dir + "/" + path)
     }
   }
+
+  def protectFromEmptyOutput(ss: SparkSession, protectFromEmptyOutput: Option[Boolean], format: Option[String],
+                             path: String,  tableName: String): Unit = {
+    fileOutputProperties.protectFromEmptyOutput match {
+      case Some(true) => {
+        log.info(s"Applying protection from updating Hive table: ${tableName} with empty parquets")
+        val dfFromFile = fileOutputProperties.format match {
+          case Some(format) => {
+            ss.read.format(format.toLowerCase).load(path)
+          }
+          case _=> ss.read.parquet(path)
+        }
+        if (dfFromFile.isEmpty) {
+          throw MetorikkuWriteFailedException(s"Aborting Hive external table update -> ${tableName} is empty!")
+        }}
+      case _ =>
+    }
+  }
 }
+
+
 
 
