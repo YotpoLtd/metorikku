@@ -565,7 +565,14 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     }
   }
 
+  test("Test Metorikku should fail on writing an empty df, when protectFromEmptyOutput is enabled") {
 
+    val thrown = intercept[Exception] {
+      Metorikku.main(Array(
+        "-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-empty-output-protection-config.yaml"))
+    }
+    assert(thrown.getMessage.startsWith("Abort writing dataframe: resultDfEmpty, empty dataframe output is not allowed according to configuration"))
+  }
 
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int, keyColumns: KeyColumns) = {
     assertMismatchByType(ResultsType.expected, definedKeys, thrownMsg, expectedRow, 1, 0, rowIndex, keyColumns)
