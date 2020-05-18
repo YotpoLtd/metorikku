@@ -8,7 +8,7 @@ import org.apache.spark.sql.functions._
 
 object SelectiveMerge {
   private val message = "You need to send 3 parameters with the names of the dataframes to merge and the key(s) to merge on" +
-    "(merged df1 into df2 favouring values from df2): df1, df2, Seq[String]"
+    "(merged df1 into df2 favoring values from df2): df1, df2, Seq[String]"
   private val log: Logger = LogManager.getLogger(this.getClass)
   private val colRenameSuffixLength = 10000 // (5 digits)
   private val colRenamePrefix = scala.util.Random.nextInt(colRenameSuffixLength).toString
