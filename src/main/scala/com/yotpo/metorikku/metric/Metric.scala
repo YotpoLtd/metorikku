@@ -168,3 +168,4 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 }
+
