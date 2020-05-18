@@ -143,10 +143,11 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
           outputConfig.outputOptions.get("protectFromEmptyOutput") match {
             case Some(true) => {
               if (dataFrame.head(1).isEmpty)  {
-                throw MetorikkuWriteFailedException(s"Failed to write dataframe: ${dataFrameName}, empty output is not allowed according configuration")
+                throw MetorikkuWriteFailedException(s"Abort writing dataframe: ${dataFrameName}, " +
+                  s"empty dataframe output is not allowed according to configuration")
               }
             }
-            case _=>
+            case _ =>
           }
 
           if (dataFrame.isStreaming) {
