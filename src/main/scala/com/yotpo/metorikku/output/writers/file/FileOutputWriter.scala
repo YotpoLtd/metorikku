@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 
 import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
+import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
@@ -20,6 +21,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
                                    tableName: Option[String],
                                    format: Option[String],
                                    alwaysUpdateSchemaInCatalog: Boolean,
+                                   protectFromEmptyOutput: Option[Boolean],
                                    extraOptions: Option[Map[String, String]])
 
   val fileOutputProperties = FileOutputProperties(
@@ -31,6 +33,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("tableName").asInstanceOf[Option[String]],
     props.get("format").asInstanceOf[Option[String]],
     props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
+    props.get("protectFromEmptyOutput").asInstanceOf[Option[Boolean]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
 
@@ -111,6 +114,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
         val catalog = ss.catalog
 
         writer.save()
+
+        protectFromEmptyOutput(ss, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
 
         catalog.tableExists(tableName) match {
           // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
@@ -198,6 +203,24 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     uniquePath match {
       case Some(true) => Option(file.dir + "/" + currentTimestamp + "/" + path)
       case _=> Option(file.dir + "/" + path)
+    }
+  }
+
+  def protectFromEmptyOutput(ss: SparkSession, protectFromEmptyOutput: Option[Boolean], format: Option[String],
+                             path: String, tableName: String): Unit = {
+    fileOutputProperties.protectFromEmptyOutput match {
+      case Some(true) => {
+        log.info(s"Applying protection from updating Hive table: ${tableName} with empty parquets")
+        val dfFromFile = fileOutputProperties.format match {
+          case Some(format) => {
+            ss.read.format(format.toLowerCase).load(path)
+          }
+          case _=> ss.read.parquet(path)
+        }
+        if (dfFromFile.head(1).isEmpty) {
+          throw MetorikkuWriteFailedException(s"Aborting Hive external table ${tableName} update -> data files are empty!")
+        }}
+      case _ =>
     }
   }
 }
