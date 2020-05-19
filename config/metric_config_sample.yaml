@@ -38,8 +38,6 @@ output:
       path: file.parquet
       # Optional: If enabled, adding current timestamp suffix to path of the file
       createUniquePath: true
-      # Optional: Abort writing an empty df to output OR updating external table in Hive with empty parquets.
-      protectFromEmptyOutput: true
       # partition by the following columns
       partitionBy:
         - col1

@@ -1,9 +1,0 @@
-metrics:
-  - src/test/configurations/metorikku-tester-test-empty-output-protection.yaml
-inputs:
-  reviews:
-    file:
-      path: src/test/configurations/mocks/reviews_complex.csv
-output:
- file:
-  dir: src/test/out/
