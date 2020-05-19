@@ -15,6 +15,7 @@ output:
     saveMode: Overwrite
     path: comedyFantasyRomanceSciFiMovies.parquet
     tableName: testMetorikkuHiveExternal
+    protectFromEmptyOutput: true
 - dataFrameName: comedyFantasyRomanceSciFiMoviesAddColumn
   outputType: Parquet
   outputOptions:
