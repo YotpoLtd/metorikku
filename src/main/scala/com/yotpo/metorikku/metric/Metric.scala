@@ -140,16 +140,6 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
           val dataFrameName = outputConfig.dataFrameName
           val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
-          outputConfig.outputOptions.get("protectFromEmptyOutput") match {
-            case Some(true) => {
-              if (dataFrame.head(1).isEmpty)  {
-                throw MetorikkuWriteFailedException(s"Abort writing dataframe: ${dataFrameName}, " +
-                  s"empty dataframe output is not allowed according to configuration")
-              }
-            }
-            case _ =>
-          }
-
           if (dataFrame.isStreaming) {
             val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWriting(StreamingWritingConfiguration(dataFrame, outputConfig)))
             streamingWriterConfig.streamingWritingConfiguration.writers += writer
@@ -169,4 +159,3 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 }
-

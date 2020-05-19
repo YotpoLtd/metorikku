@@ -11,7 +11,6 @@ case class Output(name: Option[String],
                   reportLagTimeColumnUnits: Option[String],
                   repartition: Option[Int],
                   coalesce: Option[Boolean],
-                  protectFromEmptyOutput: Option[Boolean],
                   outputOptions: Map[String, Any])
 
 object OutputType extends Enumeration {
