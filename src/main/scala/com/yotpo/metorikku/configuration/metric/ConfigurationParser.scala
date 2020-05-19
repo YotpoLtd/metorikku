@@ -26,7 +26,7 @@ object ConfigurationParser {
 
     log.info(s"Initializing Metric file $fileName")
     try {
-      val metricConfig = parseFile(path.getAbsolutePath)
+      val metricConfig = parseFile(path.getPath)
       Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
     } catch {
       case e: Exception => throw MetorikkuInvalidMetricFileException(s"Failed to parse metric file $fileName", e)

@@ -18,7 +18,7 @@ object StepFactory {
         configuration.file match {
           case Some(filePath) =>
             Sql(
-              FileUtils.getContentFromFileAsString(new File(metricDir, filePath)),
+              FileUtils.readFileWithHadoop(new File(metricDir, filePath).getPath),
               configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery
             )
           case None => {
