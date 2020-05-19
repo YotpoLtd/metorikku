@@ -160,5 +160,12 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
+artifact in (Compile, assembly) := {
+  val art = (artifact in (Compile, assembly)).value
+  art.withClassifier(Some("assembly"))
+}
+
+addArtifact(artifact in (Compile, assembly), assembly)
+
 // Fix for SBT run to include the provided at runtime
 run in Compile := Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run)).evaluated
