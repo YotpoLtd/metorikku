@@ -91,6 +91,8 @@ object SelectiveMerge {
   }
 
   def overrideConflictingValues(df1: DataFrame, df2: DataFrame, mergedDf: DataFrame, joinKeys: Seq[String]): DataFrame = {
+    val df1SchemaNames = df1.schema.map(f => f.name)
+
     val mergedSchema = getMergedSchema(df1, df2, joinKeys)
 
     mergedDf.select(
@@ -100,9 +102,16 @@ object SelectiveMerge {
           val colNameArr = colName.split(colRenamePrefix)
           val colNameOrig = if (colNameArr.size > 1) colNameArr(1) else colName
 
-          // Belongs to DF2, override.
+          // Column appears in DF2, override unless the row only belongs to DF1
           if (colNameArr.size > 1) {
-            mergedDf(colName).alias(colNameOrig)
+            if (df1SchemaNames.contains(colNameOrig)) {
+              when(mergedDf(colName).isNotNull, mergedDf(colName).cast(df1.schema(colNameOrig).dataType))
+                .otherwise(df1(colNameOrig))
+                .alias(colNameOrig)
+            }
+            else {
+              mergedDf(colName).alias(colNameOrig)
+            }
           }
           // Is the join key(s)
           else if (joinKeys.contains(colName)) {

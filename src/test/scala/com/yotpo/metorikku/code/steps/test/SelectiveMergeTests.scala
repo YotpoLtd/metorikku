@@ -75,7 +75,7 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     val simpleDataExpectedAfterMerge = Seq(
       ("James", new Integer(1) /* Salary */, new Integer(33) /* age */, new Integer(111) /* fake */,
         new Integer(1111) /* fake2 */, new Integer(333) /* bonus */),
-      ("Maria", null.asInstanceOf[Integer] /* Salary */, null.asInstanceOf[Integer] /* age */, new Integer(222) /* fake */,
+      ("Maria", new Integer(2) /* Salary */, new Integer(22) /* age */, new Integer(222) /* fake */,
         new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */),
       ("Jen", new Integer(4) /* Salary */, new Integer(44) /* age */, null.asInstanceOf[Integer] /* fake */,
         null.asInstanceOf[Integer] /* fake2 */, new Integer(444) /* bonus */),
@@ -123,7 +123,7 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     val simpleDataExpectedAfterMerge = Seq(
       ("James", "Sharon" /* Last Name */, new Integer(1) /* Salary */, new Integer(33) /* age */,
         new Integer(111) /* fake */, new Integer(1111) /* fake2 */, new Integer(333) /* bonus */),
-      ("Maria", "Bob" /* Last Name */, null.asInstanceOf[Integer] /* Salary */, null.asInstanceOf[Integer] /* age */,
+      ("Maria", "Bob" /* Last Name */, null.asInstanceOf[Integer] /* Salary */, new Integer(22) /* age */,
         new Integer(222) /* fake */, new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */),
       ("Jen", null.asInstanceOf[String] /* Last Name */, new Integer(4) /* Salary */, new Integer(44) /* age */,
         null.asInstanceOf[Integer] /* fake */, null.asInstanceOf[Integer] /* fake2 */, new Integer(444) /* bonus */),
@@ -158,11 +158,11 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     val simpleDataExpectedAfterMerge = Seq(
       ("James", new Integer(10) /* Salary */, new Integer(33) /* age */,
         new Integer(333) /* Bonus */, new Integer(3333) /* fake */),
-      ("Maria", null.asInstanceOf[Integer] /* Salary */, null.asInstanceOf[Integer] /* age */,
+      ("Maria", new Integer(2) /* Salary */, new Integer(22) /* age */,
         null.asInstanceOf[Integer] /* Bonus */, null.asInstanceOf[Integer] /* fake */),
       ("Jen",   new Integer(4) /* Salary */, new Integer(44) /* age */,
         new Integer(444) /* Bonus */, new Integer(4444) /* fake */),
-      ("Albert", null.asInstanceOf[Integer] /* Salary */, null.asInstanceOf[Integer] /* age */,
+      ("Albert", new Integer(3) /* Salary */, new Integer(33) /* age */,
         null.asInstanceOf[Integer] /* Bonus */, null.asInstanceOf[Integer] /* fake */)
     )
     val expectedDf = simpleDataExpectedAfterMerge.toDF("employee_name", "salary", "age", "bonus", "fake")
