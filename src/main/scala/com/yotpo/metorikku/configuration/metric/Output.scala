@@ -30,7 +30,8 @@ object OutputType extends Enumeration {
   Elasticsearch,
   File,
   Kafka,
-  Hudi = Value
+  Hudi,
+  Delta = Value
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

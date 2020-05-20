@@ -33,6 +33,7 @@ object WriterFactory {
       case OutputType.JSON => new JSONOutputWriter(metricOutputOptions, output.file)
       case OutputType.Parquet => new ParquetOutputWriter(metricOutputOptions, output.file)
       case OutputType.Hudi => new HudiOutputWriter(metricOutputOptions, output.hudi)
+      case OutputType.Delta => new DeltaOutputWriter(metricOutputOptions, output.delta)
       case OutputType.Instrumentation => new InstrumentationOutputWriter(
         metricOutputOptions,
         outputConfig.dataFrameName, metricName, job.instrumentationFactory)
