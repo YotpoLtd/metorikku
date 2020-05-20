@@ -44,7 +44,7 @@ trait FileInputBase {
   def getSchemaStruct(schemaPath: Option[String], sparkSession: SparkSession): Option[StructType] = {
     schemaPath match {
       case Some(path) => {
-        Option(SchemaConverter.convert(FileUtils.readFileWithHadoop(path, Option(sparkSession))))
+        Option(SchemaConverter.convert(FileUtils.readFileWithHadoop(path)))
       }
       case None => None
     }

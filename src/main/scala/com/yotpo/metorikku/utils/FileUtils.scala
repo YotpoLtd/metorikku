@@ -69,15 +69,10 @@ object FileUtils {
     StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
   }
 
-  def readFileWithHadoop(path: String, ss: Option[SparkSession] = None): String = {
-    val sparkSession = ss match {
-      case Some(session) => session
-      case _ => SparkSession.builder().getOrCreate()
-    }
+  def readFileWithHadoop(path: String): String = {
+    val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
 
     val file = new Path(path)
-
-    val hadoopConf = sparkSession.sessionState.newHadoopConf()
     val fs = file.getFileSystem(hadoopConf)
     val fsFile = fs.open(file)
     val reader = new BufferedReader(new InputStreamReader(fsFile))

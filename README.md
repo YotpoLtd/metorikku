@@ -74,6 +74,17 @@ There are currently 3 options to run Metorikku.
 * Run the following command:
      `spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c config.yaml`
 
+*Running with remote job/metric files:*
+
+Metorikku supports using remote job/metric files.
+
+Simply write the full path to the job/metric. example: `s3://bucket/job.yaml`
+
+Anything supported by hadoop can be used (s3, hdfs etc.)
+
+To help running both locally and remotely you can add the following env variable at runtime to add a prefix to all your configuration files paths:
+`CONFIG_FILES_PATH_PREFIX=s3://bucket/`
+
 #### Run locally
 *Metorikku is released with a JAR that includes a bundled spark.*
 * Download the [last released Standalone JAR](https://github.com/YotpoLtd/metorikku/releases/latest)
