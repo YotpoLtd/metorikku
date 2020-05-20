@@ -39,6 +39,7 @@ output:
   outputOptions:
     saveMode: Overwrite
     path: topFantasyMovies.parquet
+    createUniquePath: true
 - dataFrameName: topFantasyMovies
   outputType: CSV
   outputOptions:

@@ -36,6 +36,10 @@ output:
       saveMode: Overwrite
       # path of the file (can be omitted if using tableName and writing to warehouse)
       path: file.parquet
+      # Optional: If enabled, adding current timestamp suffix to path of the file
+      createUniquePath: true
+      # Optional: Abort writing an empty df to output OR updating external table in Hive with empty parquets.
+      protectFromEmptyOutput: true
       # partition by the following columns
       partitionBy:
         - col1
@@ -148,6 +152,12 @@ output:
       extraOptions:
         es.index.auto.create: false
   - outputType: Hudi
+    # Optional: If enabled, lag between current timestamp and max dataframe's time column (configurable) will be reported.
+    reportLag: true
+    # Optional: Column name that will be used for calculating the lag, supported types: (Long, Timestamp, Integer), must be provided if "reportLag" is enabled.
+    reportLagTimeColumn: Option[String]
+    # Optional: Represents time durations of the "reportLagTimeColumn" (Long or Integer), at a given unit of granularity, optional values: [MILLISECONDS (Default), SECONDS]
+    reportLagTimeColumnUnits: Option[String]
     outputOptions:
       path: path
       # The key to use for upserts
@@ -158,6 +168,8 @@ output:
       partitionBy: date
       # Hive table to save the results to
       tableName: test_table
+      # Optional: Table name that will be used for register hudi metrics
+      hudiTableName: test_table_hudi
       # Optional: Mapping of the above partitions to hive (for example if above is yyyy/MM/dd than the mapping should be year,month,day) - (default will be split by / of the partitionBy column)
       hivePartitions: year,month,day
       # Optional: Save mode to use (default to Append)

@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.metric
 
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.Streaming
@@ -10,13 +11,15 @@ import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWr
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.types.TimestampType
+import org.apache.spark.sql.{DataFrame, Dataset}
+import org.apache.spark.streaming.Seconds
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-case class StreamingWritingConfiguration(dataFrame: DataFrame, writers: ListBuffer[Writer] = ListBuffer.empty)
-
+case class StreamingWritingConfiguration(dataFrame: DataFrame, outputConfig: Output, writers: ListBuffer[Writer] = ListBuffer.empty)
+case class StreamingWriting(streamingWritingConfiguration: StreamingWritingConfiguration)
 case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
@@ -43,21 +46,27 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
-  private def writeStream(dataFrameName: String, writerConfig: StreamingWritingConfiguration,
-                          streamingConfig: Option[Streaming]): Unit = {
+  private def writeStream(dataFrameName: String,
+                          writerConfig: StreamingWritingConfiguration,
+                          streamingConfig: Option[Streaming],
+                          instrumentationProvider: InstrumentationProvider): Unit = {
     log.info(s"Starting to write streaming results of ${dataFrameName}")
-
     streamingConfig match {
       case Some(config) => {
         val streamWriter = writerConfig.dataFrame.writeStream
         config.applyOptions(streamWriter)
-
         config.batchMode match {
           case Some(true) => {
             val query = streamWriter.foreachBatch((batchDF: DataFrame, _: Long) => {
               writerConfig.writers.foreach(writer => writer.write(batchDF))
+              writerConfig.outputConfig.reportLag match {
+                case Some(true) =>  new MetricReporting().reportLagTime(batchDF, writerConfig.outputConfig.reportLagTimeColumn,
+                  writerConfig.outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
+                case _ =>
+              }
             }).start()
             query.awaitTermination()
+
             // Exit this function after streaming is completed
             return
           }
@@ -79,7 +88,7 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
   private def writeBatch(dataFrame: DataFrame,
                          dataFrameName: String,
                          writer: Writer,
-                         outputType: OutputType,
+                         outputConfig: Output,
                          instrumentationProvider: InstrumentationProvider,
                          cacheCountOnOutput: Option[Boolean]): Unit = {
 
@@ -90,16 +99,19 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
       }
       case _ => 0
     }
-    val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputType.toString)
+    val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName, "output_type" -> outputConfig.outputType.toString)
     instrumentationProvider.count(name="counter", value=dataFrameCount, tags=tags)
     log.info(s"Starting to Write results of ${dataFrameName}")
     try {
       writer.write(dataFrame)
-    }
-    catch {
+      outputConfig.reportLag match {
+        case Some(true) =>  new MetricReporting().reportLagTime(dataFrame, outputConfig.reportLagTimeColumn,
+          outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
+        case _ =>
+    } } catch {
       case ex: Exception => {
         throw MetorikkuWriteFailedException(s"Failed to write dataFrame: " +
-          s"$dataFrameName to output: ${outputType} on metric: ${metricName}", ex)
+          s"$dataFrameName to output: ${outputConfig.outputType} on metric: ${metricName}", ex)
       }
     }
   }
@@ -117,31 +129,45 @@ case class Metric(configuration: Configuration, metricDir: File, metricName: Str
     }
   }
 
+
   def write(job: Job): Unit = {
+
     configuration.output match {
       case Some(output) => {
-        val streamingWriterList: mutable.Map[String, StreamingWritingConfiguration] = mutable.Map()
-
+        val streamingWriterList: mutable.Map[String, StreamingWriting] = mutable.Map()
         output.foreach(outputConfig => {
           val writer = WriterFactory.get(outputConfig, metricName, job.config, job)
           val dataFrameName = outputConfig.dataFrameName
           val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
+
+          val outputOptions = Option(outputConfig.outputOptions).getOrElse(Map())
+          outputOptions.get("protectFromEmptyOutput").asInstanceOf[Option[Boolean]] match {
+            case Some(true) => {
+              if (dataFrame.head(1).isEmpty)  {
+                throw MetorikkuWriteFailedException(s"Abort writing dataframe: ${dataFrameName}, " +
+                  s"empty dataframe output is not allowed according to configuration")
+              }
+            }
+            case _ =>
+          }
+
           if (dataFrame.isStreaming) {
-            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWritingConfiguration(dataFrame))
-            streamingWriterConfig.writers += writer
+            val streamingWriterConfig = streamingWriterList.getOrElse(dataFrameName, StreamingWriting(StreamingWritingConfiguration(dataFrame, outputConfig)))
+            streamingWriterConfig.streamingWritingConfiguration.writers += writer
             streamingWriterList += (dataFrameName -> streamingWriterConfig)
           }
           else {
-            writeBatch(dataFrame, dataFrameName, writer,
-              outputConfig.outputType, job.instrumentationClient, job.config.cacheCountOnOutput)
+            writeBatch(dataFrame, dataFrameName, writer, outputConfig, job.instrumentationClient,
+              job.config.cacheCountOnOutput)
           }
         })
 
-        for ((dataFrameName, config) <- streamingWriterList) writeStream(dataFrameName, config, job.config.streaming)
+        for ((dataFrameName, streamingConfig) <- streamingWriterList) writeStream(dataFrameName,
+          streamingConfig.streamingWritingConfiguration, job.config.streaming, job.instrumentationClient)
+
       }
       case None =>
     }
   }
 }
-

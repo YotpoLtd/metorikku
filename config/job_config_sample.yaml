@@ -130,6 +130,13 @@ output:
     # Optional: credentials to hive
     hiveUserName: root
     hivePassword: pass
+    # Optional: toggle hudi hive sync
+    hiveSync: false
+    # Optional: enable metorikku to take control over the hive sync process (used in order to support Hive1)
+    manualHiveSync: true
+    # Optional: when manualHiveSync is enabled, you need to define your partitions manually here
+    manualHiveSyncPartitions:
+      part: 0
     # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
     options:
       ....

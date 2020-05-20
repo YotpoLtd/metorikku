@@ -1,0 +1,27 @@
+steps:
+- dataFrameName: hive_sync_test
+  sql:
+    SELECT *,
+    userId AS hoodie_key,
+    CAST(timestamp AS LONG) AS lag_timestamp,
+    'no_partitions' as test_partitions
+    FROM ratings
+- dataFrameName: rows_count
+  sql:
+    SELECT COUNT(*) AS rows_count
+    FROM hive_sync_test
+output:
+- dataFrameName: hive_sync_test
+  outputType: Hudi
+  reportLag: true
+  reportLagTimeColumn: lag_timestamp
+  reportLagTimeColumnUnits: SECONDS
+  outputOptions:
+    path: table_view_manual_hive_sync_no_partitions
+    keyColumn: hoodie_key
+    timeColumn: timestamp
+    tableName: manual_hive_sync
+    hudiTableName: manual_hive_sync_hudi
+    saveMode: Append
+- dataFrameName: rows_count
+  outputType: Instrumentation
