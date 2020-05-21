@@ -60,9 +60,28 @@ object SelectiveMerge {
   }
 
   def merge(df1: DataFrame, df2: DataFrame, joinKeys: Seq[String]): DataFrame = {
-    var mergedDf = outerJoinWithAliases(df1, df2, joinKeys)
-    mergedDf = overrideConflictingValues(df1, df2, mergedDf, joinKeys)
-    removeStaleEntries(df1, df2, mergedDf, joinKeys)
+    val df2NoStaleEntries = removeStaleEntries(df1, df2, joinKeys)
+    val mergedDf = outerJoinWithAliases(df1, df2NoStaleEntries, joinKeys)
+    overrideConflictingValues(df1, df2NoStaleEntries, mergedDf, joinKeys)
+  }
+
+  def removeStaleEntries(df1: DataFrame, df2: DataFrame, joinKeys: Seq[String]): DataFrame = {
+    var df2New = df2
+    for (key <- joinKeys) {
+      val diff = df2.select(col(key)).except(df1.select(col(key)))
+      var toRemoveBuff = new ListBuffer[Row]()
+
+      val localIter = diff.toLocalIterator()
+      while(localIter.hasNext) {
+        toRemoveBuff += localIter.next()
+      }
+
+      val toRemove = toRemoveBuff.toList.map(r => r.getAs[String](key))
+
+      df2New = df2New.filter(!df2New(key).isin(toRemove:_*))
+    }
+
+    df2New
   }
 
   def outerJoinWithAliases(df1: DataFrame, df2: DataFrame, joinKeys: Seq[String]): DataFrame = {
@@ -127,24 +146,5 @@ object SelectiveMerge {
         }
       }: _*
     )
-  }
-
-  def removeStaleEntries(df1: DataFrame, df2: DataFrame, mergedDf: DataFrame, joinKeys: Seq[String]): DataFrame = {
-    var mergedDfBuilder = mergedDf
-    for (key <- joinKeys) {
-      val diff = df2.select(col(key)).except(df1.select(col(key)))
-      var toRemoveBuff = new ListBuffer[Row]()
-
-      val localIter = diff.toLocalIterator()
-      while(localIter.hasNext) {
-        toRemoveBuff += localIter.next()
-      }
-
-      val toRemove = toRemoveBuff.toList.map(r => r.getAs[String](key))
-
-      mergedDfBuilder = mergedDfBuilder.filter(!mergedDfBuilder(key).isin(toRemove:_*))
-    }
-
-    mergedDfBuilder
   }
 }

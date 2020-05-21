@@ -4,7 +4,6 @@ import com.yotpo.metorikku.code.steps.SelectiveMerge
 import com.yotpo.metorikku.code.steps.SelectiveMerge.merge
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.scalatest.{FunSuite, _}
