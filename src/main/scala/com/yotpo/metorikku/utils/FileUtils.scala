@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.utils
 
 import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
+import java.net.URI
 import java.util.stream.Collectors
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
@@ -58,17 +59,23 @@ object FileUtils {
   }
 
   def readConfigurationFile(path: String): String = {
-    val fileContents = Source.fromFile(path).getLines.mkString("\n")
-    val interpolationMap = System.getProperties().asScala ++= System.getenv().asScala
-    StringSubstitutor.replace(fileContents, interpolationMap.asJava)
+    val envAndSystemProperties = System.getProperties().asScala ++= System.getenv().asScala
+    val prefix = envAndSystemProperties.get("CONFIG_FILES_PATH_PREFIX") match {
+      case Some(prefix) => prefix
+      case _ => ""
+    }
+
+    val fileContents = readFileWithHadoop(prefix + path)
+    StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
   }
 
-  def readFileWithHadoop(path: String, sparkSession: SparkSession): String = {
+  def readFileWithHadoop(path: String): String = {
+    val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
+
     val file = new Path(path)
-    val hadoopConf = sparkSession.sessionState.newHadoopConf()
     val fs = file.getFileSystem(hadoopConf)
     val fsFile = fs.open(file)
     val reader = new BufferedReader(new InputStreamReader(fsFile))
-    reader.lines.collect(Collectors.joining)
+    reader.lines.collect(Collectors.joining("\n"))
   }
 }
