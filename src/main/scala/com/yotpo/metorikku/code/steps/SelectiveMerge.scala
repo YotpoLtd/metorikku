@@ -3,8 +3,10 @@ package com.yotpo.metorikku.code.steps
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{LogManager, Logger}
 import org.apache.spark.sql.catalyst.expressions.NamedExpression
-import org.apache.spark.sql.{Column, DataFrame}
+import org.apache.spark.sql.{Column, DataFrame, Row}
 import org.apache.spark.sql.functions._
+
+import scala.collection.mutable.ListBuffer
 
 object SelectiveMerge {
   private val message = "You need to send 3 parameters with the names of the dataframes to merge and the key(s) to merge on" +
@@ -58,8 +60,9 @@ object SelectiveMerge {
   }
 
   def merge(df1: DataFrame, df2: DataFrame, joinKeys: Seq[String]): DataFrame = {
-    val mergedDf = outerJoinWithAliases(df1, df2, joinKeys)
-    overrideConflictingValues(df1, df2, mergedDf, joinKeys)
+    var mergedDf = outerJoinWithAliases(df1, df2, joinKeys)
+    mergedDf = overrideConflictingValues(df1, df2, mergedDf, joinKeys)
+    removeStaleEntries(df1, df2, mergedDf, joinKeys)
   }
 
   def outerJoinWithAliases(df1: DataFrame, df2: DataFrame, joinKeys: Seq[String]): DataFrame = {
@@ -124,5 +127,24 @@ object SelectiveMerge {
         }
       }: _*
     )
+  }
+
+  def removeStaleEntries(df1: DataFrame, df2: DataFrame, mergedDf: DataFrame, joinKeys: Seq[String]): DataFrame = {
+    var mergedDfBuilder = mergedDf
+    for (key <- joinKeys) {
+      val diff = df2.select(col(key)).except(df1.select(col(key)))
+      var toRemoveBuff = new ListBuffer[Row]()
+
+      val localIter = diff.toLocalIterator()
+      while(localIter.hasNext) {
+        toRemoveBuff += localIter.next()
+      }
+
+      val toRemove = toRemoveBuff.toList.map(r => r.getAs[String](key))
+
+      mergedDfBuilder = mergedDfBuilder.filter(!mergedDfBuilder(key).isin(toRemove:_*))
+    }
+
+    mergedDfBuilder
   }
 }

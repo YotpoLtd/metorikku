@@ -54,47 +54,36 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     showString.invoke(df, 10.asInstanceOf[Object], 20.asInstanceOf[Object], false.asInstanceOf[Object]).asInstanceOf[String]
   }
 
-  test("Selective merge") {
+  test("Equal number of columns") {
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
     import sqlContext.implicits._
 
     val employeeData1 = Seq(
-      ("James", 1, 11, 111, 1111),
-      ("Maria", 2, 22, 222, 2222)
+      ("James", 20, 10000),
+      ("Maria", 30, 20000)
     )
-    val df1 = employeeData1.toDF("employee_name", "salary", "age", "fake", "fake2")
+    val df1 = employeeData1.toDF("employee_name", "age", "salary")
 
     val employeeData2 = Seq(
-      ("James", 1, 33, 333),
-      ("Jen",   4, 44, 444),
-      ("Jeff",  5, 55, 555)
+      ("James", 21, 1),
+      ("Jen",   40, 2)
     )
-    val df2 = employeeData2.toDF("employee_name", "salary", "age", "bonus")
+    val df2 = employeeData2.toDF("employee_name", "age", "new_formula")
 
     val simpleDataExpectedAfterMerge = Seq(
-      ("James", new Integer(1) /* Salary */, new Integer(33) /* age */, new Integer(111) /* fake */,
-        new Integer(1111) /* fake2 */, new Integer(333) /* bonus */),
-      ("Maria", new Integer(2) /* Salary */, new Integer(22) /* age */, new Integer(222) /* fake */,
-        new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */),
-      ("Jen", new Integer(4) /* Salary */, new Integer(44) /* age */, null.asInstanceOf[Integer] /* fake */,
-        null.asInstanceOf[Integer] /* fake2 */, new Integer(444) /* bonus */),
-      ("Jeff", new Integer(5) /* Salary */, new Integer(55) /* age */, null.asInstanceOf[Integer] /* fake */,
-        null.asInstanceOf[Integer] /* fake2 */, new Integer(555) /* bonus */)
+      ("James", new Integer(21) /* age */, new Integer(10000) /* salary */, new Integer(1) /* new formula */),
+      ("Maria", new Integer(30) /* age */, new Integer(20000) /* salary */, null.asInstanceOf[Integer] /* new_formula */)
     )
-    val expectedDf = simpleDataExpectedAfterMerge.toDF("employee_name", "salary", "age", "fake", "fake2", "bonus")
+    val expectedDf = simpleDataExpectedAfterMerge.toDF("employee_name", "age", "salary", "new_formula")
 
     val simpleDataNotExpectedAfterMerge = Seq(
-      ("James", new Integer(10) /* Salary */, new Integer(33) /* age */, new Integer(111) /* fake */,
-        new Integer(1111) /* fake2 */, new Integer(333) /* bonus */),
-      ("Maria", new Integer(20) /* Salary */, new Integer(22) /* age */, new Integer(222) /* fake */,
-        new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */),
-      ("Jen", new Integer(40) /* Salary */, new Integer(44) /* age */, null.asInstanceOf[Integer] /* fake */,
-        null.asInstanceOf[Integer] /* fake2 */, new Integer(444) /* bonus */),
-      ("Jeff", new Integer(50) /* Salary */, new Integer(55) /* age */, null.asInstanceOf[Integer] /* fake */,
-        null.asInstanceOf[Integer] /* fake2 */, new Integer(555) /* bonus */)
+      ("James", new Integer(10) /* age */, new Integer(33) /* salary */, new Integer(111) /* new formula */),
+      ("Maria", new Integer(20) /* age */, new Integer(22) /* salary */, new Integer(222) /* new formula */),
+      ("Jen", new Integer(40) /* age */, new Integer(44) /* salary */, null.asInstanceOf[Integer] /* new formula */),
+      ("Jeff", new Integer(50) /* age */, new Integer(55) /* salary */, null.asInstanceOf[Integer] /* new formula */)
     )
-    val notExpectedDf = simpleDataNotExpectedAfterMerge.toDF("employee_name", "salary", "age", "fake", "fake2", "bonus")
+    val notExpectedDf = simpleDataNotExpectedAfterMerge.toDF("employee_name", "age", "salary", "new_formula")
 
     val mergedDf = merge(df1, df2, Seq("employee_name"))
 
@@ -102,7 +91,7 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     assertSuccess(mergedDf, notExpectedDf, isEqual = false)
   }
 
-  test("String and numbers mixed fields") {
+  test("Df2 has more columns") {
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
     import sqlContext.implicits._
@@ -124,11 +113,7 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
       ("James", "Sharon" /* Last Name */, new Integer(1) /* Salary */, new Integer(33) /* age */,
         new Integer(111) /* fake */, new Integer(1111) /* fake2 */, new Integer(333) /* bonus */),
       ("Maria", "Bob" /* Last Name */, null.asInstanceOf[Integer] /* Salary */, new Integer(22) /* age */,
-        new Integer(222) /* fake */, new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */),
-      ("Jen", null.asInstanceOf[String] /* Last Name */, new Integer(4) /* Salary */, new Integer(44) /* age */,
-        null.asInstanceOf[Integer] /* fake */, null.asInstanceOf[Integer] /* fake2 */, new Integer(444) /* bonus */),
-      ("Jeff", null.asInstanceOf[String] /* Last Name */, new Integer(5) /* Salary */, new Integer(55) /* age */,
-        null.asInstanceOf[Integer] /* fake */, null.asInstanceOf[Integer] /* fake2 */, new Integer(555) /* bonus */)
+        new Integer(222) /* fake */, new Integer(2222) /* fake2 */, null.asInstanceOf[Integer] /* bonus */)
     )
     val expectedDf = simpleDataExpectedAfterMerge.toDF("employee_name", "last_name", "salary", "age", "fake", "fake2", "bonus")
 
@@ -137,7 +122,7 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
     assertSuccess(mergedDf, expectedDf, isEqual = true)
   }
 
-  test("df2 has more columns") {
+  test("df1 has more columns") {
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
     import sqlContext.implicits._
@@ -160,8 +145,6 @@ class SelectiveMergeTests extends FunSuite with BeforeAndAfterEach {
         new Integer(333) /* Bonus */, new Integer(3333) /* fake */),
       ("Maria", new Integer(2) /* Salary */, new Integer(22) /* age */,
         null.asInstanceOf[Integer] /* Bonus */, null.asInstanceOf[Integer] /* fake */),
-      ("Jen",   new Integer(4) /* Salary */, new Integer(44) /* age */,
-        new Integer(444) /* Bonus */, new Integer(4444) /* fake */),
       ("Albert", new Integer(3) /* Salary */, new Integer(33) /* age */,
         null.asInstanceOf[Integer] /* Bonus */, null.asInstanceOf[Integer] /* fake */)
     )
