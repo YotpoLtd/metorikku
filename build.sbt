@@ -65,7 +65,8 @@ libraryDependencies ++= Seq(
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.2-incubating" % "provided" excludeAll excludeFasterXML,
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
-  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll)
+  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll),
+  "com.amazon.deequ" % "deequ" % "1.0.2"
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306

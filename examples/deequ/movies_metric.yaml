@@ -1,0 +1,26 @@
+steps:
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT userid,
+           movies.movieid,
+           rating,
+           timestamp,
+           title,
+           genres
+    FROM ratings
+    JOIN movies ON ratings.movieid = movies.movieid
+- dataFrameName: moviesWithRatings
+  dq:
+  - column: userid
+    checks:
+    - completeness
+  - column: movieid
+    checks:
+    - completeness
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: moviesWithRatings.parquet
+    createUniquePath: true
