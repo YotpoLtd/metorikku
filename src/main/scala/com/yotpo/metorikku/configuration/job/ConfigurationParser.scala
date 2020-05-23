@@ -1,7 +1,5 @@
 package com.yotpo.metorikku.configuration.job
 
-import java.nio.file.{Files, Paths}
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
@@ -22,14 +20,6 @@ object ConfigurationParser {
     opt[String]('c', "config")
       .text("Path to the job config file (YAML/JSON)")
       .action((x, c) => c.copy(filename = Option(x)))
-      .validate(x => {
-        if (Files.exists(Paths.get(x))) {
-          success
-        }
-        else {
-          failure("Supplied file not found")
-        }
-      })
     help("help") text "use command line arguments to specify the configuration file path or content"
   }
 
