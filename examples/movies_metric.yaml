@@ -19,15 +19,7 @@ steps:
     FROM moviesWithRatings
     WHERE genres LIKE '%Fantasy%'
 - dataFrameName: topFantasyMovies
-  sql:
-    SELECT movieId,
-           title,
-           avg(rating) AS averageRating
-    FROM fantasyMoviesWithRatings
-    GROUP BY movieId,
-             title
-    ORDER BY averageRating DESC
-    LIMIT 100
+  file: topFantasyMovies.sql
 - dataFrameName: myFavoriteMovieRated
   sql:
     SELECT *

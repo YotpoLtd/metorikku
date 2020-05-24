@@ -26,8 +26,14 @@ class MetricSet(metricSet: String, write: Boolean = true) {
 
   def parseMetrics(metricSet: String): Seq[Metric] = {
     log.info(s"Starting to parse metricSet")
-    val metricsToCalculate = FileUtils.getListOfFiles(metricSet)
-    metricsToCalculate.filter(ConfigurationParser.isValidFile(_)).map(ConfigurationParser.parse(_))
+
+    FileUtils.isLocalDirectory(metricSet) match {
+      case true => {
+        val metricsToCalculate = FileUtils.getListOfLocalFiles(metricSet)
+        metricsToCalculate.filter(ConfigurationParser.isValidFile(_)).map(f => ConfigurationParser.parse(f.getPath))
+      }
+      case false => Seq(ConfigurationParser.parse(metricSet))
+    }
   }
 
   def run(job: Job) {
