@@ -2,7 +2,7 @@ package com.yotpo.metorikku.metric
 
 import java.util.concurrent.TimeUnit
 
-import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
+import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuWriteFailedException}
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
@@ -18,10 +18,11 @@ class MetricReporting {
         try {
           reportLagTimeColumnUnits match {
             case Some(units) => TimeUnit.valueOf(units) match {
-              case TimeUnit.SECONDS => TimeUnit.SECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
-              case TimeUnit.MILLISECONDS => TimeUnit.MILLISECONDS.toMillis(dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getLong(0))
+              case TimeUnit.MILLISECONDS => TimeUnit.MILLISECONDS.toMillis(dataFrame.agg({timeColumn -> "max"}).collect()(0).getLong(0))
+              case TimeUnit.SECONDS => TimeUnit.SECONDS.toMillis(dataFrame.agg({timeColumn -> "max"}).collect()(0).getLong(0))
+              case _ => throw MetorikkuException("Unsupported time unit type " + TimeUnit.valueOf(units))
             }
-            case _=> dataFrame.agg({timeColumn.toString -> "max"}).collect()(0).getTimestamp(0).getTime()
+            case _ => dataFrame.agg({timeColumn -> "max"}).collect()(0).getTimestamp(0).getTime()
           }
         } catch {
           case e: ClassCastException => throw new ClassCastException(s"Lag instrumentation column -${timeColumn} " +

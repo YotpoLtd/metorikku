@@ -28,7 +28,6 @@ class MetricReporterTester extends FunSuite with BeforeAndAfterEach {
       StructField("updated_at", TimestampType, true)))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
     val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
     val metricReport = new MetricReporting()
     val maxUpdatedAt = metricReport.getMaxDataframeTime(df, Option("updated_at"), None)
@@ -70,7 +69,6 @@ class MetricReporterTester extends FunSuite with BeforeAndAfterEach {
       StructField("updated_at", TimestampType, true)))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
 
     val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
     val metricReport = new MetricReporting()
