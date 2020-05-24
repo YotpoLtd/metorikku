@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+sbt test
+
 # Metorikku main test example
 java -Dspark.master=local[*] -cp target/scala-2.11/metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml
 # Metorikku kafka test example
