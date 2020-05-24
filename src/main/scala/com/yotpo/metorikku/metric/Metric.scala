@@ -1,26 +1,22 @@
 package com.yotpo.metorikku.metric
 
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.metric.{Configuration, Output}
-import com.yotpo.metorikku.configuration.metric.OutputType.OutputType
 import com.yotpo.metorikku.exceptions.{MetorikkuFailedStepException, MetorikkuWriteFailedException}
 import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.output.{Writer, WriterFactory}
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.types.TimestampType
-import org.apache.spark.sql.{DataFrame, Dataset}
-import org.apache.spark.streaming.Seconds
+import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 case class StreamingWritingConfiguration(dataFrame: DataFrame, outputConfig: Output, writers: ListBuffer[Writer] = ListBuffer.empty)
 case class StreamingWriting(streamingWritingConfiguration: StreamingWritingConfiguration)
-case class Metric(configuration: Configuration, metricDir: File, metricName: String) {
+case class Metric(configuration: Configuration, metricDir: Option[File], metricName: String) {
   val log = LogManager.getLogger(this.getClass)
 
   def calculate(job: Job): Unit = {

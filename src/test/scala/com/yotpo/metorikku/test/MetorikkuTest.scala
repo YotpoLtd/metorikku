@@ -42,7 +42,7 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     val thrown = intercept[FileNotFoundException] {
       Metorikku.main(Array("-c", "src/test/scala/com/yotpo/metorikku/test/metorikku-test-config-invalid-metrics.yaml"))
     }
-    assert(thrown.getMessage.startsWith("No Files to Run"))
+    assert(thrown.getMessage.endsWith("does not exist"))
 
   }
 

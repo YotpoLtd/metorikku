@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.configuration.metric
 
-import java.io.File
+import java.io.{File, FileNotFoundException}
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
@@ -20,15 +20,20 @@ object ConfigurationParser {
     validExtensions.contains(extension)
   }
 
-  def parse(path: File): Metric = {
-    val fileName: String = path.getName
-    val metricDir: File = path.getParentFile
+  def parse(path: String): Metric = {
+    val hadoopPath = FileUtils.getHadoopPath(path)
+    val fileName = hadoopPath.getName
+    val metricDir = FileUtils.isLocalFile(path) match {
+      case true => Option(new File(path).getParentFile)
+      case false => None
+    }
 
     log.info(s"Initializing Metric file $fileName")
     try {
-      val metricConfig = parseFile(path.getPath)
+      val metricConfig = parseFile(path)
       Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
     } catch {
+      case e: FileNotFoundException => throw e
       case e: Exception => throw MetorikkuInvalidMetricFileException(s"Failed to parse metric file $fileName", e)
     }
   }

@@ -1,24 +1,29 @@
 package com.yotpo.metorikku.utils
 
 import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
-import java.net.URI
 import java.util.stream.Collectors
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.text.StringSubstitutor
-import org.apache.hadoop.fs.Path
+import org.apache.hadoop.fs.{FSDataInputStream, FileSystem, Path}
 import org.apache.spark.sql.SparkSession
-import org.json4s.DefaultFormats
-import org.json4s.native.JsonMethods
 
-import scala.io.Source
 import scala.collection.JavaConverters._
 
+case class HadoopPath(path: Path, fs: FileSystem) {
+  def open: FSDataInputStream = {
+    fs.open(path)
+  }
+
+  def getName: String = {
+    path.getName
+  }
+}
+
 object FileUtils {
-  def getListOfFiles(dir: String): List[File] = {
+  def getListOfLocalFiles(dir: String): List[File] = {
     val d = new File(dir)
     if (d.isDirectory) {
       d.listFiles.filter(_.isFile).toList
@@ -27,23 +32,6 @@ object FileUtils {
     } else {
       throw new FileNotFoundException(s"No Files to Run ${dir}")
     }
-  }
-
-  def jsonFileToObject[T: Manifest](file: File): T = {
-    implicit val formats = DefaultFormats
-    val jsonString = scala.io.Source.fromFile(file).mkString
-
-    try {
-      val json = JsonMethods.parse(jsonString)
-      json.extract[T]
-    } catch {
-      case cast: ClassCastException => throw MetorikkuException(s"Failed to cast json file " + file, cast)
-      case other: Throwable => throw other
-    }
-  }
-
-  def getContentFromFileAsString(file: File): String = {
-    scala.io.Source.fromFile(file).mkString //    //By scala.io. on read spark fail with legit error when path does not exists
   }
 
   def getObjectMapperByExtension(extension: String): Option[ObjectMapper] = {
@@ -69,13 +57,31 @@ object FileUtils {
     StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
   }
 
-  def readFileWithHadoop(path: String): String = {
+
+
+  def getHadoopPath(path: String): HadoopPath = {
     val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
 
     val file = new Path(path)
+
     val fs = file.getFileSystem(hadoopConf)
-    val fsFile = fs.open(file)
+    HadoopPath(file, fs)
+  }
+
+  def readFileWithHadoop(path: String): String = {
+    val hadoopPath = getHadoopPath(path)
+
+    val fsFile = hadoopPath.open
+
     val reader = new BufferedReader(new InputStreamReader(fsFile))
     reader.lines.collect(Collectors.joining("\n"))
+  }
+
+  def isLocalDirectory(path: String): Boolean = {
+    new File(path).isDirectory
+  }
+
+  def isLocalFile(path: String): Boolean = {
+    new File(path).isFile
   }
 }

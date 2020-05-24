@@ -9,7 +9,7 @@ import com.yotpo.metorikku.metric.stepActions.Code
 import com.yotpo.metorikku.utils.FileUtils
 
 object StepFactory {
-  def getStepAction(configuration: Step, metricDir: File, metricName: String,
+  def getStepAction(configuration: Step, metricDir: Option[File], metricName: String,
                     showPreviewLines: Int, cacheOnPreview: Option[Boolean],
                     showQuery: Option[Boolean]): StepAction[_] = {
     configuration.sql match {
@@ -17,8 +17,12 @@ object StepFactory {
       case None => {
         configuration.file match {
           case Some(filePath) =>
+            val path = metricDir match {
+              case Some(dir) => new File(dir, filePath).getPath
+              case _ => filePath
+            }
             Sql(
-              FileUtils.readConfigurationFile(new File(metricDir, filePath).getPath),
+              FileUtils.readConfigurationFile(path),
               configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery
             )
           case None => {
