@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
-import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.{HasSize}
+import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasSize
+import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -29,7 +30,7 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
     dqCheckDefinitionList.runChecks(dfName)
   }
 
-  test("has_size with assertion 2 == on a data frame size of 3 with level error should raise exception") {
+  test("has_size with assertion 2 == on a data frame size of 3 with level error should raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
       ("Maria", 2, new Integer(22), 222, 2222),
@@ -43,7 +44,7 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
 
-  test("has_size with assertion 2 == on a data frame size of 2 with level error should not raise exception") {
+  test("has_size with assertion 2 == on a data frame size of 2 with level error should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, new Integer(11), 111, 1111),
       ("Maria", 2, new Integer(22), 222, 2222)
@@ -53,7 +54,7 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
     valideHasSizeOverDf(employeeData, level)
   }
 
-  test("has_size with assertion 2 == on a data frame size of 3 with level warn should not raise exception") {
+  test("has_size with assertion 2 == on a data frame size of 3 with level warn should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
       ("Maria", 2, new Integer(22), 222, 2222),

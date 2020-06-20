@@ -1,8 +1,9 @@
-ARG SPARK_VERSION=latest
+ARG IMAGE_NAME=metorikku/spark:k8s
+FROM ${IMAGE_NAME}
 
-FROM metorikku/spark:$SPARK_VERSION
-
-ARG METORIKKU_JAR=target/scala-2.11/metorikku.jar
+ARG SCALA_VERSION=2.12
+ARG METORIKKU_JAR=target/scala-${SCALA_VERSION}/metorikku.jar
 
 ADD $METORIKKU_JAR /
+ADD examples ${SPARK_HOME}/work-dir/examples/
 ADD examples /examples/

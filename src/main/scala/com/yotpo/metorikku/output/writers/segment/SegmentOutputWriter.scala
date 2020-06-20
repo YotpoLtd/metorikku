@@ -8,7 +8,7 @@ import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
 import com.yotpo.metorikku.configuration.job.output.Segment
 import com.yotpo.metorikku.instrumentation.InstrumentationFactory
 import com.yotpo.metorikku.output.Writer
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.functions._
 
 class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment], instrumentationFactory: InstrumentationFactory) extends Writer {
@@ -31,11 +31,9 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
         val columns = dataFrame.columns.filter(_ != segmentOutputOptions.keyColumn)
         segmentOutputOptions.batchSize match {
           case 0 =>
-            dataFrame.toJSON.foreachPartition(
-              part => {
+            dataFrame.toJSON.foreachPartition { part: Iterator[String] =>
                 writeEvents(segmentApiKey, part)
-              }
-            )
+            }
           case _ =>
             dataFrame.select(to_json(struct("*"))).rdd.cache().toLocalIterator.grouped(segmentOutputOptions.batchSize).foreach(
               part => {

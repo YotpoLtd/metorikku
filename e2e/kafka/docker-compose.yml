@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example.yaml
+      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example.yaml
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:

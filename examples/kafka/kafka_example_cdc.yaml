@@ -17,7 +17,7 @@ output:
     storageType: COPY_ON_WRITE
     maxVersions: 2
     hiveDB: default
-    hiveJDBCURL: jdbc:hive2://hive:10000/;auth=noSasl
+    hiveSync: true
 
 streaming:
   triggerMode: Once
