@@ -19,7 +19,7 @@ case class Job(val config: Configuration) {
   // Set up instrumentation
   val instrumentationFactory = InstrumentationProvider.getInstrumentationFactory(
     config.appName, config.instrumentation)
-  UserMetricsSystem.initialize(sparkContext, "Metorikku")
+//  UserMetricsSystem.initialize(sparkContext, "Metorikku")
 
   val instrumentationClient = instrumentationFactory.create()
   sparkContext.addSparkListener(new SparkListener() {

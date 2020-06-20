@@ -64,7 +64,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
   // scalastyle:off method.length
   override def write(dataFrame: DataFrame): Unit = {
 
-    if (dataFrame.head(1).isEmpty) {
+    if (dataFrame.cache().head(1).isEmpty) {
       log.info("Skipping writing to hudi on empty dataframe")
       return
     }

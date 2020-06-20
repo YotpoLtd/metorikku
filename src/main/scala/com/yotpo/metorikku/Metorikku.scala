@@ -5,12 +5,16 @@ import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
 import com.yotpo.metorikku.configuration.job.{ConfigurationParser, Periodic}
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
+import org.apache.spark.groupon.metrics.UserMetricsSystem
+import org.apache.spark.sql.SparkSession
 
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
 
   val configurations = ConfigurationParser.parse(args)
+
+  UserMetricsSystem.initialize(SparkSession.builder().getOrCreate().sparkContext, "Metorikku")
 
   val jobs = configurations.map(config =>
     new Runnable {
