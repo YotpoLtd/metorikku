@@ -85,13 +85,13 @@ services:
       - mysql
   # Spark Resources
   spark-master:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-worker.sh
     logging:
@@ -108,9 +108,9 @@ services:
       - SCHEMA_REGISTRY_LISTENERS=http://schema-registry:8081
   # Spark job: Read from CDC Kafka topic, Deserialize according to schema registry, Write to Hudi output
   spark-submit:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar,https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.5,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0,org.apache.kafka:kafka_2.11:2.2.0 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
+      - SUBMIT_COMMAND=spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar,https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.2.2/abris_2.11-3.2.2.jar --packages io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/kafka/kafka_example_cdc.yaml
       - HIVE_METASTORE_URI=hive:9083
     entrypoint:
       - /scripts/entrypoint-submit.sh
@@ -142,9 +142,9 @@ services:
 #      - 9083:9083
   # Hive test: Select from hive table and assert over the result
   hive-tester:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.sql.warehouse.dir=/warehouse --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings /test_metrics/hive_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/

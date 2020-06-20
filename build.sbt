@@ -6,89 +6,99 @@ scmInfo := Some(
   ScmInfo(url("https://github.com/YotpoLtd/metorikku"),
     "scm:git:git@github.com:YotpoLtd/metorikku.git"))
 developers := List(
-  Developer(id="amitco1", name="Amit Cohen", email="", url=url("http://www.yotpo.com")),
-  Developer(id="avichay", name="Avichay Etzioni", email="", url=url("http://www.yotpo.com")),
-  Developer(id="dporat", name="Doron Porat", email="", url=url("http://www.yotpo.com")),
-  Developer(id="etrabelsi", name="Eyal Trabelsi", email="", url=url("http://www.yotpo.com")),
-  Developer(id="lyogev", name="Liran Yogev", email="", url=url("http://www.yotpo.com")),
-  Developer(id="ofirventura", name="Ofir Ventura", email="", url=url("http://www.yotpo.com")),
-  Developer(id="nuriyan", name="Nadav Bar Uriyan", email="", url=url("http://www.yotpo.com")),
-  Developer(id="ronbarab", name="Ron Barabash", email="", url=url("http://www.yotpo.com")),
-  Developer(id="shirbr", name="Shir Bromberg", email="", url=url("http://www.yotpo.com"))
+  Developer(id="Yotpo", name="Yotpo", email="", url=url("http://www.yotpo.com"))
 )
 
-scalaVersion := "2.11.12"
-val sparkVersion = Option(System.getProperty("sparkVersion")).getOrElse("2.4.5")
-val jacksonVersion = "2.9.9"
+crossScalaVersions := Seq(
+  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11"),
+  Option(System.getenv("SPARK2_SCALA_VERSION")).getOrElse("2.11.12"))
+scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11")
+
+val sparkVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.0.0")
+    case _ => Option(System.getenv("SPARK2_VERSION")).getOrElse("2.4.5")
+  }
+}
+
+val jacksonVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("JACKSON_VERSION")).getOrElse("2.10.0")
+    case _ => Option(System.getenv("SPARK2_JACKSON_VERSION")).getOrElse("2.9.9")
+  }
+}
+
+testOptions in Test := {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
+    case _ => Seq()
+  }
+}
+
+libraryDependencies ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor == 11 => Seq("com.databricks" %% "spark-redshift" % "3.0.0-preview1" excludeAll excludeAvro)
+    case _ => Seq()
+  }
+}
 
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
 lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
 lazy val excludeAvro = ExclusionRule(organization = "org.apache.avro", name = "avro")
 lazy val excludeSpark = ExclusionRule(organization = "org.apache.spark")
-lazy val excludeFasterXML = ExclusionRule(organization = "com.fasterxml.jackson.module", name= "jackson-module-scala_2.12")
-lazy val excludeMetricsCore = ExclusionRule(organization = "io.dropwizard.metrics", name= "metrics-core")
 lazy val excludeLog4j = ExclusionRule(organization = "org.apache.logging.log4j")
 lazy val excludeParquet = ExclusionRule(organization = "org.apache.parquet")
+lazy val excludeScalanlp = ExclusionRule(organization = "org.scalanlp")
+
 
 libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-sql" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-hive" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion % "provided" excludeAll(excludeJpountz),
-  "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
-  "org.apache.spark" %% "spark-avro" % sparkVersion % "provided",
-  "com.datastax.spark" %% "spark-cassandra-connector" % "2.4.2",
-  "com.holdenkarau" %% "spark-testing-base" % "2.4.3_0.12.0" % "test",
-  "com.github.scopt" %% "scopt" % "3.6.0",
-  "RedisLabs" % "spark-redis" % "0.3.2",
-  "org.json4s" %% "json4s-native" % "3.5.2",
-  "io.netty" % "netty-all" % "4.1.32.Final",
-  "io.netty" % "netty" % "3.10.6.Final",
-  "com.google.guava" % "guava" % "16.0.1",
-  "com.typesafe.play" %% "play-json" % "2.6.2",
-  "com.databricks" %% "spark-redshift" % "3.0.0-preview1" excludeAll excludeAvro,
-  "com.amazon.redshift" % "redshift-jdbc42" % "1.2.1.1001",
-  "com.segment.analytics.java" % "analytics" % "2.0.0",
-  "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",
-  "org.scala-lang" % "scala-compiler" % "2.11.12",
-  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion,
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
-  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion,
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion,
-  "com.groupon.dse" % "spark-metrics" % "2.0.0" excludeAll excludeMetricsCore,
-  "org.apache.commons" % "commons-text" % "1.6",
-  "org.influxdb" % "influxdb-java" % "2.14",
-  "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
-  "za.co.absa" % "abris_2.11" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
-  "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.2-incubating" % "provided" excludeAll excludeFasterXML,
-  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
-  "org.apache.avro" % "avro" % "1.8.2" % "provided",
-  "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll, excludeLog4j, excludeParquet),
-  "org.apache.hadoop" % "hadoop-aws" % "2.7.3" % "provided",
-  "com.amazon.deequ" % "deequ" % "1.0.4" excludeAll(excludeSpark)
-)
+  "org.apache.spark" %% "spark-core" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-sql" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-mllib" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-hive" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-streaming" % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-avro" % sparkVersion.value % "provided",
 
-// Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
-dependencyOverrides += "com.databricks" %% "spark-avro" % "4.0.0"
-dependencyOverrides += "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion
-dependencyOverrides += "com.fasterxml.jackson.module" % "jackson-module-scala" % jacksonVersion
-dependencyOverrides += "org.apache.avro" %% "avro" % "1.8.2"
+  "com.holdenkarau" %% "spark-testing-base" % "2.4.5_0.14.0" % "test" excludeAll excludeSpark,
+
+  "com.github.scopt" %% "scopt" % "3.7.1",
+  "org.scala-lang" % "scala-library" % scalaVersion.value,
+  "com.typesafe.play" %% "play-json" % "2.7.4",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion.value,
+  "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion.value,
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion.value,
+  "com.fasterxml.jackson.core" % "jackson-databind" % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
+  "org.apache.commons" % "commons-text" % "1.8",
+  "org.influxdb" % "influxdb-java" % "2.19",
+  // Wait for https://github.com/spark-redshift-community/spark-redshift/pull/72
+  //  "io.github.spark-redshift-community" %% "spark-redshift" % "4.0.1",
+  "com.segment.analytics.java" % "analytics" % "2.1.1" % "provided",
+  "com.amazon.redshift" % "redshift-jdbc42" % "1.2.41.1065" % "provided",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
+  "com.redislabs" %% "spark-redis" % "2.5.0" % "provided",
+  "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
+  "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
+  "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
+  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
+  "com.amazon.deequ" % "deequ" % "1.0.4" excludeAll(excludeSpark, excludeScalanlp),
+  "org.apache.avro" % "avro" % "1.8.2" % "provided"
+)
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("public"),
   Resolver.bintrayRepo("spark-packages", "maven"),
-  "redshift" at "http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release",
-  "confluent" at "http://packages.confluent.io/maven/"
+  "redshift" at "https://s3.amazonaws.com/redshift-maven-repository/release",
+  "confluent" at "https://packages.confluent.io/maven/"
 )
 
 fork := true
+
 javaOptions in Test ++= Seq("-Dspark.master=local[*]", "-Dspark.sql.session.timeZone=UTC", "-Duser.timezone=UTC")
-scalacOptions += "-target:jvm-1.8"
-javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
+
 
 // Assembly settings
 Project.inConfig(Test)(baseAssemblySettings)
@@ -114,13 +124,12 @@ assemblyMergeStrategy in assembly := {
 assemblyShadeRules in (Test, assembly) := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
-assemblyJarName in assembly := "metorikku.jar"
-assemblyJarName in (Test, assembly) := s"${name.value}-standalone.jar"
+assemblyJarName in assembly := s"metorikku_${scalaBinaryVersion.value}.jar"
+assemblyJarName in (Test, assembly) := s"${name.value}-standalone_${scalaBinaryVersion.value}.jar"
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(cacheOutput = false)
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(cacheUnzip = false)
 assemblyOption in (Test, assembly) := (assemblyOption in (Test, assembly)).value.copy(cacheOutput = false)
 assemblyOption in (Test, assembly) := (assemblyOption in (Test, assembly)).value.copy(cacheUnzip = false)
-
 
 logLevel in assembly := Level.Error
 logLevel in (Test, assembly) := Level.Error

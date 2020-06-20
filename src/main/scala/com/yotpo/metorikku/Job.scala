@@ -7,7 +7,6 @@ import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.SparkContext
-import org.apache.spark.groupon.metrics.UserMetricsSystem
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
 import org.apache.spark.sql.SparkSession
 
@@ -19,7 +18,6 @@ case class Job(val config: Configuration) {
   // Set up instrumentation
   val instrumentationFactory = InstrumentationProvider.getInstrumentationFactory(
     config.appName, config.instrumentation)
-  UserMetricsSystem.initialize(sparkContext, "Metorikku")
 
   val instrumentationClient = instrumentationFactory.create()
   sparkContext.addSparkListener(new SparkListener() {

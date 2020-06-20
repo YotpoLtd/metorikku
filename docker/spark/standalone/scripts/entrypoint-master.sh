@@ -8,7 +8,7 @@ SPARK_MASTER_HOST=${SPARK_MASTER_HOST:=spark-master}
 # Logs
 /scripts/init-logs-metrics.sh
 
-. "/spark/sbin/spark-config.sh"
-. "/spark/bin/load-spark-env.sh"
-/spark/sbin/../bin/spark-class org.apache.spark.deploy.master.Master \
+. "${SPARK_HOME}/sbin/spark-config.sh"
+. "${SPARK_HOME}/bin/load-spark-env.sh"
+${SPARK_HOME}/sbin/../bin/spark-class org.apache.spark.deploy.master.Master \
     --ip ${SPARK_MASTER_HOST} --port ${SPARK_MASTER_PORT} --webui-port ${SPARK_WEBUI_PORT}

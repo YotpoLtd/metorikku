@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.metric.test
-import com.yotpo.metorikku.metric.{Metric, MetricReporting}
+import com.yotpo.metorikku.metric.MetricReporting
 import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.{FunSuite, _}
 import org.apache.spark.sql.types._
 
@@ -48,7 +48,7 @@ class MetricReporterTester extends FunSuite with BeforeAndAfterEach {
       StructField("updated_at", TimestampType, true)))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
+    val sqlContext= sparkSession.sqlContext
 
     val df = sparkSession.read.format("csv").option("header", "true").schema(schema).load("src/test/configurations/mocks/ratings_time.csv")
     val metricReport = new MetricReporting()

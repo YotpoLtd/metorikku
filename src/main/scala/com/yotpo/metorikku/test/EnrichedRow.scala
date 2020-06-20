@@ -4,6 +4,7 @@ import com.yotpo.metorikku.test.TestUtil.log
 import org.apache.spark
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types.{StringType, StructField}
+import scala.collection.JavaConverters._
 
 import scala.collection.Seq
 import scala.collection.immutable.ListMap
@@ -78,7 +79,7 @@ case class EnrichedRows(enrichedRows: List[EnrichedRow]) {
     val allSchemaKeys = (rowIdField +: schemaColumns)
     val rowsOrdered = mapWithIndexes.map(m => allSchemaKeys.map(column => m(column)))
     val rows = rowsOrdered.map(m => spark.sql.Row(m: _*))
-    val x: java.util.List[Row] = scala.collection.JavaConversions.seqAsJavaList(rows)
+    val x: java.util.List[Row] = rows.asJava
 
     val schema = org.apache.spark.sql.types.StructType(allSchemaKeys.map(fieldName => StructField(fieldName, StringType, nullable = true)))
     sparkSession.createDataFrame(x, schema)

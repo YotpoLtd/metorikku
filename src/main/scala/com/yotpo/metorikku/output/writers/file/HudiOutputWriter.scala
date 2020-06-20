@@ -235,10 +235,19 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       case None =>
     }
+    config.hiveSync match {
+      case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
+      case Some(true) => {
+        writer.option("hoodie.datasource.hive_sync.enable", "true")
+        writer.option("hoodie.datasource.hive_sync.use_jdbc", "false")
+      }
+      case _ =>
+    }
     config.hiveJDBCURL match {
       case Some(hiveJDBCURL) => {
         writer.option("hoodie.datasource.hive_sync.jdbcurl", hiveJDBCURL)
         writer.option("hoodie.datasource.hive_sync.enable", "true")
+        writer.option("hoodie.datasource.hive_sync.use_jdbc", "true")
       }
       case None =>
     }
@@ -254,10 +263,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case Some(hivePassword) => writer.option("hoodie.datasource.hive_sync.password", hivePassword)
       case None =>
     }
-    config.hiveSync match {
-      case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
-      case _ =>
-    }
+
 
     config.options match {
       case Some(options) => writer.options(options)

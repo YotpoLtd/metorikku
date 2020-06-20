@@ -1,7 +1,7 @@
 version: '3'
 services:
   spark-submit:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     environment:
     - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hive/movies.yaml
     - HIVE_METASTORE_URI=hive:9083
@@ -14,7 +14,7 @@ services:
       - spark-worker
       - hive
   hive-tester:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     environment:
       - SUBMIT_COMMAND=spark-submit --conf spark.sql.warehouse.dir=/warehouse  --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hive/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
@@ -27,13 +27,13 @@ services:
       - spark-master
       - spark-worker
   spark-master:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     entrypoint:
       - /scripts/entrypoint-worker.sh
     volumes:

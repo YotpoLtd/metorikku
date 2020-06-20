@@ -12,7 +12,6 @@ output:
     maxVersions: 1
     hiveDB: default
     parallelism: 1
-    hiveJDBCURL: jdbc:hive2://hive:10000/;auth=noSasl
     hiveUserName: root
     hivePassword: pass
     hiveSync: false

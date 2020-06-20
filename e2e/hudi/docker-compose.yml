@@ -1,9 +1,9 @@
 version: '3'
 services:
   spark-submit:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -13,9 +13,9 @@ services:
       - spark-master
       - spark-worker
   hive-tester:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -25,9 +25,9 @@ services:
       - spark-master
       - spark-worker
   spark-submit-manual-hive-sync:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_config.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_config.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -37,9 +37,9 @@ services:
       - spark-master
       - spark-worker
   hive-tester-manual-hive-sync:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -49,9 +49,9 @@ services:
       - spark-master
       - spark-worker
   spark-submit-manual-hive-sync-non-partition:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars  https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_no_partitions_config.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_no_partitions_config.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -61,9 +61,9 @@ services:
       - spark-master
       - spark-worker
   hive-tester-manual-hive-sync-no-partition:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages org.apache.spark:spark-avro_2.11:2.4.5 --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.2-incubating/hudi-spark-bundle_2.11-0.5.2-incubating.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_no_partitions_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_no_partitions_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -73,13 +73,13 @@ services:
       - spark-master
       - spark-worker
   spark-master:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-worker.sh
     volumes:
