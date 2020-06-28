@@ -3,9 +3,11 @@ services:
  hive:
    image: localhive:latest
    environment:
-     - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?useSSL=false
+     - CONNECTION_URL=jdbc:mysql://hive-db:3306/hive?createDatabaseIfNotExist=true&amp;useSSL=false
      - CONNECTION_USER_NAME=root
      - CONNECTION_PASSWORD=pass
+     - METASTORE_URI=localhost
+     - METASTORE_PORT=9083
      - WAREHOUSE_DIR=file:///tmp
      - WAIT_HOSTS=hive-db:3306
      - AWS_ACCESS_KEY=???
@@ -14,6 +16,8 @@ services:
      - hive-db
    ports:
      - "10000:10000"
+     - "9083:9083"
+   command: "/start-hive.sh "
  hive-db:
    image: mysql:5.7.25
    environment:

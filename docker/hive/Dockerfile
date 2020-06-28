@@ -83,6 +83,7 @@ RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait
 
+COPY init-hive.sh /
 COPY start-hive.sh /
 COPY log4j.json.properties .
 
