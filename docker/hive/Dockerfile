@@ -5,7 +5,7 @@ ENV ATLAS_HOME=/opt/atlas
 RUN mkdir -p $ATLAS_HOME/hook/hive
 ENV HADOOP_HOME=/opt/hadoop
 ENV HADOOP_VERSION=2.7.4
-RUN apt-get update && apt-get install -y ant
+RUN apt-get update && apt-get install -y ant && apt-get install -y expect
 
 RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz \
     && tar -xzf hadoop-$HADOOP_VERSION.tar.gz \
@@ -85,6 +85,7 @@ RUN chmod +x /wait
 
 COPY init-hive.sh /
 COPY start-hive.sh /
+COPY run_hive_import.sh /
 COPY log4j.json.properties .
 
 RUN mkdir -p $ATLAS_HOME/hook-bin/
