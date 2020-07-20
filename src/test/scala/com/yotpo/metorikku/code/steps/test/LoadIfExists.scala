@@ -33,9 +33,8 @@ class LoadIfExists extends FunSuite with BeforeAndAfterEach {
     df1.schema.sortBy({f: StructField => f.name}).map({f: StructField => sortedSchemeArrBuff += f.name})
     val sortedSchemeArr: Array[String] = sortedSchemeArrBuff.sortWith(_<_).toArray
 
-
-    val sortedMergedDf = df1.orderBy("employee_name").select("employee_name", sortedSchemeArr:_*)
-    val sortedExpectedDf = df2.orderBy("employee_name").select("employee_name", sortedSchemeArr:_*)
+    val sortedMergedDf = df1.orderBy("table_key").select("table_key", sortedSchemeArr:_*)
+    val sortedExpectedDf = df2.orderBy("table_key").select("table_key", sortedSchemeArr:_*)
     val equals = sortedMergedDf.except(sortedExpectedDf).isEmpty
 
     if (equals != isEqual) {
@@ -53,22 +52,22 @@ class LoadIfExists extends FunSuite with BeforeAndAfterEach {
   }
 
   test("Load If table doesn't exist") {
-    val params: Option[Map[String, String]] = Option(Map("dfName" -> "myDf", "tableName" -> "myTable"))
+    val params: Option[Map[String, String]] = Option(Map("dfName" -> "testDf", "tableName" -> "missing_table"))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
     import sqlContext.implicits._
 
-    val employeeData1 = Seq(
+    val table = Seq(
       ("James", 1, 11, 111, 1111),
       ("Maria", 2, 22, 222, 2222)
     )
-    val df = employeeData1.toDF("employee_name", "salary", "age", "fake", "fake2")
-    df.createOrReplaceTempView("myDf")
+    val df = table.toDF("table_key", "value1", "value2", "value3", "value4")
+    df.createOrReplaceTempView("testDf")
 
 
-    LoadIfExists.run(sparkSession, "MetricName", "myDfResult", params)
-    assertSuccess(sparkSession.table("myDfResult"),
+    LoadIfExists.run(sparkSession, "MetricName", "testDfResult", params)
+    assertSuccess(sparkSession.table("testDfResult"),
                   sparkSession.createDataFrame(sparkSession.sparkContext.emptyRDD[Row], df.schema), true)
   }
 
@@ -79,27 +78,27 @@ class LoadIfExists extends FunSuite with BeforeAndAfterEach {
     val sqlContext= new SQLContext(sparkSession.sparkContext)
     import sqlContext.implicits._
 
-    val employeeData1 = Seq(
+    val table1 = Seq(
       ("James", 1, 11, 111, 1111),
       ("Maria", 2, 22, 222, 2222)
     )
-    val df1 = employeeData1.toDF("employee_name", "salary", "age", "fake", "fake2")
+    val df1 = table1.toDF("table_key", "value1", "value2", "value3", "value4")
     df1.createOrReplaceTempView("df1")
 
-    val employeeData2 = Seq(
+    val table2 = Seq(
       ("Maria", 2, 22, 222, 2222)
     )
-    val df2 = employeeData2.toDF("employee_name", "salary", "age", "fake", "fake2")
+    val df2 = table2.toDF("table_key", "value1", "value2", "value3", "value4")
     df2.createOrReplaceTempView("df2")
 
-    LoadIfExists.run(sparkSession, "MetricName", "myDfResult", params)
-    assertSuccess(sparkSession.table("myDfResult"), df2, true)
+    LoadIfExists.run(sparkSession, "MetricName", "testDfResult", params)
+    assertSuccess(sparkSession.table("testDfResult"), df2, true)
   }
 
   test("Load If bad params") {
-    val params: Option[Map[String, String]] = Option(Map("tableName" -> "myTable"))
+    val params: Option[Map[String, String]] = Option(Map("tableName" -> "table"))
     assertThrows[MetorikkuException] {
-      LoadIfExists.run(sparkSession, "MetricName", "myDfResult", params)
+      LoadIfExists.run(sparkSession, "MetricName", "testDfResult", params)
     }
   }
 
