@@ -4,8 +4,7 @@ import java.io.File
 
 import com.yotpo.metorikku.configuration.metric.Step
 import com.yotpo.metorikku.exceptions.MetorikkuException
-import com.yotpo.metorikku.metric.stepActions.Sql
-import com.yotpo.metorikku.metric.stepActions.Code
+import com.yotpo.metorikku.metric.stepActions.{Code, Sql}
 import com.yotpo.metorikku.utils.FileUtils
 
 object StepFactory {
@@ -13,7 +12,7 @@ object StepFactory {
                     showPreviewLines: Int, cacheOnPreview: Option[Boolean],
                     showQuery: Option[Boolean]): StepAction[_] = {
     configuration.sql match {
-      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery)
+      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq)
       case None => {
         configuration.file match {
           case Some(filePath) =>
@@ -23,7 +22,7 @@ object StepFactory {
             }
             Sql(
               FileUtils.readConfigurationFile(path),
-              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery
+              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq
             )
           case None => {
             configuration.classpath match {
