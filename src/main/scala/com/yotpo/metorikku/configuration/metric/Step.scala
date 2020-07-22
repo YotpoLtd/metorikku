@@ -5,7 +5,8 @@ case class Step(sql: Option[String],
                 classpath: Option[String],
                 dataFrameName: String,
                 params: Option[Map[String, String]],
-                var ignoreOnFailures: Option[Boolean]) {
+                var ignoreOnFailures: Option[Boolean],
+                dq: Option[DQCheckDefinitionList]) extends Serializable {
 
   ignoreOnFailures = Option(ignoreOnFailures.getOrElse(false))
 }
