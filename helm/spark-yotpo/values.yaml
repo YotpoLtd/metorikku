@@ -1,0 +1,6 @@
+version: 0.1
+sparkVersion: 2.4.5
+image: gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus
+jar: file:///target/metorikku.jar
+mainClass: com.yotpo.metorikku.Metorikku
+fileDependencies: []

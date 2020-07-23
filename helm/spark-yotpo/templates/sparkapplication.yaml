@@ -1,0 +1,47 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: demo-metorikku
+  namespace: default
+spec:
+  type: Scala
+  mode: cluster
+  image: "gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus"
+  imagePullPolicy: IfNotPresent
+  mainClass: com.yotpo.metorikku.Metorikku
+  mainApplicationFile: "file:///target/metorikku.jar"
+  arguments:
+    - -c
+    - "/examples/movies.yaml"
+  sparkVersion: {{ .Values.sparkVersion | quote }}
+  restartPolicy:
+    type: Never
+  volumes:
+    - name: "examples"
+      hostPath:
+        path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/examples"
+        type: Directory
+    - name: "target"
+      hostPath:
+        path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/target/scala-2.11"
+        type: Directory
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "512m"
+    labels:
+      version: {{ .Values.sparkVersion }}
+    volumeMounts:
+      - name: "examples"
+        mountPath: "/examples"
+      - name: "target"
+        mountPath: "/target"
+  executor:
+    cores: 1
+    instances: 1
+    memory: "512m"
+    labels:
+      version: {{ .Values.sparkVersion }}
+    volumeMounts:
+      - name: "examples"
+        mountPath: "/examples"

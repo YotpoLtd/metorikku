@@ -1,18 +1,18 @@
 # The MQL file path
 metrics:
-  - examples/movies_metric.yaml
+  - /examples/movies_metric.yaml
 
 inputs:
   movies:
     file_date_range:
-      template: examples/file_date_range_inputs/%s/movies.csv
+      template: /examples/file_date_range_inputs/%s/movies.csv
       date_range:
         format: yyyy/MM/dd
         startDate: 2017/09/01
         endDate: 2017/09/03
   ratings:
     file:
-      path: examples/file_inputs/ratings.csv
+      path: /examples/file_inputs/ratings.csv
 
 # Set custom variables that would be accessible from the SQL
 variables:
@@ -20,7 +20,7 @@ variables:
 
 output:
   file:
-    dir: examples/output
+    dir: /examples/output
 
 # If set to true, triggers Explain before saving
 explain: true
