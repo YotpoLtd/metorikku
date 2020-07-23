@@ -1,6 +1,8 @@
 package com.yotpo.metorikku.metric.stepActions
 
+import com.yotpo.metorikku.configuration.metric.DQCheckDefinitionList
 import com.yotpo.metorikku.metric.StepAction
+import com.yotpo.metorikku.metric.stepActions.dataQuality.DataQualityCheckList
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -9,7 +11,8 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
   */
 case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
                cacheOnPreview: Option[Boolean],
-               showQuery: Option[Boolean]) extends StepAction[DataFrame] {
+               showQuery: Option[Boolean],
+               dq: Option[DQCheckDefinitionList]) extends StepAction[DataFrame] {
   val log = LogManager.getLogger(this.getClass)
 
   override def run(sparkSession: SparkSession): DataFrame = {
@@ -21,6 +24,7 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
     val newDf = sparkSession.sqlContext.sql(query)
     newDf.createOrReplaceTempView(dataFrameName)
     printStep(newDf, dataFrameName)
+    runDQValidation(dataFrameName, dq)
     newDf
   }
 
@@ -39,6 +43,13 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
         case true => log.warn("Can't show preview when using a streaming source")
         case false => stepResult.show(showPreviewLines, truncate = false)
       }
+    }
+  }
+
+  private def runDQValidation(dfName: String, dqDef: Option[DQCheckDefinitionList]): Unit = {
+    dqDef match {
+      case Some(dq) => DataQualityCheckList(dfName, dq).runChecks()
+      case _ =>
     }
   }
 }

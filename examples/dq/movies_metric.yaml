@@ -1,0 +1,34 @@
+steps:
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT userid,
+           movies.movieid,
+           rating,
+           timestamp,
+           title,
+           genres
+    FROM ratings
+    JOIN movies ON ratings.movieid = movies.movieid
+  dq:
+    level: warn
+    checks:
+      - op: IsComplete
+        column: movieid
+      - op: IsComplete
+        column: rating
+- dataFrameName: moviesWithRatings
+  sql:
+    SELECT CONCAT(userid, ' ',  movieid) AS userid_movieid
+    FROM moviesWithRatings
+  dq:
+    level: error
+    checks:
+      - op: IsUnique
+        column: userid_movieid
+output:
+- dataFrameName: moviesWithRatings
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: moviesWithRatings.parquet
+    createUniquePath: true
