@@ -541,5 +541,27 @@ spark.sql.queryExecutionListeners=com.hortonworks.spark.atlas.SparkAtlasEventTra
 spark.sql.streaming.streamingQueryListeners=com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker
 ```
 For a full example please refer to examples/docker-compose-atlas.yml
+
+#### Data Quality
+You can also execute a series of verifications on your SQL steps with adding a `dq` block to your SQL step within the metric file.
+for example:
+```
+steps:
+- dataFrameName: df1
+  sql:
+    SELECT col1, col2
+    FROM input_1
+    WHERE id > 100
+  dq:
+    level: warn
+    checks:
+      - op: IsComplete
+        column: col1
+      - op: IsComplete
+        column: col2
+        level: error
+```
+Check out the [readme](examples/dq/README.md) and [example](examples/dq) for further details.
+
 ## License  
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
