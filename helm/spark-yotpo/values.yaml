@@ -20,19 +20,15 @@ driver:
   cores: 1
   coreLimit: 1
   memory: "512m"
-  volumeMounts:
-    - name: "examples"
-      mountPath: "/examples"
-    - name: "target"
-      mountPath: "/target"
+  mounts:
+    examples: /examples
+    target: /target
+
 executor:
   cores: 1
   coreLimit: 1
   instances: 1
   memory: "512m"
-  volumeMounts:
-    - name: "examples"
-      mountPath: "/examples"
-mounts:
-  examples: /examples
-  target: /target
+  mounts:
+    examples: /examples
+

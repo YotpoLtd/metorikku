@@ -87,9 +87,9 @@ spec:
     {{- if .Values.javaOptions }}
     javaOptions: {{ .Values.javaOptions | quote}}
     {{- end }}
-    {{- if .Values.mounts }}
+    {{- if .Values.driver.mounts }}
     volumeMounts:
-    {{- range $name, $path := .Values.mounts }}
+    {{- range $name, $path := .Values.driver.mounts }}
       - name: {{ $name }}
         mountPath: {{ $path }}
     {{- end }}
@@ -108,7 +108,7 @@ spec:
     securityContext:
       runAsUser: {{ .Values.userId }}
     cores: {{ .Values.executor.cores }}
-    coreLimit: {{ .Values.executor.coreLimit | default .Values.executor.cores | quote }}
+    coreLimit: {{ .Values.executor.coreLimit | default .Values.driver.cores | quote }}
     instances: {{ .Values.executor.instances }}
     memory: {{ .Values.executor.memory }}
     labels:
@@ -120,9 +120,9 @@ spec:
     {{- if .Values.javaOptions }}
     javaOptions: {{ .Values.javaOptions }}
     {{- end }}
-    {{- if .Values.mounts }}
+    {{- if .Values.executor.mounts }}
     volumeMounts:
-    {{- range $name, $path := .Values.mounts }}
+    {{- range $name, $path := .Values.executor.mounts }}
       - name: {{ $name }}
         mountPath: {{ $path }}
     {{- end }}
