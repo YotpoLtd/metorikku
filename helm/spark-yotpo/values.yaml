@@ -1,12 +1,12 @@
 version: 0.2
 sparkVersion: 2.4.5
-image: gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus
+image: metorikku/k8s-spark-operator
 jar: file:///target/metorikku.jar
 mainClass: com.yotpo.metorikku.Metorikku
 fileDependencies: []
 arguments:
   - -c
-  - "/examples/movies.yaml"
+  - "/opt/spark/work-dir/examples/movies.yaml"
 volumes:
   - name: "examples"
     hostPath:
@@ -21,7 +21,7 @@ driver:
   coreLimit: 1
   memory: "512m"
   mounts:
-    examples: /examples
+    examples: "/opt/spark/work-dir/examples"
     target: /target
 
 executor:
@@ -30,5 +30,5 @@ executor:
   instances: 1
   memory: "512m"
   mounts:
-    examples: /examples
+    examples: "/opt/spark/work-dir/examples/"
 
