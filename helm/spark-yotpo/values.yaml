@@ -1,6 +1,38 @@
-version: 0.1
+version: 0.2
 sparkVersion: 2.4.5
 image: gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus
 jar: file:///target/metorikku.jar
 mainClass: com.yotpo.metorikku.Metorikku
 fileDependencies: []
+arguments:
+  - -c
+  - "/examples/movies.yaml"
+volumes:
+  - name: "examples"
+    hostPath:
+      path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/examples"
+      type: Directory
+  - name: "target"
+    hostPath:
+      path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/target/scala-2.11"
+      type: Directory
+driver:
+  cores: 1
+  coreLimit: 1
+  memory: "512m"
+  volumeMounts:
+    - name: "examples"
+      mountPath: "/examples"
+    - name: "target"
+      mountPath: "/target"
+executor:
+  cores: 1
+  coreLimit: 1
+  instances: 1
+  memory: "512m"
+  volumeMounts:
+    - name: "examples"
+      mountPath: "/examples"
+mounts:
+  examples: /examples
+  target: /target

@@ -1,47 +1,149 @@
-apiVersion: "sparkoperator.k8s.io/v1beta2"
+apiVersion: sparkoperator.k8s.io/v1beta2
 kind: SparkApplication
 metadata:
-  name: demo-metorikku
-  namespace: default
+  name:  {{ .Release.Name | trunc 63 }}
+  labels:
+    chartname: {{ .Chart.Name | trunc 63 | quote }}
+    release: {{ .Release.Name | trunc 63 | quote }}
+    revision: {{ .Release.Revision | quote }}
+    sparkVersion: {{ .Values.sparkVersion | quote }}
+    version: {{ .Chart.Version | quote }}
 spec:
   type: Scala
   mode: cluster
-  image: "gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus"
-  imagePullPolicy: IfNotPresent
-  mainClass: com.yotpo.metorikku.Metorikku
-  mainApplicationFile: "file:///target/metorikku.jar"
+  image: {{ list .Values.imageRegistry .Values.image | join "/" | quote }}
+  imagePullPolicy: {{ .Values.imagePullPolicy }}
+  {{- if .Values.imagePullSecrets }}
+  imagePullSecrets:
+  {{- range .Values.imagePullSecrets }}
+    - {{ . | quote }}
+  {{- end }}
+  {{- end }}
+  mainClass: {{ .Values.mainClass | quote }}
+  mainApplicationFile: {{ .Values.jar | quote }}
+  {{- if .Values.arguments }}
   arguments:
-    - -c
-    - "/examples/movies.yaml"
+  {{- range .Values.arguments }}
+    - {{ . | quote }}
+  {{- end }}
+  {{- end }}
   sparkVersion: {{ .Values.sparkVersion | quote }}
   restartPolicy:
     type: Never
-  volumes:
-    - name: "examples"
-      hostPath:
-        path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/examples"
-        type: Directory
-    - name: "target"
-      hostPath:
-        path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/target/scala-2.11"
-        type: Directory
+  {{- if or .Values.jarDependencies .Values.fileDependencies .Values.sparkConf .Values.hadoopConf }}
+  deps:
+    {{- if .Values.jarDependencies }}
+    jars:
+    {{- range .Values.jarDependencies }}
+      - {{ . | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.fileDependencies }}
+    files:
+    {{- range .Values.fileDependencies }}
+      - {{ . | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.sparkConf }}
+    sparkConf:
+    {{- range $conf, $value := .Values.sparkConf }}
+      {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.hadoopConf }}
+    hadoopConf:
+    {{- range $conf, $value := .Values.hadoopConf }}
+      {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
   driver:
-    cores: 1
-    coreLimit: "1200m"
-    memory: "512m"
+    {{- if .Values.envSecretKeyRefs }}
+    envSecretKeyRefs:
+    {{- range $name, $value := .Values.envSecretKeyRefs }}
+      {{ $name }}:
+        name: {{ $value.name}}
+        key: {{ $value.key}}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.envVars }}
+    envVars:
+    {{- range $name, $value := .Values.envVars }}
+      {{ $name }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    securityContext:
+      runAsUser: {{ .Values.userId }}
+    cores: {{ .Values.driver.cores }}
+    coreLimit: {{ .Values.driver.coreLimit | default .Values.driver.cores | quote }}
+    memory: {{ .Values.driver.memory }}
+    hostNetwork: {{ .Values.hostNetwork }}
     labels:
-      version: {{ .Values.sparkVersion }}
+      release: {{ .Release.Name | trunc 63 | quote }}
+      revision: {{ .Release.Revision | quote }}
+      sparkVersion: {{ .Values.sparkVersion | quote }}
+      version: {{ .Chart.Version | quote }}
+    serviceAccount: {{ .Values.serviceAccount }}
+    {{- if .Values.javaOptions }}
+    javaOptions: {{ .Values.javaOptions | quote}}
+    {{- end }}
+    {{- if .Values.mounts }}
     volumeMounts:
-      - name: "examples"
-        mountPath: "/examples"
-      - name: "target"
-        mountPath: "/target"
+    {{- range $name, $path := .Values.mounts }}
+      - name: {{ $name }}
+        mountPath: {{ $path }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.tolerations }}
+    tolerations:
+{{ toYaml .Values.tolerations | indent 6 }}
+    {{- end }}
   executor:
-    cores: 1
-    instances: 1
-    memory: "512m"
+    {{- if .Values.envVars }}
+    envVars:
+    {{- range $name, $value := .Values.envVars }}
+      {{ $name | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    securityContext:
+      runAsUser: {{ .Values.userId }}
+    cores: {{ .Values.executor.cores }}
+    coreLimit: {{ .Values.executor.coreLimit | default .Values.executor.cores | quote }}
+    instances: {{ .Values.executor.instances }}
+    memory: {{ .Values.executor.memory }}
     labels:
-      version: {{ .Values.sparkVersion }}
+      release: {{ .Release.Name | trunc 63 | quote }}
+      revision: {{ .Release.Revision | quote }}
+      sparkVersion: {{ .Values.sparkVersion | quote }}
+      version: {{ .Chart.Version | quote }}
+    serviceAccount: {{ .Values.serviceAccount }}
+    {{- if .Values.javaOptions }}
+    javaOptions: {{ .Values.javaOptions }}
+    {{- end }}
+    {{- if .Values.mounts }}
     volumeMounts:
-      - name: "examples"
-        mountPath: "/examples"
+    {{- range $name, $path := .Values.mounts }}
+      - name: {{ $name }}
+        mountPath: {{ $path }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.tolerations }}
+    tolerations:
+{{ toYaml .Values.tolerations | indent 6 }}
+    {{- end }}
+  {{- if .Values.jmxExporterJar }}
+  monitoring:
+    exposeDriverMetrics: true
+    exposeExecutorMetrics: true
+    prometheus:
+      port: {{ .Values.jmxPort | default 8090 }}
+      jmxExporterJar: {{ .Values.jmxExporterJar }}
+  {{- end }}
+  {{- if .Values.volumes }}
+  volumes:
+{{ toYaml .Values.volumes | indent 3 }}
+  {{- end }}
+  {{- if .Values.nodeSelector }}
+  nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 4 }}
+  {{- end }}
