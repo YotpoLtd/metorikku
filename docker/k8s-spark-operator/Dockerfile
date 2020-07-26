@@ -1,9 +1,9 @@
 ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus
 
 FROM ${SPARK_IMAGE}
-ENV SCALA_VERSION 2.11
-ENV SPARK_VERSION 2.4.5
-ENV HADOOP_VERSION 2.9.2
+ARG SCALA_VERSION=2.11
+ARG SPARK_VERSION=2.4.5
+ARG HADOOP_VERSION=2.9.2
 
 ENV REPO_URL https://repo1.maven.org/maven2
 ENV ARCHIVE_URL http://archive.apache.org/dist
