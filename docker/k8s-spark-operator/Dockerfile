@@ -1,12 +1,7 @@
-ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v2.4.5-gcs-prometheus
-
-FROM ${SPARK_IMAGE}
 ARG SCALA_VERSION=2.11
 ARG SPARK_VERSION=2.4.5
-ARG HADOOP_VERSION=2.9.2
-
-ENV REPO_URL https://repo1.maven.org/maven2
-ENV ARCHIVE_URL http://archive.apache.org/dist
+ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v${SPARK_VERSION}-gcs-prometheus
+FROM ${SPARK_IMAGE}
 
 # Install Tools
 RUN apt-get update \
@@ -16,6 +11,7 @@ RUN apt-get update \
 RUN rm -f $SPARK_HOME/jars/hadoop*2.7* && cd /
 
 #Hadoop
+ARG HADOOP_VERSION=2.9.2
 RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
     && tar -xzf hadoop-${HADOOP_VERSION}.tar.gz -C /opt/ \
     && rm hadoop-${HADOOP_VERSION}.tar.gz
@@ -63,7 +59,7 @@ RUN apt-get update \
     && rm get-pip.py \
     && rm -rf /var/lib/apt/lists/*
 
-COPY conf/log4j.json.properties /opt/spark/custom/conf/
+COPY conf/log4j.json.properties ${SPARK_HOME}/custom/conf/
 ENV PYTHONHASHSEED 1
 ENV PATH="${HADOOP_PREFIX}/bin:${SPARK_HOME}/bin:${PATH}"
 ENV SPARK_DIST_CLASSPATH /etc/hadoop:/opt/hadoop-2.9.2/share/hadoop/common/lib/*:/opt/hadoop-2.9.2/share/hadoop/common/*:/opt/hadoop-2.9.2/share/hadoop/hdfs:/opt/hadoop-2.9.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.9.2/share/hadoop/hdfs/*:/opt/hadoop-2.9.2/share/hadoop/yarn:/opt/hadoop-2.9.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.9.2/share/hadoop/yarn/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar
