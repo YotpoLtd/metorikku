@@ -1,0 +1,5 @@
+useHiveMetaStore:
+  spark.sql.catalogImplementation: hive
+  spark.hadoop.hive.metastore.uris: thrift://$HIVE_METASTORE_URI
+  spark.hadoop.hive.metastore.schema.verification: false
+  spark.hadoop.hive.metastore.schema.verification.record.version: false

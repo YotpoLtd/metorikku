@@ -23,7 +23,6 @@ driver:
   mounts:
     examples: "/opt/spark/work-dir/examples"
     target: /target
-
 executor:
   cores: 1
   coreLimit: 1
@@ -31,4 +30,3 @@ executor:
   memory: "512m"
   mounts:
     examples: "/opt/spark/work-dir/examples/"
-

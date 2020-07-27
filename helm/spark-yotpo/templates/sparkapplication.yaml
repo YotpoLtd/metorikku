@@ -28,6 +28,18 @@ spec:
   {{- end }}
   {{- end }}
   sparkVersion: {{ .Values.sparkVersion | quote }}
+  {{- if or .Values.useHiveMetaStore .Values.useBuiltinMetaStore .Values.useAtlas }}
+  sparkConf:
+  {{- range $conf, $value := .Values.useHiveMetaStore }}
+    {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
+  {{- range $conf, $value := .Values.useBuiltinMetaStore }}
+    {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
+  {{- range $conf, $value := .Values.useAtlas }}
+  {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
   restartPolicy:
     type: Never
   {{- if or .Values.jarDependencies .Values.fileDependencies .Values.sparkConf .Values.hadoopConf }}
@@ -42,12 +54,6 @@ spec:
     files:
     {{- range .Values.fileDependencies }}
       - {{ . | quote }}
-    {{- end }}
-    {{- end }}
-    {{- if .Values.sparkConf }}
-    sparkConf:
-    {{- range $conf, $value := .Values.sparkConf }}
-      {{ $conf | quote }}: {{ $value | quote }}
     {{- end }}
     {{- end }}
     {{- if .Values.hadoopConf }}
