@@ -5,24 +5,46 @@ import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
 import com.yotpo.metorikku.configuration.job.{ConfigurationParser, Periodic}
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
+import org.apache.spark.groupon.metrics.UserMetricsSystem
+import org.apache.spark.sql.SparkSession
 
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
-  val session = Job(ConfigurationParser.parse(args))
 
-  session.config.periodic match {
-    case Some(periodic) => {
-      executePeriodicTask(periodic)
+  val configurations = ConfigurationParser.parse(args)
+
+  UserMetricsSystem.initialize(SparkSession.builder().getOrCreate().sparkContext, "Metorikku")
+
+  val jobs = configurations.map(config =>
+    new Runnable {
+      def run(): Unit = {
+        val job = Job(config)
+
+        job.config.periodic match {
+          case Some(periodic) => {
+            executePeriodicTask(job, periodic)
+          }
+          case _ => runMetrics(job)
+        }
+      }
     }
-    case _ => runMetrics(session)
+  )
+
+  jobs match {
+    case s if s.length > 1 => {
+      val threads = jobs.map(r => new Thread(r))
+      threads.foreach(t => t.start())
+      threads.foreach(t => t.join())
+    }
+    case _ => jobs.foreach(r => r.run())
   }
 
-  private def executePeriodicTask(periodic: Periodic) = {
+  private def executePeriodicTask(job: Job, periodic: Periodic) = {
     val task = new Runnable {
       def run() = {
-        session.sparkSession.catalog.clearCache()
-        runMetrics(session)
+        job.sparkSession.catalog.clearCache()
+        runMetrics(job)
       }
     }
     val ex = new ScheduledThreadPoolExecutor(1)

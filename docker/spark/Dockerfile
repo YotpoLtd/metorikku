@@ -57,6 +57,7 @@ RUN rm -f /spark/jars/httpclient-*.jar && wget -q https://repo1.maven.org/maven2
 ADD log4j.json.properties /spark/conf/
 ADD spark-defaults.conf /spark/conf/
 ADD spark-env.sh /spark/conf/
+ADD fairscheduler.xml /spark/conf/
 
 ENV PYTHONHASHSEED 1
 ENV SPARK_HOME /spark
