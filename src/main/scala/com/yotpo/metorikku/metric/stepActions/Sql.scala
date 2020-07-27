@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.metric.stepActions
 
-import com.yotpo.metorikku.configuration.metric.DQCheckDefinitionList
 import com.yotpo.metorikku.metric.StepAction
 import com.yotpo.metorikku.metric.stepActions.dataQuality.DataQualityCheckList
 import org.apache.log4j.LogManager
@@ -12,7 +11,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
                cacheOnPreview: Option[Boolean],
                showQuery: Option[Boolean],
-               dq: Option[DQCheckDefinitionList]) extends StepAction[DataFrame] {
+               dq: Option[DataQualityCheckList]) extends StepAction[DataFrame] {
   val log = LogManager.getLogger(this.getClass)
 
   override def run(sparkSession: SparkSession): DataFrame = {
@@ -46,9 +45,9 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
     }
   }
 
-  private def runDQValidation(dfName: String, dqDef: Option[DQCheckDefinitionList]): Unit = {
+  private def runDQValidation(dfName: String, dqDef: Option[DataQualityCheckList]): Unit = {
     dqDef match {
-      case Some(dq) => DataQualityCheckList(dfName, dq).runChecks()
+      case Some(dq) => dq.runChecks(dfName)
       case _ =>
     }
   }

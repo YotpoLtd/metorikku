@@ -1,5 +1,5 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
-import com.yotpo.metorikku.configuration.metric.{DQCheckDefinition, DQCheckDefinitionList, DQCheckOpType}
+import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.IsUnique
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -17,15 +17,15 @@ class IsUniqueTest extends FunSuite with BeforeAndAfterEach {
 
   private def valideIsUniqueOverDf(employeeData: Seq[(String, Int, Int, Int, Int)], level: String) = {
     val sqlContext = sparkSession.sqlContext
-    val isUniqueCheckDefinition = DQCheckDefinition(op = DQCheckOpType.IsUnique, column = Option("id"), values = null, level = Option(level))
-    val dqCheckDefinitionList = DQCheckDefinitionList(List[DQCheckDefinition](isUniqueCheckDefinition), null)
+    val isUniqueCheck = new IsUnique(level = Some(level),column = "id")
+    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isUnique = Some(isUniqueCheck))), None)
     import sqlContext.implicits._
 
     val dfName = "employee_data"
     val df = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    DataQualityCheckList(dfName, dqCheckDefinitionList).runChecks()
+    dqCheckDefinitionList.runChecks(dfName)
   }
 
   test("is_unique on a non-unique field with level error should raise exception") {

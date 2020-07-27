@@ -555,11 +555,11 @@ steps:
   dq:
     level: warn
     checks:
-      - op: IsComplete
-        column: col1
-      - op: IsComplete
-        column: col2
-        level: error
+      - isComplete
+          column: col1
+      - isComplete:
+          column: col2
+          level: error
 ```
 Check out the [readme](examples/dq/README.md) and [example](examples/dq) for further details.
 

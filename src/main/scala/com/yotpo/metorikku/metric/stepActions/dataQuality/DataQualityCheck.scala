@@ -1,17 +1,16 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
-import com.amazon.deequ.checks.{Check, CheckLevel}
-import org.apache.log4j.LogManager
+import com.amazon.deequ.checks.Check
+import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.{IsComplete, IsUnique}
 
-trait DataQualityCheck {
-  val log = LogManager.getLogger(this.getClass)
-  def getCheck(column: Option[String], values: List[Option[Any]], level: String): Check
-
-  def getLevel(level: String): CheckLevel.Value = {
-    level.toLowerCase() match {
-      case "error" => CheckLevel.Error
-      case "warn" | "warning" => CheckLevel.Warning
-      case _ => throw new IllegalArgumentException(s"Illegal DQ level")
-    }
+case class DataQualityCheck(
+                             isComplete: Option[IsComplete] = None,
+                             isUnique: Option[IsUnique] = None
+                           ) {
+  def getCheck(level: String): Check = {
+    val check = Seq(isComplete, isUnique).find(
+      x => x.isDefined
+    ).get.get
+    check.getCheck(check.level.getOrElse(level))
   }
 }
