@@ -28,8 +28,13 @@ spec:
   {{- end }}
   {{- end }}
   sparkVersion: {{ .Values.sparkVersion | quote }}
-  {{- if or .Values.hiveMetaStore.enabled .Values.builtinMetaStore.enabled .Values.atlas.enabled }}
+  {{- if or .Values.sparkDefaults.enabled .Values.hiveMetaStore.enabled .Values.builtinMetaStore.enabled .Values.atlas.enabled }}
   sparkConf:
+  {{- if .Values.sparkDefaults.enabled  }}
+  {{- range $conf, $value := .Values.sparkDefaults.conf }}
+  {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
   {{- if .Values.hiveMetaStore.enabled  }}
   {{- range $conf, $value := .Values.hiveMetaStore.conf }}
     {{ $conf | quote }}: {{ $value | quote }}

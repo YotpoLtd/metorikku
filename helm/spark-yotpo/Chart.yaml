@@ -1,7 +1,7 @@
 apiVersion: v1
-name: demo-metorikku
+name: spark-yotpo
 version: 0.1
 appVersion: 0.1
-description: Demo Metorikku Job
+description: Spark Metorikku Job
 home: https://github.com/YotpoLtd/metorikku
 
