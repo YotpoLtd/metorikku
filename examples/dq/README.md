@@ -13,9 +13,9 @@ steps:
   dq:
     level: warn
     checks:
-      - op: IsComplete
+    - isComplete:
         column: col1
-      - op: IsComplete
+    - isComplete:
         column: col2
         level: error
 ```
@@ -26,13 +26,13 @@ Determines the response of the validation. It's possible to use it as configurat
 
 `ERROR` - Throws exception during execution while causing the execution to fail.
 ### Checks
-Each `checks` list item consists of `op`, the validation operator, and the required paramters for each validation.
+Each `checks` list item consists of the operator name as key, and the required paramters for each validation.
 #### Operators
 The following list includes the supported operators:
-##### `IsComplete`
+##### `isComplete`
 Creates a constraint that asserts on a column completion.
 Required parameters: `column`
-##### `IsUnique`
+##### `isUnique`
 Creates a constraint that asserts on a column uniqueness.
 Required parameters: `column`
 

@@ -12,10 +12,11 @@ steps:
   dq:
     level: warn
     checks:
-      - op: IsComplete
-        column: movieid
-      - op: IsComplete
-        column: rating
+      - isComplete:
+          column: movieid
+      - isUnique:
+          level: warn
+          column: rating
 - dataFrameName: moviesWithRatings
   sql:
     SELECT CONCAT(userid, ' ',  movieid) AS userid_movieid
@@ -23,8 +24,8 @@ steps:
   dq:
     level: error
     checks:
-      - op: IsUnique
-        column: userid_movieid
+      - isUnique:
+          column: userid_movieid
 output:
 - dataFrameName: moviesWithRatings
   outputType: Parquet

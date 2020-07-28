@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
-import com.yotpo.metorikku.configuration.metric.{DQCheckDefinition, DQCheckDefinitionList, DQCheckOpType}
+import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.IsComplete
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -18,15 +18,15 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
 
   private def valideIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String) = {
     val sqlContext = sparkSession.sqlContext
-    val isUniqueCheckDefinition = DQCheckDefinition(op = DQCheckOpType.IsComplete, column = Option("salary"), values = null, level = Option(level))
-    val dqCheckDefinitionList = DQCheckDefinitionList(List[DQCheckDefinition](isUniqueCheckDefinition), null)
+    val isCompleteCheck = new IsComplete(level = Some(level),column = "salary")
+    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None)
     import sqlContext.implicits._
 
     val dfName = "employee_data"
     val df = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    DataQualityCheckList(dfName, dqCheckDefinitionList).runChecks()
+    dqCheckDefinitionList.runChecks(dfName)
   }
 
   test("is_complete on a non-unique field with level error should raise exception") {
