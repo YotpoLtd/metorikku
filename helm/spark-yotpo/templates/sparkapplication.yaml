@@ -28,18 +28,22 @@ spec:
   {{- end }}
   {{- end }}
   sparkVersion: {{ .Values.sparkVersion | quote }}
-  {{- if or .Values.hiveMetaStore.enabled .Values.useBuiltinMetaStore.enabled .Values.useAtlas.enabled }}
+  {{- if or .Values.hiveMetaStore.enabled .Values.builtinMetaStore.enabled .Values.atlas.enabled }}
   sparkConf:
-  {{- if .Values.hiveMetaStore.conf  }}
+  {{- if .Values.hiveMetaStore.enabled  }}
   {{- range $conf, $value := .Values.hiveMetaStore.conf }}
     {{ $conf | quote }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
-  {{- range $conf, $value := .Values.useBuiltinMetaStore }}
+  {{- if .Values.builtinMetaStore.enabled  }}
+  {{- range $conf, $value := .Values.builtinMetaStore.conf }}
     {{ $conf | quote }}: {{ $value | quote }}
   {{- end }}
-  {{- range $conf, $value := .Values.useAtlas }}
+  {{- end }}
+  {{- if .Values.atlas.enabled  }}
+  {{- range $conf, $value := .Values.atlas.conf }}
     {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
   {{- end }}
   {{- end }}
   restartPolicy:
