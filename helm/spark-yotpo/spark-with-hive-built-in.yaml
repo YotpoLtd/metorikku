@@ -1,3 +1,0 @@
-useBuiltinMetaStore:
-  spark.sql.hive.metastore.version: $HIVE_VERSION
-  spark.sql.hive.metastore.jars: /opt/hive/lib/*

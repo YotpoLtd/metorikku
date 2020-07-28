@@ -1,0 +1,51 @@
+version: 0.2
+sparkVersion: 2.4.5
+image: metorikku/k8s-spark-operator
+jar: file:///target/metorikku.jar
+mainClass: com.yotpo.metorikku.Metorikku
+fileDependencies: []
+arguments:
+  - -c
+  - "/opt/spark/work-dir/examples/movies.yaml"
+volumes:
+  - name: "examples"
+    hostPath:
+      path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/examples"
+      type: Directory
+  - name: "target"
+    hostPath:
+      path: "/Users/giladweinbach/Development/yotpo-workspace/metorikku/target/scala-2.11"
+      type: Directory
+driver:
+  cores: 1
+  coreLimit: 1
+  memory: "512m"
+  mounts:
+    examples: "/opt/spark/work-dir/examples"
+    target: /target
+executor:
+  cores: 1
+  coreLimit: 1
+  instances: 1
+  memory: "512m"
+  mounts:
+    examples: "/opt/spark/work-dir/examples/"
+hiveMetaStore:
+  enabled: false
+  conf:
+    spark.sql.catalogImplementation: hive
+    spark.hadoop.hive.metastore.uris: thrift://$HIVE_METASTORE_URI
+    spark.hadoop.hive.metastore.schema.verification: false
+    spark.hadoop.hive.metastore.schema.verification.record.version: false
+builtinMetaStore:
+  enabled: false
+  conf:
+    spark.sql.hive.metastore.version: $HIVE_VERSION
+    spark.sql.hive.metastore.jars: /opt/hive/lib/*
+useAtlas.enabled: false
+useAtlas:
+  atlas.kafka.zookeeper.connect: ${ATLAS_ZOOKEEPER_CONNECT}
+  atlas.kafka.bootstrap.servers: ${ATLAS_BOOTSTRAP_SERVERS}
+  spark.extraListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
+  spark.sql.queryExecutionListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
+  spark.sql.streaming.streamingQueryListeners: com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker
