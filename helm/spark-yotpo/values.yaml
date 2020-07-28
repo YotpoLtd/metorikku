@@ -8,7 +8,7 @@ mainClass: com.yotpo.metorikku.Metorikku
 fileDependencies: []
 arguments:
   - "-c"
-  - "/examples/movies.yaml"
+  - "/opt/spark/work-dir/examples/movies.yaml"
 driver:
   javaOptions: "-Dhttps.protocols=TLSv1.2 -Dlog4j.configuration=/opt/spark/custom/conf/log4j.json.properties"
   cores: 1
@@ -49,8 +49,6 @@ externalHiveMetastore:
 atlas:
   enabled: false
   conf:
-    atlas.kafka.zookeeper.connect: ${ATLAS_ZOOKEEPER_CONNECT}
-    atlas.kafka.bootstrap.servers: ${ATLAS_BOOTSTRAP_SERVERS}
     spark.extraListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
     spark.sql.queryExecutionListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
     spark.sql.streaming.streamingQueryListeners: com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker

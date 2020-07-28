@@ -32,31 +32,31 @@ spec:
     type: Never
   {{- if .Values.sparkConf }}
   sparkConf:
-  {{- range $conf, $value := .Values.sparkConf }}
-  {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
-  {{- if .Values.hiveMetaStore.enabled  }}
-  {{- range $conf, $value := .Values.hiveMetaStore.conf }}
-  {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- if .Values.externalHiveMetastore.enabled  }}
-  {{- range $conf, $value := .Values.externalHiveMetastore.conf }}
-  {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- if .Values.atlas.enabled  }}
-  {{- range $conf, $value := .Values.atlas.conf }}
-  {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
-  {{- end }}
+    {{- range $conf, $value := .Values.sparkConf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- if .Values.hiveMetaStore.enabled  }}
+    {{- range $conf, $value := .Values.hiveMetaStore.conf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.externalHiveMetastore.enabled  }}
+    {{- range $conf, $value := .Values.externalHiveMetastore.conf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.atlas.enabled  }}
+    {{- range $conf, $value := .Values.atlas.conf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
   {{- if .Values.hadoopConf }}
   hadoopConf:
-  {{- range $conf, $value := .Values.hadoopConf }}
-  {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
-  {{- end }}
+    {{- range $conf, $value := .Values.hadoopConf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+    {{- end }}
   {{- if or .Values.jarDependencies .Values.fileDependencies }}
   deps:
     {{- if .Values.jarDependencies }}
