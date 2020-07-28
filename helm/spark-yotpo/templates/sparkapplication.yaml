@@ -16,7 +16,7 @@ spec:
   {{- if .Values.imagePullSecrets }}
   imagePullSecrets:
   {{- range .Values.imagePullSecrets }}
-    - {{ . | quote }}
+  - {{ . | quote }}
   {{- end }}
   {{- end }}
   mainClass: {{ .Values.mainClass | quote }}
@@ -24,73 +24,69 @@ spec:
   {{- if .Values.arguments }}
   arguments:
   {{- range .Values.arguments }}
-    - {{ . | quote }}
+  - {{ . | quote }}
   {{- end }}
   {{- end }}
   sparkVersion: {{ .Values.sparkVersion | quote }}
-  {{- if or .Values.sparkDefaults.enabled .Values.hiveMetaStore.enabled .Values.builtinMetaStore.enabled .Values.atlas.enabled }}
+  restartPolicy:
+    type: Never
+  {{- if .Values.sparkConf }}
   sparkConf:
-  {{- if .Values.sparkDefaults.enabled  }}
-  {{- range $conf, $value := .Values.sparkDefaults.conf }}
+  {{- range $conf, $value := .Values.sparkConf }}
   {{ $conf | quote }}: {{ $value | quote }}
-  {{- end }}
   {{- end }}
   {{- if .Values.hiveMetaStore.enabled  }}
   {{- range $conf, $value := .Values.hiveMetaStore.conf }}
-    {{ $conf | quote }}: {{ $value | quote }}
+  {{ $conf | quote }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
-  {{- if .Values.builtinMetaStore.enabled  }}
-  {{- range $conf, $value := .Values.builtinMetaStore.conf }}
-    {{ $conf | quote }}: {{ $value | quote }}
+  {{- if .Values.externalHiveMetastore.enabled  }}
+  {{- range $conf, $value := .Values.externalHiveMetastore.conf }}
+  {{ $conf | quote }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
   {{- if .Values.atlas.enabled  }}
   {{- range $conf, $value := .Values.atlas.conf }}
-    {{ $conf | quote }}: {{ $value | quote }}
+  {{ $conf | quote }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
   {{- end }}
-  restartPolicy:
-    type: Never
-  {{- if or .Values.jarDependencies .Values.fileDependencies .Values.sparkConf .Values.hadoopConf }}
+  {{- if .Values.hadoopConf }}
+  hadoopConf:
+  {{- range $conf, $value := .Values.hadoopConf }}
+  {{ $conf | quote }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if or .Values.jarDependencies .Values.fileDependencies }}
   deps:
     {{- if .Values.jarDependencies }}
     jars:
     {{- range .Values.jarDependencies }}
-      - {{ . | quote }}
+    - {{ . | quote }}
     {{- end }}
     {{- end }}
     {{- if .Values.fileDependencies }}
     files:
     {{- range .Values.fileDependencies }}
-      - {{ . | quote }}
+    - {{ . | quote }}
     {{- end }}
     {{- end }}
-    {{- if .Values.hadoopConf }}
-    hadoopConf:
-    {{- range $conf, $value := .Values.hadoopConf }}
-      {{ $conf | quote }}: {{ $value | quote }}
     {{- end }}
-    {{- end }}
-  {{- end }}
   driver:
     {{- if .Values.envSecretKeyRefs }}
     envSecretKeyRefs:
     {{- range $name, $value := .Values.envSecretKeyRefs }}
-      {{ $name }}:
-        name: {{ $value.name}}
-        key: {{ $value.key}}
+    {{ $name }}:
+    name: {{ $value.name}}
+    key: {{ $value.key}}
     {{- end }}
     {{- end }}
     {{- if .Values.envVars }}
     envVars:
     {{- range $name, $value := .Values.envVars }}
-      {{ $name }}: {{ $value | quote }}
+    {{ $name }}: {{ $value | quote }}
     {{- end }}
     {{- end }}
-    securityContext:
-      runAsUser: {{ .Values.userId }}
     cores: {{ .Values.driver.cores }}
     coreLimit: {{ .Values.driver.coreLimit | default .Values.driver.cores | quote }}
     memory: {{ .Values.driver.memory }}
@@ -100,30 +96,27 @@ spec:
       revision: {{ .Release.Revision | quote }}
       sparkVersion: {{ .Values.sparkVersion | quote }}
       version: {{ .Chart.Version | quote }}
-    serviceAccount: {{ .Values.serviceAccount }}
     {{- if .Values.javaOptions }}
     javaOptions: {{ .Values.javaOptions | quote}}
     {{- end }}
     {{- if .Values.driver.mounts }}
     volumeMounts:
     {{- range $name, $path := .Values.driver.mounts }}
-      - name: {{ $name }}
-        mountPath: {{ $path }}
+    - name: {{ $name }}
+      mountPath: {{ $path }}
     {{- end }}
     {{- end }}
     {{- if .Values.tolerations }}
     tolerations:
-{{ toYaml .Values.tolerations | indent 6 }}
-    {{- end }}
+  {{ toYaml .Values.tolerations | indent 6 }}
+  {{- end }}
   executor:
     {{- if .Values.envVars }}
     envVars:
     {{- range $name, $value := .Values.envVars }}
-      {{ $name | quote }}: {{ $value | quote }}
+    {{ $name | quote }}: {{ $value | quote }}
     {{- end }}
     {{- end }}
-    securityContext:
-      runAsUser: {{ .Values.userId }}
     cores: {{ .Values.executor.cores }}
     coreLimit: {{ .Values.executor.coreLimit | default .Values.driver.cores | quote }}
     instances: {{ .Values.executor.instances }}
@@ -133,34 +126,33 @@ spec:
       revision: {{ .Release.Revision | quote }}
       sparkVersion: {{ .Values.sparkVersion | quote }}
       version: {{ .Chart.Version | quote }}
-    serviceAccount: {{ .Values.serviceAccount }}
     {{- if .Values.javaOptions }}
     javaOptions: {{ .Values.javaOptions }}
     {{- end }}
     {{- if .Values.executor.mounts }}
     volumeMounts:
     {{- range $name, $path := .Values.executor.mounts }}
-      - name: {{ $name }}
-        mountPath: {{ $path }}
+    - name: {{ $name }}
+      mountPath: {{ $path }}
     {{- end }}
     {{- end }}
     {{- if .Values.tolerations }}
     tolerations:
-{{ toYaml .Values.tolerations | indent 6 }}
+    {{ toYaml .Values.tolerations | indent 6 }}
     {{- end }}
-  {{- if .Values.jmxExporterJar }}
-  monitoring:
-    exposeDriverMetrics: true
-    exposeExecutorMetrics: true
-    prometheus:
-      port: {{ .Values.jmxPort | default 8090 }}
-      jmxExporterJar: {{ .Values.jmxExporterJar }}
+    {{- if .Values.jmxExporterJar }}
+monitoring:
+  exposeDriverMetrics: true
+  exposeExecutorMetrics: true
+  prometheus:
+    port: {{ .Values.jmxPort | default 8090 }}
+    jmxExporterJar: {{ .Values.jmxExporterJar }}
   {{- end }}
   {{- if .Values.volumes }}
-  volumes:
-{{ toYaml .Values.volumes | indent 3 }}
+volumes:
+  {{ toYaml .Values.volumes | indent 3 }}
   {{- end }}
   {{- if .Values.nodeSelector }}
-  nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 4 }}
+nodeSelector:
+  {{ toYaml .Values.nodeSelector | indent 4 }}
   {{- end }}
