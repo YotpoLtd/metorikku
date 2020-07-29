@@ -1,4 +1,4 @@
 * path to run helm commands from
 ```cd metorikku/helm```
 * debugging template
-```helm upgrade --dry-run --debug demo-metorikku spark-yotpo --values spark-yotpo/spark-with-hive-built-in.yaml  --values spark-yotpo/values.yaml```
+``` helm upgrade -i --dry-run metorikku-example helm/spark-yotpo/ -f helm/spark-yotpo/custom-values.yaml```

@@ -36,14 +36,14 @@ sparkConf:
 hiveMetaStore:
   enabled: false
   conf:
-    spark.sql.catalogImplementation: hive
-    spark.hadoop.hive.metastore.uris: thrift://$HIVE_METASTORE_URI
-    spark.hadoop.hive.metastore.schema.verification: false
     spark.hadoop.hive.metastore.schema.verification.record.version: false
+    spark.hadoop.hive.metastore.schema.verification: false
+    spark.hadoop.hive.metastore.uris: thrift://${HIVE_METASTORE_URI}
+    spark.sql.catalogImplementation: hive
 externalHiveMetastore:
   enabled: false
   conf:
-    spark.sql.hive.metastore.version: $HIVE_VERSION
+    spark.sql.hive.metastore.version: 2.3.3
     spark.sql.hive.metastore.jars: /opt/hive/lib/*
 atlas:
   enabled: false
