@@ -3,16 +3,16 @@ package com.yotpo.metorikku.code.steps.functions.test
 import java.sql.Timestamp
 
 import org.scalatest.{FunSuite, Suites}
-import com.yotpo.metorikku.code.steps.functions.UserDefinedFunctionsTests._
+import com.yotpo.metorikku.code.steps.functions.UserDefinedFunctions._
 
 class SerDefinedFunctionsTests extends Suites (
-  new LongToTimestampTest
+  new EpochMilliToTimestampTest
 )
 
-class LongToTimestampTest extends FunSuite {
+class EpochMilliToTimestampTest extends FunSuite {
 
-  test("Given a Long returns a Timestamp") {
-    assert(longToTimestamp(1596030807) === new Timestamp(1596030807))
+  test("Given a Long representing Epoch Milli returns a Timestamp") {
+    assert(epochMilliToTimestamp(1584176754000L) === new Timestamp(1584176754000L))
   }
 
 }
