@@ -82,9 +82,10 @@ spec:
     {{- end }}
     {{- end }}
     {{- if .Values.envVars }}
-    envVars:
+    env:
     {{- range $name, $value := .Values.envVars }}
-    {{ $name }}: {{ $value | quote }}
+      - name: {{ $name }}
+        value: {{ $value }}
     {{- end }}
     {{- end }}
     cores: {{ .Values.driver.cores }}
@@ -112,9 +113,10 @@ spec:
   {{- end }}
   executor:
     {{- if .Values.envVars }}
-    envVars:
+    env:
     {{- range $name, $value := .Values.envVars }}
-    {{ $name | quote }}: {{ $value | quote }}
+      - name: {{ $name }}
+        value: {{ $value }}
     {{- end }}
     {{- end }}
     cores: {{ .Values.executor.cores }}
