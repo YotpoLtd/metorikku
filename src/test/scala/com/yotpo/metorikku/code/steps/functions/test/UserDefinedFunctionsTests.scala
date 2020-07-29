@@ -3,9 +3,9 @@ package com.yotpo.metorikku.code.steps.functions.test
 import java.sql.Timestamp
 
 import org.scalatest.{FunSuite, Suites}
-import com.yotpo.metorikku.code.steps.functions.UserDefinedFunctions._
+import com.yotpo.metorikku.code.steps.functions.UserDefinedFunctionsTests._
 
-class InCohortTest extends Suites (
+class SerDefinedFunctionsTests extends Suites (
   new LongToTimestampTest
 )
 
