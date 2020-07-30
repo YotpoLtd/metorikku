@@ -11,8 +11,6 @@ docker pull metorikku/hive:latest
 docker pull $(grep -ioP '(?<=^from)\s+\S+' docker/hive1/Dockerfile)
 docker pull metorikku/hive:1
 
-echo "RON"
-pwd
 docker build -t metorikku/spark --cache-from metorikku/spark:latest --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/spark/Dockerfile docker/spark
 docker build -t metorikku/k8s-spark-operator --cache-from metorikku/k8s-spark-operator --build-arg SPARK_VERSION=$SPARK_VERSION --build-arg HADOOP_VERSION=$HADOOP_VERSION -f docker/k8s-spark-operator/Dockerfile .
 docker build -t metorikku/hive:1 --cache-from metorikku/hive:1 --build-arg HIVE_VERSION=$HIVE1_VERSION --build-arg HUDI_HIVE1_VERSION=$HUDI_HIVE1_VERSION -f docker/hive1/Dockerfile docker/hive1
