@@ -59,9 +59,9 @@ RUN apt-get update \
     && rm get-pip.py \
     && rm -rf /var/lib/apt/lists/*
 
-COPY docker/k8s-spark-operator/conf/log4j.json.properties ${SPARK_HOME}/custom/conf/
-COPY docker/k8s-spark-operator/conf/atlas-application.properties ${SPARK_HOME}/custom/conf/
-COPY examples ${SPARK_HOME}/work-dir/examples/
+ADD docker/k8s-spark-operator/conf/log4j.json.properties ${SPARK_HOME}/custom/conf/
+ADD docker/k8s-spark-operator/conf/atlas-application.properties ${SPARK_HOME}/custom/conf/
+ADD examples ${SPARK_HOME}/work-dir/examples/
 
 ENV PYTHONHASHSEED 1
 ENV PATH="${HADOOP_PREFIX}/bin:${SPARK_HOME}/bin:${PATH}"
