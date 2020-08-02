@@ -40,11 +40,6 @@ spec:
     {{ $conf | quote }}: {{ $value | quote }}
     {{- end }}
     {{- end }}
-    {{- if .Values.externalHiveMetastore.enabled  }}
-    {{- range $conf, $value := .Values.externalHiveMetastore.conf }}
-    {{ $conf | quote }}: {{ $value | quote }}
-    {{- end }}
-    {{- end }}
     {{- if .Values.atlas.enabled  }}
     {{- range $conf, $value := .Values.atlas.conf }}
     {{ $conf | quote }}: {{ $value | quote }}
