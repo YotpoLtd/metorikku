@@ -10,7 +10,7 @@ import org.scalatest.{FunSuite, _}
 import scala.collection.mutable.ArrayBuffer
 
 //noinspection ScalaStyle
-class LoadIfExists extends FunSuite with BeforeAndAfterEach {
+class LoadIfExistsTest extends FunSuite with BeforeAndAfterEach {
   private val log: Logger = LogManager.getLogger(this.getClass)
   private var sparkSession : SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
