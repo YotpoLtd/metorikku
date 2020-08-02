@@ -31,10 +31,18 @@ Each `checks` list item consists of the operator name as key, and the required p
 The following list includes the supported operators:
 ##### `isComplete`
 Creates a constraint that asserts on a column completion.
-Required parameters: `column`
+Required parameter: `column`
 ##### `isUnique`
 Creates a constraint that asserts on a column uniqueness.
-Required parameters: `column`
-
+Required parameter: `column`
+##### `hasSize`
+Creates a constraint that calculates the data frame size and asserts the size according to the given operator defined.
+Required parameter: `size`
+Required parameter: `operator` Optional values: [==, !=, >=, >, <=, <] 
+##### `hasUniqueness`
+Creates a constraint that asserts on uniqueness in a single or combined set of key columns, according to the given fraction and operator.
+Required parameter: `columns`
+Optional parameter: `fraction` (Default: "1.0")
+Optional parameter: `operator` (Default: "==") Optional values: [==, !=, >=, >, <=, <] 
 
 
