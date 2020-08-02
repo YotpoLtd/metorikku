@@ -59,9 +59,12 @@ RUN apt-get update \
     && rm get-pip.py \
     && rm -rf /var/lib/apt/lists/*
 
-COPY conf/log4j.json.properties ${SPARK_HOME}/custom/conf/
+ADD docker/k8s-spark-operator/conf/log4j.json.properties ${SPARK_HOME}/custom/conf/
+ADD docker/k8s-spark-operator/conf/atlas-application.properties ${SPARK_HOME}/custom/conf/
+ADD examples ${SPARK_HOME}/work-dir/examples/
+
 ENV PYTHONHASHSEED 1
 ENV PATH="${HADOOP_PREFIX}/bin:${SPARK_HOME}/bin:${PATH}"
-ENV SPARK_DIST_CLASSPATH /etc/hadoop:/opt/hadoop-2.9.2/share/hadoop/common/lib/*:/opt/hadoop-2.9.2/share/hadoop/common/*:/opt/hadoop-2.9.2/share/hadoop/hdfs:/opt/hadoop-2.9.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.9.2/share/hadoop/hdfs/*:/opt/hadoop-2.9.2/share/hadoop/yarn:/opt/hadoop-2.9.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.9.2/share/hadoop/yarn/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar
+ENV SPARK_DIST_CLASSPATH /etc/hadoop:/opt/hadoop-2.9.2/share/hadoop/common/lib/*:/opt/hadoop-2.9.2/share/hadoop/common/*:/opt/hadoop-2.9.2/share/hadoop/hdfs:/opt/hadoop-2.9.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.9.2/share/hadoop/hdfs/*:/opt/hadoop-2.9.2/share/hadoop/yarn:/opt/hadoop-2.9.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.9.2/share/hadoop/yarn/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar:${SPARK_HOME}/custom/conf/
 ENV SPARK_EXTRA_CLASSPATH $SPARK_DIST_CLASSPATH
 ENTRYPOINT ["/opt/entrypoint.sh"]

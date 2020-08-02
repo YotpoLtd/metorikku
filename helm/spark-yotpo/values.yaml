@@ -1,0 +1,53 @@
+version: 0.2
+sparkVersion: 2.4.5
+hostNetwork: false
+imagePullPolicy: Never
+image: metorikku/k8s-spark-operator
+jar: https://repo1.maven.org/maven2/com/yotpo/metorikku_2.11/0.0.86/metorikku_2.11-0.0.86-assembly.jar
+mainClass: com.yotpo.metorikku.Metorikku
+fileDependencies: []
+javaOptions: "-Dhttps.protocols=TLSv1.2 -Dlog4j.configuration=/opt/spark/custom/conf/log4j.json.properties"
+arguments:
+  - "-c"
+  - "/opt/spark/work-dir/examples/movies.yaml"
+driver:
+  cores: 1
+  coreLimit: 1
+  memory: "512m"
+executor:
+  cores: 1
+  coreLimit: 1
+  instances: 1
+  memory: "512m"
+sparkConf:
+  spark.executor.logs.rolling.maxRetainedFiles: 0
+  spark.executor.logs.rolling.maxSize: 104857600
+  spark.executor.logs.rolling.strategy: size
+  spark.hadoop.fs.s3.impl: org.apache.hadoop.fs.s3a.S3AFileSystem
+  spark.hadoop.fs.s3a.fast.upload: true
+  spark.hadoop.fs.s3a.impl: org.apache.hadoop.fs.s3a.S3AFileSystem
+  spark.hadoop.fs.s3a.multiobjectdelete.enable: false
+  spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version: 2
+  spark.port.maxRetries: 0
+  spark.rdd.compress: true
+  spark.serializer: org.apache.spark.serializer.KryoSerializer
+  spark.sql.hive.convertMetastoreParquet: false
+  spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation: true
+hiveMetaStore:
+  enabled: false
+  conf:
+    spark.hadoop.hive.metastore.schema.verification.record.version: false
+    spark.hadoop.hive.metastore.schema.verification: false
+    spark.hadoop.hive.metastore.uris: thrift://${HIVE_METASTORE_URI}
+    spark.sql.catalogImplementation: hive
+externalHiveMetastore:
+  enabled: false
+  conf:
+    spark.sql.hive.metastore.version: 2.3.3
+    spark.sql.hive.metastore.jars: /opt/hive/lib/*
+atlas:
+  enabled: false
+  conf:
+    spark.extraListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
+    spark.sql.queryExecutionListeners: com.hortonworks.spark.atlas.SparkAtlasEventTracker
+    spark.sql.streaming.streamingQueryListeners: com.hortonworks.spark.atlas.SparkAtlasStreamingQueryEventTracker
