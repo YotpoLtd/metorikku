@@ -69,7 +69,7 @@ libraryDependencies ++= Seq(
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "org.apache.hive" % "hive-jdbc" % "2.3.3" % "provided" excludeAll(excludeNetty, excludeNettyAll, excludeLog4j, excludeParquet),
   "org.apache.hadoop" % "hadoop-aws" % "2.7.3" % "provided",
-  "com.amazon.deequ" % "deequ" % "1.0.4"
+  "com.amazon.deequ" % "deequ" % "1.0.4" excludeAll(excludeSpark)
 )
 
 // Temporary fix for https://github.com/databricks/spark-redshift/issues/315#issuecomment-285294306
