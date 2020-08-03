@@ -138,18 +138,18 @@ spec:
     {{ toYaml .Values.tolerations | indent 6 }}
     {{- end }}
     {{- if .Values.jmxExporterJar }}
-monitoring:
-  exposeDriverMetrics: true
-  exposeExecutorMetrics: true
-  prometheus:
-    port: {{ .Values.jmxPort | default 8090 }}
-    jmxExporterJar: {{ .Values.jmxExporterJar }}
-  {{- end }}
-  {{- if .Values.volumes }}
-volumes:
-  {{ toYaml .Values.volumes | indent 3 }}
-  {{- end }}
-  {{- if .Values.nodeSelector }}
-nodeSelector:
-  {{ toYaml .Values.nodeSelector | indent 4 }}
-  {{- end }}
+  monitoring:
+    exposeDriverMetrics: true
+    exposeExecutorMetrics: true
+    prometheus:
+      port: {{ .Values.jmxPort | default 8090 }}
+      jmxExporterJar: {{ .Values.jmxExporterJar }}
+    {{- end }}
+    {{- if .Values.volumes }}
+  volumes:
+    {{ toYaml .Values.volumes | indent 3 }}
+    {{- end }}
+    {{- if .Values.nodeSelector }}
+  nodeSelector:
+    {{ toYaml .Values.nodeSelector | indent 4 }}
+    {{- end }}

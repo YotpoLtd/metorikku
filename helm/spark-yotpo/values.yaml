@@ -19,6 +19,7 @@ executor:
   coreLimit: 1
   instances: 1
   memory: "512m"
+jmxExporterJar: "/prometheus/jmx_prometheus_javaagent-0.11.0.jar"
 sparkConf:
   spark.executor.logs.rolling.maxRetainedFiles: 0
   spark.executor.logs.rolling.maxSize: 104857600
