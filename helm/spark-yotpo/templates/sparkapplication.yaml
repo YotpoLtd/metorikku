@@ -46,6 +46,11 @@ spec:
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- if .Values.historyServer.enabled  }}
+    {{- range $conf, $value := .Values.historyServer.conf }}
+    {{ $conf | quote }}: {{ $value | quote }}
+    {{- end }}
+  {{- end }}
   {{- if .Values.hadoopConf }}
   hadoopConf:
     {{- range $conf, $value := .Values.hadoopConf }}
