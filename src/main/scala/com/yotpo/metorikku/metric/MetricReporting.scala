@@ -38,10 +38,15 @@ class MetricReporting {
   def reportLagTime(dataFrame: DataFrame, reportLagTimeColumn: Option[String],
                     reportLagTimeColumnUnits:Option[String],
                     instrumentationProvider: InstrumentationProvider) : Unit ={
-    val maxDataframeTime = getMaxDataframeTime(dataFrame, reportLagTimeColumn, reportLagTimeColumnUnits)
-    log.info(s"Max column ${reportLagTimeColumn} value is ${maxDataframeTime} for ${dataFrame}")
-    val lag = System.currentTimeMillis - maxDataframeTime
-    log.info(s"Reporting lag value: ${lag} for ${dataFrame}")
-    instrumentationProvider.gauge(name = "lag", lag)
+    dataFrame.isEmpty match {
+      case false => {
+        val maxDataframeTime = getMaxDataframeTime(dataFrame, reportLagTimeColumn, reportLagTimeColumnUnits)
+        log.info(s"Max column ${reportLagTimeColumn} value is ${maxDataframeTime} for ${dataFrame}")
+        val lag = System.currentTimeMillis - maxDataframeTime
+        log.info(s"Reporting lag value: ${lag} for ${dataFrame}")
+        instrumentationProvider.gauge(name = "lag", lag)
+      }
+      case true => instrumentationProvider.gauge(name = "lag", 0)
+    }
   }
 }
