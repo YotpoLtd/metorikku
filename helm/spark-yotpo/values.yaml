@@ -1,7 +1,7 @@
 version: 0.2
 sparkVersion: 2.4.5
 hostNetwork: false
-imagePullPolicy: Never
+imagePullPolicy: IfNotPresent
 image: metorikku/k8s-spark-operator
 jar: https://repo1.maven.org/maven2/com/yotpo/metorikku_2.11/0.0.86/metorikku_2.11-0.0.86-assembly.jar
 mainClass: com.yotpo.metorikku.Metorikku
@@ -19,7 +19,13 @@ executor:
   coreLimit: 1
   instances: 1
   memory: "512m"
+  volumeMounts:
+    spark-local-dir-1: "/tmp/spark-local-dir"
 jmxExporterJar: "/prometheus/jmx_prometheus_javaagent-0.11.0.jar"
+volumes:
+  - name: "spark-local-dir-1"
+    hostPath:
+      path: "/tmp/spark-local-dir"
 sparkConf:
   spark.executor.logs.rolling.maxRetainedFiles: 0
   spark.executor.logs.rolling.maxSize: 104857600
@@ -34,6 +40,7 @@ sparkConf:
   spark.serializer: org.apache.spark.serializer.KryoSerializer
   spark.sql.hive.convertMetastoreParquet: false
   spark.sql.legacy.allowCreatingManagedTableUsingNonemptyLocation: true
+  spark.kubernetes.local.dirs.tmpfs: true
 hiveMetaStore:
   enabled: false
   conf:
