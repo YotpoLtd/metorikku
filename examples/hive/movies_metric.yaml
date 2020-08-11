@@ -8,6 +8,8 @@ steps:
   sql:
     SELECT *, "test" as new_column
     FROM comedyFantasyRomanceSciFiMovies
+- dataFrameName: tableProperties
+  sql: SELECT count(1) as number_of_rows FROM comedyFantasyRomanceSciFiMoviesAddColumn
 output:
 - dataFrameName: comedyFantasyRomanceSciFiMovies
   outputType: Parquet
@@ -16,11 +18,19 @@ output:
     path: comedyFantasyRomanceSciFiMovies.parquet
     tableName: testMetorikkuHiveExternal
     protectFromEmptyOutput: true
+    tableProperties:
+      dook: shoo
+      foo: ba
+      comment: awesome
 - dataFrameName: comedyFantasyRomanceSciFiMoviesAddColumn
   outputType: Parquet
   outputOptions:
     saveMode: Overwrite
     path: comedyFantasyRomanceSciFiMovies.parquet
+    tableName: testMetorikkuHiveExternal
+- dataFrameName: tableProperties
+  outputType: Catalog
+  outputOptions:
     tableName: testMetorikkuHiveExternal
 - dataFrameName: comedyFantasyRomanceSciFiMovies
   outputType: Parquet

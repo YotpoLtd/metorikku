@@ -40,6 +40,7 @@ object WriterFactory {
       case OutputType.JDBCQuery => new JDBCQueryWriter(metricOutputOptions, output.jdbc)
       case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions, output.kafka)
       case OutputType.Elasticsearch => new ElasticsearchOutputWriter(metricOutputOptions, output.elasticsearch.get)
+      case OutputType.Catalog => new CatalogWriter(metricOutputOptions)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions.asInstanceOf[Map[String, String]])

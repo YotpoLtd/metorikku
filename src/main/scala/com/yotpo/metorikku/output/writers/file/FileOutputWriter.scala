@@ -6,6 +6,7 @@ import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.output.catalog.CatalogTable
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
 import org.joda.time.DateTime
@@ -19,6 +20,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
                                    partitionBy: Option[Seq[String]],
                                    triggerDuration: Option[String],
                                    tableName: Option[String],
+                                   tableProperties: Option[Map[String, String]],
                                    format: Option[String],
                                    alwaysUpdateSchemaInCatalog: Boolean,
                                    protectFromEmptyOutput: Option[Boolean],
@@ -31,6 +33,7 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     props.get("partitionBy").asInstanceOf[Option[Seq[String]]],
     props.get("triggerDuration").asInstanceOf[Option[String]],
     props.get("tableName").asInstanceOf[Option[String]],
+    props.get("tableProperties").asInstanceOf[Option[Map[String, String]]],
     props.get("format").asInstanceOf[Option[String]],
     props.get("alwaysUpdateSchemaInCatalog").asInstanceOf[Option[Boolean]].getOrElse(true),
     props.get("protectFromEmptyOutput").asInstanceOf[Option[Boolean]],
@@ -76,77 +79,38 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     save(writer, dataFrame, fileOutputProperties.tableName, path)
   }
 
-  private def overwriteExternalTable(ss: SparkSession, tableName: String, dataFrame: DataFrame, filePath: String): Unit = {
-    log.info(s"Overwriting external table $tableName to new path $filePath")
-    ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
-    val catalog = ss.catalog
 
-    fileOutputProperties.alwaysUpdateSchemaInCatalog match {
-      case true => {
-        try {
-          ss.sharedState.externalCatalog.alterTableDataSchema(
-            catalog.currentDatabase,
-            tableName,
-            dataFrame.schema
-          )
-        }
-        catch
-        {
-          case e: Exception => log.info(s"Failed to update schema in hive: ${e.getMessage}")
-        }
-      }
-      case false =>
-    }
-
-    fileOutputProperties.partitionBy match {
-      case Some(_) =>
-        log.info("Recovering partitions")
-        catalog.recoverPartitions(tableName)
-      case _ =>
-    }
-  }
 
   private def save(writer: DataFrameWriter[_], dataFrame: DataFrame, tableName: Option[String], path: Option[String]): Unit = {
-    (fileOutputProperties.tableName, path) match {
-      case (Some(tableName), Some(filePath)) => {
-        log.info(s"Writing external table $tableName to $filePath")
-        val ss = dataFrame.sparkSession
-        val catalog = ss.catalog
 
-        writer.save()
+    fileOutputProperties.tableName match {
+      // Save to catalog
+      case Some(tableName) => {
+        val catalogTable = new CatalogTable(tableName)
+        path match {
+          case Some(filePath) => {
+            log.info(s"Writing external table $tableName to $filePath")
 
-        protectFromEmptyOutput(ss, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
-
-        catalog.tableExists(tableName) match {
-          // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
-          case true => {
-            overwriteExternalTable(ss=ss, tableName=tableName,
-              dataFrame=dataFrame, filePath=filePath)
+            writer.save()
+            protectFromEmptyOutput(dataFrame.sparkSession, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
+            catalogTable.saveExternalTable(dataFrame, filePath, fileOutputProperties.partitionBy, fileOutputProperties.alwaysUpdateSchemaInCatalog)
           }
-          case false => {
-            log.info(s"Creating new external table $tableName to path $filePath")
-            catalog.createTable(tableName, filePath)
-            fileOutputProperties.partitionBy match {
-              case Some(_) =>
-                log.info("Recovering partitions")
-                catalog.recoverPartitions(tableName)
-              case _ =>
-            }
+          case None => {
+            log.info(s"Writing managed table $tableName")
+            writer.saveAsTable(tableName)
           }
         }
-        catalog.refreshTable(tableName)
-
-
+        catalogTable.setTableMetadata(fileOutputProperties.tableProperties)
       }
-      case (Some(tableName), None) => {
-        log.info(s"Writing managed table $tableName")
-        writer.saveAsTable(tableName)
+      case None => {
+        path match {
+          case Some(filePath) => {
+            log.info(s"Writing file to $filePath")
+            writer.save()
+          }
+          case None => log.error("Failed to write to file. missing some required options")
+        }
       }
-      case (None, Some(filePath)) => {
-        log.info(s"Writing file to $filePath")
-        writer.save()
-      }
-      case _ => log.error("Failed to write to file. missing some required options")
     }
   }
 
@@ -205,7 +169,6 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
       case _=> Option(file.dir + "/" + path)
     }
   }
-
   def protectFromEmptyOutput(ss: SparkSession, protectFromEmptyOutput: Option[Boolean], format: Option[String],
                              path: String, tableName: String): Unit = {
     fileOutputProperties.protectFromEmptyOutput match {
@@ -224,5 +187,3 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
     }
   }
 }
-
-
