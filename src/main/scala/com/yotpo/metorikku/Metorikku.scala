@@ -15,7 +15,17 @@ object Metorikku extends App {
     case Some(periodic) => {
       executePeriodicTask(periodic)
     }
-    case _ => runMetrics(session)
+    case _ => {
+      runMetrics(session)
+      try
+        {
+          session.instrumentationClient.close()
+        }
+      catch
+        {
+          case e: Throwable => log.error(s"Got exception while closing connection to instrumentationClient", e)
+        }
+    }
   }
 
   private def executePeriodicTask(periodic: Periodic) = {

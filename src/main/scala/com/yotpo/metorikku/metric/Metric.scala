@@ -136,7 +136,6 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
           val dataFrameName = outputConfig.dataFrameName
           val dataFrame = repartition(outputConfig, job.sparkSession.table(dataFrameName))
 
-
           val outputOptions = Option(outputConfig.outputOptions).getOrElse(Map())
           outputOptions.get("protectFromEmptyOutput").asInstanceOf[Option[Boolean]] match {
             case Some(true) => {
@@ -158,7 +157,6 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
               job.config.cacheCountOnOutput)
           }
         })
-
         for ((dataFrameName, streamingConfig) <- streamingWriterList) writeStream(dataFrameName,
           streamingConfig.streamingWritingConfiguration, job.config.streaming, job.instrumentationClient)
 
@@ -167,3 +165,4 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
     }
   }
 }
+
