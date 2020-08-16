@@ -23,7 +23,7 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
     val tags = Map("metric" -> metricName)
     for (stepConfig <- configuration.steps) {
       val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get,
-        job.config.cacheOnPreview, job.config.showQuery)
+        job.config.cacheOnPreview, job.config.showQuery, job.config.ignoreDeequValidations)
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
         step.run(job.sparkSession)
