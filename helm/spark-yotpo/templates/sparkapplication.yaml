@@ -88,8 +88,11 @@ spec:
         value: {{ $value }}
     {{- end }}
     {{- end }}
-    cores: {{ .Values.driver.cores }}
-    coreLimit: {{ .Values.driver.coreLimit | default .Values.driver.cores | quote }}
+    cores: {{ .Values.driver.cores | default 1}}
+    {{- if .Values.driver.coreRequest }}
+    coreRequest: {{ .Values.driver.coreRequest | quote }}
+    {{- end }}
+    coreLimit: {{ .Values.driver.coreLimit | default .Values.driver.coreRequest | quote }}
     memory: {{ .Values.driver.memory }}
     hostNetwork: {{ .Values.hostNetwork }}
     labels:
@@ -119,8 +122,11 @@ spec:
         value: {{ $value }}
     {{- end }}
     {{- end }}
-    cores: {{ .Values.executor.cores }}
-    coreLimit: {{ .Values.executor.coreLimit | default .Values.driver.cores | quote }}
+    cores: {{ .Values.executor.cores | default 1 }}
+    {{- if .Values.executor.coreRequest }}
+    coreRequest: {{ .Values.executor.coreRequest | quote }}
+    {{- end }}
+    coreLimit: {{ .Values.executor.coreLimit | default .Values.driver.coreRequest | quote }}
     instances: {{ .Values.executor.instances }}
     memory: {{ .Values.executor.memory }}
     labels:

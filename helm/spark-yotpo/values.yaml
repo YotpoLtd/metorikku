@@ -11,12 +11,10 @@ arguments:
   - "-c"
   - "/opt/spark/work-dir/examples/movies.yaml"
 driver:
-  cores: 1
-  coreLimit: 1
+  coreRequest: 1.0
   memory: "4G"
 executor:
-  cores: 1
-  coreLimit: 1
+  coreRequest: 2.0
   instances: 1
   memory: "4G"
   volumeMounts:
