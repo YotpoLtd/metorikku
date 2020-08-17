@@ -126,7 +126,7 @@ spec:
     {{- if .Values.executor.coreRequest }}
     coreRequest: {{ .Values.executor.coreRequest | quote }}
     {{- end }}
-    coreLimit: {{ .Values.executor.coreLimit | default .Values.driver.coreRequest | quote }}
+    coreLimit: {{ .Values.executor.coreLimit | default .Values.executor.coreRequest | quote }}
     instances: {{ .Values.executor.instances }}
     memory: {{ .Values.executor.memory }}
     labels:
