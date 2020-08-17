@@ -10,9 +10,10 @@ import com.yotpo.metorikku.utils.FileUtils
 object StepFactory {
   def getStepAction(configuration: Step, metricDir: Option[File], metricName: String,
                     showPreviewLines: Int, cacheOnPreview: Option[Boolean],
-                    showQuery: Option[Boolean]): StepAction[_] = {
+                    showQuery: Option[Boolean], ignoreDeequValidations: Option[Boolean]): StepAction[_] = {
     configuration.sql match {
-      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq)
+      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq,
+        ignoreDeequValidations)
       case None => {
         configuration.file match {
           case Some(filePath) =>
@@ -22,7 +23,7 @@ object StepFactory {
             }
             Sql(
               FileUtils.readConfigurationFile(path),
-              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq
+              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq, ignoreDeequValidations
             )
           case None => {
             configuration.classpath match {
