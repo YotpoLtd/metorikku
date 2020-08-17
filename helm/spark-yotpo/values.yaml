@@ -13,12 +13,12 @@ arguments:
 driver:
   cores: 1
   coreLimit: 1
-  memory: "512m"
+  memory: "4G"
 executor:
   cores: 1
   coreLimit: 1
   instances: 1
-  memory: "512m"
+  memory: "4G"
   volumeMounts:
     spark-local-dir-1: "/tmp/spark-local-dir"
 jmxExporterJar: "/prometheus/jmx_prometheus_javaagent-0.11.0.jar"
