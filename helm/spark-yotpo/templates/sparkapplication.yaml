@@ -30,6 +30,9 @@ spec:
   sparkVersion: {{ .Values.sparkVersion | quote }}
   restartPolicy:
     type: Never
+  {{- if .Values.sparkConfigMap }}
+  sparkConfigMap: {{ .Values.sparkConfigMap | quote }}
+  {{- end }}
   {{- if .Values.sparkConf }}
   sparkConf:
     {{- range $conf, $value := .Values.sparkConf }}
