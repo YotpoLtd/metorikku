@@ -11,20 +11,23 @@ object ToAvro {
   val message = "You need to send the following parameters to output to Avro format:" +
     "table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace " +
     "Will create an entry in the schema registry under: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>"
+  private class InputMatcher[K](ks: K*) {
+    def unapplySeq[V](m: Map[K, V]): Option[Seq[V]] = if (ks.forall(m.contains)) Some(ks.map(m)) else None
+  }
+  private val InputMatcher = new InputMatcher("table", "schema.registry.url", "schema.registry.topic", "value.schema.name", "value.schema.namespace")
 
   def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
-    params match {
-      case Some(parameters) => {
-        val table = parameters.get("table").get
-        val dataFrame = ss.table(table)
+    params.get match {
+      case InputMatcher(tableName, schemaRegistryUrl, schemaRegistryTopic, valueSchemaName, valueSchemaNamespace) => {
+        val dataFrame = ss.table(tableName)
         val columns = struct(dataFrame.columns.head, dataFrame.columns.tail: _*)
 
         val schemaRegistryConfig = Map(
-          SchemaManager.PARAM_SCHEMA_REGISTRY_URL                        -> parameters.get("schema.registry.url").get,
-          SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC                      -> parameters.get("schema.registry.topic").get,
+          SchemaManager.PARAM_SCHEMA_REGISTRY_URL                        -> schemaRegistryUrl,
+          SchemaManager.PARAM_SCHEMA_REGISTRY_TOPIC                      -> schemaRegistryTopic,
           SchemaManager.PARAM_VALUE_SCHEMA_NAMING_STRATEGY               -> SchemaManager.SchemaStorageNamingStrategies.TOPIC_RECORD_NAME,
-          SchemaManager.PARAM_VALUE_SCHEMA_NAME_FOR_RECORD_STRATEGY      -> parameters.get("value.schema.name").get,
-          SchemaManager.PARAM_VALUE_SCHEMA_NAMESPACE_FOR_RECORD_STRATEGY -> parameters.get("value.schema.namespace").get
+          SchemaManager.PARAM_VALUE_SCHEMA_NAME_FOR_RECORD_STRATEGY      -> valueSchemaName,
+          SchemaManager.PARAM_VALUE_SCHEMA_NAMESPACE_FOR_RECORD_STRATEGY -> valueSchemaNamespace
         )
 
         val avroDf = dataFrame.select(to_avro(columns, schemaRegistryConfig) as 'value)
@@ -33,7 +36,7 @@ object ToAvro {
 
         avroDf.count()
       }
-      case None => throw MetorikkuException(message)
+      case _ => throw MetorikkuException(message)
     }
   }
 }

@@ -19,7 +19,7 @@ class ToAvroTests extends FunSuite with BeforeAndAfterEach {
       .getOrCreate()
   }
 
-  test("ToAvro Missing Param") {
+  test("ToAvro Missing Topic Param") {
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     val sqlContext= new SQLContext(sparkSession.sparkContext)
@@ -34,17 +34,16 @@ class ToAvroTests extends FunSuite with BeforeAndAfterEach {
 
     val params: Option[Map[String, String]] = Option(Map("table" -> "amit_table",
       "schema.registry.url" -> "http://localhost:8081",
-      "value.schema.naming.strategy" -> "naming_strategy",
       "value.schema.name" -> "schema_name",
       "value.schema.namespace" -> "schema_namespace"))
 
-    assertThrows[java.util.NoSuchElementException] {
+    assertThrows[com.yotpo.metorikku.exceptions.MetorikkuException] {
       ToAvro.run(sparkSession, "MetricName", "DataFrameName", params)
     }
   }
 
   test("ToAvro Missing Params") {
-    assertThrows[com.yotpo.metorikku.exceptions.MetorikkuException] {
+    assertThrows[java.util.NoSuchElementException] {
       ToAvro.run(sparkSession, "MetricName", "DataFrameName", None)
     }
   }
