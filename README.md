@@ -334,6 +334,23 @@ You can use watermarking by adding a new udf step in your metric:
     delayThreshold: 2 hours
 ```
 
+##### ToAvro
+Metorikku supports to_avro() method which turns a dataframe into Avro records.
+The method requires the following parameters: table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace, schema.registry.topic.
+A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>.
+<br/>You can use ToAvro by adding a new udf step in your metric:
+```yaml
+- dataFrameName: dataframe
+  classpath: com.yotpo.metorikku.code.steps.ToAvro
+  params:
+    table: my_table
+    schema.registry.url: http://localhost:8081
+    schema.registry.topic: my_topic
+    value.schema.naming.strategy: my_naming_strategy
+    value.schema.name: my_schema_name
+    value.schema.namespace: my_schema_namespace
+```
+
 #### Instrumentation
 One of the most useful features in Metorikku is it's instrumentation capabilities.
 
