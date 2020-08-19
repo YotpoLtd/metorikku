@@ -33,8 +33,6 @@ object ToAvro {
         val avroDf = dataFrame.select(to_avro(columns, schemaRegistryConfig) as 'value)
 
         avroDf.createOrReplaceTempView(dataFrameName)
-
-        avroDf.count()
       }
       case _ => throw MetorikkuException(message)
     }
