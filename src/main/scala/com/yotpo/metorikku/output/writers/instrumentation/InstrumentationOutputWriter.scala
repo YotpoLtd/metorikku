@@ -20,9 +20,9 @@ class InstrumentationOutputWriter(props: Map[String, Any],
   // scalastyle:off cyclomatic.complexity
   override def write(dataFrame: DataFrame): Unit = {
     val columns = dataFrame.schema.fields.zipWithIndex
-    val indexOfValCol = valueColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
+    val indexOfValCol: Option[Int]= valueColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
     val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
-    var valueColoumnsIndices = valueColumnsProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
+    val valueColumnsIndices: Option[List[Int]]= valueColumnsProperty.map(col => Option(dataFrame.schema.fieldNames.indexOf(col)).toList)
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
     dataFrame.foreachPartition(p => {
@@ -32,10 +32,10 @@ class InstrumentationOutputWriter(props: Map[String, Any],
       // ToDO: NEEDS TO BE REMOVED
       val actualIndexOfValCol = indexOfValCol.getOrElse(columns.length - 1)
 
-      val actualColumnsIndices = (indexOfValCol, valueColoumnsIndices) match {
-        case (Some(colIndex), None) => List(indexOfValCol.getOrElse(columns.length - 1))
-        case (None, Some(valueColoumnsIndices)) => valueColoumnsIndices
-        case _ =>
+      val actualIndicesOfValCol: List[Int] = (indexOfValCol, valueColumnsIndices) match {
+        case (Some(_), None) => List(indexOfValCol.get)
+        case (None, Some(_)) => valueColumnsIndices.get
+        case _ => List(columns.length - 1)
       }
 
       p.foreach(row => {
@@ -43,7 +43,8 @@ class InstrumentationOutputWriter(props: Map[String, Any],
 
           val tags = Map("metric" -> metricName, "dataframe" -> dataFrameName) ++
             columns.filter {
-              case (column, index) => index != actualIndexOfValCol && (!indexOfTimeCol.isDefined || index != indexOfTimeCol.get)
+              case (column, index) => !actualIndicesOfValCol.contains(index) &&
+                (!indexOfTimeCol.isDefined || index != indexOfTimeCol.get) //replace index with indices
             }.map {
               case (column, index) =>
                 column.name -> row.get(index).asInstanceOf[AnyVal].toString
@@ -56,7 +57,7 @@ class InstrumentationOutputWriter(props: Map[String, Any],
             val longValue = metricValue.asInstanceOf[Number].longValue()
             val valueColumnName = row.schema.fieldNames(actualIndexOfValCol)
             //client.gauge(name = valueColumnName, value = longValue, tags = tags,  time = time)
-            client.gauge(fields = tags, tags = tags,  time = time)
+            client.gauge2(fields = tags, tags = tags,  time = time)
           }
 
         }catch {

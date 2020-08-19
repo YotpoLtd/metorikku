@@ -18,8 +18,8 @@ class InfluxDBInstrumentation(val influxDB: InfluxDB, val measurement: String) e
     writeToInflux(time, name, value, tags)
   }
 
-  override def gauge(fields: Map[String, Object] = Map(), tags: Map[String, String] = Map(), time: Long): Unit = {
-    writeToInflux(time, fields, tags)
+  override def gauge2(fields: Map[String, Object] = Map(), tags: Map[String, String] = Map(), time: Long): Unit = {
+    writeToInflux2(time, fields, tags)
   }
 
   private def writeToInflux(time: Long, name: String, value: Long, tags: Map[String, String] = Map()): Unit = {
@@ -30,7 +30,7 @@ class InfluxDBInstrumentation(val influxDB: InfluxDB, val measurement: String) e
       .build())
   }
 
-  private def writeToInflux(time: Long, fields: Map[String, Object] = Map(), tags: Map[String, String] = Map()): Unit = {
+  private def writeToInflux2(time: Long, fields: Map[String, Object] = Map(), tags: Map[String, String] = Map()): Unit = {
     influxDB.write(Point.measurement(measurement)
       .time(time, TimeUnit.MILLISECONDS)
       .fields(fields.asJava)

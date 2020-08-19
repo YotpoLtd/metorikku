@@ -20,6 +20,8 @@ class SparkInstrumentation() extends InstrumentationProvider {
     metricParams ++= Array(name)
     metricParams.mkString(".")
   }
+
+  override def gauge2(fields: Map[String, Object], tags: Map[String, String], time: Long): Unit = ???
 }
 
 class SparkInstrumentationFactory() extends InstrumentationFactory {
