@@ -335,9 +335,9 @@ You can use watermarking by adding a new udf step in your metric:
 ```
 
 ##### ToAvro
-Metorikku supports to_avro() method which turns a dataframe into Avro records and send these to kafka.
-The method requires the following parameters: table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace, schema.registry.topic, and kafka.url.
-The method will auto-create a topic in Kafka if one doesn't exist; moreover, a subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>.
+Metorikku supports to_avro() method which turns a dataframe into Avro records.
+The method requires the following parameters: table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace, schema.registry.topic.
+A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>.
 <br/>You can use ToAvro by adding a new udf step in your metric:
 ```yaml
 - dataFrameName: dataframe
@@ -349,7 +349,6 @@ The method will auto-create a topic in Kafka if one doesn't exist; moreover, a s
     value.schema.naming.strategy: my_naming_strategy
     value.schema.name: my_schema_name
     value.schema.namespace: my_schema_namespace
-    kafka.url: localhost:9092
 ```
 
 #### Instrumentation
