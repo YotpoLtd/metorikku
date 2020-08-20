@@ -43,7 +43,7 @@ ARG AWS_SDK_VERSION=1.11.699
 ARG HADOOP_AWS_VERSION=3.0.3
 ARG HTTPCLIENT_VERSION=4.5.11
 
-RUN wget -q https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.11/2.4.5/spark-sql-kafka-0-10_2.11-2.4.5.jarjar -P $SPARK_HOME/jars/
+RUN wget -q https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_2.11/2.4.5/spark-sql-kafka-0-10_2.11-2.4.5.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/2.0.0/kafka-clients-2.0.0.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar -P $SPARK_HOME/jars/
