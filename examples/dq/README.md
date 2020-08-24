@@ -2,7 +2,13 @@
 ## Data Quality
 Metorikku offers to add Dataframe validations of top of SQL steps.
 The validations are executed on top of [AWSLabs Deequ](https://github.com/awslabs/deequ).
-A validation step consists of a `check`, a validation check list, and `level` which define outcome of the validation.
+A validation step consists of a `check`, a validation check list, and `level` which define outcome of the validation.  
+Required params:
+* `checks` - validation check list  
+
+Optional params:
+* `level` - Log level. Default value `WARN`
+* `cacheDf` - Cache all validated dataframes. Default value `true`
 ```
 steps:
 - dataFrameName: df1
