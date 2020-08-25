@@ -10,8 +10,8 @@ import za.co.absa.abris.avro.read.confluent.SchemaManager
 object ToAvro {
 
   val message = "You need to send the following parameters to output to Avro format:" +
-    "table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace " +
-    "Will create an entry in the schema registry under: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>"
+    "table, schema.registry.url, schema.registry.topic, schema.name, schema.namespace " +
+    "Will create an entry in the schema registry under: <schema.registry.topic>-value or <schema.registry.topic>-key"
   private class InputMatcher[K](ks: K*) {
     def unapplySeq[V](m: Map[K, V]): Option[Seq[V]] = if (ks.forall(m.contains)) Some(ks.map(m)) else None
   }

@@ -34,8 +34,8 @@ class ToAvroTests extends FunSuite with BeforeAndAfterEach {
 
     val params: Option[Map[String, String]] = Option(Map("table" -> "amit_table",
       "schema.registry.url" -> "http://localhost:8081",
-      "value.schema.name" -> "schema_name",
-      "value.schema.namespace" -> "schema_namespace"))
+      "schema.name" -> "schema_name",
+      "schema.namespace" -> "schema_namespace"))
 
     assertThrows[com.yotpo.metorikku.exceptions.MetorikkuException] {
       ToAvro.run(sparkSession, "MetricName", "DataFrameName", params)
