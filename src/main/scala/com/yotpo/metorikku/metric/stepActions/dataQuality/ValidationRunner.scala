@@ -13,13 +13,21 @@ case class ValidationRunner() {
   private val validationsPassedMsg = s"The data passed the validations, everything is fine!"
   private val validationsFailedMsg = s"There were validation errors in the data, the following constraints were not satisfied:"
   private val validationsFailedExceptionMsg = s"Verifications failed over dataframe: %s"
+  private val cachingDataframeMsg = s"Caching dataframe: %s"
 
   private val log = LogManager.getLogger(this.getClass)
-  def runChecks(dfName: String, checks: List[DataQualityCheck], level: Option[String]): Unit = {
+  def runChecks(dfName: String, checks: List[DataQualityCheck], level: Option[String], cacheDf: Option[Boolean]): Unit = {
     val dqChecks = checks.map {
       dq => dq.getCheck(level.getOrElse("warn"))
     }
     val df = SparkSession.builder().getOrCreate().table(dfName)
+    cacheDf match {
+      case Some(false) =>
+      case _ => {
+        log.info(cachingDataframeMsg.format(dfName))
+        df.cache()
+      }
+    }
     val verificationRunBuilder = VerificationSuite().onData(df).addChecks(dqChecks)
     log.info(executingVerificationsMsg.format(dfName))
     val verificationResult = verificationRunBuilder.run()

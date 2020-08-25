@@ -18,7 +18,7 @@ class IsUniqueTest extends FunSuite with BeforeAndAfterEach {
   private def valideIsUniqueOverDf(employeeData: Seq[(String, Int, Int, Int, Int)], level: String) = {
     val sqlContext = sparkSession.sqlContext
     val isUniqueCheck = new IsUnique(level = Some(level),column = "id")
-    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isUnique = Some(isUniqueCheck))), None)
+    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isUnique = Some(isUniqueCheck))), None, None)
     import sqlContext.implicits._
 
     val dfName = "employee_data"

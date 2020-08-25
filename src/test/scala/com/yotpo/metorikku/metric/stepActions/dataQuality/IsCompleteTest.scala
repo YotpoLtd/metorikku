@@ -19,7 +19,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
   private def valideIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String) = {
     val sqlContext = sparkSession.sqlContext
     val isCompleteCheck = new IsComplete(level = Some(level),column = "salary")
-    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None)
+    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None, None)
     import sqlContext.implicits._
 
     val dfName = "employee_data"

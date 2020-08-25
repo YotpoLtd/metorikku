@@ -2,7 +2,13 @@
 ## Data Quality
 Metorikku offers to add Dataframe validations of top of SQL steps.
 The validations are executed on top of [AWSLabs Deequ](https://github.com/awslabs/deequ).
-A validation step consists of a `check`, a validation check list, and `level` which define outcome of the validation.
+A validation step consists of a `check`, a validation check list, and `level` which define outcome of the validation.\
+Required params:
+* `checks` - validation check list.
+
+Optional params:
+* `level` - Log level. Default value `WARN`
+* `cacheDf` - Cache all validated dataframes. Default value `true`
 ```
 steps:
 - dataFrameName: df1
@@ -30,19 +36,19 @@ Each `checks` list item consists of the operator name as key, and the required p
 #### Operators
 The following list includes the supported operators:
 ##### `isComplete`
-Creates a constraint that asserts on a column completion.
+Creates a constraint that asserts on a column completion.\
 Required parameter: `column`
 ##### `isUnique`
-Creates a constraint that asserts on a column uniqueness.
+Creates a constraint that asserts on a column uniqueness.\
 Required parameter: `column`
 ##### `hasSize`
-Creates a constraint that calculates the data frame size and asserts the size according to the given operator defined.
-Required parameter: `size`
+Creates a constraint that calculates the data frame size and asserts the size according to the given operator defined.\
+Required parameter: `size`\
 Required parameter: `operator` Optional values: [==, !=, >=, >, <=, <] 
 ##### `hasUniqueness`
-Creates a constraint that asserts on uniqueness in a single or combined set of key columns, according to the given fraction and operator.
-Required parameter: `columns`
-Optional parameter: `fraction` (Default: "1.0")
+Creates a constraint that asserts on uniqueness in a single or combined set of key columns, according to the given fraction and operator.\
+Required parameter: `columns`\
+Optional parameter: `fraction` (Default: "1.0")\
 Optional parameter: `operator` (Default: "==") Optional values: [==, !=, >=, >, <=, <] 
 
 
