@@ -86,6 +86,7 @@ RUN chmod +x /wait
 COPY init-hive.sh /
 COPY start-hive.sh /
 COPY run_hive_import.sh /
+COPY health-check.sh /
 COPY log4j.json.properties .
 
 RUN mkdir -p $ATLAS_HOME/hook-bin/
