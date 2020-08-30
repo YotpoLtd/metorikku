@@ -2,6 +2,7 @@ ARG SCALA_VERSION=2.11
 ARG SPARK_VERSION=2.4.5
 ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v${SPARK_VERSION}-gcs-prometheus
 FROM ${SPARK_IMAGE}
+ARG SPARK_VERSION
 
 # Install Tools
 RUN apt-get update \
