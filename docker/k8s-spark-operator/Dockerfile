@@ -2,6 +2,8 @@ ARG SCALA_VERSION=2.11
 ARG SPARK_VERSION=2.4.5
 ARG SPARK_IMAGE=gcr.io/spark-operator/spark:v${SPARK_VERSION}-gcs-prometheus
 FROM ${SPARK_IMAGE}
+ARG SPARK_VERSION
+ARG SCALA_VERSION
 
 # Install Tools
 RUN apt-get update \
@@ -43,6 +45,11 @@ ARG AWS_SDK_VERSION=1.11.699
 ARG HADOOP_AWS_VERSION=3.0.3
 ARG HTTPCLIENT_VERSION=4.5.11
 
+#KafkaClient
+ARG KAFKA_CLIENT=2.0.0
+
+RUN wget -q https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_${SCALA_VERSION}/${SPARK_VERSION}/spark-sql-kafka-0-10_${SCALA_VERSION}-${SPARK_VERSION}.jar -P $SPARK_HOME/jars/
+RUN wget -q https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/${KAFKA_CLIENT}/kafka-clients-${KAFKA_CLIENT}.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar -P $SPARK_HOME/jars/
