@@ -19,7 +19,7 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
   private def valideHasSizeOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String) = {
     val sqlContext = sparkSession.sqlContext
     val hasSizeCheck = new HasSize(level = Some(level), "2","==" )
-    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(None, None, hasSize = Some(hasSizeCheck))), None)
+    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(None, None, hasSize = Some(hasSizeCheck))), None, None)
     import sqlContext.implicits._
 
     val dfName = "employee_data"

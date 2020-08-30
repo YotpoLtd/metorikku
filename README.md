@@ -336,8 +336,26 @@ You can use watermarking by adding a new udf step in your metric:
 
 ##### ToAvro
 Metorikku supports to_avro() method which turns a dataframe into Avro records.
-The method requires the following parameters: table, schema.registry.url, schema.registry.topic, value.schema.name, value.schema.namespace, schema.registry.topic.
-A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-<value.schema.namespace>.<value.schema_name>.
+
+The method requires the following parameters: 
+```
+- table 
+- schema.registry.url
+- schema.registry.topic
+- schema.name
+- schema.namespace
+```
+
+```table``` is the input table and it should contain a "value" column, and can contain a ```key``` column.
+
+The content of the ```value``` column in the input table will turn into avro in the ```value``` column of
+the output table. The content of the ```key``` column in the input table will turn into avro in the ```key``` column of
+the output table. ```key``` is not necessary in the input.
+
+The ```schema.name``` and ```schema.namespace``` will be the schame name and namespace for both the value schema and the key schema, if a key exist.
+
+A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-value 
+for the value schema and  <schema.registry.topic>-key for the key schema. 
 <br/>You can use ToAvro by adding a new udf step in your metric:
 ```yaml
 - dataFrameName: dataframe
@@ -346,9 +364,8 @@ A subject will be created in the schema registry (if one doesn't already exist).
     table: my_table
     schema.registry.url: http://localhost:8081
     schema.registry.topic: my_topic
-    value.schema.naming.strategy: my_naming_strategy
-    value.schema.name: my_schema_name
-    value.schema.namespace: my_schema_namespace
+    schema.name: my_schema_name
+    schema.namespace: my_schema_namespace
 ```
 
 #### Instrumentation
