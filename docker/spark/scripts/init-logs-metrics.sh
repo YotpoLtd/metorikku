@@ -15,3 +15,8 @@ if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
     eval "echo \"$(< /spark/conf/log4j.json.properties)\"" >> /spark/conf/log4j.properties
 fi
+
+if [ ! -z ${USE_ROLLBAR} ] ; then
+    echo "Appending Rollbar Logger"
+    eval "echo \"$(< /spark/conf/log4j.rollbar.properties)\"" >> /spark/conf/log4j.properties
+fi
