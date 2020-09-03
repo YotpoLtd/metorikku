@@ -21,6 +21,7 @@ object InstrumentationProvider {
 trait InstrumentationProvider extends Serializable{
   def count(name: String, value: Long, tags: Map[String, String] = Map(), time: Long = System.currentTimeMillis()): Unit
   def gauge(name: String, value: Long, tags: Map[String, String] = Map(), time: Long = System.currentTimeMillis()): Unit
+  def gauge2(fields: Map[String, Object] = Map(), tags: Map[String, String] = Map(), time: Long = System.currentTimeMillis()): Unit
   def close(): Unit = { }
 }
 
