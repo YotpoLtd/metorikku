@@ -1,8 +1,0 @@
-image: metorikku/k8s-spark-operator
-jar: https://repo1.maven.org/maven2/com/yotpo/metorikku_2.11/0.0.86/metorikku_2.11-0.0.86-assembly.jar
-mainClass: com.yotpo.metorikku.Metorikku
-arguments:
-  - "-c"
-  - "/opt/spark/work-dir/examples/movies.yaml"
-executor:
-  instances: 1
