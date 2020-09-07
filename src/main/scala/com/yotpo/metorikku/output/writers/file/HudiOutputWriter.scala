@@ -1,29 +1,24 @@
 package com.yotpo.metorikku.output.writers.file
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.utils.HudiUtils
+import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+import org.apache.hudi.hadoop.HoodieParquetInputFormat
+import org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
-
-import scala.collection.immutable.Map
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.TableIdentifier
+import org.apache.spark.sql.catalyst.catalog._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import java.util.concurrent.TimeUnit
 
-import com.yotpo.metorikku.utils.HudiUtils
-import org.apache.avro.generic.GenericData.StringType
-import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
-import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
-import org.apache.hadoop.hive.ql.parse.PTFInvocationSpec.PartitionExpression
-import org.apache.hudi.hadoop.HoodieParquetInputFormat
-import org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat
-import org.apache.spark
-import org.apache.spark.sql.catalyst.TableIdentifier
-import org.apache.spark.sql.catalyst.catalog.CatalogTypes.TablePartitionSpec
-import org.apache.spark.sql.catalyst.catalog._
+import scala.collection.immutable.Map
 
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
