@@ -4,6 +4,7 @@ import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.utils.TableUtils
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
 
@@ -80,10 +81,11 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
     fileOutputProperties.alwaysUpdateSchemaInCatalog match {
       case true => {
+        val tableInfo = TableUtils.getTableInfo(tableName, catalog)
         try {
           ss.sharedState.externalCatalog.alterTableDataSchema(
-            catalog.currentDatabase,
-            tableName,
+            tableInfo.database,
+            tableInfo.tableName,
             dataFrame.schema
           )
         }
