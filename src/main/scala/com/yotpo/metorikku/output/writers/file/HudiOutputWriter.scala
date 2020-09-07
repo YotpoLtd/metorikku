@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
-import com.yotpo.metorikku.utils.HudiUtils
+import com.yotpo.metorikku.utils.{HudiUtils, TableUtils}
 import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
 import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
 import org.apache.hudi.hadoop.HoodieParquetInputFormat
@@ -382,8 +382,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     val tablesToSync = getTablesToSyncByStorageType(hudiOutput, hudiOutputProperties.tableName.get)
     val tableType = CatalogTableType("EXTERNAL")
     for ((table, tableInputFormat) <- tablesToSync) {
+      val tableInfo = TableUtils.getTableInfo(table, catalog)
       log.info(s"Manual hive sync starts for: ${table} table")
-      val identifier = new TableIdentifier(table, Option(catalog.currentDatabase))
+      val identifier = new TableIdentifier(tableInfo.tableName, Option(tableInfo.database))
       val storage = new CatalogStorageFormat(Option(new URI(path.get)),
         Option(tableInputFormat),
         Option(classOf[MapredParquetOutputFormat].getName),
@@ -405,12 +406,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
         case _ => {
           // case no partitions were defined, need to remove previous partitions if existed
-          ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table) match {
+          ss.sharedState.externalCatalog.listPartitionNames(tableInfo.database, tableInfo.tableName) match {
             case Seq() => log.info(s"No previous partitions were found for ${table}")
             case _ =>  {
               log.info(s"Previous partitions were found for ${table}")
               log.info(s"Dropping ${table} table")
-              ss.sharedState.externalCatalog.dropTable(catalog.currentDatabase,table, true, true)
+              ss.sharedState.externalCatalog.dropTable(tableInfo.database,tableInfo.tableName, true, true)
               // create table
               log.info(s"Re-Creating ${table} table with the following definition in catalog ${tableDefinition.toString()}")
               ss.sharedState.externalCatalog.createTable(tableDefinition, true)
@@ -422,7 +423,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       // alter table with current schema
       log.info(s"Alter ${table} table with the current schema ${schema.toString()}")
-      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
+      ss.sharedState.externalCatalog.alterTableDataSchema(tableInfo.database, tableInfo.tableName, schema)
       // alter location if needed
       log.info(s"Alter ${table} location ${tableDefinition.storage.locationUri.toString}")
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
@@ -438,7 +439,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
               false,
               Map[String, String]())
             log.info(s"Creating partition ${partition._1}:${partition._2} with storage: ${partitionStorage.toString()}")
-            ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
+            ss.sharedState.externalCatalog.createPartitions(tableInfo.database, tableInfo.tableName,
               Seq(CatalogTablePartition(Map(partition._1 -> partition._2), partitionStorage)), true)
           }
           )
