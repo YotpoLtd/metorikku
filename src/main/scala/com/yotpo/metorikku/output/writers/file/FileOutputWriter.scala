@@ -1,14 +1,11 @@
 package com.yotpo.metorikku.output.writers.file
 
-import java.text.SimpleDateFormat
-
 import com.yotpo.metorikku.configuration.job.Streaming
 import com.yotpo.metorikku.configuration.job.output.File
 import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
-import org.joda.time.DateTime
 
 class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
