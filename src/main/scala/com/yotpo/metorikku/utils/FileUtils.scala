@@ -5,6 +5,7 @@ import java.util.stream.Collectors
 
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.yotpo.metorikku.input.readers.file.FileType
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.text.StringSubstitutor
 import org.apache.hadoop.fs.{FSDataInputStream, FileSystem, Path}
@@ -83,5 +84,13 @@ object FileUtils {
 
   def isLocalFile(path: String): Boolean = {
     new File(path).isFile
+  }
+
+  def getFileFormat(path: String): String = {
+    FileType.getFileType(path) match {
+      case FileType.json | FileType.jsonl => "json"
+      case FileType.csv => "csv"
+      case _ => "parquet"
+    }
   }
 }

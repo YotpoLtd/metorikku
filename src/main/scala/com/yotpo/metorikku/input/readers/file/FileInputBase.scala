@@ -12,11 +12,7 @@ trait FileInputBase {
     format match {
       case Some(f) => f
       case None => {
-        FileType.getFileType(path) match {
-          case FileType.json | FileType.jsonl => "json"
-          case FileType.csv => "csv"
-          case _ => "parquet"
-        }
+        FileUtils.getFileFormat(path)
       }
     }
    }
