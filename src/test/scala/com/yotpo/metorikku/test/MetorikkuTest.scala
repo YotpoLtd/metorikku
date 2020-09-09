@@ -573,7 +573,27 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assert(thrown.getMessage.startsWith("Abort writing dataframe: resultDfEmpty, empty dataframe output is not allowed according to configuration"))
   }
 
+  test("Test Metorikku should support multiple catalog databases - JSONL inputs") {
+    var definedKeys = List[String]()
+    val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-multiple-databases-json-inputs.json")
+    val basePath = new File("src/test/configurations")
+    val preview = 5
+    val testConf = TesterConfig(test, basePath, preview)
 
+    definedKeys = testConf.test.tests.head._2(0).keys.toList
+    Tester(testConf).run()
+  }
+
+  test("Test Metorikku should support multiple catalog databases - CSV inputs") {
+    var definedKeys = List[String]()
+    val test = parseConfigurationFile("src/test/configurations/metorikku-tester-test-multiple-databases-csv-inputs.json")
+    val basePath = new File("src/test/configurations")
+    val preview = 5
+    val testConf = TesterConfig(test, basePath, preview)
+
+    definedKeys = testConf.test.tests.head._2(0).keys.toList
+    Tester(testConf).run()
+  }
 
   private def assertMismatchExpected(definedKeys: List[String], thrownMsg: String, expectedRow: Map[String, Any], rowIndex: Int, keyColumns: KeyColumns) = {
     assertMismatchByType(ResultsType.expected, definedKeys, thrownMsg, expectedRow, 1, 0, rowIndex, keyColumns)

@@ -1,0 +1,32 @@
+{
+  "metric": "metorikku-tester-test-multiple-databases.yaml",
+  "mocks": [
+    {
+      "name": "default.accounts",
+      "path": "mocks/accounts.csv"
+    },
+    {
+      "name": "metadatas.accounts",
+      "path": "mocks/accounts_metadata.csv"
+    }
+  ],
+  "tests": {
+    "accountsDf": [
+      {
+        "app_key": "AAAA",
+        "id": "A",
+        "metadata": 1
+      },
+      {
+        "app_key": "BBBB",
+        "id": "B",
+        "metadata": "2"
+      },
+      {
+        "app_key": "CCCC",
+        "id": "C",
+        "metadata": "3"
+      }
+    ]
+  }
+}
