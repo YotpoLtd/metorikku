@@ -50,5 +50,5 @@ Creates a constraint that asserts on uniqueness in a single or combined set of k
 Required parameter: `columns`\
 Optional parameter: `fraction` (Default: "1.0")\
 Optional parameter: `operator` (Default: "==") Optional values: [==, !=, >=, >, <=, <] 
-
-
+##### `isNotEmpty`
+Creates a constraint that asserts the data frame is not empty.\
