@@ -13,6 +13,8 @@ ARG HTTPCLIENT_VERSION=4.5.11
 ARG SCALA_MAJOR_VERSION=2.12
 ARG SPARK_VERSION=3.0.0
 
+RUN rm -f ${SPARK_HOME}/jars/spark-bigquery-latest.jar
+
 RUN wget -q https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_VERSION}/hadoop-aws-${HADOOP_VERSION}.jar -P $SPARK_HOME/jars/
@@ -25,8 +27,6 @@ RUN wget -q https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafk
 RUN wget -q https://repo1.maven.org/maven2/org/apache/spark/spark-avro_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-avro_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar -P $SPARK_HOME/jars/
 RUN wget -q https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar -P $SPARK_HOME/jars/
 
-RUN rm -f $SPARK_HOME/jars/httpclient-*.jar && wget -q https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/${HTTPCLIENT_VERSION}/httpclient-${HTTPCLIENT_VERSION}.jar -P $SPARK_HOME/jars
-
 #Python
 RUN apt-get update \
     && apt-get install -y coreutils jq less inotify-tools python3 python3-setuptools \
@@ -38,5 +38,3 @@ RUN apt-get update \
 ADD conf/* ${SPARK_HOME}/custom/conf/
 
 ENV PYTHONHASHSEED 1
-
-ENTRYPOINT ["/opt/entrypoint.sh"]

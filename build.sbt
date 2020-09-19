@@ -35,13 +35,6 @@ testOptions in Test := {
   }
 }
 
-libraryDependencies ++= {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor == 11 => Seq("com.databricks" %% "spark-redshift" % "3.0.0-preview1" excludeAll excludeAvro)
-    case _ => Seq()
-  }
-}
-
 lazy val excludeJpountz = ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
 lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
 lazy val excludeNettyAll = ExclusionRule(organization = "io.netty", name = "netty-all")
@@ -74,24 +67,21 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
   "org.apache.commons" % "commons-text" % "1.8",
   "org.influxdb" % "influxdb-java" % "2.19",
-  // Wait for https://github.com/spark-redshift-community/spark-redshift/pull/72
-  //  "io.github.spark-redshift-community" %% "spark-redshift" % "4.0.1",
+  "io.github.spark-redshift-community" %% "spark-redshift" % "4.1.1",
   "com.segment.analytics.java" % "analytics" % "2.1.1" % "provided",
-  "com.amazon.redshift" % "redshift-jdbc42" % "1.2.41.1065" % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
   "com.redislabs" %% "spark-redis" % "2.5.0" % "provided",
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
-  "com.amazon.deequ" % "deequ" % "1.0.4" excludeAll(excludeSpark, excludeScalanlp),
+  "com.amazon.deequ" % "deequ" % "1.0.5" excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided"
 )
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("public"),
   Resolver.bintrayRepo("spark-packages", "maven"),
-  "redshift" at "https://s3.amazonaws.com/redshift-maven-repository/release",
   "confluent" at "https://packages.confluent.io/maven/"
 )
 

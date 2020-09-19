@@ -1,4 +1,4 @@
-ARG IMAGE_NAME=metorikku/spark:k8s
+ARG IMAGE_NAME=metorikku/spark2_k8s
 FROM ${IMAGE_NAME}
 
 #Remove hadoop 2.7 Spark jars
@@ -38,5 +38,5 @@ ENV PATH="${HADOOP_PREFIX}/bin:${SPARK_HOME}/bin:${PATH}"
 ADD spark-env.sh ${SPARK_HOME}/conf/
 ENV USE_BUILTIN_HIVE_METASTORE=false
 
-ENV SPARK_DIST_CLASSPATH /etc/hadoop:/opt/hadoop-2.9.2/share/hadoop/common/lib/*:/opt/hadoop-2.9.2/share/hadoop/common/*:/opt/hadoop-2.9.2/share/hadoop/hdfs:/opt/hadoop-2.9.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.9.2/share/hadoop/hdfs/*:/opt/hadoop-2.9.2/share/hadoop/yarn:/opt/hadoop-2.9.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.9.2/share/hadoop/yarn/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.9.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar:${SPARK_HOME}/custom/conf/
+ENV SPARK_DIST_CLASSPATH /etc/hadoop:${HADOOP_PREFIX}/share/hadoop/common/lib/*:${HADOOP_PREFIX}/share/hadoop/common/*:${HADOOP_PREFIX}/share/hadoop/hdfs:${HADOOP_PREFIX}/share/hadoop/hdfs/lib/*:${HADOOP_PREFIX}/share/hadoop/hdfs/*:${HADOOP_PREFIX}/share/hadoop/yarn:${HADOOP_PREFIX}/share/hadoop/yarn/lib/*:${HADOOP_PREFIX}/share/hadoop/yarn/*:${HADOOP_PREFIX}/share/hadoop/mapreduce/lib/*:${HADOOP_PREFIX}/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar:${SPARK_HOME}/custom/conf/
 ENV SPARK_EXTRA_CLASSPATH $SPARK_DIST_CLASSPATH
