@@ -171,5 +171,12 @@ artifact in (Compile, assembly) := {
 
 addArtifact(artifact in (Compile, assembly), assembly)
 
+artifact in (Test, assembly) := {
+  val art = (artifact in (Test, assembly)).value
+  art.withClassifier(Some("standalone"))
+}
+
+addArtifact(artifact in (Test, assembly), assembly in Test)
+
 // Fix for SBT run to include the provided at runtime
 run in Compile := Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run)).evaluated
