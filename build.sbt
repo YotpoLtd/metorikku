@@ -142,6 +142,7 @@ publishTo := Some(
   }
 )
 
+useGpg := false
 pgpPublicRing := baseDirectory.value / "project" / ".gnupg" / "pubring.asc"
 pgpSecretRing := baseDirectory.value / "project" / ".gnupg" / "secring.asc"
 pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray)
