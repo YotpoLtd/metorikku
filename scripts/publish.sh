@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 
-sbt publishSigned sonatypeReleaseAll
+sbt +publishSigned sonatypeReleaseAll

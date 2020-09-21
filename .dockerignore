@@ -3,5 +3,6 @@
 
 # Allow files and directories
 !/docker/**
-!/target/scala-2.11/*.jar
+!/target/scala-2.12/metorikku*.jar
+!/target/scala-2.11/metorikku*.jar
 !/examples/**

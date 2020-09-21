@@ -2,28 +2,28 @@
 version: '3'
 services:
   spark-submit:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --packages commons-httpclient:commons-httpclient:3.0.1,org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/elasticsearch/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --packages commons-httpclient:commons-httpclient:3.0.1 --jars https://repo1.maven.org/maven2/org/elasticsearch/elasticsearch-hadoop/6.8.10/elasticsearch-hadoop-6.8.10.jar --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/elasticsearch/movies.yaml
     entrypoint:
       - /scripts/entrypoint-submit.sh
     depends_on:
       - spark-master
       - spark-worker
   spark-master:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:spark2_standalone
     entrypoint:
       - /scripts/entrypoint-worker.sh
     logging:
       driver: none
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.10
     environment:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"

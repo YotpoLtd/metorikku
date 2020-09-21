@@ -8,7 +8,7 @@ MAX_RETRIES=${MAX_RETRIES:=300}
 MIN_WORKERS=${MIN_WORKERS:=1}
 SPARK_UI_PORT=${SPARK_UI_PORT:=4040}
 POST_SCRIPT=${POST_SCRIPT:=/scripts/finish-submit.sh}
-USE_BUILTIN_HIVE_METASTORE=${USE_BUILTIN_HIVE_METASTORE:=false}
+USE_BUILTIN_HIVE_METASTORE=${USE_BUILTIN_HIVE_METASTORE:=true}
 
 # Atlas
 /scripts/add-atlas-integration.sh
@@ -39,7 +39,7 @@ SPARK_MASTER="spark://${SPARK_MASTER_HOST}:${SPARK_MASTER_PORT}"
 echo -e "
 spark.master=$SPARK_MASTER
 spark.ui.port=$SPARK_UI_PORT
-" >> /spark/conf/spark-defaults.conf
+" >> ${SPARK_HOME}/conf/spark-defaults.conf
 
 if [[ ! -z ${HIVE_METASTORE_URI} ]]; then
 echo -e "
@@ -47,14 +47,14 @@ spark.sql.catalogImplementation=hive
 spark.hadoop.hive.metastore.uris=thrift://$HIVE_METASTORE_URI
 spark.hadoop.hive.metastore.schema.verification=false
 spark.hadoop.hive.metastore.schema.verification.record.version=false
-" >> /spark/conf/spark-defaults.conf
+" >> ${SPARK_HOME}/conf/spark-defaults.conf
 fi
 
 if [[ "${USE_BUILTIN_HIVE_METASTORE}" == false ]]; then
 echo -e "
 spark.sql.hive.metastore.version=$HIVE_VERSION
 spark.sql.hive.metastore.jars=/opt/hive/lib/*
-" >> /spark/conf/spark-defaults.conf
+" >> ${SPARK_HOME}/conf/spark-defaults.conf
 fi
 
 echo "Running command: ${SUBMIT_COMMAND}"

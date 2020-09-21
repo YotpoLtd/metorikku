@@ -2,6 +2,7 @@ package com.yotpo.metorikku.metric.stepActions.dataQuality
 
 import com.amazon.deequ.checks.Check
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasUniqueness
+import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
@@ -31,7 +32,7 @@ class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
     dqCheckDefinitionList.runChecks(dfName)
   }
 
-  test("has_uniqueness on a non-unique field with level error should raise exception") {
+  test("has_uniqueness on a non-unique field with level error should raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("Maria", 1, "Smith", 111, 1111),
       ("Josh", 1, "Smith", 222, 2222)
@@ -44,7 +45,7 @@ class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
 
-  test("has_uniqueness on a unique field with level error should not raise exception") {
+  test("has_uniqueness on a unique field with level error should not raise exception",UnsupportedInCurrentVersion) {
       val employeeData = Seq(
         ("James", 1, "Smith", 111, 1111),
         ("Maria", 2, "Pitt", 222, 2222)
@@ -54,7 +55,7 @@ class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
     valideHasUniquenessOverDf(employeeData, Seq("id", "name"), "1.0", "==", level)
     }
 
-  test("is_unique on a non-unique field with level warn should not raise exception") {
+  test("is_unique on a non-unique field with level warn should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, "Smith", 111, 1111),
       ("Maria", 1, "Smith", 222, 2222)

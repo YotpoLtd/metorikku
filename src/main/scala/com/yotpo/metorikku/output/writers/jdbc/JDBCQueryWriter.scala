@@ -4,10 +4,9 @@ import java.sql.{Date, DriverManager, PreparedStatement, Timestamp}
 
 import com.yotpo.metorikku.configuration.job.output.JDBC
 
-import util.control.Exception._
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types.{ArrayType, BinaryType, MapType, StructType}
 
 class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends Writer {
@@ -25,7 +24,8 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
   override def write(dataFrame: DataFrame): Unit = {
     config match {
       case Some(config) =>
-        alignPartitions(dataFrame, options.minPartitions, options.maxPartitions).foreachPartition(partition => {
+        alignPartitions(dataFrame, options.minPartitions, options.maxPartitions).
+          foreachPartition{ partition: Iterator[Row] =>
           val conn = DriverManager.getConnection(config.connectionUrl, config.user, config.password)
           val stmt = conn.prepareStatement(options.query)
 
@@ -40,7 +40,7 @@ class JDBCQueryWriter(props: Map[String, String], config: Option[JDBC]) extends 
           })
           stmt.close()
           conn.close()
-        })
+        }
       case None => log.error("JDBC QUERY file configuration were not provided")
     }
   }

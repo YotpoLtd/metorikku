@@ -114,7 +114,7 @@ Go to Run->Edit Configuration->add application configuration
 #### Run as a library
 *It's also possible to use Metorikku inside your own software*
 
-*Metorikku library requires scala 2.11*
+*Metorikku library requires scala 2.11 (spark 2)/2.12 (spark 3)*
 
 To use it add the following dependency to your build.sbt:
 `"com.yotpo" % "metorikku" % "LATEST VERSION"`
@@ -221,7 +221,7 @@ Kafka output allows writing batch operations to kafka
 
 We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look like so:
 
-```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.2.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
 ##### Mandatory parameters:
 * **topic** - defines the topic in kafka which the data will be written to.
@@ -284,7 +284,7 @@ This will commit the offsets to kafka, as a new dummy consumer group.
 * we use ABRiS as a provided jar In order to deserialize your kafka stream messages (https://github.com/AbsaOSS/ABRiS), add the  ```schemaRegistryUrl``` option to the kafka input config
 spark-submit command should look like so:
 
-```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.11/3.1.1/abris_2.11-3.1.1.jar --packages org.apache.spark:spark-avro_2.11:2.4.5,org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.12/3.2.0/abris_2.12-3.2.0.jar --packages org.apache.spark:spark-avro_2.12:3.0.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
  
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 
@@ -500,7 +500,7 @@ Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/
 Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
 
 In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
-an external JAR from here: https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.1-incubating/hudi-spark-bundle_2.11-0.5.1-incubating.jar
+an external JAR from here: https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.12/0.5.3/hudi-spark-bundle_2.12-0.5.3.jar
 
 To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
 ```properties

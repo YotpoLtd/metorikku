@@ -17,13 +17,19 @@ branches:
 if: NOT commit_message =~ /^Setting version to.*SNAPSHOT$/
 env:
   global:
-    - SPARK_VERSION=2.4.5
-    - HADOOP_VERSION=2.9.2
-    - HIVE1_VERSION=1.2.2
-    - HUDI_HIVE1_VERSION=0.4.7
-    - HIVE_VERSION=2.3.3
-    - HUDI_VERSION=0.5.2-incubating
+    - SCALA_VERSION=2.12.11
+    - SCALA_MAJOR_VERSION=2.12
+    - SPARK2_SCALA_VERSION=2.11.12
+    - SPARK2_SCALA_MAJOR_VERSION=2.11
+    - SPARK2_HADOOP_VERSION=2.9.2
+    - SPARK2_HIVE_VERSION=2.3.3
+    - SPARK2_VERSION=2.4.5
+    - SPARK_VERSION=3.0.0
+    - HIVE_VERSION=2.3.7
+    - HUDI_VERSION=0.5.3
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
+    - LC_ALL=en_US.UTF-8
+    - LANG=en_US.UTF-8
 before_script:
   - export -f travis_fold
   - export -f travis_time_start
@@ -47,9 +53,6 @@ jobs:
       before_script: scripts/docker_load_dev.sh
     - name: "elasticsearch"
       script: (cd e2e/elasticsearch && ./test.sh)
-      before_script: scripts/docker_load_dev.sh
-    - name: "hive1"
-      script: (cd e2e/hive1 && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "hive"
       script: (cd e2e/hive && ./test.sh)
@@ -84,7 +87,7 @@ jobs:
           token:
             secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
           file_glob: true
-          file: "$TRAVIS_BUILD_DIR/target/scala-2.11/*.jar"
+          file: "$TRAVIS_BUILD_DIR/target/scala-*/*.jar"
           on:
             all_branches: true
             condition: $TRAVIS_TAG =~ ^v.*

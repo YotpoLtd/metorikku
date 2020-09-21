@@ -2,7 +2,7 @@
 version: '3'
 services:
   spark-submit:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     environment:
       - SUBMIT_COMMAND=spark-submit --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/influxdb/movies.yaml
     entrypoint:
@@ -11,13 +11,13 @@ services:
       - spark-worker
       - spark-master
   spark-master:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     entrypoint:
       - /scripts/entrypoint-master.sh
     logging:
       driver: none
   spark-worker:
-    image: metorikku/metorikku
+    image: metorikku/metorikku:standalone
     entrypoint:
       - /scripts/entrypoint-worker.sh
     logging:
