@@ -7,6 +7,9 @@ docker pull metorikku/metorikku:spark2_k8s
 docker pull metorikku/metorikku:spark2_standalone
 docker pull metorikku/hive
 
+docker pull gcr.io/spark-operator/spark:v$SPARK_VERSION-gcs-prometheus
+docker pull gcr.io/spark-operator/spark:v$SPARK2_VERSION-gcs-prometheus
+
 set -e
 
 # Latest spark
