@@ -19,9 +19,7 @@ output:
     tableName: testMetorikkuHiveExternal
     protectFromEmptyOutput: true
     tableProperties:
-      dook: shoo
-      foo: ba
-      comment: awesome
+      property: value1
 - dataFrameName: comedyFantasyRomanceSciFiMoviesAddColumn
   outputType: Parquet
   outputOptions:

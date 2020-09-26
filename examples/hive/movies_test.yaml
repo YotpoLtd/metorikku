@@ -5,3 +5,7 @@ tests:
   testMetorikkuHiveExternal:
     - title: Nutty Professor, The (1996)
       new_column: test
+  hiveTablePropertiesProperty:
+    - value: value1
+  hiveTablePropertiesNumberOfRows:
+    - value: 1

@@ -16,5 +16,5 @@ SPARK_WORKER_OPTS=${SPARK_WORKER_OPTS:="-Dspark.worker.cleanup.enabled=true -Dsp
 . "${SPARK_HOME}/sbin/spark-config.sh"
 . "${SPARK_HOME}/bin/load-spark-env.sh"
 SPARK_MASTER="spark://$SPARK_MASTER_HOST:$SPARK_MASTER_PORT"
-${SPARK_HOME}/sbin/../bin/spark-class org.apache.spark.deploy.worker.Worker \
+exec ${SPARK_HOME}/sbin/../bin/spark-class org.apache.spark.deploy.worker.Worker \
     --webui-port ${SPARK_WORKER_WEBUI_PORT} --port ${SPARK_WORKER_PORT} ${SPARK_MASTER}
