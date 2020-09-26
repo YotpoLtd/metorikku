@@ -3,6 +3,7 @@ package com.yotpo.metorikku.metric.stepActions
 import com.yotpo.metorikku.metric.StepAction
 import org.apache.spark.sql.SparkSession
 import scala.reflect.runtime.universe._
+import scala.language.reflectiveCalls
 
 case class Code(objectClassPath: String, metricName: String, dataFrameName: String, params: Option[Map[String, String]]) extends StepAction[Unit] {
   type MetorikkuCustomCode = {

@@ -1,29 +1,24 @@
 package com.yotpo.metorikku.output.writers.file
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 import com.yotpo.metorikku.configuration.job.output.Hudi
 import com.yotpo.metorikku.output.Writer
+import com.yotpo.metorikku.utils.{HudiUtils, TableUtils}
+import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+import org.apache.hudi.hadoop.HoodieParquetInputFormat
+import org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat
 import org.apache.hudi.keygen.{NonpartitionedKeyGenerator, SimpleKeyGenerator}
 import org.apache.hudi.metrics.Metrics
 import org.apache.log4j.LogManager
-
-import scala.collection.immutable.Map
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.TableIdentifier
+import org.apache.spark.sql.catalyst.catalog._
 import org.apache.spark.sql.functions.{col, lit, max, when}
 import org.apache.spark.sql.types.{DataType, StructField, StructType}
-import java.util.concurrent.TimeUnit
 
-import com.yotpo.metorikku.utils.HudiUtils
-import org.apache.avro.generic.GenericData.StringType
-import org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
-import org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
-import org.apache.hadoop.hive.ql.parse.PTFInvocationSpec.PartitionExpression
-import org.apache.hudi.hadoop.HoodieParquetInputFormat
-import org.apache.hudi.hadoop.realtime.HoodieParquetRealtimeInputFormat
-import org.apache.spark
-import org.apache.spark.sql.catalyst.TableIdentifier
-import org.apache.spark.sql.catalyst.catalog.CatalogTypes.TablePartitionSpec
-import org.apache.spark.sql.catalyst.catalog._
+import scala.collection.immutable.Map
 
 
 // REQUIRED: -Dspark.serializer=org.apache.spark.serializer.KryoSerializer
@@ -240,10 +235,19 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       case None =>
     }
+    config.hiveSync match {
+      case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
+      case Some(true) => {
+        writer.option("hoodie.datasource.hive_sync.enable", "true")
+        writer.option("hoodie.datasource.hive_sync.use_jdbc", "false")
+      }
+      case _ =>
+    }
     config.hiveJDBCURL match {
       case Some(hiveJDBCURL) => {
         writer.option("hoodie.datasource.hive_sync.jdbcurl", hiveJDBCURL)
         writer.option("hoodie.datasource.hive_sync.enable", "true")
+        writer.option("hoodie.datasource.hive_sync.use_jdbc", "true")
       }
       case None =>
     }
@@ -259,10 +263,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       case Some(hivePassword) => writer.option("hoodie.datasource.hive_sync.password", hivePassword)
       case None =>
     }
-    config.hiveSync match {
-      case Some(false) => writer.option("hoodie.datasource.hive_sync.enable", "false")
-      case _ =>
-    }
+
 
     config.options match {
       case Some(options) => writer.options(options)
@@ -387,8 +388,9 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
     val tablesToSync = getTablesToSyncByStorageType(hudiOutput, hudiOutputProperties.tableName.get)
     val tableType = CatalogTableType("EXTERNAL")
     for ((table, tableInputFormat) <- tablesToSync) {
+      val tableInfo = TableUtils.getTableInfo(table, catalog)
       log.info(s"Manual hive sync starts for: ${table} table")
-      val identifier = new TableIdentifier(table, Option(catalog.currentDatabase))
+      val identifier = new TableIdentifier(tableInfo.tableName, Option(tableInfo.database))
       val storage = new CatalogStorageFormat(Option(new URI(path.get)),
         Option(tableInputFormat),
         Option(classOf[MapredParquetOutputFormat].getName),
@@ -410,12 +412,12 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
           df.drop(manualHiveSyncPartitions.keySet.toList: _*).schema
         case _ => {
           // case no partitions were defined, need to remove previous partitions if existed
-          ss.sharedState.externalCatalog.listPartitionNames(ss.catalog.currentDatabase, table) match {
+          ss.sharedState.externalCatalog.listPartitionNames(tableInfo.database, tableInfo.tableName) match {
             case Seq() => log.info(s"No previous partitions were found for ${table}")
             case _ =>  {
               log.info(s"Previous partitions were found for ${table}")
               log.info(s"Dropping ${table} table")
-              ss.sharedState.externalCatalog.dropTable(catalog.currentDatabase,table, true, true)
+              ss.sharedState.externalCatalog.dropTable(tableInfo.database,tableInfo.tableName, true, true)
               // create table
               log.info(s"Re-Creating ${table} table with the following definition in catalog ${tableDefinition.toString()}")
               ss.sharedState.externalCatalog.createTable(tableDefinition, true)
@@ -427,7 +429,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
       }
       // alter table with current schema
       log.info(s"Alter ${table} table with the current schema ${schema.toString()}")
-      ss.sharedState.externalCatalog.alterTableDataSchema(catalog.currentDatabase, table, schema)
+      ss.sharedState.externalCatalog.alterTableDataSchema(tableInfo.database, tableInfo.tableName, schema)
       // alter location if needed
       log.info(s"Alter ${table} location ${tableDefinition.storage.locationUri.toString}")
       ss.sharedState.externalCatalog.alterTable(tableDefinition)
@@ -443,7 +445,7 @@ class HudiOutputWriter(props: Map[String, Object], hudiOutput: Option[Hudi]) ext
               false,
               Map[String, String]())
             log.info(s"Creating partition ${partition._1}:${partition._2} with storage: ${partitionStorage.toString()}")
-            ss.sharedState.externalCatalog.createPartitions(ss.catalog.currentDatabase, table,
+            ss.sharedState.externalCatalog.createPartitions(tableInfo.database, tableInfo.tableName,
               Seq(CatalogTablePartition(Map(partition._1 -> partition._2), partitionStorage)), true)
           }
           )

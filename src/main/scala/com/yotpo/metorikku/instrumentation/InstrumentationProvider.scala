@@ -2,7 +2,6 @@ package com.yotpo.metorikku.instrumentation
 
 import com.yotpo.metorikku.configuration.job.Instrumentation
 import com.yotpo.metorikku.instrumentation.influxdb.InfluxDBInstrumentationFactory
-import com.yotpo.metorikku.instrumentation.spark.SparkInstrumentationFactory
 
 object InstrumentationProvider {
   def getInstrumentationFactory(appName: Option[String], instrumentation: Option[Instrumentation]): InstrumentationFactory = {
@@ -11,9 +10,9 @@ object InstrumentationProvider {
         case Some(influxDB) => {
           new InfluxDBInstrumentationFactory(appName.get, influxDB)
         }
-        case None => new SparkInstrumentationFactory()
+        case None => new NullInstrumentationFactory()
       }
-      case None => new SparkInstrumentationFactory()
+      case None => new NullInstrumentationFactory()
     }
   }
 }

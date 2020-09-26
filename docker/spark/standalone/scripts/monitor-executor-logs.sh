@@ -2,7 +2,7 @@
 
 OUTPUT_EXECUTOR_LOGS_TO_STDOUT=${OUTPUT_EXECUTOR_LOGS_TO_STDOUT:=true}
 if [[ "${OUTPUT_EXECUTOR_LOGS_TO_STDOUT}" == true ]] ; then
-  MONITORDIR="/spark/work/"
+  MONITORDIR="${SPARK_HOME}/work/"
   mkdir -p ${MONITORDIR}
   inotifywait -m -r -e create --format '%w%f' "${MONITORDIR}" | while read NEWFILE
   do

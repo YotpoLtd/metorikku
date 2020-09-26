@@ -8,7 +8,9 @@ import com.yotpo.metorikku.configuration.test.ConfigurationParser.TesterConfig
 import com.yotpo.metorikku.configuration.test.{Mock, Params}
 import com.yotpo.metorikku.exceptions.MetorikkuTesterTestFailedException
 import com.yotpo.metorikku.metric.MetricSet
+import com.yotpo.metorikku.utils.{FileUtils, TableUtils}
 import org.apache.log4j.{LogManager, Logger}
+import org.apache.spark.sql.catalog.Catalog
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.collection.Seq
@@ -20,6 +22,7 @@ case class Tester(config: TesterConfig) {
 
   def run(): Unit = {
     var errors = Array[String]()
+    initializeInputTables(job.sparkSession.catalog, job.sparkSession, config.test.mocks)
 
     metricConfig.metrics match {
       case Some(metrics) => metrics.foreach(metric => {
@@ -44,23 +47,20 @@ case class Tester(config: TesterConfig) {
     val metrics = getMetricFromDir(config.test.metric, config.basePath)
     val params = config.test.params.getOrElse(Params(None))
     val variables = params.variables
-    val inputs = getMockFilesFromDir(config.test.mocks, config.basePath)
+    val inputs = getMockFilesForStreamingInputs(config.test.mocks, config.basePath)
     Configuration(Option(metrics), inputs, variables, None, None, None, None, None,
       Option(config.preview > 0), None, None,  None, Option(config.preview), None, None, None, None, Option(false))
   }
 
-  private def getMockFilesFromDir(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {
+  private def getMockFilesForStreamingInputs(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {
     mocks match {
       case Some(mockList) =>
-        Option(mockList.map(mock => {
+        Option(mockList.filter(_.streaming.contains(true)).map(mock => {
           mock.name -> {
             val fileInput = com.yotpo.metorikku.configuration.job.input.File(
               new File(testDir, mock.path).getCanonicalPath,
               None, None, None, None)
-            Input(Option(mock.streaming match {
-              case Some(true) => new StreamMockInput(fileInput)
-              case _ => fileInput
-            }), None, None, None, None, None, None)
+            Input(Option(new StreamMockInput(fileInput)), None, None, None, None, None, None)
           }
         }).toMap)
       case None => None
@@ -239,5 +239,28 @@ case class Tester(config: TesterConfig) {
       }.toList
     resToErrorRowIndexes
   }
+
+  private def initializeInputTables(catalog: Catalog, sparkSession: SparkSession ,mocks: Option[List[Mock]]) = {
+    mocks match {
+      case Some(mocks) => mocks.filter(!_.streaming.contains(true)).foreach(mock => {
+        val tableInfo = TableUtils.getTableInfo(mock.name, catalog)
+        if (!catalog.databaseExists(tableInfo.database)) {
+          sparkSession.sql(s"CREATE DATABASE ${tableInfo.database}")
+        }
+
+        val fileFormat = FileUtils.getFileFormat(mock.path).toUpperCase
+        val path = s"%s/%s".format(config.basePath, mock.path)
+        val createStatement = s"CREATE TABLE ${tableInfo.database}.${tableInfo.tableName} USING ${fileFormat} LOCATION '${path}'"
+        val csvOptions = " OPTIONS(HEADER='true', ESCAPE='\"', QUOTE='\"')"
+        sparkSession.sql(fileFormat match {
+          case "CSV" =>
+            createStatement + csvOptions
+          case _ => createStatement
+        })
+      })
+      case _ =>
+    }
+  }
+
 
 }

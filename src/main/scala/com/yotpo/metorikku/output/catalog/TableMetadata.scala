@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.output.catalog
 
+import com.yotpo.metorikku.utils.TableUtils
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -27,7 +28,7 @@ class CatalogTable(tableName: String) {
       case true => {
         overwriteExternalTable(ss=ss, tableName=tableName,
           dataFrame=dataFrame, filePath=filePath,
-          alwaysUpdateSchemaInCatalog=alwaysUpdateSchemaInCatalog, partitionBy=partitionBy)
+          alwaysUpdateSchemaInCatalog=alwaysUpdateSchemaInCatalog)
       }
       case false => {
         log.info(s"Creating new external table $tableName to path $filePath")
@@ -46,18 +47,18 @@ class CatalogTable(tableName: String) {
 
   private def overwriteExternalTable(ss: SparkSession, tableName: String,
                                      dataFrame: DataFrame, filePath: String,
-                                     alwaysUpdateSchemaInCatalog: Boolean,
-                                     partitionBy: Option[Seq[String]]): Unit = {
+                                     alwaysUpdateSchemaInCatalog: Boolean): Unit = {
     log.info(s"Overwriting external table $tableName to new path $filePath")
     ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
     val catalog = ss.catalog
 
     alwaysUpdateSchemaInCatalog match {
       case true => {
+        val tableInfo = TableUtils.getTableInfo(tableName, catalog)
         try {
           ss.sharedState.externalCatalog.alterTableDataSchema(
-            catalog.currentDatabase,
-            tableName,
+            tableInfo.database,
+            tableInfo.tableName,
             dataFrame.schema
           )
         }

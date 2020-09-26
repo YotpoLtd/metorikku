@@ -22,12 +22,11 @@ class InstrumentationOutputWriter(props: Map[String, String],
     val indexOfTimeCol = timeColumnProperty.flatMap(col => Option(dataFrame.schema.fieldNames.indexOf(col)))
 
     log.info(s"Starting to write Instrumentation of data frame: $dataFrameName on metric: $metricName")
-    dataFrame.foreachPartition(p => {
+    dataFrame.foreachPartition { p: Iterator[Row] =>
       val client = instrumentationFactory.create()
 
       // use last column if valueColumn is missing
       val actualIndexOfValCol = indexOfValCol.getOrElse(columns.length - 1)
-
       p.foreach(row => {
         try {
 
@@ -55,7 +54,7 @@ class InstrumentationOutputWriter(props: Map[String, String],
         }
       })
       client.close()
-    })
+    }
   }
 
   def getTime(indexOfTimeCol: Option[Int], row: Row): Long = {

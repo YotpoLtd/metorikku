@@ -8,10 +8,12 @@ if [ ! -z ${GRAPHITE_HOST} ] ; then
 *.sink.graphite.host=$GRAPHITE_HOST
 *.sink.graphite.period=10
 *.sink.graphite.port=$GRAPHITE_PORT
-" >> /spark/conf/metrics.properties
+" >> ${SPARK_HOME}/conf/metrics.properties
 fi
 
 if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
-    eval "echo \"$(< /spark/conf/log4j.json.properties)\"" >> /spark/conf/log4j.properties
+    eval "echo \"$(< ${SPARK_HOME}/conf/log4j.json.properties)\"" >> ${SPARK_HOME}/conf/log4j.properties
+else
+    eval "echo \"$(< ${SPARK_HOME}/conf/log4j.properties.template)\"" >> ${SPARK_HOME}/conf/log4j.properties
 fi

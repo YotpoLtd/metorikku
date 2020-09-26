@@ -43,7 +43,7 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
         })
 
         log.info(s"Writing dataframe to Redshift' table ${props("dbTable")}")
-        val writer = df.write.format("com.databricks.spark.redshift")
+        val writer = df.write.format("io.github.spark_redshift_community.spark.redshift")
           .option("url", redshiftDBConf.jdbcURL)
           .option("forward_spark_s3_credentials", true)
           .option("tempdir", redshiftDBConf.tempS3Dir)
