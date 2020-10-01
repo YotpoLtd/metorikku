@@ -10,5 +10,5 @@ SPARK_MASTER_HOST=${SPARK_MASTER_HOST:=spark-master}
 
 . "${SPARK_HOME}/sbin/spark-config.sh"
 . "${SPARK_HOME}/bin/load-spark-env.sh"
-${SPARK_HOME}/sbin/../bin/spark-class org.apache.spark.deploy.master.Master \
+exec ${SPARK_HOME}/sbin/../bin/spark-class org.apache.spark.deploy.master.Master \
     --ip ${SPARK_MASTER_HOST} --port ${SPARK_MASTER_PORT} --webui-port ${SPARK_WEBUI_PORT}

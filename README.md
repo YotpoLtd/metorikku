@@ -491,6 +491,36 @@ catalog:
 
 ```
 
+##### Hive table properties
+
+Metorikku enables the update of a [table's properties](https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=82706445#LanguageManualDDL-listTableProperties) in hive.
+You can use one of the following methods to do it.
+Using static table properties:
+```yaml
+output:
+- dataFrameName: dataFrame
+  outputType: Parquet
+  outputOptions:
+    saveMode: Overwrite
+    path: path.parquet
+    tableName: table
+    tableProperties:
+      property: value1
+      comment: comment1
+```
+
+Or by using dynamic properties with the Catalog writer (please note that the dataframe needs to contain exaclty a single row, all columns from this row will be written as properties in the hive table):
+```yaml
+steps:
+- dataFrameName: tableProperties
+  sql: SELECT count(1) as number_of_rows FROM anotherTable
+...
+- dataFrameName: tableProperties
+  outputType: Catalog
+  outputOptions:
+    tableName: table
+```
+
 Check out the [examples](examples/hive) and the [E2E test](e2e/hive)
 
 
@@ -524,7 +554,7 @@ output:
     maxVersions: 1
     # Hive database to use when writing
     hiveDB: default
-    # Hive server URL
+    # Hive server URL (no longer needed in hudi 0.5.3+)
     hiveJDBCURL: jdbc:hive2://hive:10000
     hiveUserName: root
     hivePassword: pass

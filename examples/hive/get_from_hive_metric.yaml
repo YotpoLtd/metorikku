@@ -5,3 +5,9 @@ steps:
 - dataFrameName: hiveManagedOutput
   sql:
     SELECT * FROM testMetorikkuHiveManaged
+- dataFrameName: hiveTablePropertiesProperty
+  sql:
+    SHOW TBLPROPERTIES testMetorikkuHiveExternal('property')
+- dataFrameName: hiveTablePropertiesNumberOfRows
+  sql:
+    SHOW TBLPROPERTIES testMetorikkuHiveExternal('number_of_rows')
