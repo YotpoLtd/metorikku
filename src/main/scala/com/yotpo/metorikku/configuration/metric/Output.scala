@@ -30,6 +30,7 @@ object OutputType extends Enumeration {
   Elasticsearch,
   File,
   Kafka,
+  Catalog,
   Hudi = Value
 }
 

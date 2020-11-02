@@ -84,6 +84,12 @@ jobs:
           on:
             all_branches: true
             condition: $TRAVIS_TAG =~ ^v.*
+        - provider: script
+          skip_cleanup: true
+          script: scripts/ecr_publish.sh
+          on:
+            all_branches: true
+            condition: $TRAVIS_TAG =~ ^v.*
         - provider: releases
           skip_cleanup: true
           token:

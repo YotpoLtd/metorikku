@@ -52,19 +52,19 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
     partition.foreach(row => {
       val instrumentationClient = instrumentationFactory.create()
       val eventTraits = new Gson().fromJson(row, classOf[util.Map[String, Object]])
-      val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[Double].toInt
+      val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[String]
       eventTraits.remove(segmentOutputOptions.keyColumn)
       try {
 
         segmentOutputOptions.eventType match {
           case "track" =>
             analytics.enqueue(TrackMessage.builder(segmentOutputOptions.eventName)
-              .userId(userId.toString)
+              .userId(userId)
               .properties(eventTraits)
             )
           case "identify" =>
             analytics.enqueue(IdentifyMessage.builder()
-              .userId(userId.toString)
+              .userId(userId)
               .traits(eventTraits)
             )
         }
