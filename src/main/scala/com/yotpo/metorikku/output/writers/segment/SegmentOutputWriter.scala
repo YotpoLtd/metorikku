@@ -8,7 +8,7 @@ import com.segment.analytics.messages.{IdentifyMessage, TrackMessage}
 import com.yotpo.metorikku.configuration.job.output.Segment
 import com.yotpo.metorikku.instrumentation.InstrumentationFactory
 import com.yotpo.metorikku.output.Writer
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions._
 
 class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[Segment], instrumentationFactory: InstrumentationFactory) extends Writer {
@@ -52,7 +52,7 @@ class SegmentOutputWriter(props: Map[String, String], segmentOutputConf: Option[
     partition.foreach(row => {
       val instrumentationClient = instrumentationFactory.create()
       val eventTraits = new Gson().fromJson(row, classOf[util.Map[String, Object]])
-      val userId = eventTraits.get(segmentOutputOptions.keyColumn).asInstanceOf[String]
+      val userId = eventTraits.get(segmentOutputOptions.keyColumn).toString
       eventTraits.remove(segmentOutputOptions.keyColumn)
       try {
 
