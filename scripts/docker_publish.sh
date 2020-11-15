@@ -13,7 +13,7 @@ docker push metorikku/metorikku:standalone_"$TRAVIS_TAG"_spark_"$SPARK_VERSION"
 docker push metorikku/metorikku:spark2_standalone
 docker push metorikku/metorikku:standalone_"$TRAVIS_TAG"_spark_"$SPARK2_VERSION"
 docker push metorikku/metorikku:k8s
-docker push metorikku/metorikku:k8s metorikku/metorikku:k8s_"$TRAVIS_TAG"_spark_"$SPARK_VERSION"
+docker push metorikku/metorikku:k8s_"$TRAVIS_TAG"_spark_"$SPARK_VERSION"
 docker push metorikku/metorikku:spark2_k8s
 docker push metorikku/metorikku:k8s_"$TRAVIS_TAG"_spark_"$SPARK_VERSION"
 docker push metorikku/hive
