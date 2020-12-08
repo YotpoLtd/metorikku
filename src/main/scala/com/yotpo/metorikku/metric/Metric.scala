@@ -100,6 +100,9 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
     log.info(s"Starting to Write results of ${dataFrameName}")
     try {
       writer.write(dataFrame)
+      //TODO: wait for the hook
+      val millis = 20000
+      Thread.sleep(millis)
       outputConfig.reportLag match {
         case Some(true) =>  new MetricReporting().reportLagTime(dataFrame, outputConfig.reportLagTimeColumn,
           outputConfig.reportLagTimeColumnUnits, instrumentationProvider)
