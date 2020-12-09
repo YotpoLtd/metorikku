@@ -13,6 +13,9 @@ USE_BUILTIN_HIVE_METASTORE=${USE_BUILTIN_HIVE_METASTORE:=true}
 # Atlas
 /scripts/add-atlas-integration.sh
 
+# Lineage
+/scripts/lineage-integration.sh
+
 # Logs
 /scripts/init-logs-metrics.sh
 
