@@ -67,7 +67,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
   "org.apache.commons" % "commons-text" % "1.8",
   "org.influxdb" % "influxdb-java" % "2.14",
-  "io.github.spark-redshift-community" %% "spark-redshift" % "4.1.1",
+  "io.github.spark-redshift-community" %% "spark-redshift" % "4.2.0",
   "com.segment.analytics.java" % "analytics" % "2.1.1" % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
   "com.redislabs" %% "spark-redis" % "2.5.0" % "provided",
