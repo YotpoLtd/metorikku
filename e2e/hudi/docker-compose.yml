@@ -3,7 +3,7 @@ services:
   spark-submit:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/movies.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -15,7 +15,7 @@ services:
   hive-tester:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/movies_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -27,7 +27,7 @@ services:
   spark-submit-manual-hive-sync:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_config.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_config.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -39,7 +39,7 @@ services:
   hive-tester-manual-hive-sync:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -51,7 +51,7 @@ services:
   spark-submit-manual-hive-sync-non-partition:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_no_partitions_config.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/hudi/manual_hive_sync_no_partitions_config.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
@@ -63,7 +63,7 @@ services:
   hive-tester-manual-hive-sync-no-partition:
     image: metorikku/metorikku:spark2_standalone
     environment:
-      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.5.3/hudi-spark-bundle_2.11-0.5.3.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_no_partitions_test.yaml
+      - SUBMIT_COMMAND=spark-submit --jars https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.11/0.6.0/hudi-spark-bundle_2.11-0.6.0.jar --conf spark.hadoop.mapreduce.input.pathFilter.class=org.apache.hudi.hadoop.HoodieROTablePathFilter --class com.yotpo.metorikku.MetorikkuTester metorikku.jar --test-settings examples/hudi/manual_hive_sync_no_partitions_test.yaml
       - HIVE_METASTORE_URI=hive:9083
     volumes:
       - ./output/:/examples/output/
