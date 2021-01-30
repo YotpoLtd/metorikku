@@ -27,7 +27,7 @@ RUN wget -q https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-
 	&& rm apache-hive-$HIVE_VERSION-bin.tar.gz
 
 #Hudi for hive
-ENV HUDI_VERSION=0.5.3
+ENV HUDI_VERSION=0.7.0
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hive-bundle/$HUDI_VERSION/hudi-hive-bundle-$HUDI_VERSION.jar \
     && mv hudi-hive-bundle-$HUDI_VERSION.jar $HIVE_HOME/lib
 RUN wget -q https://repo1.maven.org/maven2/org/apache/hudi/hudi-hadoop-mr-bundle/$HUDI_VERSION/hudi-hadoop-mr-bundle-$HUDI_VERSION.jar \
