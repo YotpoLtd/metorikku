@@ -28,7 +28,7 @@ env:
     - SPARK2_VERSION=2.4.6
     - SPARK_VERSION=3.0.1
     - HIVE_VERSION=2.3.7
-    - HUDI_VERSION=0.7.0
+    - HUDI_VERSION=0.5.3
     - TARGET_CACHE=$HOME/target-cache/${TRAVIS_COMMIT}
     - LC_ALL=en_US.UTF-8
     - LANG=en_US.UTF-8
