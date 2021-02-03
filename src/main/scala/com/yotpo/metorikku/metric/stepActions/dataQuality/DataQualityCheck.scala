@@ -2,6 +2,7 @@ package com.yotpo.metorikku.metric.stepActions.dataQuality
 
 import com.amazon.deequ.checks.Check
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.{HasSize, HasUniqueness, IsComplete, IsUnique}
+import org.apache.log4j.LogManager
 
 case class DataQualityCheck(
                              isComplete: Option[IsComplete] = None,
@@ -9,10 +10,19 @@ case class DataQualityCheck(
                              hasSize: Option[HasSize] = None,
                              hasUniqueness: Option[HasUniqueness] = None
                            ) {
+  private val log = LogManager.getLogger(this.getClass)
+
   def getCheck(level: String): Check = {
-    val check = Seq(isComplete, isUnique, hasSize, hasUniqueness).find(
+    val operator = Seq(isComplete, isUnique, hasSize, hasUniqueness).find(
       x => x.isDefined
     ).get.get
-    check.getCheck(check.level.getOrElse(level))
+    try {
+      operator.getCheck(operator.level.getOrElse(level))
+    } catch {
+      case e: Exception => {
+        log.error("Failed to retrieve check, verify operator usage arguments")
+        throw e
+      }
+    }
   }
 }
