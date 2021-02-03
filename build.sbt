@@ -83,7 +83,8 @@ libraryDependencies ++= Seq(
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "com.amazon.deequ" % "deequ" % "1.0.5" excludeAll(excludeSpark, excludeScalanlp),
-  "org.apache.avro" % "avro" % "1.8.2" % "provided"
+  "org.apache.avro" % "avro" % "1.8.2" % "provided",
+  "com.databricks" %% "spark-xml" % "0.11.0"
 )
 
 resolvers ++= Seq(
