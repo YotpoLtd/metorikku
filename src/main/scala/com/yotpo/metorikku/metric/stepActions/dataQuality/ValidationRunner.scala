@@ -69,7 +69,7 @@ case class ValidationRunner() {
               metric.entity.toString match {
                 case "Column" => logByLevel(verificationResult.status, doubleMetricColumnConstrainFailedMsg.format((100 - (value * 100)), metric.name))
                 case "Dataset" => logByLevel(verificationResult.status, doubleMetricDataSetConstrainFailedMsg.format(value, metric.name))
-                case _ =>
+                case "Mutlicolumn" => logByLevel(verificationResult.status, doubleMetricColumnConstrainFailedMsg.format((100 - (value * 100)), metric.name))
             }
             case _ =>
           }
