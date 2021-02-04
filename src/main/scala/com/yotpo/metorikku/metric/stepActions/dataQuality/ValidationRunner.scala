@@ -57,7 +57,8 @@ case class ValidationRunner() {
 
   private def logFailedValidationCheck(verificationResult: VerificationResult, checkResult: CheckResult) = {
     val validationCheckFailedMsg = s"${checkResult.check.description} failed"
-    val doubleMetricConstrainFailedMsg = s"%.1f%% of rows failed to meet the constraint: %s"
+    val doubleMetricColumnConstrainFailedMsg = s"%.1f%% of rows failed to meet the constraint: %s"
+    val doubleMetricDataSetConstrainFailedMsg = s"Actual value: %f rows of data set failed to meet the constraint: %s"
 
     logByLevel(verificationResult.status, validationCheckFailedMsg)
     checkResult.constraintResults.foreach { constraintResult =>
@@ -65,7 +66,11 @@ case class ValidationRunner() {
         case Some(metric: DoubleMetric) =>
           metric.value match {
             case Success(value) =>
-              logByLevel(verificationResult.status, doubleMetricConstrainFailedMsg.format((value * 100), metric.name))
+              metric.entity.toString match {
+                case "Column" => logByLevel(verificationResult.status, doubleMetricColumnConstrainFailedMsg.format((100 - (value * 100)), metric.name))
+                case "Dataset" => logByLevel(verificationResult.status, doubleMetricDataSetConstrainFailedMsg.format(value, metric.name))
+                case _ =>
+            }
             case _ =>
           }
         case _ =>

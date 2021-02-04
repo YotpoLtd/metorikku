@@ -12,8 +12,9 @@ steps:
   dq:
     level: warn
     checks:
-      - isComplete:
-          column: movieid
+      - hasSize:
+          size: 1000000000
+          operator: '>'
       - isUnique:
           level: warn
           column: rating
