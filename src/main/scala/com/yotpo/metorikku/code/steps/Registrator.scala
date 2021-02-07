@@ -10,6 +10,7 @@ object Registrator {
 
   def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
     ss.udf.register("EPOCH_MILLI_TO_TIMESTAMP", udf[Timestamp, Long](UserDefinedFunctions.epochMilliToTimestamp))
+    ss.udf.register("CALCULATE_MRR", udf[Double, java.math.BigDecimal, Float, Float, Float, Float](UserDefinedFunctions.calculateMrr))
   }
 
 }

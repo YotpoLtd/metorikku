@@ -10,4 +10,15 @@ object UserDefinedFunctions {
       Timestamp.from(instant)
   }
 
+  def calculateMrr(totalPriceUsd: java.math.BigDecimal, contractDuration: Float, actualContractduration: Float,
+                   salesFreeMonths: Float, csmExtensionMonths: Float): Double = {
+    val totalPrice: BigDecimal = scala.math.BigDecimal(totalPriceUsd)
+    if (actualContractduration < contractDuration) {
+      (((totalPrice / 12) * contractDuration) / (contractDuration + salesFreeMonths + csmExtensionMonths)).toDouble
+    }
+    else {
+      (((totalPrice / 12) * contractDuration) / actualContractduration).toDouble
+    }
+  }
+
 }
