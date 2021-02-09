@@ -21,7 +21,7 @@ class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
   private def valideHasUniquenessOverDf(employeeData: Seq[(String, Int, String, Int, Int)], columns: Seq[String],
                                         fraction: String, operator: String, level: String) = {
     val sqlContext = sparkSession.sqlContext
-    val hasUniquenessCheck = new HasUniqueness(level = Some(level),columns = columns, fraction, operator)
+    val hasUniquenessCheck = new HasUniqueness(level = Some(level), columns = columns, Some(fraction), Some(operator))
     val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), None, None)
     import sqlContext.implicits._
 
