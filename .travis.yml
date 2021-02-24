@@ -1,4 +1,6 @@
 language: scala
+scala:
+  - 2.12.10
 dist: bionic
 os: linux
 services:
@@ -17,7 +19,7 @@ branches:
 if: NOT commit_message =~ /^Setting version to.*SNAPSHOT$/
 env:
   global:
-    - SCALA_VERSION=2.12.11
+    - SCALA_VERSION=2.12.10
     - SCALA_MAJOR_VERSION=2.12
     - SPARK2_SCALA_VERSION=2.11.12
     - SPARK2_SCALA_MAJOR_VERSION=2.11
