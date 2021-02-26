@@ -54,7 +54,7 @@ case class Job(val config: Configuration) {
 
   private def registerVariables(variables: Option[Map[String, String]], sparkSession: SparkSession): Unit = {
     variables.getOrElse(Map()).foreach({ case (key, value) => {
-      sparkSession.sql(s"set $key='$value'")
+      sparkSession.sql(s"set $key=$value")
     }
     })
   }
