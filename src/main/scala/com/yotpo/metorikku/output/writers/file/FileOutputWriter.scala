@@ -90,7 +90,8 @@ class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) ext
 
             writer.save()
             protectFromEmptyOutput(dataFrame.sparkSession, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
-            catalogTable.saveExternalTable(dataFrame, filePath, fileOutputProperties.partitionBy, fileOutputProperties.alwaysUpdateSchemaInCatalog)
+            catalogTable.saveExternalTable(dataFrame, filePath, fileOutputProperties.partitionBy,
+              fileOutputProperties.alwaysUpdateSchemaInCatalog, fileOutputProperties.saveMode)
           }
           case None => {
             log.info(s"Writing managed table $tableName")

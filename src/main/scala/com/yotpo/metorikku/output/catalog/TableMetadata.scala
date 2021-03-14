@@ -19,21 +19,23 @@ class CatalogTable(tableName: String) {
     }
   }
 
-  def saveExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]], alwaysUpdateSchemaInCatalog: Boolean): Unit = {
+  def saveExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
+                        alwaysUpdateSchemaInCatalog: Boolean, saveMode: Option[String]): Unit = {
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
 
-    catalog.tableExists(tableName) match {
+    (catalog.tableExists(tableName), partitionBy, saveMode) match {
       // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
-      case true => {
+      case (true, None, Some(saveMode)) if saveMode.toLowerCase() == "overwrite" => {
         overwriteExternalTable(ss=ss, tableName=tableName,
           dataFrame=dataFrame, filePath=filePath,
           alwaysUpdateSchemaInCatalog=alwaysUpdateSchemaInCatalog)
       }
-      case false => {
+      case (false, _, _) => {
         log.info(s"Creating new external table $tableName to path $filePath")
         catalog.createTable(tableName, filePath)
       }
+      case _ =>
     }
 
     partitionBy match {
