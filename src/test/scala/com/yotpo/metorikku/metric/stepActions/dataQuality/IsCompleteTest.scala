@@ -33,7 +33,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
   test("is_complete on a non-unique field with level error should raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "error"
 
@@ -45,8 +45,8 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
 
   test("is_complete on a unique field with level error should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
-      ("James", 1, new Integer(11), 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("James", 1, Integer.valueOf(11), 111, 1111),
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "error"
 
@@ -56,7 +56,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
   test("is_complete on a non-unique field with level warn should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "warn"
 
