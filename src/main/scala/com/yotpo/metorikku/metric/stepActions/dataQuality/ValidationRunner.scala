@@ -10,7 +10,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import scala.util.Success
+import scala.util.{Success, Try}
 
 case class ValidationRunner() {
   type FailedDFHandler = (String, DataFrame) => Unit
@@ -46,7 +46,7 @@ case class ValidationRunner() {
       case CheckStatus.Success =>
         log.info(validationsPassedMsg)
       case CheckStatus.Error | CheckStatus.Warning =>
-        invokeSafely(()=>failedDFHandler(dfName, df))
+        Try(failedDFHandler(dfName, df)).recover({ case e => log.error("Failed to handle failed dataframe", e) })
         logFailedValidations(verificationResult)
       case _ =>
     }
@@ -56,14 +56,6 @@ case class ValidationRunner() {
     }
   }
 
-  private def invokeSafely(func: ()=>Unit){
-    try {
-      func()
-    }
-    catch {
-      case error:Throwable => log.error("Failed to handled failed DF", error)
-    }
-  }
 
   private def storeFailedDataFrame(dfName: String, df: DataFrame) = {
     getFailedDFPathPrefix(None) match {
