@@ -17,7 +17,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
       .getOrCreate()
   }
 
-  private def valideIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String) = {
+  private def validateIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String): Unit = {
     val sqlContext = sparkSession.sqlContext
     val isCompleteCheck = new IsComplete(level = Some(level),column = "salary")
     val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None, None)
@@ -38,7 +38,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
     val level = "error"
 
     val thrown = intercept[Exception] {
-      valideIsCompleteOverDf(employeeData, level)
+      validateIsCompleteOverDf(employeeData, level)
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
@@ -50,7 +50,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
     )
     val level = "error"
 
-    valideIsCompleteOverDf(employeeData, level)
+    validateIsCompleteOverDf(employeeData, level)
   }
 
   test("is_complete on a non-unique field with level warn should not raise exception",UnsupportedInCurrentVersion) {
@@ -60,7 +60,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
     )
     val level = "warn"
 
-    valideIsCompleteOverDf(employeeData, level)
+    validateIsCompleteOverDf(employeeData, level)
   }
 
   override def afterEach() {
