@@ -46,13 +46,22 @@ case class ValidationRunner() {
       case CheckStatus.Success =>
         log.info(validationsPassedMsg)
       case CheckStatus.Error | CheckStatus.Warning =>
-        failedDFHandler(dfName, df)
+        invokeSafely(()=>failedDFHandler(dfName, df))
         logFailedValidations(verificationResult)
       case _ =>
     }
 
     if (verificationResult.status == CheckStatus.Error) {
       throw DataQualityVerificationException(validationsFailedExceptionMsg.format(dfName))
+    }
+  }
+
+  private def invokeSafely(func: ()=>Unit){
+    try {
+      func()
+    }
+    catch {
+      case error:Throwable => log.error("Failed to handled failed DF", error)
     }
   }
 

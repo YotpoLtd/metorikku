@@ -17,6 +17,10 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
       .getOrCreate()
   }
 
+  override def afterEach() {
+    sparkSession.stop()
+  }
+
   test("given a successful dq check then does not invoke failure handler") {
     executeDq(true, false)
   }
@@ -31,7 +35,40 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     executeDq(false, true, "warn")
   }
 
-  def executeDq(shouldPass: Boolean, shouldInvoke: Boolean, logLevel:String = "error"): Unit = {
+  test("if handler fails then it doesnt interrupt normal flow and throws correct exception"){
+
+    failedHandler()
+  }
+
+
+  private def failedHandler(): Unit = {
+    val employeeData = Seq(
+      ("Maria", 1, "Smith", 111, 1111),
+      ("Josh", 1, "Smith", 222, 2222)
+    )
+
+    val sqlContext = sparkSession.sqlContext
+    import sqlContext.implicits._
+
+    val fraction = Some("1.0")
+
+    val hasUniquenessCheck = new HasUniqueness(level = Some("error"), columns = Seq("id", "name"), fraction, Some("=="))
+
+    val dfName = "employee_data"
+    val df = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
+    df.createOrReplaceTempView(dfName)
+
+    val exception = intercept[Exception] {
+      ValidationRunner().runChecks(dfName, List(DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), Some("error"), None,
+        (_, _) => {
+          throw new Exception("Dump error")
+        })
+    }
+
+    assert(!exception.getMessage().startsWith("Verification failed over dataframe"))
+  }
+
+  private def executeDq(shouldPass: Boolean, shouldInvoke: Boolean, logLevel:String = "error"): Unit = {
     val employeeData = Seq(
       ("Maria", 1, "Smith", 111, 1111),
       ("Josh", 1, "Smith", 222, 2222)
@@ -58,13 +95,11 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
       })
 
     (shouldPass, logLevel) match {
-      case (false, "warn") =>
-          runDq()
       case (false, "error") =>
         intercept[Exception] {
           runDq()
         }
-      case (true,_) =>
+      case (_,_) =>
         runDq()
     }
 
