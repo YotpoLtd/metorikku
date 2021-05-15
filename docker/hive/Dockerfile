@@ -36,11 +36,6 @@ ENV AWS_JAVA_SDK_VERSION=1.7.4
 RUN wget -q https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/$AWS_JAVA_SDK_VERSION/aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar \
     && mv aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar $HIVE_HOME/lib
 
-RUN wget -q https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar \
-    && mv jsonevent-layout-1.7.jar $HIVE_HOME/lib
-RUN wget -q https://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar \
-    && mv json-smart-1.1.1.jar $HIVE_HOME/lib
-
 # Apache Atlas HiveHook installation
 ENV ATLAS_VERSION=2.0.0
 ENV HBASE_VERSION=2.0.2
@@ -87,7 +82,7 @@ COPY init-hive.sh /
 COPY start-hive.sh /
 COPY run_hive_import.sh /
 COPY health-check.sh /
-COPY log4j.json.properties .
+COPY log4j2.json.properties .
 
 RUN mkdir -p $ATLAS_HOME/hook-bin/
 COPY atlas/import_hive.sh $ATLAS_HOME/hook-bin/
