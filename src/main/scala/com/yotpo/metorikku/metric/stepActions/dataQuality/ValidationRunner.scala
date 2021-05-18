@@ -74,6 +74,7 @@ case class ValidationRunner() {
         ), None)
 
         writer.write(df)
+        log.warn(s"Failed data frame was written to: ${uniqueName}")
     }
   }
 
