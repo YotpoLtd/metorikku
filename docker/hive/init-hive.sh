@@ -12,7 +12,7 @@ HIVE_AUTH=${HIVE_AUTH:=NONE}
 
 if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
-    cat log4j.json.properties >> ${HIVE_HOME}/conf/hive-log4j.properties
+    cat log4j2.json.properties >> ${HIVE_HOME}/conf/hive-log4j2.properties
 fi
 
 cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
@@ -88,6 +88,10 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <description>If true (default is false), ALTER TABLE operations which change the type of   a column (say STRING) to an incompatible type (say MAP&lt;STRING, STRING&gt;) are disallowed.    RCFile default SerDe (ColumnarSerDe) serializes the values in such a way that the  datatypes can be converted from string to any type. The map is also serialized as  a string, which can be read as a string as well. However, with any binary   serialization, this is not true. Blocking the ALTER TABLE prevents ClassCastExceptions  when subsequently trying to access old partitions.   Primitive types like INT, STRING, BIGINT, etc are compatible with each other and are   not blocked.
       See HIVE-4409 for more details.
         </description>
+     </property>
+     <property>
+        <name>hive.async.log.enabled</name>
+        <value>false</value>
      </property>
 EOL
 
