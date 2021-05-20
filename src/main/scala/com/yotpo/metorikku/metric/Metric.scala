@@ -20,10 +20,15 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
   val log = LogManager.getLogger(this.getClass)
 
   def calculate(job: Job): Unit = {
+
+    val dqConfigurator = new DeequConfigurator(log, job.config.failedDFLocationPrefix, job.config.ignoreDeequValidations)
+
     val tags = Map("metric" -> metricName)
+
     for (stepConfig <- configuration.steps) {
       val step = StepFactory.getStepAction(stepConfig, metricDir, metricName, job.config.showPreviewLines.get,
-        job.config.cacheOnPreview, job.config.showQuery, job.config.ignoreDeequValidations)
+        job.config.cacheOnPreview, job.config.showQuery, dqConfigurator)
+
       try {
         log.info(s"Calculating step ${step.dataFrameName}")
         step.run(job.sparkSession)
