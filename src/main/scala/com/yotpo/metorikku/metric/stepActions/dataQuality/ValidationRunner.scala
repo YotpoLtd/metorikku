@@ -4,7 +4,6 @@ import com.amazon.deequ.checks.{CheckResult, CheckStatus}
 import com.amazon.deequ.metrics.DoubleMetric
 import com.amazon.deequ.{VerificationResult, VerificationSuite}
 import com.yotpo.metorikku.output.writers.file.ParquetOutputWriter
-import com.yotpo.metorikku.utils.FileUtils.getFailedDFPathPrefix
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -13,7 +12,7 @@ import java.time.format.DateTimeFormatter
 import scala.util.{Success, Try}
 
 case class ValidationRunner() {
-  type FailedDFHandler = (String, DataFrame) => Unit
+  type FailedDFHandler = (String, DataFrame, Option[String]) => Unit
 
   private val executingVerificationsMsg = s"Executing verification checks over dataframe %s"
   private val validationsPassedMsg = s"The data passed the validations, everything is fine!"
@@ -27,6 +26,7 @@ case class ValidationRunner() {
                 checks: List[DataQualityCheck],
                 level: Option[String],
                 cacheDf: Option[Boolean],
+                failedDfLocation: Option[String],
                 failedDFHandler: FailedDFHandler = storeFailedDataFrame): Unit = {
     val dqChecks = checks.map {
       dq => dq.getCheck(level.getOrElse("warn"))
@@ -46,7 +46,7 @@ case class ValidationRunner() {
       case CheckStatus.Success =>
         log.info(validationsPassedMsg)
       case CheckStatus.Error | CheckStatus.Warning =>
-        Try(failedDFHandler(dfName, df)).recover({ case e => log.error("Failed to handle failed dataframe", e) })
+        Try(failedDFHandler(dfName, df, failedDfLocation)).recover({ case e => log.error("Failed to handle failed dataframe", e) })
         logFailedValidations(verificationResult)
       case _ =>
     }
@@ -57,8 +57,8 @@ case class ValidationRunner() {
   }
 
 
-  private def storeFailedDataFrame(dfName: String, df: DataFrame) = {
-    getFailedDFPathPrefix(None) match {
+  private def storeFailedDataFrame(dfName: String, df: DataFrame, failedDfLocation: Option[String]) = {
+    failedDfLocation match {
 
       case None =>
         log.warn("Didn't find where to store failed data frame. skipping.")

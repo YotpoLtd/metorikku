@@ -1,6 +1,6 @@
 package com.yotpo.metorikku.configuration.job
-
 import com.yotpo.metorikku.input.Reader
+import com.yotpo.metorikku.utils.FileUtils.getEnvProperties
 
 case class Configuration(metrics: Option[Seq[String]],
                          inputs: Option[Map[String, Input]],
@@ -19,7 +19,8 @@ case class Configuration(metrics: Option[Seq[String]],
                          var appName: Option[String],
                          var continueOnFailedStep: Option[Boolean],
                          var cacheCountOnOutput: Option[Boolean],
-                         var ignoreDeequValidations: Option[Boolean]) {
+                         var ignoreDeequValidations: Option[Boolean],
+                         var failedDFLocationPrefix: Option[String]) {
 
   require(metrics.isDefined, "metrics files paths are mandatory")
 
@@ -30,7 +31,10 @@ case class Configuration(metrics: Option[Seq[String]],
   continueOnFailedStep = Option(continueOnFailedStep.getOrElse(false))
   cacheCountOnOutput = Option(cacheCountOnOutput.getOrElse(true))
   ignoreDeequValidations = Option(ignoreDeequValidations.getOrElse(false))
+  failedDFLocationPrefix = failedDFLocationPrefix.orElse(getEnvProperties().get("CONFIG_FAILED_DF_PATH_PREFIX"))
 
   def getReaders: Seq[Reader] = inputs.getOrElse(Map()).map {
     case (name, input) => input.getReader(name) }.toSeq
+
 }
+

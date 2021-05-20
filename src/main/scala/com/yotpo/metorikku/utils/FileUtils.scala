@@ -64,9 +64,7 @@ object FileUtils {
     envProperties.getOrElse(getEnvProperties()).get("CONFIG_FILES_PATH_PREFIX")
   }
 
-  def getFailedDFPathPrefix(envProperties: Option[Map[String,String]]): Option[String] = {
-    envProperties.getOrElse(getEnvProperties()).get("CONFIG_FAILED_DF_PATH_PREFIX")
-  }
+
 
   def getHadoopPath(path: String): HadoopPath = {
     val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
