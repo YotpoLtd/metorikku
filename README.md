@@ -1,4 +1,4 @@
-![Metorikku Logo](https://raw.githubusercontent.com/wiki/yotpoltd/metorikku/metorikku.png) 
+![Metorikku Logo](https://raw.githubusercontent.com/wiki/yotpoltd/metorikku/metorikku.png)
 
 [![Build Status](https://travis-ci.org/YotpoLtd/metorikku.svg?branch=master)](https://travis-ci.org/YotpoLtd/metorikku)
 
