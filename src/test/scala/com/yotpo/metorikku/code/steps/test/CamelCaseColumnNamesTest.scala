@@ -2,13 +2,12 @@ package com.yotpo.metorikku.code.steps.test
 
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import com.yotpo.metorikku.code.steps.CamelCaseColumnNames
-import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.{FunSuite, _}
 
 //noinspection ScalaStyle
 class CamelCaseColumnNamesTest extends FunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
-  private val log: Logger = LogManager.getLogger(this.getClass)
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 
@@ -21,8 +20,7 @@ class CamelCaseColumnNamesTest extends FunSuite with DataFrameSuiteBase with Bef
 
   test("CamelCaseColumnNames") {
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext = new SQLContext(sparkSession.sparkContext)
-    import sqlContext.implicits._
+    import sparkSession.implicits._
 
     val employeeData = Seq(
       ("James", 1),
