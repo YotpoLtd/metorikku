@@ -4,11 +4,11 @@ import com.yotpo.metorikku.metric.stepActions.dataQuality.DataQualityCheckList
 import org.apache.log4j.Logger
 
 
-class DeequConfigurator(log: Logger,
-                        failedDFLocation: Option[String] = None,
-                        ignoreDeequeValidations: Option[Boolean] = None) {
+class DeequFactory(log: Logger,
+                   failedDFLocation: Option[String] = None,
+                   ignoreDeequeValidations: Option[Boolean] = None) {
 
-  def calculateDq(dq: Option[DataQualityCheckList]
+  def generateDeequeList(dq: Option[DataQualityCheckList]
                  ): Option[DataQualityCheckList] = {
     ignoreDeequeValidations match {
       case Some(true) => {

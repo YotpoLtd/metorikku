@@ -11,14 +11,14 @@ object StepFactory {
 
   def getStepAction(configuration: Step, metricDir: Option[File], metricName: String,
                     showPreviewLines: Int, cacheOnPreview: Option[Boolean],
-                    showQuery: Option[Boolean], dqConfigurator: DeequConfigurator): StepAction[_] = {
+                    showQuery: Option[Boolean], dqConfigurator: DeequFactory): StepAction[_] = {
     configuration.sql match {
 
       case Some(expression) => Sql(expression,
         configuration.dataFrameName,
         showPreviewLines, cacheOnPreview,
         showQuery,
-        dqConfigurator.calculateDq(configuration.dq))
+        dqConfigurator.generateDeequeList(configuration.dq))
 
       case None => {
         configuration.file match {
@@ -33,7 +33,7 @@ object StepFactory {
               showPreviewLines,
               cacheOnPreview,
               showQuery,
-              dqConfigurator.calculateDq(configuration.dq))
+              dqConfigurator.generateDeequeList(configuration.dq))
 
           case None => {
             configuration.classpath match {

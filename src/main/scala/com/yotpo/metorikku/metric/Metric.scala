@@ -21,7 +21,7 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
 
   def calculate(job: Job): Unit = {
 
-    val dqConfigurator = new DeequConfigurator(log, job.config.failedDFLocationPrefix, job.config.ignoreDeequValidations)
+    val dqConfigurator = new DeequFactory(log, job.config.failedDFLocationPrefix, job.config.ignoreDeequValidations)
 
     val tags = Map("metric" -> metricName)
 
