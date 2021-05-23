@@ -14,7 +14,7 @@ object RemoveDuplicates {
     params match {
       case Some(parameters) => {
 
-        val table = parameters.get(tableParameterName).get
+        val table = parameters.getOrElse(tableParameterName, throw MetorikkuException(message))
 
         val getRowColumnNames = () => {
           LogManager.getLogger(RemoveDuplicates.getClass.getCanonicalName).warn(missingOptionalParameterMsg)
