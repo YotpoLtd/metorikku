@@ -2,6 +2,7 @@ package com.yotpo.metorikku.code.steps.test
 
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import com.yotpo.metorikku.code.steps.RemoveDuplicates
+import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{FunSuite, _}
@@ -24,17 +25,17 @@ class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with Before
 
     import sparkSession.implicits._
 
-    val employeeDataActual = Seq(
-      ("James", 1),
-      ("Maria", 1)
+    val employeeDataSrc = Seq(
+      (1, "James"),
+      (1, "Maria")
     )
 
     val employeeDataExpected = Seq(
-      ("James", 1)
+      (1, "James")
     )
-    employeeDataActual.toDF("employee_name", "employee_salary").createOrReplaceTempView("employeeDataActual")
-    employeeDataExpected.toDF("employee_name", "employee_salary").createOrReplaceTempView("employeeDataExpected")
-    RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual", "columns"->"employee_salary")))
+    employeeDataSrc.toDF("id", "employee_name").createOrReplaceTempView("employeeDataActual")
+    employeeDataExpected.toDF("id", "employee_name").createOrReplaceTempView("employeeDataExpected")
+    RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual", "columns"->"id")))
 
     assertDataFrameEquals(sparkSession.table("employeeDataExpected"), sparkSession.table("employeeDataExpectedResult"))
 
@@ -45,23 +46,39 @@ class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with Before
 
     import sparkSession.implicits._
 
-    val employeeDataActual = Seq(
-      ("James", 1),
-      ("James", 1),
-      ("Maria", 1)
+    val employeeDataSrc = Seq(
+      (2, "James"),
+      (2, "James"),
+      (1, "Maria")
     )
 
     val employeeDataExpected = Seq(
-      ("James", 1),
-      ("Maria", 1)
+      (2, "James"),
+      (1, "Maria")
     )
 
-    employeeDataActual.toDF("employee_name", "employee_salary").createOrReplaceTempView("employeeDataActual")
-    employeeDataExpected.toDF("employee_name", "employee_salary").createOrReplaceTempView("employeeDataExpected")
+    employeeDataSrc.toDF("id", "employee_name").createOrReplaceTempView("employeeDataActual")
+    employeeDataExpected.toDF("id", "employee_name").createOrReplaceTempView("employeeDataExpected")
     RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual")))
 
     assertDataFrameEquals(sparkSession.table("employeeDataExpected"), sparkSession.table("employeeDataExpectedResult"))
 
+  }
+
+  test("RemoveDuplicates fails if no table is provided") {
+    val sparkSession = SparkSession.builder.appName("test").getOrCreate()
+
+    assertThrows[MetorikkuException] {
+      RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map()))
+    }
+  }
+
+  test("RemoveDuplicates fails if no parameters provided") {
+    val sparkSession = SparkSession.builder.appName("test").getOrCreate()
+
+    assertThrows[MetorikkuException] {
+      RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", None)
+    }
   }
 
   override def afterEach() {
