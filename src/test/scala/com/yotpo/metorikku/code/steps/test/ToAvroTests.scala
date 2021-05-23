@@ -2,7 +2,7 @@ package com.yotpo.metorikku.code.steps.test
 
 import com.yotpo.metorikku.code.steps.{ToAvro}
 import org.apache.log4j.{Level, LogManager, Logger}
-import org.apache.spark.sql.{SQLContext, SparkSession}
+import org.apache.spark.sql.SparkSession
 import org.scalatest.{FunSuite, _}
 
 
@@ -22,8 +22,7 @@ class ToAvroTests extends FunSuite with BeforeAndAfterEach {
   test("ToAvro Missing Topic Param") {
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
-    import sqlContext.implicits._
+    import sparkSession.implicits._
 
     val table = Seq(
       ("James", 1, 11, 111, 1111),
