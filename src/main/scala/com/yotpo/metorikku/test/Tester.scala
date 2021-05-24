@@ -49,7 +49,7 @@ case class Tester(config: TesterConfig) {
     val variables = params.variables
     val inputs = getMockFilesForStreamingInputs(config.test.mocks, config.basePath)
     Configuration(Option(metrics), inputs, variables, None, None, None, None, None,
-      Option(config.preview > 0), None, None,  None, Option(config.preview), None, None, None, None, Option(true))
+      Option(config.preview > 0), None, None,  None, Option(config.preview), None, None, None, None, Option(true), None)
   }
 
   private def getMockFilesForStreamingInputs(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {

@@ -33,8 +33,8 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
   test("has_size with assertion 2 == on a data frame size of 3 with level error should raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222),
-      ("Josh", 3, new Integer(33), 333, 3333)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222),
+      ("Josh", 3, Integer.valueOf(33), 333, 3333)
     )
     val level = "error"
 
@@ -46,8 +46,9 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
 
   test("has_size with assertion 2 == on a data frame size of 2 with level error should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
-      ("James", 1, new Integer(11), 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+
+      ("James", 1, Integer.valueOf(11), 111, 1111),
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "error"
 
@@ -57,8 +58,8 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
   test("has_size with assertion 2 == on a data frame size of 3 with level warn should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222),
-      ("Josh", 3, new Integer(33), 333, 3333)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222),
+      ("Josh", 3, Integer.valueOf(33), 333, 3333)
     )
     val level = "warn"
 
