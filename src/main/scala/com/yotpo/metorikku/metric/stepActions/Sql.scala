@@ -11,8 +11,8 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
                cacheOnPreview: Option[Boolean],
                showQuery: Option[Boolean],
-               dq: Option[DataQualityCheckList],
-               ignoreDeequValidations: Option[Boolean]) extends StepAction[DataFrame] {
+               dq: Option[DataQualityCheckList]
+              ) extends StepAction[DataFrame] {
   val log = LogManager.getLogger(this.getClass)
 
   override def run(sparkSession: SparkSession): DataFrame = {
@@ -48,11 +48,7 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
 
   private def runDQValidation(dfName: String, dqDef: Option[DataQualityCheckList]): Unit = {
     dqDef match {
-      case Some(dq) =>
-        ignoreDeequValidations match {
-          case Some(true) => log.info("Skipping Deequ validations")
-          case _ => dq.runChecks(dfName)
-        }
+      case Some(dq) => dq.runChecks(dfName)
       case _ =>
     }
   }

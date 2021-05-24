@@ -4,13 +4,13 @@ import com.yotpo.metorikku.code.steps.LoadIfExists
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.types.StructField
-import org.apache.spark.sql.{DataFrame, Row, SQLContext, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.scalatest.{FunSuite, _}
 
 import scala.collection.mutable.ArrayBuffer
 
 //noinspection ScalaStyle
-class LoadIfExistsTest extends FunSuite with BeforeAndAfterEach {
+class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
   private val log: Logger = LogManager.getLogger(this.getClass)
   private var sparkSession : SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
@@ -55,8 +55,7 @@ class LoadIfExistsTest extends FunSuite with BeforeAndAfterEach {
     val params: Option[Map[String, String]] = Option(Map("dfName" -> "testDf", "tableName" -> "missing_table"))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
-    import sqlContext.implicits._
+    import sparkSession.implicits._
 
     val table = Seq(
       ("James", 1, 11, 111, 1111),
@@ -75,8 +74,7 @@ class LoadIfExistsTest extends FunSuite with BeforeAndAfterEach {
     val params: Option[Map[String, String]] = Option(Map("dfName" -> "df1", "tableName" -> "df2"))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
-    val sqlContext= new SQLContext(sparkSession.sparkContext)
-    import sqlContext.implicits._
+    import sparkSession.implicits._
 
     val table1 = Seq(
       ("James", 1, 11, 111, 1111),

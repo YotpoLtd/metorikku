@@ -448,6 +448,58 @@ Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code
 
 *NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
 
+##### Custom Functions
+There are some custom functions already implemented as part of the Metorikku JAR:
+
+- **SelectiveMerge:** Outer joins two tables according to keys.
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.SelectiveMerge
+  params:
+    df1: table1
+    df2: table2
+    joinKeys: column1,column2
+```
+- **RemoveDuplicates:** Remove duplicate rows based on index columns, or compare entire rows if not provided.
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.RemoveDuplicates
+  params:
+    table: tableName
+    columns: column1,column2
+```
+- **DropColumns:** Remove redundant columns by a given list.
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.DropColumns
+  params:
+    table: tableName
+    columns: column1,column2
+```
+- **CamelCaseColumnNames:** Converts snake_case column names to CamelCase
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.CamelCaseColumnNames
+  params:
+    table: tableName
+```
+- **AlignTables:** Converts source table schema to target schema, adding any missing column as null
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.AlignTables
+  params:
+    from: tableToConvert
+    to: tableSchemaToUse
+```
+- **LoadIfExists:** Loads table into a Dataframe, only if the table exists. If not - the result DataFrame will be empty
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.LoadIfExists
+  params:
+    dfName: dfToFill
+    tableName: tableToFillWith
+```
+
 #### Apache Hive metastore
 Metorikku supports reading and saving tables with Apache hive metastore.
 To enable hive support via spark-submit (assuming you're using MySQL as Hive's DB but any backend can work) send the following configurations:

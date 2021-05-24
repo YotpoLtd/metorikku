@@ -1,11 +1,12 @@
 package com.yotpo.metorikku.output.writers.jdbc
 
 import java.util.Properties
-
 import com.yotpo.metorikku.configuration.job.output.JDBC
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
+
+import java.sql.DriverManager
 
 
 class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) extends Writer {
@@ -26,6 +27,17 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
         val writer = df.write.format(jdbcConf.driver)
           .mode(dbOptions.saveMode)
           .jdbc(jdbcConf.connectionUrl, dbOptions.dbTable, connectionProperties)
+
+        props.get("postQuery") match {
+          case Some(query) =>
+            val conn = DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
+            val stmt = conn.prepareStatement(query)
+            stmt.execute()
+            stmt.close()
+            conn.close()
+          case _ =>
+        }
+
       case None =>
     }
   }

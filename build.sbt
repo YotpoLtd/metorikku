@@ -10,9 +10,9 @@ developers := List(
 )
 
 crossScalaVersions := Seq(
-  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11"),
+  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10"),
   Option(System.getenv("SPARK2_SCALA_VERSION")).getOrElse("2.11.12"))
-scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11")
+scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
@@ -35,6 +35,12 @@ val sparkRedshiftVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+val deequVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.1.0_spark-3.0-scala-2.12"
+    case _ => "1.1.0_spark-2.4-scala-2.11"
+  }
+}
 testOptions in Test := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
@@ -82,8 +88,9 @@ libraryDependencies ++= Seq(
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
-  "com.amazon.deequ" % "deequ" % "1.0.5" excludeAll(excludeSpark, excludeScalanlp),
-  "org.apache.avro" % "avro" % "1.8.2" % "provided"
+  "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
+  "org.apache.avro" % "avro" % "1.8.2" % "provided",
+  "com.databricks" %% "spark-xml" % "0.11.0"
 )
 
 resolvers ++= Seq(

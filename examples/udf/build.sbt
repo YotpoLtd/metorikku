@@ -2,8 +2,8 @@ name := "udf-example"
 
 version := "1.0"
 
-crossScalaVersions := Seq("2.12.11", "2.11.12")
-scalaVersion := Option(System.getProperty("scalaVersion")).getOrElse("2.12.11")
+crossScalaVersions := Seq("2.12.10", "2.11.12")
+scalaVersion := Option(System.getProperty("scalaVersion")).getOrElse("2.12.10")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {

@@ -46,7 +46,7 @@ object Metorikku extends App {
         val metricSet = new MetricSet(metricSetPath)
         metricSet.run(job)
       })
-      case None => log.warn("No mertics were defined, exiting")
+      case None => log.warn("No metrics were defined, exiting")
     }
   }
 }
