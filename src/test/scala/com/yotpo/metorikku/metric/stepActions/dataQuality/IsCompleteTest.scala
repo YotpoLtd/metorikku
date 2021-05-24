@@ -17,7 +17,7 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
       .getOrCreate()
   }
 
-  private def valideIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String) = {
+  private def validateIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String): Unit = {
     val sqlContext = sparkSession.sqlContext
     val isCompleteCheck = new IsComplete(level = Some(level),column = "salary")
     val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None, None)
@@ -33,34 +33,34 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
   test("is_complete on a non-unique field with level error should raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "error"
 
     val thrown = intercept[Exception] {
-      valideIsCompleteOverDf(employeeData, level)
+      validateIsCompleteOverDf(employeeData, level)
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
 
   test("is_complete on a unique field with level error should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
-      ("James", 1, new Integer(11), 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("James", 1, Integer.valueOf(11), 111, 1111),
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "error"
 
-    valideIsCompleteOverDf(employeeData, level)
+    validateIsCompleteOverDf(employeeData, level)
   }
 
   test("is_complete on a non-unique field with level warn should not raise exception",UnsupportedInCurrentVersion) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
-      ("Maria", 2, new Integer(22), 222, 2222)
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
     )
     val level = "warn"
 
-    valideIsCompleteOverDf(employeeData, level)
+    validateIsCompleteOverDf(employeeData, level)
   }
 
   override def afterEach() {

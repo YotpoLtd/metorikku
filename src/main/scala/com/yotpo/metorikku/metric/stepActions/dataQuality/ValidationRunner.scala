@@ -1,14 +1,19 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
-import com.amazon.deequ.{VerificationResult, VerificationSuite}
 import com.amazon.deequ.checks.{CheckResult, CheckStatus}
 import com.amazon.deequ.metrics.DoubleMetric
+import com.amazon.deequ.{VerificationResult, VerificationSuite}
+import com.yotpo.metorikku.output.writers.file.ParquetOutputWriter
 import org.apache.log4j.LogManager
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
-import scala.util.Success
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import scala.util.{Success, Try}
 
 case class ValidationRunner() {
+  type FailedDFHandler = (String, DataFrame, Option[String]) => Unit
+
   private val executingVerificationsMsg = s"Executing verification checks over dataframe %s"
   private val validationsPassedMsg = s"The data passed the validations, everything is fine!"
   private val validationsFailedMsg = s"There were validation errors in the data, the following constraints were not satisfied:"
@@ -16,7 +21,13 @@ case class ValidationRunner() {
   private val cachingDataframeMsg = s"Caching dataframe: %s"
 
   private val log = LogManager.getLogger(this.getClass)
-  def runChecks(dfName: String, checks: List[DataQualityCheck], level: Option[String], cacheDf: Option[Boolean]): Unit = {
+
+  def runChecks(dfName: String,
+                checks: List[DataQualityCheck],
+                level: Option[String],
+                cacheDf: Option[Boolean],
+                failedDfLocation: Option[String],
+                failedDFHandler: FailedDFHandler = storeFailedDataFrame): Unit = {
     val dqChecks = checks.map {
       dq => dq.getCheck(level.getOrElse("warn"))
     }
@@ -35,12 +46,35 @@ case class ValidationRunner() {
       case CheckStatus.Success =>
         log.info(validationsPassedMsg)
       case CheckStatus.Error | CheckStatus.Warning =>
+        Try(failedDFHandler(dfName, df, failedDfLocation)).recover({ case e => log.error("Failed to handle failed dataframe", e) })
         logFailedValidations(verificationResult)
       case _ =>
     }
 
     if (verificationResult.status == CheckStatus.Error) {
       throw DataQualityVerificationException(validationsFailedExceptionMsg.format(dfName))
+    }
+  }
+
+
+  private def storeFailedDataFrame(dfName: String, df: DataFrame, failedDfLocation: Option[String]) = {
+    failedDfLocation match {
+
+      case None =>
+        log.warn("Didn't find where to store failed data frame. skipping.")
+
+      case Some(prefix) =>
+        val uniqueName = s"${dfName}_${
+          LocalDateTime.now().format(
+            DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssSSS"))
+        }"
+
+        val writer = new ParquetOutputWriter(Map[String, Any](
+          "path" -> s"${prefix}/${uniqueName}"
+        ), None)
+
+        writer.write(df)
+        log.warn(s"Failed data frame was written to: ${uniqueName}")
     }
   }
 
@@ -70,7 +104,7 @@ case class ValidationRunner() {
                 case "Column" => logByLevel(verificationResult.status, doubleMetricColumnConstrainFailedMsg.format((100 - (value * 100)), metric.name))
                 case "Dataset" => logByLevel(verificationResult.status, doubleMetricDataSetConstrainFailedMsg.format(value, metric.name))
                 case "Mutlicolumn" => logByLevel(verificationResult.status, doubleMetricColumnConstrainFailedMsg.format((100 - (value * 100)), metric.name))
-            }
+              }
             case _ =>
           }
         case _ =>

@@ -8,12 +8,18 @@ import com.yotpo.metorikku.metric.stepActions.{Code, Sql}
 import com.yotpo.metorikku.utils.FileUtils
 
 object StepFactory {
+
   def getStepAction(configuration: Step, metricDir: Option[File], metricName: String,
                     showPreviewLines: Int, cacheOnPreview: Option[Boolean],
-                    showQuery: Option[Boolean], ignoreDeequValidations: Option[Boolean]): StepAction[_] = {
+                    showQuery: Option[Boolean], dqConfigurator: DeequFactory): StepAction[_] = {
     configuration.sql match {
-      case Some(expression) => Sql(expression, configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq,
-        ignoreDeequValidations)
+
+      case Some(expression) => Sql(expression,
+        configuration.dataFrameName,
+        showPreviewLines, cacheOnPreview,
+        showQuery,
+        dqConfigurator.generateDeequeList(configuration.dq))
+
       case None => {
         configuration.file match {
           case Some(filePath) =>
@@ -23,8 +29,12 @@ object StepFactory {
             }
             Sql(
               FileUtils.readConfigurationFile(path),
-              configuration.dataFrameName, showPreviewLines, cacheOnPreview, showQuery, configuration.dq, ignoreDeequValidations
-            )
+              configuration.dataFrameName,
+              showPreviewLines,
+              cacheOnPreview,
+              showQuery,
+              dqConfigurator.generateDeequeList(configuration.dq))
+
           case None => {
             configuration.classpath match {
               case Some(cp) => {

@@ -8,7 +8,7 @@ import com.yotpo.metorikku.output.catalog.CatalogTable
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, DataFrameWriter, SparkSession}
 
-class FileOutputWriter(props: Map[String, Object], outputFile: Option[File]) extends Writer {
+class FileOutputWriter(props: Map[String, Any], outputFile: Option[File]) extends Writer {
   val log = LogManager.getLogger(this.getClass)
 
   case class FileOutputProperties( path: Option[String],
