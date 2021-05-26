@@ -50,21 +50,27 @@ jobs:
       before_script: scripts/load_from_cache.sh
       before_cache: scripts/clear_from_cache.sh
     - name: "influxdb"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/influxdb && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "kafka"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/kafka && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "elasticsearch"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/elasticsearch && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "hive"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/hive && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "hudi"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/hudi && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - name: "cdc"
+      if: env(TRAVIS_SECURE_ENV_VARS)
       script: (cd e2e/cdc && ./test.sh)
       before_script: scripts/docker_load_dev.sh
     - stage: "Deploy"
