@@ -54,7 +54,7 @@ object SelectiveMerge {
     val df1OnlyColumns = df1SchemaTitles diff df2SchemaTitles
     val df2OnlyColumns = df2SchemaTitles diff df1SchemaTitles
 
-    log.info("DF1 columns which will be overriden: " + overridenColumns)
+    log.info("DF1 columns which will be overridden: " + overridenColumns)
     log.info("DF1 columns which are not found in DF2: " + df1OnlyColumns)
     log.info("DF2 columns which are not found in DF1: " + df2OnlyColumns)
   }

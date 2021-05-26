@@ -46,3 +46,10 @@ output:
     saveMode: Overwrite
     path: topFantasyMovies.jsonl
     repartition: 10
+- dataFrameName: topFantasyMovies
+  outputType: File
+  outputOptions:
+    saveMode: Overwrite
+    path: topFantasyMovies.xml
+    format: com.databricks.spark.xml
+    repartition: 2

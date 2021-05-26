@@ -10,9 +10,9 @@ developers := List(
 )
 
 crossScalaVersions := Seq(
-  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11"),
+  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10"),
   Option(System.getenv("SPARK2_SCALA_VERSION")).getOrElse("2.11.12"))
-scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.11")
+scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
@@ -28,6 +28,19 @@ val jacksonVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+val sparkRedshiftVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "4.2.0"
+    case _ => "4.1.1"
+  }
+}
+
+val deequVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.1.0_spark-3.0-scala-2.12"
+    case _ => "1.1.0_spark-2.4-scala-2.11"
+  }
+}
 testOptions in Test := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
@@ -67,7 +80,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
   "org.apache.commons" % "commons-text" % "1.8",
   "org.influxdb" % "influxdb-java" % "2.14",
-  "io.github.spark-redshift-community" %% "spark-redshift" % "4.1.1",
+  "io.github.spark-redshift-community" %% "spark-redshift" % sparkRedshiftVersion.value,
   "com.segment.analytics.java" % "analytics" % "2.1.1" % "provided",
   "com.datastax.spark" %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
   "com.redislabs" %% "spark-redis" % "2.5.0" % "provided",
@@ -75,8 +88,9 @@ libraryDependencies ++= Seq(
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
-  "com.amazon.deequ" % "deequ" % "1.0.5" excludeAll(excludeSpark, excludeScalanlp),
-  "org.apache.avro" % "avro" % "1.8.2" % "provided"
+  "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
+  "org.apache.avro" % "avro" % "1.8.2" % "provided",
+  "com.databricks" %% "spark-xml" % "0.11.0"
 )
 
 resolvers ++= Seq(

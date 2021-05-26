@@ -48,14 +48,20 @@ object FileUtils {
   }
 
   def readConfigurationFile(path: String): String = {
-    val envAndSystemProperties = System.getProperties().asScala ++= System.getenv().asScala
-    val prefix = envAndSystemProperties.get("CONFIG_FILES_PATH_PREFIX") match {
-      case Some(prefix) => prefix
-      case _ => ""
-    }
+    val envAndSystemProperties = getEnvProperties()
+    val prefix = getFilesPathPrefix(Option.apply(envAndSystemProperties)).getOrElse("")
 
     val fileContents = readFileWithHadoop(prefix + path)
     StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
+  }
+
+  def getEnvProperties(): Map[String, String] =  {
+    val envAndSystemProperties = System.getProperties().asScala ++= System.getenv().asScala
+    envAndSystemProperties.toMap
+  }
+
+  def getFilesPathPrefix(envProperties: Option[Map[String,String]]): Option[String] = {
+    envProperties.getOrElse(getEnvProperties()).get("CONFIG_FILES_PATH_PREFIX")
   }
 
 

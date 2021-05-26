@@ -50,5 +50,13 @@ Creates a constraint that asserts on uniqueness in a single or combined set of k
 Required parameter: `columns`\
 Optional parameter: `fraction` (Default: "1.0")\
 Optional parameter: `operator` (Default: "==") Optional values: [==, !=, >=, >, <=, <] 
+##### `isContainedIn`
+Creates a constraint that asserts on a column's allowed values.\
+Required parameter: `column` \
+Required parameter: `allowedValues` (List of strings)
 
+### Failures
+To help debug dataframes that failed verification, they will be stored as Parquet files.
+To specify a datastore you can use the `CONFIG_FAILED_DF_PATH_PREFIX` environment variable.
+If there's no datastore specified - the dataframe will not be saved.
 

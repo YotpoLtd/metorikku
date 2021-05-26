@@ -81,6 +81,8 @@ output:
     outputOptions:
       saveMode: Overwrite
       dbTable: table_in_db
+      # Optional: run this after writing to JDBC
+      postQuery: CREATE INDEX...
   - dataFrameName: table1
     outputType: JDBCQuery
     outputOptions:
