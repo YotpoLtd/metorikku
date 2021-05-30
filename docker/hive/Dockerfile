@@ -36,13 +36,19 @@ ENV AWS_JAVA_SDK_VERSION=1.7.4
 RUN wget -q https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/$AWS_JAVA_SDK_VERSION/aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar \
     && mv aws-java-sdk-$AWS_JAVA_SDK_VERSION.jar $HIVE_HOME/lib
 
-# Apache Atlas HiveHook installation
+# Apiary Kafka Metastore Listener Installation
+ENV APIARY_EXTENSIONS_VERSION 7.2.0
+ENV KAFKA_VERSION 2.6.0
+ADD https://repo1.maven.org/maven2/com/expediagroup/apiary/kafka-metastore-listener/${APIARY_EXTENSIONS_VERSION}/kafka-metastore-listener-${APIARY_EXTENSIONS_VERSION}-all.jar $HIVE_HOME/lib/kafka-metastore-listener-${APIARY_EXTENSIONS_VERSION}-all.jar
+ADD https://repo1.maven.org/maven2/com/expediagroup/apiary/apiary-hive-events/${APIARY_EXTENSIONS_VERSION}/apiary-hive-events-${APIARY_EXTENSIONS_VERSION}.jar $HIVE_HOME/lib/apiary-hive-events-${APIARY_EXTENSIONS_VERSION}.jar
+ADD https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/${KAFKA_VERSION}/kafka-clients-${KAFKA_VERSION}.jar $HIVE_HOME/lib/kafka-clients-${KAFKA_VERSION}.jar
+
+# Apache Atlas HiveHook Installation
 ENV ATLAS_VERSION=2.0.0
 ENV HBASE_VERSION=2.0.2
 ENV JACKSON_VERSION=2.9.9
 ENV JERSEY_VERSION=1.19
 ENV JSR311_VERSION=1.1
-ENV KAFKA_2_1_1_VERSION=2.0.0
 ENV SCALA_LIBRARY_VERSION=2.11.12
 ENV COMMONS_CONFIG_VERSION=1.10
 
@@ -68,8 +74,8 @@ RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/com/fasterxml/jackson/jaxrs/jackson-jaxrs-json-provider/$JACKSON_VERSION/jackson-jaxrs-json-provider-$JACKSON_VERSION.jar
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/com/sun/jersey/jersey-json/$JERSEY_VERSION/jersey-json-$JERSEY_VERSION.jar
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/com/sun/jersey/contribs/jersey-multipart/$JERSEY_VERSION/jersey-multipart-$JERSEY_VERSION.jar
-RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/$KAFKA_2_1_1_VERSION/kafka-clients-$KAFKA_2_1_1_VERSION.jar
-RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/apache/kafka/kafka_2.12/$KAFKA_2_1_1_VERSION/kafka_2.12-$KAFKA_2_1_1_VERSION.jar
+RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/$KAFKA_VERSION/kafka-clients-$KAFKA_VERSION.jar
+RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/apache/kafka/kafka_2.12/$KAFKA_VERSION/kafka_2.12-$KAFKA_VERSION.jar
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/scala-lang/scala-library/$SCALA_LIBRARY_VERSION/scala-library-$SCALA_LIBRARY_VERSION.jar
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/commons-configuration/commons-configuration/$COMMONS_CONFIG_VERSION/commons-configuration-$COMMONS_CONFIG_VERSION.jar
 RUN wget -P ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/ https://repo1.maven.org/maven2/org/apache/atlas/hdfs-model/$ATLAS_VERSION/hdfs-model-$ATLAS_VERSION.jar
