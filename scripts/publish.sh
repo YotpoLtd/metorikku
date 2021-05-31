@@ -1,4 +1,5 @@
 #!/bin/bash
 set -e
 
-sbt +publishSigned sonatypeReleaseAll
+echo "Executing SBT publish"
+sbt +publishSigned sonatypeReleaseAll > /dev/null
