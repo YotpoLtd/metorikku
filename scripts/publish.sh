@@ -2,4 +2,4 @@
 set -e
 
 echo "Executing SBT publish"
-sbt +publishSigned sonatypeReleaseAll > /dev/null
+sbt --warn +publishSigned sonatypeReleaseAll
