@@ -3,14 +3,13 @@ package com.yotpo.metorikku.test
 import java.io.{File, FileNotFoundException}
 import java.io.File
 import java.nio.file.{Files, Paths}
-
 import com.yotpo.metorikku.Metorikku
 import com.yotpo.metorikku.configuration.test.{Configuration, Mock, Params}
 import com.yotpo.metorikku.configuration.test.ConfigurationParser.{TesterConfig, parseConfigurationFile}
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import org.apache.log4j.Logger
-import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterAll, FunSuite}
+import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.scalatest.{Assertion, BeforeAndAfterAll, FunSuite}
 
 class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
 
@@ -26,16 +25,19 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
     assert(new File("src/test/out/metric_test/metric/testOutput/._SUCCESS.crc").exists)
     assert(new File("src/test/out/metric_test/metric/filteredOutput/._SUCCESS.crc").exists)
 
-    val sparkSession = SparkSession.builder.getOrCreate()
+    assertOnOutput("src/test/out/metric_test/metric", Seq("testOutput", "filteredOutput"),
+      sparkSession => {
 
-    val testOutput = sparkSession.table("testOutput")
-    val filterOutput = sparkSession.table("filteredOutput")
 
-    testOutput.cache
-    filterOutput.cache
+        val testOutput = sparkSession.table("testOutput")
+        val filterOutput = sparkSession.table("filteredOutput")
 
-    assert(testOutput.count === 5)
-    assert(filterOutput.count === 1)
+        testOutput.cache
+        filterOutput.cache
+
+        assert(testOutput.count === 5)
+        assert(filterOutput.count === 1)
+      })
   }
 
   test("Test Metorikku should Fail on invalid metics") {
@@ -73,12 +75,33 @@ class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
 
     assert(new File("src/test/out/metric_test/metric/testOutput/._SUCCESS.crc").exists)
 
-    val sparkSession = SparkSession.builder.getOrCreate()
-    val testOutput = sparkSession.table("testOutput")
+    assertOnOutput("src/test/out/metric_test/metric", Seq("testOutput"), (sparkSession: SparkSession) => {
 
-    testOutput.cache
-    assert(testOutput.count === 5)
+      val testOutput = sparkSession.table("testOutput")
+      assert(testOutput.count === 5)
+    })
+
   }
+
+  private def assertOnOutput(outputFolder: String, tables: Seq[String], assertions: (SparkSession) => Unit): Unit = {
+    val sparkSession = SparkSession.builder.getOrCreate()
+    try {
+
+      tables.map(table => {
+        new File(outputFolder + s"/${table}").listFiles.filter(_.getName.endsWith("parquet"))
+          .map(file => sparkSession.read.parquet(file.getAbsolutePath))
+          .foreach(df => df.createOrReplaceTempView(table))
+      })
+
+      assertions(sparkSession)
+    }
+    finally {
+      sparkSession.stop()
+    }
+
+
+  }
+
 
   test("Test Metorikku should Fail on invalid keys configuration") {
     var tableName = ""
