@@ -149,4 +149,4 @@ cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
 </configuration>
 EOL
 
-$HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
+#$HIVE_HOME/bin/schematool -dbType ${DB_TYPE} -initSchema
