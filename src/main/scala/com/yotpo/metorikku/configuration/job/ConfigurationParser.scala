@@ -56,7 +56,7 @@ object ConfigurationParser {
 
     config
   }
-  
+
   def parseConfigurationFile(job: String, mapper: Option[ObjectMapper]): Configuration = {
     mapper match {
       case Some(mapper) =>
