@@ -1,13 +1,14 @@
 package com.yotpo.metorikku.configuration.job
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser
+
 import java.io.StringWriter
-import scala.util.parsing.json.JSONObject
+
 
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
@@ -34,32 +35,34 @@ object ConfigurationParser {
           case Some(job) => parseConfigurationFile(job, FileUtils.getObjectMapperByExtension("json"))
           case None => arguments.filename match {
             case Some(filename) => parseConfigurationFile(FileUtils.readConfigurationFile(filename), FileUtils.getObjectMapperByFileName(filename))
-            case None => throw new MetorikkuException("Failed to parse config file")
+            case None => throw MetorikkuException("Failed to parse config file")
           }
         }
-      case None => throw new MetorikkuException("No arguments passed to metorikku")
+      case None => throw MetorikkuException("No arguments passed to metorikku")
     }
   }
 
+  def dumpConfigurationToLog(config:Configuration, mapper : ObjectMapper): Configuration = {
+
+    val writer = new StringWriter()
+    mapper.writeValue(writer, config)
+    log.debug("Loaded configuration: " + writer.toString)
+    writer.close()
+
+    val envWriter = new StringWriter()
+    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(envWriter, mapper.convertValue(FileUtils.getEnvProperties(), classOf[JsonNode]))
+    log.debug("Current environment: " + envWriter.toString)
+    envWriter.close()
+
+    config
+  }
+  
   def parseConfigurationFile(job: String, mapper: Option[ObjectMapper]): Configuration = {
     mapper match {
-      case Some(mapper) => {
+      case Some(mapper) =>
         mapper.registerModule(DefaultScalaModule)
-        var config = mapper.readValue(job, classOf[Configuration])
+        dumpConfigurationToLog(mapper.readValue(job, classOf[Configuration]), mapper)
 
-        val writer = new StringWriter()
-        mapper.writeValue(writer, config)
-        log.debug("Loaded configuration: " + writer.toString)
-        writer.close()
-
-        val envWriter = new StringWriter()
-        mapper.writeValue(envWriter, JSONObject(FileUtils.getEnvProperties()))
-        log.debug("Current environment: "+ envWriter.toString)
-        envWriter.close()
-
-        return config
-      }
-      
       case None => throw MetorikkuInvalidMetricFileException(s"File extension should be json or yaml")
     }
   }
