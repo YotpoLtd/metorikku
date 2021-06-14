@@ -6,6 +6,8 @@ import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetri
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser
+import java.io.StringWriter
+import scala.util.parsing.json.JSONObject
 
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
@@ -43,8 +45,21 @@ object ConfigurationParser {
     mapper match {
       case Some(mapper) => {
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(job, classOf[Configuration])
+        var config = mapper.readValue(job, classOf[Configuration])
+
+        val writer = new StringWriter()
+        mapper.writeValue(writer, config)
+        log.debug("Loaded configuration: " + writer.toString)
+        writer.close()
+
+        val envWriter = new StringWriter()
+        mapper.writeValue(envWriter, JSONObject(FileUtils.getEnvProperties()))
+        log.debug("Current environment: "+ envWriter.toString)
+        envWriter.close()
+
+        return config
       }
+      
       case None => throw MetorikkuInvalidMetricFileException(s"File extension should be json or yaml")
     }
   }
