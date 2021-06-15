@@ -61,6 +61,7 @@ object ConfigurationParser {
     mapper match {
       case Some(mapper) =>
         mapper.registerModule(DefaultScalaModule)
+        mapper.readValue(job, classOf[Configuration])
 
       case None => throw MetorikkuInvalidMetricFileException(s"File extension should be json or yaml")
     }
