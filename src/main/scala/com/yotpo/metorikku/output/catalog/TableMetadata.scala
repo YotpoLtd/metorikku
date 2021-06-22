@@ -7,8 +7,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 class CatalogTable(tableName: String) {
   val log = LogManager.getLogger(this.getClass)
 
-  def setTableMetadata(properties: Option[Map[String, Any]]): Unit = {
-    val ss = SparkSession.builder().getOrCreate()
+  def setTableMetadata(ss: SparkSession, properties: Option[Map[String, Any]]): Unit = {
     properties match {
       case Some(metadata) => {
         val properties = metadata.map { case (k: String,v: Any) => s"'$k'='${v.toString}'" }
