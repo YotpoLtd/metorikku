@@ -99,6 +99,10 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>hive.server2.thrift.max.worker.threads</name>
         <value>${MAX_WORKER_THREADS}</value>
      </property>
+     <property>
+        <name>hive.metastore.server.max.threads</name>
+        <value>${MAX_WORKER_THREADS}</value>
+     </property>
 EOL
 
 if [ $USE_KAFKA_EVENT_LISTENER == 'true' ]; then
