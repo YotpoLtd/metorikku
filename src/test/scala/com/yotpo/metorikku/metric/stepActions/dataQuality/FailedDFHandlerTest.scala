@@ -59,7 +59,7 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     df.createOrReplaceTempView(dfName)
 
     val exception = intercept[Exception] {
-      ValidationRunner().runChecks(dfName, List(DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), Some("error"), None, None,
+      ValidationRunner().runChecks(sparkSession, dfName, List(DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), Some("error"), None, None,
         (_, _, _) => {
           throw new Exception("Dump error")
         })
@@ -89,7 +89,7 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     df.createOrReplaceTempView(dfName)
     var wasInvoked = false
 
-    val runDq = () => ValidationRunner().runChecks(dfName, List(DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), Some(logLevel), None, None,
+    val runDq = () => ValidationRunner().runChecks(sparkSession, dfName, List(DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))), Some(logLevel), None, None,
       (_, _, _) => {
         wasInvoked = true
       })

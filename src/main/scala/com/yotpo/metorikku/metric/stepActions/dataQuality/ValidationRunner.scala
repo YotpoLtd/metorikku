@@ -22,7 +22,8 @@ case class ValidationRunner() {
 
   private val log = LogManager.getLogger(this.getClass)
 
-  def runChecks(dfName: String,
+  def runChecks(session: SparkSession,
+                dfName: String,
                 checks: List[DataQualityCheck],
                 level: Option[String],
                 cacheDf: Option[Boolean],
@@ -31,7 +32,7 @@ case class ValidationRunner() {
     val dqChecks = checks.map {
       dq => dq.getCheck(level.getOrElse("warn"))
     }
-    val df = SparkSession.builder().getOrCreate().table(dfName)
+    val df = session.table(dfName)
     cacheDf match {
       case Some(false) =>
       case _ => {

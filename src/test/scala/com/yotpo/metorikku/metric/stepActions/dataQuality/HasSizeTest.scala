@@ -27,7 +27,7 @@ class HasSizeTest extends FunSuite with BeforeAndAfterEach {
     val df = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    dqCheckDefinitionList.runChecks(dfName)
+    dqCheckDefinitionList.runChecks(sparkSession, dfName)
   }
 
   test("has_size with assertion 2 == on a data frame size of 3 with level error should raise exception",UnsupportedInCurrentVersion) {
