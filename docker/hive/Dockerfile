@@ -5,7 +5,6 @@ ENV ATLAS_HOME=/opt/atlas
 RUN mkdir -p $ATLAS_HOME/hook/hive
 ENV HADOOP_HOME=/opt/hadoop
 ENV HADOOP_VERSION=2.7.4
-RUN apt-get update && apt-get install -y ant && apt-get install -y expect
 
 ADD https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz /hadoop-$HADOOP_VERSION.tar.gz
 RUN tar -xzf hadoop-$HADOOP_VERSION.tar.gz \
@@ -84,11 +83,17 @@ ADD https://repo1.maven.org/maven2/org/apache/atlas/hdfs-model/$ATLAS_VERSION/hd
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait
 
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar /prometheus/
+RUN chmod 644 /prometheus/*.jar
+
 COPY init-hive.sh /
 COPY start-hive.sh /
 COPY run_hive_import.sh /
 COPY health-check.sh /
 COPY log4j2.json.properties .
+COPY jmx_config.yml .
+
+RUN apt-get update && apt-get install -y ant && apt-get install -y expect
 
 RUN mkdir -p $ATLAS_HOME/hook-bin/
 COPY atlas/import_hive.sh $ATLAS_HOME/hook-bin/
