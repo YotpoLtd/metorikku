@@ -10,6 +10,10 @@ DB_TYPE=${DB_TYPE:=mysql}
 USE_ATLAS=${USE_ATLAS:=false}
 HIVE_AUTH=${HIVE_AUTH:=NONE}
 KAFKA_LISTENER_TOPIC=${KAFKA_LISTENER_TOPIC:=hive_metastore_listener_events}
+MAX_WORKER_THREADS=${MAX_WORKER_THREADS:=2000}
+HADOOP_CLIENT_OPTS=${HADOOP_CLIENT_OPTS:='-XX:-UseGCOverheadLimit -Xmx20480m'}
+
+export HADOOP_CLIENT_OPTS=${HADOOP_CLIENT_OPTS}
 
 if [ ! -z ${JSON_LOG} ] ; then
     echo "Setting Log type to JSON"
@@ -93,6 +97,22 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
      <property>
         <name>hive.async.log.enabled</name>
         <value>false</value>
+     </property>
+     <property>
+        <name>hive.server2.thrift.max.worker.threads</name>
+        <value>${MAX_WORKER_THREADS}</value>
+     </property>
+     <property>
+        <name>hive.metastore.server.max.threads</name>
+        <value>${MAX_WORKER_THREADS}</value>
+     </property>
+     <property>
+        <name>hive.metastore.metrics.enabled</name>
+        <value>true</value>
+     </property>
+     <property>
+        <name>hive.server2.metrics.enabled</name>
+        <value>true</value>
      </property>
 EOL
 

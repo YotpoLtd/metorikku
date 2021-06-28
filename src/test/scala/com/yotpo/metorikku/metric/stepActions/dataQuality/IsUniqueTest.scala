@@ -26,7 +26,7 @@ class IsUniqueTest extends FunSuite with BeforeAndAfterEach {
     val df = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    dqCheckDefinitionList.runChecks(dfName)
+    dqCheckDefinitionList.runChecks(sparkSession, dfName)
   }
 
   test("is_unique on a non-unique field with level error should raise exception", UnsupportedInCurrentVersion) {

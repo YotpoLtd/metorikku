@@ -9,30 +9,35 @@ import org.apache.log4j.LogManager
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
-  val session = Job(ConfigurationParser.parse(args))
+  val config = ConfigurationParser.parse(args)
+  val sparkSession = Job.createSparkSession(config.appName, config.output)
 
-  session.config.periodic match {
-    case Some(periodic) => {
-      executePeriodicTask(periodic)
-    }
-    case _ => {
-      runMetrics(session)
-      try
-        {
-          session.instrumentationClient.close()
+  try {
+    val job = Job(config, Option(sparkSession))
+
+    job.config.periodic match {
+      case Some(periodic) => {
+        executePeriodicTask(periodic, job)
+      }
+      case _ => {
+        runMetrics(job)
+        try {
+          job.instrumentationClient.close()
         }
-      catch
-        {
+        catch {
           case e: Throwable => log.error(s"Got exception while closing connection to instrumentationClient", e)
         }
+      }
     }
+  }  finally {
+    sparkSession.stop()
   }
 
-  private def executePeriodicTask(periodic: Periodic) = {
+  private def executePeriodicTask(periodic: Periodic, job: Job) = {
     val task = new Runnable {
       def run() = {
-        session.sparkSession.catalog.clearCache()
-        runMetrics(session)
+        sparkSession.catalog.clearCache()
+        runMetrics(job)
       }
     }
     val ex = new ScheduledThreadPoolExecutor(1)
