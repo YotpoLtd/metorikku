@@ -22,10 +22,11 @@ object SelectiveMerge {
     params.get match {
       case InputMatcher(df1Name, df2Name, joinKeysStr) => {
         log.info(s"Selective merging $df1Name into $df2Name using keys $joinKeysStr")
-        val df1 = ss.table(df1Name)
-        val df2 = ss.table(df2Name)
-        val joinKeys = joinKeysStr.split(" ").toSeq
-
+        val df1Raw = ss.table(df1Name)
+        val df2Raw = ss.table(df2Name)
+        val df1 = df1Raw.select(df1Raw.columns.map(x => col(x).as(x.toLowerCase)): _*)
+        val df2 = df2Raw.select(df2Raw.columns.map(x => col(x).as(x.toLowerCase)): _*)
+        val joinKeys = joinKeysStr.toLowerCase.split(" ").toSeq
         if (df1.isEmpty) {
           log.error("DF1 is empty")
           throw MetorikkuException("DF1 is empty")

@@ -24,7 +24,7 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
     val newDf = sparkSession.sqlContext.sql(query)
     newDf.createOrReplaceTempView(dataFrameName)
     printStep(newDf, dataFrameName)
-    runDQValidation(dataFrameName, dq)
+    runDQValidation(sparkSession, dataFrameName, dq)
     newDf
   }
 
@@ -46,9 +46,9 @@ case class Sql(query: String, dataFrameName: String, showPreviewLines: Int,
     }
   }
 
-  private def runDQValidation(dfName: String, dqDef: Option[DataQualityCheckList]): Unit = {
+  private def runDQValidation(session: SparkSession, dfName: String, dqDef: Option[DataQualityCheckList]): Unit = {
     dqDef match {
-      case Some(dq) => dq.runChecks(dfName)
+      case Some(dq) => dq.runChecks(session, dfName)
       case _ =>
     }
   }

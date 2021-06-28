@@ -29,7 +29,7 @@ class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
     val df = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    dqCheckDefinitionList.runChecks(dfName)
+    dqCheckDefinitionList.runChecks(sparkSession, dfName)
   }
 
   test("has_uniqueness on a non-unique field with level error should raise exception",UnsupportedInCurrentVersion) {

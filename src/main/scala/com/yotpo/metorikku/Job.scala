@@ -10,9 +10,12 @@ import org.apache.spark.SparkContext
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
 import org.apache.spark.sql.SparkSession
 
-case class Job(val config: Configuration) {
+case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private val log = LogManager.getLogger(this.getClass)
-  val sparkSession = createSparkSession(config.appName, config.output)
+  val sparkSession = session match {
+    case Some(ss) => ss
+    case _ => Job.createSparkSession(config.appName, config.output)
+  }
   val sparkContext = sparkSession.sparkContext
 
   // Set up instrumentation
@@ -68,8 +71,10 @@ case class Job(val config: Configuration) {
       })
     }
   }
+}
 
-  private def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
+object Job {
+  def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
     val sparkSessionBuilder = SparkSession.builder().appName(appName.get)
 
     output match {

@@ -18,6 +18,6 @@ class CatalogWriter (props: Map[String, Object]) extends Writer {
     val data = dataFrame.collectAsList().get(0)
     val properties = data.getValuesMap[String](data.schema.fieldNames)
     val catalogTable = new CatalogTable(catalogWriterProperties.tableName)
-    catalogTable.setTableMetadata(Option(properties))
+    catalogTable.setTableMetadata(dataFrame.sparkSession, Option(properties))
   }
 }
