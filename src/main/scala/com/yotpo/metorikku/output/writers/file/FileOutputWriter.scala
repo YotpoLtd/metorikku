@@ -98,7 +98,7 @@ class FileOutputWriter(props: Map[String, Any], outputFile: Option[File]) extend
             writer.saveAsTable(tableName)
           }
         }
-        catalogTable.setTableMetadata(fileOutputProperties.tableProperties)
+        catalogTable.setTableMetadata(dataFrame.sparkSession, fileOutputProperties.tableProperties)
       }
       case None => {
         path match {

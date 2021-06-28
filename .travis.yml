@@ -39,6 +39,7 @@ before_script:
   - export -f travis_time_start
   - export -f travis_time_finish
   - export -f travis_nanoseconds
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 jobs:
   include:
     - stage: "Build"

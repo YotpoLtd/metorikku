@@ -27,7 +27,7 @@ class IsContainedInTest extends FunSuite with BeforeAndAfterEach {
     val df = storeData.toDF("name", "id", "category", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
-    dqCheckDefinitionList.runChecks(dfName)
+    dqCheckDefinitionList.runChecks(sparkSession, dfName)
   }
 
   test("is_contained_in on an unsupported field with level error should raise exception",UnsupportedInCurrentVersion) {
