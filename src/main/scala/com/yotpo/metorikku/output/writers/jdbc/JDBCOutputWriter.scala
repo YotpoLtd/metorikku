@@ -23,6 +23,21 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
         connectionProperties.put("user", jdbcConf.user)
         connectionProperties.put("password", jdbcConf.password)
         connectionProperties.put("driver", jdbcConf.driver)
+        if (jdbcConf.truncate.isDefined) {
+          connectionProperties.put("truncate", jdbcConf.truncate.get)
+        }
+        if (jdbcConf.cascadeTruncate.isDefined) {
+          connectionProperties.put("cascadeTruncate", jdbcConf.cascadeTruncate.get)
+        }
+        if (jdbcConf.createTableColumnTypes.isDefined) {
+          connectionProperties.put("createTableColumnTypes", jdbcConf.createTableColumnTypes.get)
+        }
+        if (jdbcConf.createTableOptions.isDefined) {
+          connectionProperties.put("createTableOptions", jdbcConf.createTableOptions.get)
+        }
+        if (jdbcConf.sessionInitStatement.isDefined) {
+          connectionProperties.put("sessionInitStatement", jdbcConf.sessionInitStatement.get)
+        }
         var df = dataFrame
         val writer = df.write.format(jdbcConf.driver)
           .mode(dbOptions.saveMode)

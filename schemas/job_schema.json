@@ -160,7 +160,12 @@
             "connectionUrl": { "type": "string" },
             "user": { "type": "string" },
             "password": { "type": "string" },
-            "driver": { "type": "string" }
+            "driver": { "type": "string" },
+            "sessionInitStatement": { "type": "string" },
+            "truncate": { "type": "string" },
+            "cascadeTruncate": { "type": "string" },
+            "createTableOptions": { "type": "string" },
+            "createTableColumnTypes": { "type": "string" }
           },
           "required": [
             "connectionUrl",
