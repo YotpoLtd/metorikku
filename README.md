@@ -221,7 +221,7 @@ Kafka output allows writing batch operations to kafka
 
 We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look like so:
 
-```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+```spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
 ##### Mandatory parameters:
 * **topic** - defines the topic in kafka which the data will be written to.
