@@ -499,6 +499,26 @@ There are some custom functions already implemented as part of the Metorikku JAR
     dfName: dfToFill
     tableName: tableToFillWith
 ```
+- **ObfuscateColumns:** Obfuscates columns in the dataframe, supports md5, sha256, and a literal value.
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.obfuscate.ObfuscateColumns
+  params:
+    table: table
+    columns: 'col1,col2,col3'
+    delimiter: ','
+    value: sha256
+```
+
+```yaml
+- dataFrameName: resultFrame
+  classpath: com.yotpo.metorikku.code.steps.obfuscate.ObfuscateColumns
+  params:
+    table: table
+    columns: 'col1|col2|col3'
+    delimiter: '|'
+    value: '********'
+```
 
 #### Apache Hive metastore
 Metorikku supports reading and saving tables with Apache hive metastore.
