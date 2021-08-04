@@ -90,7 +90,8 @@ libraryDependencies ++= Seq(
   "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
-  "com.databricks" %% "spark-xml" % "0.11.0"
+  "com.databricks" %% "spark-xml" % "0.11.0",
+  "com.outr" %% "hasher" % "1.2.2"
 )
 
 resolvers ++= Seq(

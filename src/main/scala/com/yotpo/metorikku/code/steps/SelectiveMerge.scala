@@ -12,15 +12,12 @@ object SelectiveMerge {
   private val log: Logger = LogManager.getLogger(this.getClass)
   private val colRenameSuffixLength = 10000 // (5 digits)
   private val colRenamePrefix = scala.util.Random.nextInt(colRenameSuffixLength).toString
-  private class InputMatcher[K](ks: K*) {
-    def unapplySeq[V](m: Map[K, V]): Option[Seq[V]] = if (ks.forall(m.contains)) Some(ks.map(m)) else None
-  }
-  private val InputMatcher = new InputMatcher("df1", "df2", "joinKeys")
+  private val SelectiveMergeInputMatcher = InputMatcher("df1", "df2", "joinKeys")
 
 
   def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
     params.get match {
-      case InputMatcher(df1Name, df2Name, joinKeysStr) => {
+      case SelectiveMergeInputMatcher(df1Name, df2Name, joinKeysStr) => {
         log.info(s"Selective merging $df1Name into $df2Name using keys $joinKeysStr")
         val df1Raw = ss.table(df1Name)
         val df2Raw = ss.table(df2Name)

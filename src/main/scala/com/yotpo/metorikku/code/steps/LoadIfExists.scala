@@ -9,14 +9,11 @@ object LoadIfExists {
   val message = "You need to send 2 parameters with the names of a df and a name of a table to try to load: dfName, tableName"
 
   private val log: Logger = LogManager.getLogger(this.getClass)
-  private class InputMatcher[K](ks: K*) {
-    def unapplySeq[V](m: Map[K, V]): Option[Seq[V]] = if (ks.forall(m.contains)) Some(ks.map(m)) else None
-  }
-  private val InputMatcher = new InputMatcher("dfName", "tableName")
+  private val LoadIfExistsInputMatcher = InputMatcher("dfName", "tableName")
 
   def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
     params.get match {
-      case InputMatcher(dfName, tableName) => {
+      case LoadIfExistsInputMatcher(dfName, tableName) => {
         log.info(s"Attempting to load $tableName")
 
         if (ss.catalog.tableExists(tableName)) {
