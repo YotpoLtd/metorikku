@@ -1,7 +1,5 @@
 package com.yotpo.metorikku
 
-import java.util.concurrent.{ScheduledThreadPoolExecutor, TimeUnit}
-
 import com.yotpo.metorikku.configuration.job.{ConfigurationParser, Periodic}
 import com.yotpo.metorikku.metric.MetricSet
 import org.apache.log4j.LogManager
@@ -34,15 +32,22 @@ object Metorikku extends App {
   }
 
   private def executePeriodicTask(periodic: Periodic, job: Job) = {
-    val task = new Runnable {
-      def run() = {
-        sparkSession.catalog.clearCache()
-        runMetrics(job)
+    val duration = periodic.getTriggerDurationInMillis()
+
+    while(true) {
+      val start = System.currentTimeMillis
+      log.info(s"Starting a periodic task at ${start}")
+      sparkSession.catalog.clearCache()
+      runMetrics(job)
+
+      val period = System.currentTimeMillis - start
+
+      if (period < duration) {
+        val sleepTime = duration - period
+        log.info(s"Waiting for ${sleepTime} milliseconds before starting next run")
+        Thread.sleep(duration - period)
       }
     }
-    val ex = new ScheduledThreadPoolExecutor(1)
-    val initialDelay = 0
-    ex.scheduleAtFixedRate(task, initialDelay, periodic.getTriggerDurationInSeconds(), TimeUnit.SECONDS)
   }
 
   def runMetrics(job: Job): Unit = {

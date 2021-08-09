@@ -12,4 +12,12 @@ case class Periodic(triggerDuration: Option[String]) {
       case e: Exception => throw MetorikkuException("Invaiid periodic trigger duration", e)
     }
   }
+
+  def getTriggerDurationInMillis(): Long = {
+    try {
+      Duration(triggerDuration.get).toMillis
+    } catch {
+      case e: Exception => throw MetorikkuException("Invaiid periodic trigger duration", e)
+    }
+  }
 }
