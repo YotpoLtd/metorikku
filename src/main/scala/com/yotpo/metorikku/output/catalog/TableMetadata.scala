@@ -2,6 +2,7 @@ package com.yotpo.metorikku.output.catalog
 
 import com.yotpo.metorikku.utils.TableUtils
 import org.apache.log4j.LogManager
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class CatalogTable(tableName: String) {
@@ -25,10 +26,10 @@ class CatalogTable(tableName: String) {
 
     (catalog.tableExists(tableName), partitionBy, saveMode) match {
       // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
-      case (true, None, Some(saveMode)) if saveMode.toLowerCase() == "overwrite" => {
-        overwriteExternalTable(ss=ss, tableName=tableName,
-          dataFrame=dataFrame, filePath=filePath,
-          alwaysUpdateSchemaInCatalog=alwaysUpdateSchemaInCatalog)
+      case (true, _, _) => {
+        overwriteExternalTable(ss = ss, tableName = tableName,
+          dataFrame = dataFrame, filePath = filePath,
+          alwaysUpdateSchemaInCatalog = alwaysUpdateSchemaInCatalog, partitionBy = partitionBy)
       }
       case (false, _, _) => {
         log.info(s"Creating new external table $tableName to path $filePath")
@@ -46,9 +47,19 @@ class CatalogTable(tableName: String) {
     catalog.refreshTable(tableName)
   }
 
+  private def removePartionedByColumnsFromSchemaIfExists(dataFrame: DataFrame, partitionBy: Option[Seq[String]]): StructType = {
+    if (partitionBy.isDefined) {
+      val partitionedByColumnsSet = partitionBy.get.toSet
+      StructType(dataFrame.schema.filter(field => !partitionedByColumnsSet.contains(field.name)))
+    }
+    else {
+      dataFrame.schema
+    }
+  }
+
   private def overwriteExternalTable(ss: SparkSession, tableName: String,
                                      dataFrame: DataFrame, filePath: String,
-                                     alwaysUpdateSchemaInCatalog: Boolean): Unit = {
+                                     alwaysUpdateSchemaInCatalog: Boolean, partitionBy: Option[Seq[String]]): Unit = {
     log.info(s"Overwriting external table $tableName to new path $filePath")
     ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
     val catalog = ss.catalog
@@ -57,10 +68,11 @@ class CatalogTable(tableName: String) {
       case true => {
         val tableInfo = TableUtils.getTableInfo(tableName, catalog)
         try {
+          val schema = removePartionedByColumnsFromSchemaIfExists(dataFrame, partitionBy)
           ss.sharedState.externalCatalog.alterTableDataSchema(
             tableInfo.database,
             tableInfo.tableName,
-            dataFrame.schema
+            schema
           )
         }
         catch
