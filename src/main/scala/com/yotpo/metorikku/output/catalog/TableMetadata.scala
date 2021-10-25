@@ -19,8 +19,8 @@ class CatalogTable(tableName: String) {
     }
   }
 
-  def saveExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
-                        alwaysUpdateSchemaInCatalog: Boolean): Unit = {
+  def createOrReplaceExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
+                                   alwaysUpdateSchemaInCatalog: Boolean): Unit = {
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
 
