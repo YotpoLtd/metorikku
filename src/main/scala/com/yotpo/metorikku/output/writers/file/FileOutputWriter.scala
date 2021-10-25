@@ -90,7 +90,7 @@ class FileOutputWriter(props: Map[String, Any], outputFile: Option[File]) extend
 
             writer.save()
             protectFromEmptyOutput(dataFrame.sparkSession, fileOutputProperties.protectFromEmptyOutput, fileOutputProperties.format, filePath, tableName)
-            catalogTable.createOrReplaceExternalTable(dataFrame, filePath, fileOutputProperties.partitionBy,
+            catalogTable.createOrUpdateExternalTable(dataFrame, filePath, fileOutputProperties.partitionBy,
               fileOutputProperties.alwaysUpdateSchemaInCatalog)
           }
           case None => {

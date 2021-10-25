@@ -19,23 +19,18 @@ class CatalogTable(tableName: String) {
     }
   }
 
-  def createOrReplaceExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
-                                   alwaysUpdateSchemaInCatalog: Boolean): Unit = {
+  def createOrUpdateExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
+                                  alwaysUpdateSchemaInCatalog: Boolean): Unit = {
     val ss = dataFrame.sparkSession
     val catalog = ss.catalog
 
-    (catalog.tableExists(tableName)) match {
-      // Quick overwrite (using alter table + refresh instead of drop + write + refresh)
-      case (true) => {
-        overwriteExternalTableMetadata(ss = ss, tableName = tableName,
-          dataFrame = dataFrame, filePath = filePath,
-          alwaysUpdateSchemaInCatalog = alwaysUpdateSchemaInCatalog, partitionBy = partitionBy)
-      }
-      case (false) => {
-        log.info(s"Creating new external table $tableName to path $filePath")
-        catalog.createTable(tableName, filePath)
-      }
-      case _ =>
+    if (catalog.tableExists(tableName)) {
+      overwriteExternalTableMetadata(ss = ss, tableName = tableName,
+        dataFrame = dataFrame, filePath = filePath,
+        alwaysUpdateSchemaInCatalog = alwaysUpdateSchemaInCatalog, partitionBy = partitionBy)
+    } else {
+      log.info(s"Creating new external table $tableName to path $filePath")
+      catalog.createTable(tableName, filePath)
     }
 
     partitionBy match {
@@ -47,12 +42,11 @@ class CatalogTable(tableName: String) {
     catalog.refreshTable(tableName)
   }
 
-  private def removePartionedByColumnsFromSchemaIfExists(dataFrame: DataFrame, partitionBy: Option[Seq[String]]): StructType = {
+  private def removePartitionedByColumnsFromSchemaIfExists(dataFrame: DataFrame, partitionBy: Option[Seq[String]]): StructType = {
     if (partitionBy.isDefined) {
       val partitionedByColumnsSet = partitionBy.get.toSet
       StructType(dataFrame.schema.filter(field => !partitionedByColumnsSet.contains(field.name)))
-    }
-    else {
+    } else {
       dataFrame.schema
     }
   }
@@ -68,7 +62,7 @@ class CatalogTable(tableName: String) {
       case true => {
         val tableInfo = TableUtils.getTableInfo(tableName, catalog)
         try {
-          val schema = removePartionedByColumnsFromSchemaIfExists(dataFrame, partitionBy)
+          val schema = removePartitionedByColumnsFromSchemaIfExists(dataFrame, partitionBy)
           ss.sharedState.externalCatalog.alterTableDataSchema(
             tableInfo.database,
             tableInfo.tableName,
