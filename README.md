@@ -125,6 +125,9 @@ In order to test and fully automate the deployment of metrics we added a method 
 A test is comprised of the following:
 #### Test settings
 This defines what to test and where to get the mocked data.
+
+** All the paths must be relative to the directory of the test file. **
+
 For example, a simple test YAML (JSON is also supported) will be:
 ```yaml
 metric: "/path/to/metric"
