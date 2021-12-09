@@ -35,6 +35,13 @@ val sparkRedshiftVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+val parquetVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.12.1"
+    case _ => "1.10.1"
+  }
+}
+
 val deequVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.1.0_spark-3.0-scala-2.12"
@@ -87,7 +94,7 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
-  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
+  "org.apache.parquet" % "parquet-avro" % parquetVersion.value % "provided",
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "com.databricks" %% "spark-xml" % "0.11.0",
