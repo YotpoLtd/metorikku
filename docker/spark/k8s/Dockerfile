@@ -40,7 +40,11 @@ RUN apt-get update \
 
 ADD conf/* ${SPARK_HOME}/custom/conf/
 
+# metrics
+ENV SPARK_MAJOR ${SPARK_VERSION:0:1}
 RUN mkdir -p /etc/metrics/conf
+ADD metrics/prometheus.yaml /etc/metrics/conf
+ADD metrics/metrics_spark${SPARK_MAJOR}.properties /etc/metrics/conf/metrics.properties
 ADD metrics/* /etc/metrics/conf/
 
 RUN touch hadoop-metrics2.properties
