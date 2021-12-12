@@ -26,7 +26,7 @@ tar -xzf spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION.tgz
 (cd spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION && bin/docker-image-tool.sh -r metorikku -t base-$SPARK2_VERSION build)
 rm -rf spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION
 
-docker build -t metorikku/spark:spark2_k8s --cache-from metorikku/metorikku:spark2_k8s --build-arg SCALA_MAJOR_VERSION=$SPARK2_SCALA_MAJOR_VERSION --build-arg SPARK_VERSION=$SPARK2_VERSION --build-arg HADOOP_VERSION=${SPARK2_HADOOP_VERSION} -f docker/spark/k8s/Dockerfile docker/spark/k8s
+docker build -t metorikku/spark:spark2_k8s --cache-from metorikku/metorikku:spark2_k8s --build-arg SCALA_MAJOR_VERSION=$SPARK2_SCALA_MAJOR_VERSION --build-arg SPARK_VERSION=$SPARK2_VERSION --build-arg HADOOP_VERSION=${SPARK2_HADOOP_VERSION} --build-arg METRICS_FILE=metrics_spark2.properties -f docker/spark/k8s/Dockerfile docker/spark/k8s
 docker build -t metorikku/spark:spark2_hadoop --cache-from metorikku/metorikku:spark2_standalone --build-arg IMAGE_NAME=metorikku/spark:spark2_k8s --build-arg HIVE_VERSION=${SPARK2_HIVE_VERSION} --build-arg HADOOP_VERSION=${SPARK2_HADOOP_VERSION} -f docker/spark/custom-hadoop/Dockerfile docker/spark/custom-hadoop
 docker build -t metorikku/spark:spark2_standalone --cache-from metorikku/metorikku:spark2_standalone --build-arg IMAGE_NAME=metorikku/spark:spark2_hadoop -f docker/spark/standalone/Dockerfile docker/spark/standalone
 # Adding metorikku jar
