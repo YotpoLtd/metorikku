@@ -6,6 +6,7 @@ ARG HADOOP_VERSION=3.2.0
 ARG HTTPCLIENT_VERSION=4.5.11
 ARG SCALA_MAJOR_VERSION=2.12
 ARG SPARK_VERSION=3.0.0
+ARG METRICS_FILE=metrics_spark3.properties
 
 USER root
 
@@ -40,8 +41,11 @@ RUN apt-get update \
 
 ADD conf/* ${SPARK_HOME}/custom/conf/
 
+# metrics
+
 RUN mkdir -p /etc/metrics/conf
-ADD metrics/* /etc/metrics/conf/
+ADD metrics/prometheus.yaml /etc/metrics/conf
+ADD metrics/${METRICS_FILE} /etc/metrics/conf/metrics.properties
 
 RUN touch hadoop-metrics2.properties
 
