@@ -20,7 +20,8 @@ case class Configuration(metrics: Option[Seq[String]],
                          var continueOnFailedStep: Option[Boolean],
                          var cacheCountOnOutput: Option[Boolean],
                          var ignoreDeequValidations: Option[Boolean],
-                         var failedDFLocationPrefix: Option[String]) {
+                         var failedDFLocationPrefix: Option[String],
+                         var quoteSparkVariables: Option[Boolean]) {
 
   require(metrics.isDefined, "metrics files paths are mandatory")
 
@@ -32,9 +33,9 @@ case class Configuration(metrics: Option[Seq[String]],
   cacheCountOnOutput = Option(cacheCountOnOutput.getOrElse(true))
   ignoreDeequValidations = Option(ignoreDeequValidations.getOrElse(false))
   failedDFLocationPrefix = failedDFLocationPrefix.orElse(getEnvProperties().get("CONFIG_FAILED_DF_PATH_PREFIX"))
+  quoteSparkVariables = Option(quoteSparkVariables.getOrElse(true))
 
   def getReaders: Seq[Reader] = inputs.getOrElse(Map()).map {
     case (name, input) => input.getReader(name) }.toSeq
-
 }
 
