@@ -49,7 +49,11 @@ val deequVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+<<<<<<< HEAD
+testOptions in Test := {
+=======
 Test / testOptions := {
+>>>>>>> 673dfd4 (wip)
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
     case _ => Seq()

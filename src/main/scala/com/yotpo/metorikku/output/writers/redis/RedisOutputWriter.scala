@@ -1,9 +1,8 @@
 package com.yotpo.metorikku.output.writers.redis
 
 import com.redislabs.provider.redis._
-import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.output.Redis
-import com.yotpo.metorikku.output.{WriterSessionRegistration, Writer}
+import com.yotpo.metorikku.output.{Writer, WriterSessionRegistration}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -35,7 +34,7 @@ class RedisOutputWriter(props: Map[String, String], sparkSession: SparkSession) 
         .map(row => row.getAs[Any](redisOutputOptions.keyColumn).toString ->
           JSONObject(row.getValuesMap(columns)).toString()
         )
-      log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
+      log.info(s"Writing Dataframe into redis with key ${redisOutputOptions.keyColumn}")
       redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)
     } else {
       log.error(s"Redis Configuration does not exists")
