@@ -10,9 +10,9 @@ developers := List(
 )
 
 crossScalaVersions := Seq(
-  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10"),
+  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15"),
   Option(System.getenv("SPARK2_SCALA_VERSION")).getOrElse("2.11.12"))
-scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10")
+scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
@@ -44,10 +44,11 @@ val parquetVersion: Def.Initialize[String] = Def.setting {
 
 val deequVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.1.0_spark-3.0-scala-2.12"
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "2.0.0-spark-3.1"
     case _ => "1.1.0_spark-2.4-scala-2.11"
   }
 }
+
 testOptions in Test := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
