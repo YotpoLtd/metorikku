@@ -249,8 +249,8 @@ case class Tester(config: TesterConfig) {
         }
 
         val fileFormat = FileUtils.getFileFormat(mock.path).toUpperCase
-        val path = s"%s/%s".format(config.basePath, mock.path)
-        val createStatement = s"CREATE TABLE ${tableInfo.database}.${tableInfo.tableName} USING ${fileFormat} LOCATION '${path}'"
+        val path = s"%s/%s".format(config.basePath.toPath.toAbsolutePath.toString, mock.path)
+        val createStatement = s"CREATE EXTERNAL TABLE ${tableInfo.database}.${tableInfo.tableName} USING ${fileFormat} LOCATION '${path}'"
         val csvOptions = " OPTIONS(HEADER='true', ESCAPE='\"', QUOTE='\"')"
         sparkSession.sql(fileFormat match {
           case "CSV" =>
