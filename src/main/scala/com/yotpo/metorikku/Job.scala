@@ -44,7 +44,7 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
 
   StreamingQueryMetricsListener.init(sparkSession, instrumentationClient)
   setSparkLogLevel(config.logLevel, sparkContext)
-  registerVariables(config.variables, sparkSession)
+  registerVariables(config.variables, config.quoteSparkVariables, sparkSession)
   log.info(s"these are the config inputs: ${config.inputs}")
   registerDataframes(config.getReaders, sparkSession)
 
@@ -55,11 +55,14 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
     }
   }
 
-  private def registerVariables(variables: Option[Map[String, String]], sparkSession: SparkSession): Unit = {
-    variables.getOrElse(Map()).foreach({ case (key, value) => {
-      sparkSession.sql(s"set $key='$value'")
+  private def registerVariables(variables: Option[Map[String, String]], quoteVariables: Option[Boolean], sparkSession: SparkSession): Unit = {
+    val sql = quoteVariables.get match {
+      case true => "set %s='%s'"
+      case _ => "set %s=%s"
     }
-    })
+    variables.getOrElse(Map()).foreach{ case (key, value) =>
+      sparkSession.sql(sql.format(key, value))
+    }
   }
 
   def registerDataframes(inputs: Seq[Reader], sparkSession: SparkSession): Unit = {
