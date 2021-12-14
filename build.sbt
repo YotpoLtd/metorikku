@@ -94,7 +94,7 @@ libraryDependencies ++= Seq(
   "com.redislabs" %% "spark-redis" % "3.0.0" % "provided",
   "org.apache.kafka" %% "kafka" % "2.8.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
-  "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
+  "org.apache.hudi" %% "hudi-spark-bundle" % "0.9.0" % "provided",
   "org.apache.parquet" % "parquet-avro" % parquetVersion.value % "provided",
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.11.0" % "provided",
