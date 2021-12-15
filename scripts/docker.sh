@@ -21,7 +21,7 @@ docker build -t metorikku/metorikku:k8s --cache-from metorikku/metorikku:k8s --b
 docker build -t metorikku/metorikku:standalone --cache-from metorikku/metorikku:standalone --build-arg IMAGE_NAME=metorikku/spark:standalone -f docker/metorikku/Dockerfile .
 
 # Spark 2
-wget -q https://downloads.apache.org/spark/spark-$SPARK2_VERSION/spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION.tgz
+wget -q https://archive.apache.org/dist/spark/spark-$SPARK2_VERSION/spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION.tgz
 tar -xzf spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION.tgz
 (cd spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION && bin/docker-image-tool.sh -r metorikku -t base-$SPARK2_VERSION build)
 rm -rf spark-$SPARK2_VERSION-bin-hadoop$SPARK2_HADOOP_MAJOR_VERSION
