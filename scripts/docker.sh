@@ -9,7 +9,7 @@ docker pull metorikku/hive
 set -e
 
 # Latest spark
-wget -q https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_MAJOR_VERSION.tgz
+wget -nv https://archive.apache.org/dist/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop$HADOOP_MAJOR_VERSION.tgz
 tar -xzf spark-$SPARK_VERSION-bin-hadoop$HADOOP_MAJOR_VERSION.tgz
 (cd spark-$SPARK_VERSION-bin-hadoop$HADOOP_MAJOR_VERSION && bin/docker-image-tool.sh -r metorikku -t base-$SPARK_VERSION build)
 rm -rf spark-$SPARK_VERSION-bin-hadoop$HADOOP_MAJOR_VERSION*
