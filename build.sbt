@@ -17,7 +17,7 @@ scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15")
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.2.0")
-    case _ => Option(System.getenv("SPARK2_VERSION")).getOrElse("2.4.6")
+    case _ => Option(System.getenv("SPARK2_VERSION")).getOrElse("2.4.8")
   }
 }
 

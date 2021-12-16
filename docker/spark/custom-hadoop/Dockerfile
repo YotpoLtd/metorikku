@@ -5,8 +5,8 @@ FROM ${IMAGE_NAME}
 RUN rm -f $SPARK_HOME/jars/hadoop*2.7* && cd /
 
 #Hadoop
-ARG HADOOP_VERSION=2.9.2
-RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
+ARG HADOOP_VERSION=2.10.1
+RUN wget -q https://downloads.apache.org/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
     && tar -xzf hadoop-${HADOOP_VERSION}.tar.gz -C /opt/ \
     && rm hadoop-${HADOOP_VERSION}.tar.gz
 
@@ -19,9 +19,9 @@ ENV HADOOP_CONF_DIR=/etc/hadoop
 
 #Hive
 ENV HIVE_HOME=/opt/hive
-ARG HIVE_VERSION=2.3.3
+ARG HIVE_VERSION=2.3.9
 ENV HIVE_VERSION=${HIVE_VERSION}
-RUN wget -q https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz \
+RUN wget -q https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz \
 	&& tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz \
 	&& mv apache-hive-$HIVE_VERSION-bin $HIVE_HOME \
 	&& rm apache-hive-$HIVE_VERSION-bin.tar.gz
