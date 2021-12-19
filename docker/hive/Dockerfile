@@ -7,14 +7,14 @@ ENV HADOOP_HOME=/opt/hadoop
 ENV HADOOP_VERSION=2.7.4
 RUN apt-get update && apt-get install -y ant && apt-get install -y expect
 
-ADD https://downloads.apache.org/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz /hadoop-$HADOOP_VERSION.tar.gz
+ADD https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz /hadoop-$HADOOP_VERSION.tar.gz
 RUN tar -xzf hadoop-$HADOOP_VERSION.tar.gz \
     && mv hadoop-$HADOOP_VERSION $HADOOP_HOME \
     && rm hadoop-$HADOOP_VERSION.tar.gz
 
 ENV HIVE_HOME=/opt/hive
-ARG HIVE_VERSION=2.3.9
-ADD https://downloads.apache.org/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz /apache-hive-$HIVE_VERSION-bin.tar.gz
+ARG HIVE_VERSION=2.3.7
+ADD https://archive.apache.org/dist/hive/hive-$HIVE_VERSION/apache-hive-$HIVE_VERSION-bin.tar.gz /apache-hive-$HIVE_VERSION-bin.tar.gz
 RUN tar -xzf apache-hive-$HIVE_VERSION-bin.tar.gz \
 	&& mv apache-hive-$HIVE_VERSION-bin $HIVE_HOME \
 	&& rm apache-hive-$HIVE_VERSION-bin.tar.gz
