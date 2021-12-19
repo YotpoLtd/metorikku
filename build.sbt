@@ -49,6 +49,13 @@ val deequVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+val sparkTestVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "3.2.0_1.1.1"
+    case _ => "2.4.5_0.14.0"
+  }
+}
+
 testOptions in Test := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
@@ -74,8 +81,8 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-streaming" % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion.value % "provided",
-  
-  "com.holdenkarau" %% "spark-testing-base" % "2.4.5_0.14.0" % "test" excludeAll excludeSpark,
+
+  "com.holdenkarau" %% "spark-testing-base" % sparkTestVersion.value % "test" excludeAll excludeSpark,
 
   "com.github.scopt" %% "scopt" % "3.7.1",
   "org.scala-lang" % "scala-library" % scalaVersion.value,
@@ -96,7 +103,6 @@ libraryDependencies ++= Seq(
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
   "org.apache.parquet" % "parquet-avro" % parquetVersion.value % "provided",
-  "org.apache.hadoop" % "hadoop-common" % sparkVersion.value % "provided",
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "com.databricks" %% "spark-xml" % "0.11.0",
