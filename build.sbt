@@ -10,13 +10,13 @@ developers := List(
 )
 
 crossScalaVersions := Seq(
-  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10"),
+  Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15"),
   Option(System.getenv("SPARK2_SCALA_VERSION")).getOrElse("2.11.12"))
-scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.10")
+scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.0.0")
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.2.0")
     case _ => Option(System.getenv("SPARK2_VERSION")).getOrElse("2.4.6")
   }
 }
@@ -35,12 +35,27 @@ val sparkRedshiftVersion: Def.Initialize[String] = Def.setting {
   }
 }
 
+val parquetVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.12.1"
+    case _ => "1.10.1"
+  }
+}
+
 val deequVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => "1.1.0_spark-3.0-scala-2.12"
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "2.0.0-spark-3.1"
     case _ => "1.1.0_spark-2.4-scala-2.11"
   }
 }
+
+val sparkTestVersion: Def.Initialize[String] = Def.setting {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "3.2.0_1.1.1"
+    case _ => "2.4.5_0.14.0"
+  }
+}
+
 testOptions in Test := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, scalaMajor)) if scalaMajor >= 12 => Seq(Tests.Argument("-l","com.yotpo.metorikku.tags.UnsupportedInCurrentVersion"))
@@ -67,7 +82,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-avro" % sparkVersion.value % "provided",
 
-  "com.holdenkarau" %% "spark-testing-base" % "2.4.5_0.14.0" % "test" excludeAll excludeSpark,
+  "com.holdenkarau" %% "spark-testing-base" % sparkTestVersion.value % "test" excludeAll excludeSpark,
 
   "com.github.scopt" %% "scopt" % "3.7.1",
   "org.scala-lang" % "scala-library" % scalaVersion.value,
@@ -87,7 +102,7 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" %% "kafka" % "2.2.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1"  % "provided" excludeAll(excludeAvro, excludeSpark),
   "org.apache.hudi" %% "hudi-spark-bundle" % "0.5.3" % "provided",
-  "org.apache.parquet" % "parquet-avro" % "1.10.1" % "provided",
+  "org.apache.parquet" % "parquet-avro" % parquetVersion.value % "provided",
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "com.databricks" %% "spark-xml" % "0.11.0",

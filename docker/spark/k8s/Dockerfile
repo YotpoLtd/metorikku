@@ -1,11 +1,11 @@
-ARG SPARK_VERSION=3.0.1
+ARG SPARK_VERSION=3.2.0
 FROM metorikku/spark:base-${SPARK_VERSION}
 
-ARG AWS_SDK_VERSION=1.11.853
-ARG HADOOP_VERSION=3.2.0
+ARG AWS_SDK_VERSION=1.11.901
+ARG HADOOP_VERSION=3.3.1
 ARG HTTPCLIENT_VERSION=4.5.11
 ARG SCALA_MAJOR_VERSION=2.12
-ARG SPARK_VERSION=3.0.0
+ARG SPARK_VERSION=3.2.0
 ARG METRICS_FILE=metrics_spark3.properties
 
 USER root
@@ -22,7 +22,9 @@ ADD https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-10-a
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-avro_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-avro_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar $SPARK_HOME/jars/
 RUN rm -f $SPARK_HOME/jars/httpclient-*.jar
+RUN rm -f $SPARK_HOME/jars/guava-*.jar
 ADD https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/${HTTPCLIENT_VERSION}/httpclient-${HTTPCLIENT_VERSION}.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar $SPARK_HOME/jars/
 
 RUN chmod 644 $SPARK_HOME/jars/*
 
