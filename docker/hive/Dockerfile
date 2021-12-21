@@ -80,6 +80,19 @@ ADD https://repo1.maven.org/maven2/org/scala-lang/scala-library/$SCALA_LIBRARY_V
 ADD https://repo1.maven.org/maven2/commons-configuration/commons-configuration/$COMMONS_CONFIG_VERSION/commons-configuration-$COMMONS_CONFIG_VERSION.jar ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/commons-configuration-$COMMONS_CONFIG_VERSION.jar
 ADD https://repo1.maven.org/maven2/org/apache/atlas/hdfs-model/$ATLAS_VERSION/hdfs-model-$ATLAS_VERSION.jar ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/hdfs-model-$ATLAS_VERSION.jar
 
+ENV LOG4J_VERSION=2.17.0
+
+RUN rm $HIVE_HOME/lib/log4j-api-*.jar
+RUN rm $HIVE_HOME/lib/log4j-core-*.jar
+RUN rm $HIVE_HOME/lib/log4j-jul-*.jar
+RUN rm $HIVE_HOME/lib/log4j-slf4j-impl-*.jar
+RUN rm $HIVE_HOME/lib/log4j-web-*.jar
+
+ADD https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/$LOG4J_VERSION/log4j-api-$LOG4J_VERSION.jar $HIVE_HOME/lib/log4j-api-$LOG4J_VERSION.jar
+ADD https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/$LOG4J_VERSION/log4j-core-$LOG4J_VERSION.jar $HIVE_HOME/lib/log4j-core-$LOG4J_VERSION.jar
+ADD https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-slf4j-impl/$LOG4J_VERSION/log4j-slf4j-impl-$LOG4J_VERSION.jar $HIVE_HOME/lib/log4j-slf4j-impl-$LOG4J_VERSION.jar
+ADD https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-web/$LOG4J_VERSION/log4j-web-$LOG4J_VERSION.jar $HIVE_HOME/lib/log4j-web-$LOG4J_VERSION.jar
+ADD https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/$LOG4J_VERSION/log4j-jul-$LOG4J_VERSION.jar $HIVE_HOME/lib/log4j-jul-$LOG4J_VERSION.jar
 
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.5.0/wait /wait
 RUN chmod +x /wait
