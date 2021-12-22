@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-docker-compose up -d elasticsearch
-docker-compose up --exit-code-from elasticsearch-init elasticsearch-init
-docker-compose up --exit-code-from spark-submit spark-submit
-docker-compose up --exit-code-from elasticsearch-tester elasticsearch-tester
+docker-compose -f docker-compose.yml up -d elasticsearch
+docker-compose -f docker-compose.yml up --exit-code-from elasticsearch-init elasticsearch-init
+docker-compose -f docker-compose.yml up --exit-code-from spark-submit spark-submit
+docker-compose -f docker-compose.yml up --exit-code-from elasticsearch-tester elasticsearch-tester
 exit_code=$(docker ps -aq -f label=com.docker.compose.project=elasticsearch | xargs -I{} docker inspect {} --format='{{.State.ExitCode}}' | paste -sd+ - | bc)
-docker-compose down
+docker-compose -f docker-compose.yml down
 exit $exit_code
 
