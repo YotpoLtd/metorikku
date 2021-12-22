@@ -23,9 +23,9 @@ ENV MYSQL_CONNECTOR_VERSION=5.1.47
 ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/$MYSQL_CONNECTOR_VERSION/mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar \
     $HIVE_HOME/lib/mysql-connector-java-$MYSQL_CONNECTOR_VERSION.jar
 
-ARG HUDI_VERSION=0.5.3
-ADD https://repo1.maven.org/maven2/org/apache/hudi/hudi-hive-bundle/$HUDI_VERSION/hudi-hive-bundle-$HUDI_VERSION.jar \
-    $HIVE_HOME/lib/hudi-hive-bundle-$HUDI_VERSION.jar
+ARG HUDI_VERSION=0.10.0
+ADD https://repo1.maven.org/maven2/org/apache/hudi/hudi-hive-sync-bundle/$HUDI_VERSION/hudi-hive-sync-bundle-$HUDI_VERSION.jar \
+    $HIVE_HOME/lib/hudi-hive-sync-bundle-$HUDI_VERSION.jar
 ADD https://repo1.maven.org/maven2/org/apache/hudi/hudi-hadoop-mr-bundle/$HUDI_VERSION/hudi-hadoop-mr-bundle-$HUDI_VERSION.jar \
     $HIVE_HOME/lib/hudi-hadoop-mr-bundle-$HUDI_VERSION.jar
 
