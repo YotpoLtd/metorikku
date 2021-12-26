@@ -59,6 +59,9 @@ jobs:
     - name: "elasticsearch"
       script: (cd e2e/elasticsearch && ./test.sh)
       before_script: scripts/docker_load_dev.sh
+    - name: "elasticsearchOnSpark3"
+      script: (cd e2e/elasticsearch && ./test-spark-3.sh)
+      before_script: scripts/docker_load_dev.sh
     - name: "hive"
       script: (cd e2e/hive && ./test.sh)
       before_script: scripts/docker_load_dev.sh
