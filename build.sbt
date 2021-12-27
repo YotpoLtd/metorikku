@@ -111,7 +111,6 @@ libraryDependencies ++= Seq(
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("public"),
-  Resolver.bintrayRepo("spark-packages", "maven"),
   "confluent" at "https://packages.confluent.io/maven/"
 )
 
