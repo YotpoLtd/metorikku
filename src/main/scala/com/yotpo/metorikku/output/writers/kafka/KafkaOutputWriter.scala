@@ -14,7 +14,8 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
                                    valueColumn: String,
                                    outputMode: String,
                                    triggerType: Option[String],
-                                   triggerDuration: String)
+                                   triggerDuration: String,
+                                   extraOptions: Option[Map[String, String]])
 
   val log: Logger = LogManager.getLogger(this.getClass)
 
@@ -33,20 +34,23 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
     valueColumn,
     props.getOrElse("outputMode", "append"),
     props.get("triggerType"),
-    props.getOrElse("triggerDuration", "10 seconds"))
+    props.getOrElse("triggerDuration", "10 seconds"),
+    props.get("extraOptions").asInstanceOf[Option[Map[String, String]]])
 
   override def write(dataFrame: DataFrame): Unit = {
     config match {
       case Some(kafkaConfig) =>
-        val bootstrapServers = kafkaConfig.servers.mkString(",")
-        log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
         val df: DataFrame = selectedColumnsDataframe(dataFrame)
-        df.write.format("kafka")
-          .option("kafka.bootstrap.servers", bootstrapServers)
-          .option("topic", kafkaOptions.topic)
-          .save()
+        log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
+        df.write.format("kafka").options(getKafkaOptions(kafkaConfig)).save()
+
       case None =>
     }
+  }
+
+  private def getKafkaOptions[T](kafkaConfig:Kafka):Map[String,String] = {
+     Map[String,String]("kafka.bootstrap.servers"->kafkaConfig.servers.mkString(","),
+      "topic"->kafkaOptions.topic)++kafkaOptions.extraOptions.getOrElse(Map[String, String]())
   }
 
   private def selectedColumnsDataframe(dataFrame: DataFrame) = {
@@ -62,14 +66,11 @@ class KafkaOutputWriter(props: Map[String, String], config: Option[Kafka]) exten
   override def writeStream(dataFrame: DataFrame, streamingConfig: Option[Streaming]): Unit = {
     config match {
       case Some(kafkaConfig) =>
-        val bootstrapServers = kafkaConfig.servers.mkString(",")
         log.info(s"Writing Dataframe to Kafka Topic ${kafkaOptions.topic}")
         val df: DataFrame = selectedColumnsDataframe(dataFrame)
         val kafkaOutputStream = df.writeStream.format("kafka")
 
-        kafkaOutputStream
-          .option("kafka.bootstrap.servers", bootstrapServers)
-          .option("topic", kafkaOptions.topic)
+        kafkaOutputStream.options(getKafkaOptions(kafkaConfig))
 
         kafkaConfig.compressionType match {
           case Some(compressionType) => kafkaOutputStream.option("kafka.compression.type",compressionType)
