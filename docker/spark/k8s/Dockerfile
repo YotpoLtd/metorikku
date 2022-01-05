@@ -21,6 +21,9 @@ ADD https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_${SCALA
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-10-assembly_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-10-assembly_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-avro_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-avro_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.6.2/commons-pool2-2.6.2.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark3-bundle_2.12/0.10.0/hudi-spark3-bundle_2.12-0.10.0.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/org/apache/parquet/parquet-avro/1.12.1/parquet-avro-1.12.1.jar $SPARK_HOME/jars/
+
 RUN rm -f $SPARK_HOME/jars/httpclient-*.jar
 RUN rm -f $SPARK_HOME/jars/guava-*.jar
 ADD https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/${HTTPCLIENT_VERSION}/httpclient-${HTTPCLIENT_VERSION}.jar $SPARK_HOME/jars/

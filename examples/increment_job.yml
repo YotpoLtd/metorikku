@@ -1,0 +1,19 @@
+metrics:
+  - examples/increment.yml
+
+inputs:
+  nexla_table:
+    file:
+      path: ${INPUT_PATH}
+      format: parquet
+
+output:
+  hudi:
+    dir: ${TABLE_OUTPUT_DIR}
+    operation: upsert
+    storageType: MERGE_ON_READ
+    hiveDB: ${HIVE_DB}
+    hiveJDBCURL: jdbc:hive2://hive-server2.service.consul:10000
+
+appName: ${APP_NAME}
+cacheCountOnOutput: false

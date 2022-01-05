@@ -12,7 +12,7 @@ inputs:
         endDate: 2017/09/03
   ratings:
     file:
-      path: examples/file_inputs/ratings.csv
+      path: examples/file_inputs/dataset-20771-000000129913.parquet
 
 # Set custom variables that would be accessible from the SQL
 variables:

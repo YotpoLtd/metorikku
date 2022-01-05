@@ -1,0 +1,17 @@
+steps:
+  - dataFrameName: table_data
+    sql:
+      SELECT *, current_timestamp as timestamp
+      FROM nexla_table
+
+output:
+  - outputType: Hudi
+    dataFrameName: table_data
+    outputOptions:
+      path: "path"
+      keyColumn: ${KEY_COLUMN_NAME}
+      timeColumn: ${HUDI_TIME_COLUMN}
+      saveMode: Append
+      tableName: "table_name"
+      alignToPreviousSchema: true
+      removeNullColumns: true
