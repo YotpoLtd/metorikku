@@ -137,31 +137,31 @@ cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
 EOL
 fi
 
-#if [ ! -z ${DBT_REPO} ]; then
-#echo "USING DBT"
-#cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
-#      <property>
-#         <name>fs.s3a.path.style.access</name>
-#         <value>true</value>
-#      </property>
-#      <property>
-#         <name>fs.lakefs.impl</name>
-#         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
-#      </property>
-#      <property>
-#        <name>fs.s3a.bucket.dbt-chaim.secret.key</name>
-#        <value>${DBT_REPO_SECRET_KEY}</value>
-#      </property>
-#      <property>
-#        <name>fs.s3a.bucket.dbt-chaim.endpoint</name>
-#        <value>${DBT_REPO_ENDPOINT}</value>
-#      </property>
-#      <property>
-#          <name>fs.s3a.bucket.dbt-chaim.access.key</name>
-#          <value>${DBT_REPO_ACCESS_KEY}</value>
-#      </property>
-#EOL
-#fi
+if [ ! -z ${DBT_REPO} ]; then
+echo "USING DBT"
+cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
+     <property>
+        <name>fs.s3a.path.style.access</name>
+        <value>true</value>
+     </property>
+     <property>
+        <name>fs.lakefs.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+     </property>
+     <property>
+       <name>fs.s3a.bucket.dbt-chaim.secret.key</name>
+       <value>${DBT_REPO_SECRET_KEY}</value>
+     </property>
+     <property>
+       <name>fs.s3a.bucket.dbt-chaim.endpoint</name>
+       <value>${DBT_REPO_ENDPOINT}</value>
+     </property>
+     <property>
+         <name>fs.s3a.bucket.dbt-chaim.access.key</name>
+         <value>${DBT_REPO_ACCESS_KEY}</value>
+     </property>
+EOL
+fi
 
 if [ $USE_ATLAS == 'true' ]; then
 echo "USING ATLAS"
