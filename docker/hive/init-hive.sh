@@ -140,23 +140,42 @@ fi
 if [ ! -z ${DBT_REPO} ]; then
 echo "USING DBT"
 cat >>${HIVE_HOME}/conf/hive-site.xml <<EOL
+   <property>
+        <name>fs.lakefs.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
      <property>
-        <name>fs.s3a.path.style.access</name>
+        <name>fs.s3a.bucket.data-applications.path.style.access</name>
         <value>true</value>
      </property>
      <property>
+       <name>fs.s3a.bucket.data-applications.secret.key</name>
+       <value>ESIIAPy7B9Z7YMLZ5Jzhom9ojcDRUv8DixpTvdkm</value>
+     </property>
+
+     <property>
+         <name>fs.s3a.bucket.data-applications.access.key</name>
+         <value>AKIAJRRIERATWJMB65BQ</value>
+     </property>
+     <property>
+       <name>fs.s3a.bucket.data-applications.endpoint</name>
+       <value>https://lakefs.k8s.yotpo.xyz</value>
+     </property>
+
+
+
+
+
+     <property>
        <name>fs.s3a.secret.key</name>
-       <value>uZ99oGG03JITtqmCGFdDbkZ5xh165AY1W0j/Sls6</value>
+       <value>YRYidCp+lyyGtlaIxewZXwZ3qh7hPI+yvGcnF7R5</value>
      </property>
 
      <property>
          <name>fs.s3a.access.key</name>
-         <value>AKIAJHDEFVXWHUAQ7M6Q</value>
+         <value>AKIAV3SXVRVZMW2WUKF3</value>
      </property>
-     <property>
-       <name>fs.s3a.endpoint</name>
-       <value>https://lakefs.k8s.yotpo.xyz</value>
-     </property>
+
 EOL
 fi
 
