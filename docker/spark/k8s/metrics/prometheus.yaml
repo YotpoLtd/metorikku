@@ -11,7 +11,7 @@ rules:
 
   # These come from the application driver
   # Example: app-20160809000059-0000.driver.DAGScheduler.stage.failedStages
-  - pattern: "metrics<name=(.*)\\.driver\\.(DAGScheduler|BlockManager|jvm)\\.(.*), type=gauges><>Value"
+  - pattern: "metrics<name=(.*)\\.driver\\.(DAGScheduler|BlockManager|jvm|appStatus)\\.(.*), type=gauges><>Value"
     name: spark_driver_$2_$3
     type: GAUGE
     labels:
