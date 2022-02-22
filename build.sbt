@@ -16,7 +16,7 @@ scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.15")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.2.0")
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getenv("SPARK_VERSION")).getOrElse("3.2.1")
     case _ => Option(System.getenv("SPARK2_VERSION")).getOrElse("2.4.6")
   }
 }
@@ -44,7 +44,7 @@ val parquetVersion: Def.Initialize[String] = Def.setting {
 
 val deequVersion: Def.Initialize[String] = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => "2.0.0-spark-3.1"
+    case Some((2, scalaMajor)) if scalaMajor >= 12 => "2.0.1-spark-3.2"
     case _ => "1.1.0_spark-2.4-scala-2.11"
   }
 }
