@@ -16,7 +16,10 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
     case Some(ss) => ss
     case _ => Job.createSparkSession(config.appName, config.output)
   }
+
   val sparkContext = sparkSession.sparkContext
+
+  config.checkpointStorageLocation.map(path => sparkContext.setCheckpointDir(path))
 
   // Set up instrumentation
   val instrumentationFactory = InstrumentationProvider.getInstrumentationFactory(
@@ -60,7 +63,7 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
       case true => "set %s='%s'"
       case _ => "set %s=%s"
     }
-    variables.getOrElse(Map()).foreach{ case (key, value) =>
+    variables.getOrElse(Map()).foreach { case (key, value) =>
       sparkSession.sql(sql.format(key, value))
     }
   }
