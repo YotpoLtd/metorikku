@@ -20,7 +20,7 @@ For example a simple configuration YAML (JSON is also supported) should be as fo
 ```yaml
 steps:
 - dataFrameName: df1
-  checkpoint: true
+  checkpoint: true #This persists the dataframe to storage and truncates the execution plan. For more details, see https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-checkpointing.html
   sql:
     SELECT *
     FROM input_1
