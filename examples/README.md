@@ -6,7 +6,7 @@
 ### The Data
 Let's analyze a small movie lens data set!
 
-We have our movies.csv in our file_inputs folder 
+We have our movies.csv in our file_inputs folder
 ```
 +-------+-------------------------------------------------------------------------------+-------------------------------------------+
 |movieId|title                                                                          |genres                                     |
@@ -50,8 +50,8 @@ and also our ratings.csv:
 |1     |2150   |3.0   |1260759194|
 |1     |2193   |2.0   |1260759198|
 ```
-### Configuration 
-We are registering our data sources, our variables and our output configurations  
+### Configuration
+We are registering our data sources, our variables and our output configurations
 Here's our example configuration:
 ```yaml
 # The MQL file path
@@ -81,12 +81,17 @@ appName: moviesApp
 
 # Shows a Preview of the output
 showPreviewLines: 100
+
+# Location to store dataframe checkpoints
+checkpointStorageLocation: /tmp/
+
 ```
 ### The Metric
 Our metric file is as follows:
 ```yaml
 steps:
 - dataFrameName: moviesWithRatings
+  checkpoint: true
   sql:
     SELECT userid,
            movies.movieid,
@@ -128,7 +133,7 @@ output:
     path: topFantasyMovies.parquet
 ```
 ### Results
-We are running each step sequentially and here are the results:   
+We are running each step sequentially and here are the results:
 #### Step1 - moviesWithRatings
 ```
 +------+-------+------+----------+----------------------------------------------------------------------------+-----------------------------------------------+
@@ -145,7 +150,7 @@ We are running each step sequentially and here are the results:
 |1     |1339   |3.5   |1260759125|Dracula (Bram Stoker's Dracula) (1992)                                      |Fantasy|Horror|Romance|Thriller                |
 |1     |1343   |2.0   |1260759131|Cape Fear (1991)                                                            |Thriller                                       |
 |1     |1371   |2.5   |1260759135|Star Trek: The Motion Picture (1979)                                        |Adventure|Sci-Fi                               |
-|1     |1405   |1.0   |1260759203|Beavis and Butt-Head Do America (1996)                                      |Adventure|Animation|Comedy|Crime            
+|1     |1405   |1.0   |1260759203|Beavis and Butt-Head Do America (1996)                                      |Adventure|Animation|Comedy|Crime
 ```
 #### Step2 - fantasyMoviesWithRatings
 ```
@@ -166,7 +171,7 @@ We are running each step sequentially and here are the results:
 |551    |5.0   |835355767 |Nightmare Before Christmas, The (1993)                                                        |Animation|Children|Fantasy|Musical                       |
 |587    |3.0   |835355779 |Ghost (1990)                                                                                  |Comedy|Drama|Fantasy|Romance|Thriller                    |
 |661    |4.0   |835356141 |James and the Giant Peach (1996)                                                              |Adventure|Animation|Children|Fantasy|Musical             |
-            
+
 ```
 #### Step3 - topFantasyMovies
 ```
@@ -204,7 +209,7 @@ We are running each step sequentially and here are the results:
 |50011  |Bothersome Man, The (Brysomme mannen, Den) (2006)                                                                 |4.5               |
 |68835  |Were the World Mine (2008)                                                                                        |4.5               |
 |4927   |Last Wave, The (1977)                                                                                             |4.5               |
-```            
+```
 #### Step2 - myFavoriteMovieRated
 ```
 +-------+--------------------------+-----------------+
@@ -238,10 +243,10 @@ tests:
   - movieId: 1
     title: Lord of the Rings, The (1978)
     averageRating: 2.5
-``` 
+```
 A test settings file consists of the following:
 * Our metric file which has our business logic
-* A set of mocks in the format of **JSONL** 
+* A set of mocks in the format of **JSONL**
 * A set of variables if needed to be used inside our SQL queries
 * A set of expected results
 

@@ -18,7 +18,9 @@ object StepFactory {
         configuration.dataFrameName,
         showPreviewLines, cacheOnPreview,
         showQuery,
-        dqConfigurator.generateDeequeList(configuration.dq))
+        dqConfigurator.generateDeequeList(configuration.dq),
+        configuration.checkpoint)
+
 
       case None => {
         configuration.file match {
@@ -33,7 +35,8 @@ object StepFactory {
               showPreviewLines,
               cacheOnPreview,
               showQuery,
-              dqConfigurator.generateDeequeList(configuration.dq))
+              dqConfigurator.generateDeequeList(configuration.dq),
+              configuration.checkpoint)
 
           case None => {
             configuration.classpath match {

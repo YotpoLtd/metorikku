@@ -49,7 +49,7 @@ case class Tester(config: TesterConfig) {
     val variables = params.variables
     val inputs = getMockFilesForStreamingInputs(config.test.mocks, config.basePath)
     Configuration(Option(metrics), inputs, variables, None, None, None, None, None,
-      Option(config.preview > 0), None, None,  None, Option(config.preview), None, None, None, None, Option(true), None, None)
+      Option(config.preview > 0), None, None, None, Option(config.preview), None, None, None, None, Option(true), None, None, None)
   }
 
   private def getMockFilesForStreamingInputs(mocks: Option[List[Mock]], testDir: File): Option[Map[String, Input]] = {
@@ -122,7 +122,7 @@ case class Tester(config: TesterConfig) {
           if (expectedKeys.sortWith(sorter.sortStringRows).deep != actualKeys.sortWith(sorter.sortStringRows).deep) {
             val (expErrorIndexes, actErrorIndexes) = compareKeys(expectedKeys, actualKeys)
             ErrorMessage.getErrorMessageByMismatchedKeys(printableExpectedResults, printableActualResults,
-                                                          expErrorIndexes, actErrorIndexes, keyColumns, tableName)
+              expErrorIndexes, actErrorIndexes, keyColumns, tableName)
           } else {
             ErrorMessage.getErrorMessagesByMismatchedAllCols(tableKeys, printableExpectedResults, printableActualResults, job.sparkSession, tableName)
           }
@@ -228,7 +228,7 @@ case class Tester(config: TesterConfig) {
   }
 
   private def getUnmatchedKeysIndexes(expRowKeys: Array[Map[String, String]], actualRowKeys: Array[Map[String, String]],
-                                                  resType: ResultsType.Value): List[Int] = {
+                                      resType: ResultsType.Value): List[Int] = {
     val resToErrorRowIndexes =
       expRowKeys.zipWithIndex.flatMap { case (expKey, expIndex) =>
         if (!actualRowKeys.contains(expKey)) {
@@ -240,7 +240,7 @@ case class Tester(config: TesterConfig) {
     resToErrorRowIndexes
   }
 
-  private def initializeInputTables(catalog: Catalog, sparkSession: SparkSession ,mocks: Option[List[Mock]]) = {
+  private def initializeInputTables(catalog: Catalog, sparkSession: SparkSession, mocks: Option[List[Mock]]) = {
     mocks match {
       case Some(mocks) => mocks.filter(!_.streaming.contains(true)).foreach(mock => {
         val tableInfo = TableUtils.getTableInfo(mock.name, catalog)

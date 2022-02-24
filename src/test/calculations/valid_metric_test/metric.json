@@ -2,7 +2,8 @@
   "steps": [
     {
       "sql": "select * from employees",
-      "dataFrameName": "testOutput"
+      "dataFrameName": "testOutput",
+      "checkpoint": true
     },
     {
       "sql": "select * from employees where name = 'ron'",

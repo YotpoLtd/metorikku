@@ -20,12 +20,13 @@ For example a simple configuration YAML (JSON is also supported) should be as fo
 ```yaml
 steps:
 - dataFrameName: df1
-  sql: 
+  checkpoint: true #This persists the dataframe to storage and truncates the execution plan. For more details, see https://jaceklaskowski.gitbooks.io/mastering-spark-sql/content/spark-sql-checkpointing.html
+  sql:
     SELECT *
     FROM input_1
     WHERE id > 100
 - dataFrameName: df2
-  sql: 
+  sql:
     SELECT *
     FROM df1
     WHERE id < 1000
@@ -93,14 +94,14 @@ To help running both locally and remotely you can add the following env variable
 `java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c config.yaml`
 * Also job in a JSON format is supported, run following command:
 `java -D"spark.master=local[*]" -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku --job "{*}"`
- 
+
 *Run locally in intellij:*
 
 Go to Run->Edit Configuration->add application configuration
 
-* Main Class: 
+* Main Class:
 `com.yotpo.metorikku.Metorikku`
-* Vm options: 
+* Vm options:
 `-Dspark.master=local[*] -Dspark.executor.cores=1 -Dspark.driver.bindAddress=127.0.0.1 -Dspark.serializer=org.apache.spark.serializer.KryoSerializer`
 * program arguments:
 `-c examples/movies.yaml`
@@ -141,7 +142,7 @@ tests:
   - id: 300
     name: test2
 keys:
-  df2: 
+  df2:
   - id
   - name
 ```
@@ -153,14 +154,14 @@ And the corresponding `mocks/table_1.jsonl`:
 { "id": 1, "name": "test3" }
 ```
 
-The Keys section allows the user to define the unique columns of every DataFrame's expected results - 
-every expected row result should have a unique combination for the values of the key columns. 
-This part is optional and can be used to define only part of the expected DataFrames - 
-for the DataFrames that don't have a key definition, all of the columns defined in the first row result 
-will be taken by default as the unique keys. 
+The Keys section allows the user to define the unique columns of every DataFrame's expected results -
+every expected row result should have a unique combination for the values of the key columns.
+This part is optional and can be used to define only part of the expected DataFrames -
+for the DataFrames that don't have a key definition, all of the columns defined in the first row result
+will be taken by default as the unique keys.
 Defining a shorter list of key columns will result in better performances and a more detailed error message in case of test failure.
 
-The structure of the defined expected dataFrame's result must be identical for all rows, and the keys must be valid 
+The structure of the defined expected dataFrame's result must be identical for all rows, and the keys must be valid
 (defined as columns of the expected results of the same DataFrame)
 
 
@@ -230,13 +231,13 @@ We use spark-sql-kafka-0-10 as a provided jar - spark-submit command should look
 * **topic** - defines the topic in kafka which the data will be written to.
 currently supported only one topic
 
-* **valueColumn** - defines the values which will be written to the Kafka topic, 
+* **valueColumn** - defines the values which will be written to the Kafka topic,
 Usually a json version of data, For example:
 ```sql
 SELECT keyColumn, to_json(struct(*)) AS valueColumn FROM table
 ```
 ##### Optional Parameters:
-* **keyColumn** - key that can be used to perform de-duplication when reading 
+* **keyColumn** - key that can be used to perform de-duplication when reading
 
 #### Periodic job
 Periodic job configuration allows to schedule a batch job to execute repeatedly every configured duration of time.
@@ -288,7 +289,7 @@ This will commit the offsets to kafka, as a new dummy consumer group.
 spark-submit command should look like so:
 
 ```spark-submit --repositories http://packages.confluent.io/maven/ --jars https://repo1.maven.org/maven2/za/co/absa/abris_2.12/3.2.0/abris_2.12-3.2.0.jar --packages org.apache.spark:spark-avro_2.12:3.2.0,org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0,io.confluent:kafka-schema-registry-client:5.3.0,io.confluent:kafka-avro-serializer:5.3.0 --class com.yotpo.metorikku.Metorikku metorikku.jar```
- 
+
 * If your subject schema name is not ```<TOPIC NAME>-value``` (e.g. if the topic is a regex pattern) you can specify the schema subject in the ```schemaSubject``` section
 
 ###### Topic Pattern
@@ -309,7 +310,7 @@ inputs:
 
 ##### File Streaming Input
 Metorikku supports streaming over a file system as well.
-You can use the Data stream reading by specifying ```isStream: true```, 
+You can use the Data stream reading by specifying ```isStream: true```,
 and a specific path in the job (must be a single path) as a streaming source, this will trigger jobs for new files added to the folder.
 ```yaml
 inputs:
@@ -340,9 +341,9 @@ You can use watermarking by adding a new udf step in your metric:
 ##### ToAvro
 Metorikku supports to_avro() method which turns a dataframe into Avro records.
 
-The method requires the following parameters: 
+The method requires the following parameters:
 ```
-- table 
+- table
 - schema.registry.url
 - schema.registry.topic
 - schema.name
@@ -357,8 +358,8 @@ the output table. ```key``` is not necessary in the input.
 
 The ```schema.name``` and ```schema.namespace``` will be the schame name and namespace for both the value schema and the key schema, if a key exist.
 
-A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-value 
-for the value schema and  <schema.registry.topic>-key for the key schema. 
+A subject will be created in the schema registry (if one doesn't already exist). The subject name will be: <schema.registry.topic>-value
+for the value schema and  <schema.registry.topic>-key for the key schema.
 <br/>You can use ToAvro by adding a new udf step in your metric:
 ```yaml
 - dataFrameName: dataframe
@@ -383,14 +384,14 @@ Metorikku sends automatically on top of what spark is already sending the follow
 * Number of successful steps per metric
 
 * Number of failed steps per metric
- 
+
 * In streaming: records per second
 
 * In streaming: number of processed records in batch
 
 You can also send any information you like to the instrumentation output within a metric.
-by default the last column of the schema will be the field value. 
-Other columns that are not value or time columns will be merged together as the name of the metric. 
+by default the last column of the schema will be the field value.
+Other columns that are not value or time columns will be merged together as the name of the metric.
 If writing directly to influxDB these will become tags.
 
 Check out the [example](examples/movies_metric.yaml) for further details.
@@ -447,9 +448,9 @@ Now all that's left is to add it as a new step in your metric:
     param1: value1
 ```
 This will trigger your ```run``` method with the above dataFrameName.
-Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code/steps). 
+Check out the built-in code steps [here](src/main/scala/com/yotpo/metorikku/code/steps).
 
-*NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command* 
+*NOTE: If you added some dependencies to your custom JAR build.sbt you have to either use [sbt-assembly](https://github.com/sbt/sbt-assembly) to add them to the JAR or you can use the ```--packages``` when running the spark-submit command*
 
 ##### Custom Functions
 There are some custom functions already implemented as part of the Metorikku JAR:
@@ -604,7 +605,7 @@ Metorikku supports reading/writing with [Apache Hudi](https://github.com/apache/
 
 Hudi is a very exciting project that basically allows upserts and deletes directly on top of partitioned parquet data.
 
-In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
+In order to use Hudi with Metorikku you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```)
 an external JAR from here: https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark-bundle_2.12/0.10.0/hudi-spark-bundle_2.12-0.10.0.jar
 
 To run Hudi jobs you also have to make sure you have the following spark configuration (pass with ```--conf``` or ```-D```):
@@ -625,7 +626,7 @@ output:
     operation: upsert
     # COPY_ON_WRITE/MERGE_ON_READ
     storageType: COPY_ON_WRITE
-    # Maximum number of versions to retain 
+    # Maximum number of versions to retain
     maxVersions: 1
     # Hive database to use when writing
     hiveDB: default
@@ -666,11 +667,11 @@ Check out the [examples](e2e/hudi) and the [E2E test](e2e/hudi) for more details
 Also check the full list of configurations possible with hudi [here](http://hudi.incubator.apache.org/configurations.html).
 
 #### Apache Atlas
-Metorikku supports Data Lineage and Governance using [Apache Atlas](https://atlas.apache.org/) and the [Spark Atlas Connector](https://github.com/hortonworks-spark/spark-atlas-connector) 
+Metorikku supports Data Lineage and Governance using [Apache Atlas](https://atlas.apache.org/) and the [Spark Atlas Connector](https://github.com/hortonworks-spark/spark-atlas-connector)
 
 Atlas is an open source Data Governance and Metadata framework for Hadoop which provides open metadata management and governance capabilities for organizations to build a catalog of their data assets, classify and govern these assets and provide collaboration capabilities around these data assets for data scientists, analysts and the data governance team.
 
-In order to use the spark-atlas-connector with Metorikku  you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```) 
+In order to use the spark-atlas-connector with Metorikku  you need to add to your classpath (via ```--jars``` or if running locally with ```-cp```)
 an external JAR from here: https://github.com/YotpoLtd/spark-atlas-connector/releases/download/latest/spark-atlas-connector-assembly.jar
 
 To integrate the connector with Metorikku docker, you need to pass `USE_ATLAS=true` as en environment variable and the following config will be automatically added to `spark-default.conf`:
@@ -702,5 +703,5 @@ steps:
 ```
 Check out the [readme](examples/dq/README.md) and [example](examples/dq) for further details.
 
-## License  
+## License
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
