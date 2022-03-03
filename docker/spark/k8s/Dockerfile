@@ -51,4 +51,5 @@ ADD metrics/${METRICS_FILE} /etc/metrics/conf/metrics.properties
 
 RUN touch hadoop-metrics2.properties
 
+ENV TINI_KILL_PROCESS_GROUP 1
 ENV PYTHONHASHSEED 1
