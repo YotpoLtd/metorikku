@@ -8,6 +8,8 @@ case class JDBC(connectionUrl: String,
                 user: String,
                 password: String,
                 table: String,
+                partitionsNumber: Long = 0,
+                partitionColumn: String = "id",
                 options: Option[Map[String, String]]
                ) extends InputConfig {
   require(Option(connectionUrl).isDefined, "JDBC connection: connection url is mandatory")
@@ -15,5 +17,5 @@ case class JDBC(connectionUrl: String,
   require(Option(password).isDefined, "JDBC connection: password is mandatory")
   require(Option(table).isDefined, "JDBC connection: table is mandatory")
 
-  override def getReader(name: String): Reader = JDBCInput(name, connectionUrl, user, password, table, options)
+  override def getReader(name: String): Reader = JDBCInput(name, connectionUrl, user, password, table, partitionsNumber, partitionColumn,options)
 }

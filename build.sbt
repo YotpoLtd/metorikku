@@ -106,7 +106,9 @@ libraryDependencies ++= Seq(
   "com.amazon.deequ" % "deequ" % deequVersion.value excludeAll(excludeSpark, excludeScalanlp),
   "org.apache.avro" % "avro" % "1.8.2" % "provided",
   "com.databricks" %% "spark-xml" % "0.11.0",
-  "com.outr" %% "hasher" % "1.2.2"
+  "com.outr" %% "hasher" % "1.2.2",
+  "org.mongodb.spark" %% "mongo-spark-connector" % "2.4.3" % "provided",
+  "mysql" % "mysql-connector-java" % "8.0.28" % "provided"
 )
 
 resolvers ++= Seq(
