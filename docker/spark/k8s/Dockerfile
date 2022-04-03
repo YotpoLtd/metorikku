@@ -26,6 +26,13 @@ RUN rm -f $SPARK_HOME/jars/guava-*.jar
 ADD https://repo1.maven.org/maven2/org/apache/httpcomponents/httpclient/${HTTPCLIENT_VERSION}/httpclient-${HTTPCLIENT_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/com/google/guava/guava/27.0-jre/guava-27.0-jre.jar $SPARK_HOME/jars/
 
+# JDBC dependencies.
+ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-connector-java-8.0.28.jar $SPARK_HOME/jars
+
+# Mongo dependencies.
+ADD https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/3.0.1/mongo-spark-connector_2.12-3.0.1.jar $SPARK_HOME/jars
+ADD https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/3.12.10/mongo-java-driver-3.12.10.jar $SPARK_HOME/jars
+
 RUN chmod 644 $SPARK_HOME/jars/*
 
 ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar /prometheus/
