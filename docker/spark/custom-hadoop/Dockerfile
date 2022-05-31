@@ -5,7 +5,7 @@ FROM ${IMAGE_NAME}
 RUN rm -f $SPARK_HOME/jars/hadoop*2.7* && cd /
 
 #Hadoop
-ARG HADOOP_VERSION=2.9.2
+ARG HADOOP_VERSION=3.3.3
 RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
     && tar -xzf hadoop-${HADOOP_VERSION}.tar.gz -C /opt/ \
     && rm hadoop-${HADOOP_VERSION}.tar.gz
