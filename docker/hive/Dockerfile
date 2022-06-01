@@ -4,7 +4,7 @@ RUN mkdir /opt/atlas
 ENV ATLAS_HOME=/opt/atlas
 RUN mkdir -p $ATLAS_HOME/hook/hive
 ENV HADOOP_HOME=/opt/hadoop
-ENV HADOOP_VERSION=2.7.4
+ENV HADOOP_VERSION=3.3.3
 RUN apt-get update && apt-get install -y ant && apt-get install -y expect
 
 ADD https://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz /hadoop-$HADOOP_VERSION.tar.gz
