@@ -17,6 +17,7 @@ ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk/${AWS_SDK_VERSION}
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-core/${AWS_SDK_VERSION}/aws-java-sdk-core-${AWS_SDK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-s3/${AWS_SDK_VERSION}/aws-java-sdk-s3-${AWS_SDK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-dynamodb/${AWS_SDK_VERSION}/aws-java-sdk-dynamodb-${AWS_SDK_VERSION}.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-sts/${AWS_SDK_VERSION}/aws-java-sdk-sts-${AWS_SDK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-sql-kafka-0-10_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-sql-kafka-0-10_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-10-assembly_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-streaming-kafka-0-10-assembly_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
 ADD https://repo1.maven.org/maven2/org/apache/spark/spark-avro_${SCALA_MAJOR_VERSION}/${SPARK_VERSION}/spark-avro_${SCALA_MAJOR_VERSION}-${SPARK_VERSION}.jar $SPARK_HOME/jars/
@@ -59,4 +60,6 @@ ADD metrics/${METRICS_FILE} /etc/metrics/conf/metrics.properties
 RUN touch hadoop-metrics2.properties
 
 ENV TINI_KILL_PROCESS_GROUP 1
+ENV TINI_SUBREAPER 1
+ENV TINI_VERBOSITY 3
 ENV PYTHONHASHSEED 1
