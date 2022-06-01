@@ -11,7 +11,7 @@ RUN wget -q https://archive.apache.org/dist/hadoop/common/hadoop-${HADOOP_VERSIO
     && rm hadoop-${HADOOP_VERSION}.tar.gz
 
 RUN ln -s /opt/hadoop-${HADOOP_VERSION}/etc/hadoop /etc/hadoop
-RUN cp /etc/hadoop/mapred-site.xml.template /etc/hadoop/mapred-site.xml
+#RUN cp /etc/hadoop/mapred-site.xml.template /etc/hadoop/mapred-site.xml
 RUN mkdir /opt/hadoop-${HADOOP_VERSION}/logs
 
 ENV HADOOP_PREFIX=/opt/hadoop-${HADOOP_VERSION}
