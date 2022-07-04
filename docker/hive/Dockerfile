@@ -80,7 +80,7 @@ ADD https://repo1.maven.org/maven2/org/scala-lang/scala-library/$SCALA_LIBRARY_V
 ADD https://repo1.maven.org/maven2/commons-configuration/commons-configuration/$COMMONS_CONFIG_VERSION/commons-configuration-$COMMONS_CONFIG_VERSION.jar ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/commons-configuration-$COMMONS_CONFIG_VERSION.jar
 ADD https://repo1.maven.org/maven2/org/apache/atlas/hdfs-model/$ATLAS_VERSION/hdfs-model-$ATLAS_VERSION.jar ${ATLAS_HOME}/hook/hive/atlas-hive-plugin-impl/hdfs-model-$ATLAS_VERSION.jar
 
-ENV LOG4J_VERSION=2.17.0
+ENV LOG4J_VERSION=2.17.1
 
 RUN rm $HIVE_HOME/lib/log4j-api-*.jar
 RUN rm $HIVE_HOME/lib/log4j-core-*.jar
