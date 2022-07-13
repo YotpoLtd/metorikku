@@ -45,6 +45,17 @@ jobs:
     - stage: "Build"
       script: scripts/travis_build.sh
       before_cache: scripts/before_cache.sh
+    - stage: Snyk Vulnerabilities check
+      name: "Snyk Vulnerabilities check1"
+      language: node_js
+      node_js:
+        - 12.16.2
+      install:
+        - npm install -g snyk
+        - snyk config set org=5ba18842-08f0-4728-a5e0-747b3bff3f4e
+      script:
+        - snyk monitor --all-projects # Autodetect all projects in working directory, scan and publish results to Snyk
+        - snyk test --all-projects # Autodetect all projects in working directory- ./scripts/build_app_docker.sh
     - stage: "Tests"
       name: "Unit & integration tests"
       script: scripts/test.sh
