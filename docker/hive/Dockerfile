@@ -1,4 +1,4 @@
-FROM openjdk:8u212-b04-jre-stretch
+FROM openjdk:8u332-jre-slim-bullseye
 
 RUN mkdir /opt/atlas
 ENV ATLAS_HOME=/opt/atlas
