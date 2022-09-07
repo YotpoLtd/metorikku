@@ -75,6 +75,14 @@ cat >${HIVE_HOME}/conf/hive-site.xml <<EOL
         <name>fs.s3.impl</name>
         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
      </property>
+     <property>
+        <name>fs.s3a.access.key</name>
+        <value>${AWS_ACCESS_KEY}</value>
+     </property>
+     <property>
+        <name>fs.s3a.secret.key</name>
+        <value>${AWS_SECRET_KEY}</value>
+     </property>
        <property>
         <name>hive.security.authorization.enabled</name>
         <value>false</value>
