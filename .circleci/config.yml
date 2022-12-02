@@ -26,7 +26,7 @@ parameters:
   ###############################################################
   sbt_version:
     type: string
-    default: "1.2.8"
+    default: "1.6.2"
 
 executors:
   main-docker-executor:
@@ -35,7 +35,6 @@ executors:
 
 defaults-paramatetr-job: &defaults-paramatetr-job
   executor: main-docker-executor
-  working_directory: ~/cdframework
 
 commands:
   docker-compose-up:
@@ -54,13 +53,7 @@ commands:
       - run:
           name: Sbt setup
           command: |
-            apt update && apt install -y curl
-
-            curl -L -o sbt-<< pipeline.parameters.sbt_version >>.deb https://dl.bintray.com/sbt/debian/sbt-<< pipeline.parameters.sbt_version >>.deb
-            dpkg -i sbt-<< pipeline.parameters.sbt_version >>.deb
-            rm sbt-<< pipeline.parameters.sbt_version >>.deb
-
-            apt-get clean && apt-get autoclean
+            curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -q
   scala-build:
     steps:
       - run:
@@ -96,15 +89,12 @@ commands:
 
             cat ~/.aws/config
             printenv
-  ###############################################################
-  # Versioning commands
-  ###############################################################
   scala-release:
     steps:
       - run:
           name: Publish release
           command: |
-            sbt ci-release
+            sbt release
 jobs:
   perform-qa:
     machine:

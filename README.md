@@ -164,7 +164,7 @@ In order to generate a new version:
 
     git tag v$TAG_NAME $GIT_HASH
 
-    git push --force origin $TAG_NAME
+    git push --force origin v$TAG_NAME
     ```
 
 ## How to use it
