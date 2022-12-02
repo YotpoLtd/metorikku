@@ -16,6 +16,13 @@ parameters:
     type: string
     default: "releases"
   ###############################################################
+  # Release vars
+  ###############################################################
+  release_type:
+    type: string
+    enum: ["patch", "minor", "major"]
+    default: ""
+  ###############################################################
   # Notification vars
   ###############################################################
   slack_channel:
@@ -53,7 +60,9 @@ commands:
       - run:
           name: Sbt setup
           command: |
-            curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -q
+            cd $HOME
+          
+            curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -q -y
   scala-build:
     steps:
       - run:
@@ -90,11 +99,23 @@ commands:
             cat ~/.aws/config
             printenv
   scala-release:
+    parameters:
+      release_type:
+        type: string
     steps:
       - run:
           name: Publish release
           command: |
-            sbt release
+            RELEASE_TYPE=$(echo "<<parameters.release_type>>" | sed -rn 's/(patch|minor|major)$/\1/p')
+
+            # Exit if is not a release commit
+            if [[ -z "$RELEASE_TYPE" ]]; then
+              echo "Skipping release"
+
+              exit 0
+            fi
+          
+            sbt "bump-$RELEASE_TYPE"
 jobs:
   perform-qa:
     machine:
@@ -108,26 +129,45 @@ jobs:
       - scala-test
   release:
     <<: *defaults-paramatetr-job
+    parameters:
+      release_type:
+        type: string
+        default: ""
     steps:
       - checkout
       - sbt-setup
       - configure-git
-      - scala-release
+      - scala-release:
+          release_type: "<<parameters.release_type>>"
 workflows:
   release:
+    when:
+      or:
+        - equal: ["patch", "<<pipeline.parameters.release_type>>"]
+        - equal: ["minor", "<<pipeline.parameters.release_type>>"]
+        - equal: ["major", "<<pipeline.parameters.release_type>>"]
     jobs:
       - release:
           context:
             - shared-gemfury-tokens
             - shared-github-token
+          release_type: "<<pipeline.parameters.release_type>>"
           filters:
             branches:
-              ignore: /.*/
-            tags:
-              only: /^v\d+\.\d+\.\d+$/
+              only:
+                - <<pipeline.parameters.git_main_branch>>
+                - /^<<pipeline.parameters.git_release_prefix>>\/v\d+\.\d+\.\d+$/
   main:
+    when:
+      and:
+        - equal: ["EMPTY", "EMPTY<<pipeline.parameters.release_type>>"]
+        - equal: ["EMPTY", "EMPTY<<pipeline.git.tag>>"]
     jobs:
       - perform-qa:
           context:
             - shared-sonarcloud-token
             - shared-gemfury-tokens
+          filters:
+            branches:
+              only:
+                - <<pipeline.parameters.git_main_branch>>

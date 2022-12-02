@@ -157,14 +157,14 @@ In order to generate a new version:
 
     ```bash
     GIT_HASH="{SOME_HASH}"
-    TAG_NAME="{VERSION_NUMER}"
+    TAG_NAME="v{VERSION_NUMER}"
 
     # Delete tag if needed
     git tag -d $TAG_NAME 2> /dev/null && echo "Deleted tag $TAG_NAME"
 
-    git tag v$TAG_NAME $GIT_HASH
+    git tag $TAG_NAME $GIT_HASH
 
-    git push --force origin v$TAG_NAME
+    git push --force origin $TAG_NAME
     ```
 
 ## How to use it

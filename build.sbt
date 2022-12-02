@@ -215,3 +215,39 @@ Compile / run := Defaults
     Compile / run / runner
   )
   .evaluated
+
+commands += Command.command("bump-patch") { state =>
+  println("Bumping patch version!")
+  val extracted = Project extract state
+  val customState = extracted.appendWithoutSession(
+    Seq(
+      releaseVersionBump := sbtrelease.Version.Bump.Bugfix
+    ),
+    state
+  )
+  Command.process("release with-defaults", customState)
+}
+
+commands += Command.command("bump-minor") { state =>
+  println("Bumping minor version!")
+  val extracted = Project extract state
+  val customState = extracted.appendWithoutSession(
+    Seq(
+      releaseVersionBump := sbtrelease.Version.Bump.Minor
+    ),
+    state
+  )
+  Command.process("release with-defaults", customState)
+}
+
+commands += Command.command("bump-major") { state =>
+  println("Bumping major version!")
+  val extracted = Project extract state
+  val customState = extracted.appendWithoutSession(
+    Seq(
+      releaseVersionBump := sbtrelease.Version.Bump.Major
+    ),
+    state
+  )
+  Command.process("release with-defaults", customState)
+}
