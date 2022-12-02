@@ -52,7 +52,7 @@ commands:
   sbt-setup:
     steps:
       - run:
-          name: SBT setup
+          name: Sbt setup
           command: |
             apt update && apt install -y curl
 
@@ -103,9 +103,6 @@ commands:
   # Versioning commands
   ###############################################################
   scala-release:
-    parameters:
-      release_type:
-        type: string
     steps:
       - run:
           name: Publish release
@@ -120,44 +117,27 @@ jobs:
     steps:
       - checkout
       - docker-compose-up
-      - scala-setup
+      - sbt-setup
       - scala-test
   release:
     <<: *defaults-paramatetr-job
-    parameters:
-      release_type:
-        type: string
-        default: ""
     steps:
       - checkout
-      - scala-setup
+      - sbt-setup
       - configure-git
       - setup-semantic-release
-      - scala-release:
-          release_type: "<<parameters.release_type>>"
+      - scala-release
 workflows:
   release:
-    when:
-      or:
-        - equal: ["patch", "<<pipeline.parameters.release_type>>"]
-        - equal: ["minor", "<<pipeline.parameters.release_type>>"]
-        - equal: ["major", "<<pipeline.parameters.release_type>>"]
     jobs:
       - release:
           context:
             - shared-gemfury-tokens
             - shared-github-token
-          release_type: "<<pipeline.parameters.release_type>>"
           filters:
-            branches:
-              only:
-                - <<pipeline.parameters.git_main_branch>>
-                - /^<<pipeline.parameters.git_release_prefix>>\/v\d+\.\d+\.\d+$/
+            tags:
+              only: /v\d+\.\d+\.\d+$/
   main:
-    when:
-      and:
-        - equal: ["EMPTY", "EMPTY<<pipeline.parameters.release_type>>"]
-        - equal: ["EMPTY", "EMPTY<<pipeline.git.tag>>"]
     jobs:
       - perform-qa:
           context:
