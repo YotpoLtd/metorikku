@@ -30,7 +30,7 @@ RUN test "$LOCAL_DEV" == "TRUE" && \
     bash /usr/local/bin/install_gnupg22.sh || bash -c true
 
 RUN test "$LOCAL_DEV" != "TRUE" && \
-    mkdir /data && chown $USERNAME:$USER_GID /data || bash -c true
+    mkdir -p /data /data/target /data/project/target && chown -R $USERNAME:$USER_GID /data || bash -c true
 
 USER $USERNAME
 WORKDIR /workspace

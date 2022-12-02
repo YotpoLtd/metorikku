@@ -47,6 +47,8 @@ commands:
             LOCAL_DEV=FALSE docker-compose -f .devcontainer/docker-compose.yml up -d --build
 
             docker ps
+
+            docker cp ./ $(docker ps -aqf "name=devcontainer-main-1"):/data
   sbt-setup:
     steps:
       - run:
@@ -59,13 +61,19 @@ commands:
             rm sbt-$SBT_VERSION.deb
 
             apt-get clean && apt-get autoclean
+  scala-build-flat:
+    steps:
+      - run:
+          name: Build flat zip
+          command: |
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/test.sh"
   scala-test:
     description: Test execution
     steps:
       - run:
           name: Execute tests
           command: |
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "./scripts/test.sh"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/test.sh"
   configure-git:
     steps:
       - run:
@@ -123,7 +131,7 @@ workflows:
             - shared-github-token
           filters:
             tags:
-              only: /v\d+\.\d+\.\d+$/
+              only: /^v\d+\.\d+\.\d+$/
   main:
     jobs:
       - perform-qa:
