@@ -18,10 +18,14 @@ USER root
 RUN yum install -y \
     curl \
     git \
+    sudo \
     telnet \
     unzip \
     vim \
     zip
+
+RUN usermod -aG wheel $USERNAME && \
+    echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers
 
 ADD .devcontainer/install_gnupg22.sh /usr/local/bin/
 RUN test "$LOCAL_DEV" == "TRUE" && \
@@ -41,6 +45,8 @@ RUN mv /home/glue_user/aws-glue-libs/jars/mongo-java-driver-3.10.1.jar /home/glu
 # Other stuff
 ADD .devcontainer/init_container.sh /usr/local/bin/
 
+ADD .devcontainer/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.local
+
 USER root
 
 # Install JDK, Scala and SBT
@@ -59,9 +65,7 @@ RUN curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_V
 
 ENV SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"
 
+
+
 # Clean up
-
 USER $USERNAME
-
-
-ADD .devcontainer/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.local
