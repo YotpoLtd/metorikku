@@ -113,7 +113,7 @@ libraryDependencies ++= Seq(
 )
 
 resolvers ++= Seq(
-  Resolver.sonatypeOssRepos("public"),
+  Resolver.sonatypeRepo("public"),
   "confluent" at "https://packages.confluent.io/maven/"
 )
 
