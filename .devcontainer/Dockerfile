@@ -47,6 +47,9 @@ ADD .devcontainer/init_container.sh /usr/local/bin/
 
 ADD .devcontainer/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.local
 
+RUN mv /home/glue_user/spark/conf/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.bck && \
+    mv /home/glue_user/spark/conf/hive-site.xml.local /home/glue_user/spark/conf/hive-site.xml
+
 USER root
 
 # Install JDK, Scala and SBT
