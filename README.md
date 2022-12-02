@@ -8,6 +8,12 @@ It is based on simple YAML configuration files and runs on any Spark cluster.
 
 The platform also includes a simple way to write unit and E2E tests.
 
+## Changes from Original
+
+- Added compatibility with MongoDB (Input/Output).
+- Added MemoryInstrumentation for retrieving metrics from memory.
+- Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 3.0.
+
 ## Pre-requisites
 
 1. Docker enabled system:
@@ -94,14 +100,72 @@ You can check out a full example file for all possible values in the [sample YAM
 
 Also make sure to check out:
 
-- All the [examples](examples).
+- All the [tests](tests/data) and [examples](examples).
 - Original [project](https://github.com/YotpoLtd/metorikku).
 
-## Changes from Original
+## Git Commit Guidelines
 
-- Added compatibility with MongoDB (Input/Output).
-- Added MemoryInstrumentation for retrieving metrics from memory.
-- Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 3.0.
+It is obligatory to use the following message format in all the Git commits even with Pull Request:
+
+```git
+<type>(<scope>): <subject>
+```
+
+Each commit message consists of a **header**, a **body** and a **footer**.  The header has a special format that includes a **type**, a **scope** and a **subject**:
+
+- The **header** is mandatory and the **scope** of the header is optional.
+- Any line of the commit message cannot be longer than 100 characters! This allows the message to be easier to read on GitHub as well as in various git tools.
+
+### Types
+
+Must be one of the following:
+
+- **feat**: A new feature.
+- **fix**: A bug fix.
+- **docs**: Documentation only changes.
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc).
+- **refactor**: A code change that neither fixes a bug nor adds a feature.
+- **perf**: A code change that improves performance.
+- **test**: Adding missing or correcting existing tests.
+- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation generation.
+
+### Scope
+
+The scope could be anything specifying place of the commit change. For example `jobs`, `utils`, `aws`, etc... You can use `*` when the change affects more than a single scope.
+
+### Subject
+
+The subject contains succinct description of the change:
+
+- Use the imperative, present tense: "change" not "changed" nor "changes".
+- Don't capitalize first letter.
+- No dot (.) at the end.
+
+## How to publish a new version
+
+The release process works as follow:
+
+- Update version number.
+- Upload artifacts to the artifactory server.
+
+[sbt-ci-release](https://github.com/sbt/sbt-ci-release) library is used to generate a new version.
+
+In order to generate a new version:
+
+- Get the hash of a specific commit in Git.
+- Tag it setting values for *{VERSION_NUMER}* (**X.Y.Z**) and *{SOME_HASH}* (hash of the commit to use).
+
+    ```bash
+    GIT_HASH="{SOME_HASH}"
+    TAG_NAME="{VERSION_NUMER}"
+
+    # Delete tag if needed
+    git tag -d $TAG_NAME 2> /dev/null && echo "Deleted tag $TAG_NAME"
+
+    git tag v$TAG_NAME $GIT_HASH
+
+    git push --force origin $TAG_NAME
+    ```
 
 ## How to use it
 
