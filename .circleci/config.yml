@@ -48,7 +48,7 @@ commands:
 
             docker ps
 
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cp -R /workspace /data"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cp -R /workspace/* /data"
   sbt-setup:
     steps:
       - run:
