@@ -117,7 +117,6 @@ jobs:
     steps:
       - checkout
       - docker-compose-up
-      - sbt-setup
       - scala-test
   release:
     <<: *defaults-paramatetr-job
@@ -125,7 +124,6 @@ jobs:
       - checkout
       - sbt-setup
       - configure-git
-      - setup-semantic-release
       - scala-release
 workflows:
   release:
