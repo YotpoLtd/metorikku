@@ -1,0 +1,11 @@
+steps:
+  - dataFrameName: test_read_collection_df
+    sql: |
+      SELECT name, value
+      FROM test_read_collection
+output:
+  - dataFrameName: test_read_collection_df
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: test_read_collection_df_parquet

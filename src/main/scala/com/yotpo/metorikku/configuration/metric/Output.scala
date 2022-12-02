@@ -31,7 +31,8 @@ object OutputType extends Enumeration {
   File,
   Kafka,
   Catalog,
-  Hudi = Value
+  Hudi,
+  MongoDB = Value
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

@@ -1,0 +1,13 @@
+steps:
+  - dataFrameName: RatedMovies
+    sql: SELECT *
+      FROM rated_movies
+output:
+  - dataFrameName: RatedMovies
+    outputType: File
+    outputOptions:
+      saveMode: Overwrite
+      format: parquet
+      path: rated_movies
+      repartition: 100
+      coalesce: true

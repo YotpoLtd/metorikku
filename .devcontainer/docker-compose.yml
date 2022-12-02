@@ -1,0 +1,91 @@
+version: '3.7'
+
+x-environment:
+  &default-environment
+  LOCAL_DEV: "TRUE"
+  POSTGRES_USER: glue_user
+  POSTGRES_PASSWORD: none
+  POSTGRES_DB: mio
+  AWS_ACCESS_KEY_ID: minio
+  AWS_SECRET_ACCESS_KEY: CHANGEME123
+  MINIO_ROOT_USER: minio
+  MINIO_ROOT_PASSWORD: CHANGEME123
+  TEST_BUCKET_NAME: test-bucket
+services:
+  main:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - USERNAME=glue_user
+        - LOCAL_DEV=${LOCAL_DEV:-TRUE}
+    environment:
+      <<: *default-environment
+    user: glue_user
+    command: -c "sleep infinity"
+    volumes:
+      - ../:/workspace
+      - ${HOME}/.aws:/home/glue_user/.aws:ro
+      - ${HOME}/.gnupg/public.key:/tmp/.gnupg/public.key:ro
+      - ${HOME}/.gnupg/private.key:/tmp/.gnupg/private.key:ro
+      - ${HOME}/.ssh:/tmp/.ssh:ro
+    depends_on:
+      mongodb:
+        condition: service_started
+      postgres:
+        condition: service_started
+      s3:
+        condition: service_healthy
+  mongodb:
+    image: mongo:4.0
+    hostname: mongodb
+    environment:
+      <<: *default-environment
+    volumes:
+      - ../tests/data/mongodb:/docker-entrypoint-initdb.d:ro
+  postgres:
+    image: postgres:11
+    hostname: postgres
+    environment:
+      <<: *default-environment
+    volumes:
+      - ../tests/data/postgres/90_init.sql:/docker-entrypoint-initdb.d/90_init.sql:ro
+  s3:
+    image: minio/minio:RELEASE.2022-10-08T20-11-00Z
+    hostname: s3
+    environment:
+      <<: *default-environment
+    command: server /data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  s3-init:
+    image: minio/mc:RELEASE.2022-10-09T21-10-59Z
+    environment:
+      <<: *default-environment
+    entrypoint: |
+      /bin/sh -c "
+
+      BUCKET_NAME
+
+      mc alias set minio http://s3:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+
+      mc ls minio/$$TEST_BUCKET_NAME 2>&1 > /dev/null || mc mb minio/$$TEST_BUCKET_NAME;
+
+      cd /data && mc cp --recursive * minio/$$TEST_BUCKET_NAME;
+
+      exit 0;
+      "
+    volumes:
+      - ../tests/data/s3:/data:ro
+    depends_on:
+      s3:
+        condition: service_healthy

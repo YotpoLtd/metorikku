@@ -7,15 +7,18 @@ import com.yotpo.metorikku.input.readers.jdbc.JDBCInput
 case class JDBC(connectionUrl: String,
                 user: String,
                 password: String,
-                table: String,
-                partitionsNumber: Long = 0,
-                partitionColumn: String = "id",
+                driver: String,
+                dbTable: String,
+                partitionsNumber: Option[Integer],
+                partitionColumn: Option[String],
                 options: Option[Map[String, String]]
                ) extends InputConfig {
   require(Option(connectionUrl).isDefined, "JDBC connection: connection url is mandatory")
   require(Option(user).isDefined, "JDBC connection: user is mandatory")
   require(Option(password).isDefined, "JDBC connection: password is mandatory")
-  require(Option(table).isDefined, "JDBC connection: table is mandatory")
+  require(Option(driver).isDefined, "JDBC connection: driver is mandatory")
+  require(Option(dbTable).isDefined, "JDBC connection: dbTable is mandatory")
+  require(Option(partitionColumn).isDefined, "JDBC connection: partitionColumn is mandatory")
 
-  override def getReader(name: String): Reader = JDBCInput(name, connectionUrl, user, password, table, partitionsNumber, partitionColumn,options)
+  override def getReader(name: String): Reader = JDBCInput(name, connectionUrl, user, password, driver, dbTable, partitionsNumber, partitionColumn, options)
 }

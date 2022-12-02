@@ -1,12 +1,15 @@
 # Examples
 
 ### Running the example
+
 `java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.Metorikku -c examples/movies.yaml`
 
 ### The Data
+
 Let's analyze a small movie lens data set!
 
 We have our movies.csv in our file_inputs folder
+
 ```
 +-------+-------------------------------------------------------------------------------+-------------------------------------------+
 |movieId|title                                                                          |genres                                     |
@@ -28,7 +31,9 @@ We have our movies.csv in our file_inputs folder
 |15     |Cutthroat Island (1995)                                                        |Action|Adventure|Romance                   |
 
 ```
+
 and also our ratings.csv:
+
 ```
 +------+-------+------+----------+
 |userId|movieId|rating|timestamp |
@@ -50,9 +55,12 @@ and also our ratings.csv:
 |1     |2150   |3.0   |1260759194|
 |1     |2193   |2.0   |1260759198|
 ```
+
 ### Configuration
+
 We are registering our data sources, our variables and our output configurations
 Here's our example configuration:
+
 ```yaml
 # The MQL file path
 metrics:
@@ -86,8 +94,11 @@ showPreviewLines: 100
 checkpointStorageLocation: /tmp/
 
 ```
+
 ### The Metric
+
 Our metric file is as follows:
+
 ```yaml
 steps:
 - dataFrameName: moviesWithRatings
@@ -132,9 +143,13 @@ output:
     saveMode: Overwrite
     path: topFantasyMovies.parquet
 ```
+
 ### Results
+
 We are running each step sequentially and here are the results:
+
 #### Step1 - moviesWithRatings
+
 ```
 +------+-------+------+----------+----------------------------------------------------------------------------+-----------------------------------------------+
 |userId|movieId|rating|timestamp |title                                                                       |genres                                         |
@@ -152,7 +167,9 @@ We are running each step sequentially and here are the results:
 |1     |1371   |2.5   |1260759135|Star Trek: The Motion Picture (1979)                                        |Adventure|Sci-Fi                               |
 |1     |1405   |1.0   |1260759203|Beavis and Butt-Head Do America (1996)                                      |Adventure|Animation|Comedy|Crime
 ```
+
 #### Step2 - fantasyMoviesWithRatings
+
 ```
 +-------+------+----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 |movieId|rating|timestamp |title                                                                                         |genres                                                   |
@@ -173,7 +190,9 @@ We are running each step sequentially and here are the results:
 |661    |4.0   |835356141 |James and the Giant Peach (1996)                                                              |Adventure|Animation|Children|Fantasy|Musical             |
 
 ```
+
 #### Step3 - topFantasyMovies
+
 ```
 +-------+------------------------------------------------------------------------------------------------------------------+------------------+
 |movieId|title                                                                                                             |averageRating     |
@@ -210,7 +229,9 @@ We are running each step sequentially and here are the results:
 |68835  |Were the World Mine (2008)                                                                                        |4.5               |
 |4927   |Last Wave, The (1977)                                                                                             |4.5               |
 ```
+
 #### Step2 - myFavoriteMovieRated
+
 ```
 +-------+--------------------------+-----------------+
 |movieId|title                     |averageRating    |
@@ -222,6 +243,7 @@ We are running each step sequentially and here are the results:
 ## Testing our metric
 
 ### Running the test
+
 `java -Dspark.master=local[*] -cp metorikku-standalone.jar com.yotpo.metorikku.MetorikkuTester -t examples/movies_test.yaml`
 
 Metorikku also supports testing your logic, using MetorikkuTester.
@@ -244,7 +266,9 @@ tests:
     title: Lord of the Rings, The (1978)
     averageRating: 2.5
 ```
+
 A test settings file consists of the following:
+
 * Our metric file which has our business logic
 * A set of mocks in the format of **JSONL**
 * A set of variables if needed to be used inside our SQL queries

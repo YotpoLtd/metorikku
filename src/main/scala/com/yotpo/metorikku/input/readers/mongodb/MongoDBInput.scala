@@ -17,10 +17,10 @@ case class MongoDBInput(name: String,
                         uri: String,
                         database: String,
                         collection: String,
-                        sampleSize: String = "10000",
-                        partitionKey: String = "_id",
-                        samplesPerPartition: String = "200",
-                        schemaPath: Option[String] = None,
+                        sampleSize: Option[String],
+                        partitionKey: Option[String],
+                        samplesPerPartition: Option[String],
+                        schemaPath: Option[String],
                         options: Option[Map[String, String]]) extends Reader {
   def read(sparkSession: SparkSession): DataFrame = {
     var mongoDBOptions = Map(
@@ -28,9 +28,9 @@ case class MongoDBInput(name: String,
       "database" -> database,
       "collection" -> collection,
       "partitioner" -> "MongoSamplePartitioner",
-      "sampleSize" -> sampleSize,
-      "partitionerOptions.samplesPerPartition" -> samplesPerPartition,
-      "partitionerOptions.partitionKey" -> partitionKey
+      "sampleSize" -> sampleSize.getOrElse("10000"),
+      "partitionerOptions.samplesPerPartition" -> samplesPerPartition.getOrElse("200"),
+      "partitionerOptions.partitionKey" -> partitionKey.getOrElse("_id")
     )
 
     mongoDBOptions ++= options.getOrElse(Map())

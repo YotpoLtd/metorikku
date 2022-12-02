@@ -40,7 +40,7 @@ inputs:
       connectionUrl: jdbc:mysql://localhost/db?zeroDateTimeBehavior=convertToNull
       user: user
       password: pass
-      table: some_table
+      dbTable: some_table
       # You can optionally add here any supported option from https://spark.apache.org/docs/latest/sql-programming-guide.html#jdbc-to-other-databases
       options:
         numPartitions: 100
@@ -144,6 +144,11 @@ output:
     # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
     options:
       ....
+  mongodb:
+    uri: mongodb://localhost:27017
+    options:
+      ssl: true
+      ssl.domain_match: false
 
 # You can also use named outputs (all outputs above are supported)
 outputs:

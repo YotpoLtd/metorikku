@@ -185,6 +185,15 @@
             "servers"
           ]
         },
+        "mongodb": {
+          "type": "object",
+          "properties": {
+            "uri": { "type": "string" }
+          },
+          "required": [
+            "uri"
+          ]
+        },
         "redis": {
           "type": "object",
           "properties": {

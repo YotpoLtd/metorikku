@@ -1,0 +1,24 @@
+steps:
+  - dataFrameName: RatedMovies
+    sql: SELECT userid,
+      movies.movieid
+      FROM movies
+      LEFT JOIN ratings ON ratings.movieid = movies.movieid
+      GROUP BY 1,2
+output:
+  - dataFrameName: RatedMovies
+    outputType: MongoDB
+    outputOptions:
+      saveMode: Overwrite
+      database: movies
+      collection: rated_movies
+      preCommand: |
+        {
+            delete: "rated_movies"
+            deletes: [
+              {
+                q : {},
+                limit: 0
+              }
+            ]
+        }

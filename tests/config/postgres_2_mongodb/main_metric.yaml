@@ -1,0 +1,22 @@
+steps:
+  - dataFrameName: test_table_df
+    sql: |
+      SELECT id, name
+      FROM test_table
+output:
+  - dataFrameName: test_table_df
+    outputType: MongoDB
+    outputOptions:
+      saveMode: Overwrite
+      database: test_db
+      collection: test_table
+      preCommand: |
+        {
+            delete: "test_table"
+            deletes: [
+              {
+                q : {},
+                limit: 0
+              }
+            ]
+        }

@@ -7,9 +7,9 @@ import com.yotpo.metorikku.input.readers.mongodb.MongoDBInput
 case class MongoDB(uri: String,
                    database: String,
                    collection: String,
-                   sampleSize: String = "10000",
-                   partitionKey: String = "_id",
-                   samplesPerPartition: String = "200",
+                   sampleSize: Option[String],
+                   partitionKey: Option[String],
+                   samplesPerPartition: Option[String],
                    schemaPath: Option[String] = None,
                    options: Option[Map[String, String]]
                   ) extends InputConfig {

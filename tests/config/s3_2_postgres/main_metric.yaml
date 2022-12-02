@@ -1,0 +1,11 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT family_name, name, image
+      FROM persons_s3
+output:
+  - dataFrameName: persons
+    outputType: JDBC
+    outputOptions:
+      saveMode: Overwrite
+      dbTable: test.persons

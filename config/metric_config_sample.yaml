@@ -179,3 +179,28 @@ output:
       # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
       extraOptions:
         option1: value1
+  - dataFrameName: table1
+    outputType: MongoDB
+    outputOptions:
+      saveMode: Overwrite
+      database: test_database
+      collection: test_collection
+      # Optional: Command to execute before write
+      preCommand: |
+        {
+            delete: "test_database"
+            deletes: [
+              {
+                q : {},
+                limit: 0
+              }
+            ]
+        }
+      # Optional: Command to execute after write
+      postCommand: | # add a document
+        {
+            insert: "logs"
+            documents: [
+              { msg: "Added entry" }
+            ]
+        }

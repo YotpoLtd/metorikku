@@ -1,0 +1,19 @@
+{
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "main",
+    "workspaceFolder": "/workspace",
+    "postCreateCommand": [
+        "bash",
+        "/usr/local/bin/init_container.sh"
+    ],
+    "extensions": [
+		"mtxr.sqltools",
+		"adamhartford.vscode-base64",
+		"redhat.vscode-yaml",
+		"njpwerner.autodocstring",
+		"eamodio.gitlens",
+		"mtxr.sqltools-driver-pg",
+		"DavidAnson.vscode-markdownlint",
+		"scalameta.metals"
+	]
+}

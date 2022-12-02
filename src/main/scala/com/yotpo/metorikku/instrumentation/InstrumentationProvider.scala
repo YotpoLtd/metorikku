@@ -10,9 +10,9 @@ object InstrumentationProvider {
         case Some(influxDB) => {
           new InfluxDBInstrumentationFactory(appName.get, influxDB)
         }
-        case None => new NullInstrumentationFactory()
+        case None => new MemoryInstrumentationFactory()
       }
-      case None => new NullInstrumentationFactory()
+      case None => new MemoryInstrumentationFactory()
     }
   }
 }

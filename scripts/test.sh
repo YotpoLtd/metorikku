@@ -1,15 +1,30 @@
 #!/bin/bash
 set -e
 
-sbt +test
-(cd examples/udf && sbt +package)
+MAIN_DIR="$( cd "$( dirname "$0" )" && pwd )/.."
 
-for SCALA in "${SPARK2_SCALA_MAJOR_VERSION}" "${SCALA_MAJOR_VERSION}" ; do
-  echo "Testing metorikku with scala ${SCALA}"
-  # Metorikku main test example
-  java -Dspark.master=local[*] -cp target/scala-${SCALA}/metorikku-standalone_${SCALA}.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/movies_test.yaml
-  # Metorikku kafka test example
-  java -Dspark.master=local[*] -cp target/scala-${SCALA}/metorikku-standalone_${SCALA}.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/kafka/kafka2kafka_aggregations_test.yaml
-  # Test UDF example
-  java -Dspark.master=local[*] -cp target/scala-${SCALA}/metorikku-standalone_${SCALA}.jar:examples/udf/target/scala-${SCALA}/udf-example_${SCALA}-1.0.jar com.yotpo.metorikku.MetorikkuTester --test-settings examples/udf/udf_test.yaml
+TESTS_CONF_DIR=$MAIN_DIR/tests/config
+
+rm -Rf $MAIN_DIR/spark-warehouse $MAIN_DIR/metastore_db
+
+echo "################################"
+echo "Executing unit tests"
+echo "################################"
+sbt +test
+
+echo "################################"
+echo "Executing basic tests"
+echo "################################"
+
+spark-submit --class com.yotpo.metorikku.MetorikkuTester target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}.jar --test-settings examples/movies_test.yaml
+
+(cd examples/udf && sbt +package)
+spark-submit --class com.yotpo.metorikku.MetorikkuTester --jars examples/udf/target/scala-${SCALA_BINARY_VERSION}/udf-example_${SCALA_BINARY_VERSION}-1.0.jar target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}.jar --test-settings examples/udf/udf_test.yaml
+
+for d in $(ls $TESTS_CONF_DIR); do
+    echo "################################"
+    echo "Executing Integration test $d"
+    echo "################################"
+
+    spark-submit --class com.yotpo.metorikku.Metorikku target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}.jar -c $TESTS_CONF_DIR/$d/main.yaml
 done

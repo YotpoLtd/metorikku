@@ -11,3 +11,8 @@ e2e/*/output
 e2e/*/*/output
 e2e/*/warehouse
 e2e/*/*/warehouse
+
+.metals
+.bloop
+**/metals.sbt
+spark-warehouse

@@ -2,14 +2,10 @@ name := "udf-example"
 
 version := "1.0"
 
-crossScalaVersions := Seq("2.12.15", "2.11.12")
-scalaVersion := Option(System.getProperty("scalaVersion")).getOrElse("2.12.15")
+scalaVersion := Option(System.getProperty("scalaVersion")).getOrElse("2.12.17")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, scalaMajor)) if scalaMajor >= 12 => Option(System.getProperty("sparkVersion")).getOrElse("3.2.1")
-    case _ => "2.4.8"
-  }
+  Option(System.getenv("SPARK_VERSION")).getOrElse("3.1.3")
 }
 
 libraryDependencies ++= Seq(

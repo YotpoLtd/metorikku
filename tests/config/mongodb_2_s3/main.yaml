@@ -1,0 +1,37 @@
+# The MQL file path
+metrics:
+  - tests/config/mongodb_2_s3/main_metric.yaml
+
+inputs:
+  test_read_collection:
+    mongodb:
+      uri: mongodb://mongodb:27017
+      database: test
+      collection: test_read_collection
+      options:
+        ssl: false
+        ssl.domain_match: false
+        pipeline: |
+          {
+            $match: {
+              $and: [
+                {
+                  "value": {
+                    $gt: 5
+                  }
+                }
+              ]
+            }
+          }
+
+output:
+  file:
+    dir: s3://test-bucket/output
+
+explain: true
+
+logLevel: WARN
+
+appName: TestApp
+
+showPreviewLines: 10

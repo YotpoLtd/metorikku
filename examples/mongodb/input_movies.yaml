@@ -1,0 +1,28 @@
+metrics:
+  - examples/mongodb/input_movies_metrics.yaml
+
+inputs:
+  rated_movies:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: movies
+      collection: rated_movies
+      options:
+        ssl: false
+        ssl.domain_match: false
+        pipeline: |
+          {
+            $match: {
+              $and: [
+                {
+                  "movieid": {
+                    $lt: 2
+                  }
+                }
+              ]
+            }
+          }
+
+output:
+  file:
+    dir: target/parquet/output

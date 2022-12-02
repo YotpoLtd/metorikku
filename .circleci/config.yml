@@ -1,0 +1,165 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@2.0.6
+  github-cli: circleci/github-cli@2.1.0
+  slack: circleci/slack@4.1.3
+
+parameters:
+  ###############################################################
+  # Versioning vars
+  ###############################################################
+  git_main_branch:
+    type: string
+    default: "master"
+  git_release_prefix:
+    type: string
+    default: "releases"
+  ###############################################################
+  # Notification vars
+  ###############################################################
+  slack_channel:
+    type: string
+    default: "data-team-cicd"
+  ###############################################################
+  # Scala vars
+  ###############################################################
+  sbt_version:
+    type: string
+    default: "1.2.8"
+
+executors:
+  main-docker-executor:
+    docker:
+      - image: cimg/openjdk:11.0-node
+
+defaults-paramatetr-job: &defaults-paramatetr-job
+  executor: main-docker-executor
+  working_directory: ~/cdframework
+
+commands:
+  docker-compose-up:
+    description: Setup Docker
+    steps:
+      - run:
+          name: Start Docker Compose
+          command: |
+            LOCAL_DEV=FALSE docker-compose -f .devcontainer/docker-compose.yml up -d --build
+
+            docker ps
+
+            docker cp ./ $(docker ps -aqf "name=devcontainer-main-1"):/data
+  sbt-setup:
+    steps:
+      - run:
+          name: SBT setup
+          command: |
+            apt update && apt install -y curl
+
+            curl -L -o sbt-$SBT_VERSION.deb https://dl.bintray.com/sbt/debian/sbt-<< pipeline.parameters.sbt_version >>.deb
+            dpkg -i sbt-$SBT_VERSION.deb
+            rm sbt-$SBT_VERSION.deb
+
+            apt-get clean && apt-get autoclean
+  scala-build-flat:
+    steps:
+      - run:
+          name: Build flat zip
+          command: |
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/test.sh"
+
+            mkdir -p ./target
+            docker cp "$(docker ps -aqf "name=devcontainer-main-1"):/data/target/*.jar" ./target
+  scala-test:
+    description: Test execution
+    steps:
+      - run:
+          name: Execute Pytest
+          command: |
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/test.sh"
+  configure-git:
+    steps:
+      - run:
+          name: Configure Git
+          command: |
+            git config credential.helper 'cache --timeout=120'
+            git config user.email "$GITHUB_EMAIL"
+            git config user.name "CircleCI"
+  aws-profiles:
+    steps:
+      - run:
+          name: Setup AWS profiles
+          command: |
+            npx @syngenta-digital/acp --file $(pwd)/aws/profiles.yml
+
+            sudo apt update
+            sudo apt install -y less
+
+            aws sts get-caller-identity
+
+            cat ~/.aws/config
+            printenv
+  ###############################################################
+  # Versioning commands
+  ###############################################################
+  scala-release:
+    parameters:
+      release_type:
+        type: string
+    steps:
+      - run:
+          name: Publish release
+          command: |
+            sbt ci-release
+jobs:
+  perform-qa:
+    machine:
+      image: ubuntu-2204:2022.10.1
+      docker_layer_caching: true
+    resource_class: medium
+    steps:
+      - checkout
+      - docker-compose-up
+      - scala-setup
+      - scala-test
+  release:
+    <<: *defaults-paramatetr-job
+    parameters:
+      release_type:
+        type: string
+        default: ""
+    steps:
+      - checkout
+      - scala-setup
+      - configure-git
+      - setup-semantic-release
+      - scala-release:
+          release_type: "<<parameters.release_type>>"
+workflows:
+  release:
+    when:
+      or:
+        - equal: ["patch", "<<pipeline.parameters.release_type>>"]
+        - equal: ["minor", "<<pipeline.parameters.release_type>>"]
+        - equal: ["major", "<<pipeline.parameters.release_type>>"]
+    jobs:
+      - release:
+          context:
+            - shared-gemfury-tokens
+            - shared-github-token
+          release_type: "<<pipeline.parameters.release_type>>"
+          filters:
+            branches:
+              only:
+                - <<pipeline.parameters.git_main_branch>>
+                - /^<<pipeline.parameters.git_release_prefix>>\/v\d+\.\d+\.\d+$/
+  main:
+    when:
+      and:
+        - equal: ["EMPTY", "EMPTY<<pipeline.parameters.release_type>>"]
+        - equal: ["EMPTY", "EMPTY<<pipeline.git.tag>>"]
+    jobs:
+      - perform-qa:
+          context:
+            - shared-sonarcloud-token
+            - shared-gemfury-tokens

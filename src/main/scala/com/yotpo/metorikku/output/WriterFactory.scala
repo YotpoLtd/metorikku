@@ -10,6 +10,7 @@ import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputW
 import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
 import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
+import com.yotpo.metorikku.output.writers.mongodb.MongoDBOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
 import com.yotpo.metorikku.output.writers.segment.SegmentOutputWriter
 import com.yotpo.metorikku.output.writers.elasticsearch.ElasticsearchOutputWriter
@@ -41,6 +42,7 @@ object WriterFactory {
       case OutputType.Kafka => new KafkaOutputWriter(metricOutputOptions, output.kafka)
       case OutputType.Elasticsearch => new ElasticsearchOutputWriter(metricOutputOptions, output.elasticsearch.get)
       case OutputType.Catalog => new CatalogWriter(metricOutputOptions)
+      case OutputType.MongoDB => new MongoDBOutputWriter(metricOutputOptions, output.mongodb)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(metricOutputOptions.asInstanceOf[Map[String, String]])

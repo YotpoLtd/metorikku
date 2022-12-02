@@ -19,10 +19,21 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
   override def write(dataFrame: DataFrame): Unit = {
     jdbcConf match {
       case Some(jdbcConf) =>
+        props.get("preQuery") match {
+          case Some(query) =>
+            val conn = DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
+            val stmt = conn.prepareStatement(query)
+            stmt.execute()
+            stmt.close()
+            conn.close()
+          case _ =>
+        }
+
         val connectionProperties = new Properties()
         connectionProperties.put("user", jdbcConf.user)
         connectionProperties.put("password", jdbcConf.password)
         connectionProperties.put("driver", jdbcConf.driver)
+
         if (jdbcConf.truncate.isDefined) {
           connectionProperties.put("truncate", jdbcConf.truncate.get)
         }
