@@ -130,6 +130,8 @@ workflows:
             - shared-gemfury-tokens
             - shared-github-token
           filters:
+            branches:
+              ignore: /.*/
             tags:
               only: /^v\d+\.\d+\.\d+$/
   main:
