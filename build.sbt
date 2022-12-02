@@ -175,25 +175,7 @@ credentials += Credentials(
   sys.env.getOrElse("FURY_PKG_AUTH", "")
 )
 
-// Add sonatype repository settings
 publishTo := Some(Resolver.url("https://maven.fury.io/syngenta-digital/"))
-
-// Release settings (don't automatically publish upon release)
-import ReleaseTransformations._
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-//  publishArtifacts,
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
 
 Compile / assembly / artifact := {
   val art = (Compile / assembly / artifact).value
