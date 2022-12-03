@@ -203,7 +203,7 @@ releaseProcess := Seq[ReleaseStep](
   tagRelease,
   publishArtifacts,
   setNextVersion,
-  commitNextVersion
+  commitNextVersion,
   pushChanges
 )
 
