@@ -114,8 +114,10 @@ commands:
 
               exit 0
             fi
-          
-            sbt "bump-$RELEASE_TYPE"
+
+            export SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"
+
+            sbt bump-$RELEASE_TYPE
 jobs:
   perform-qa:
     machine:

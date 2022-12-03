@@ -1,13 +1,12 @@
+organization := "org.syngenta"
 name := "service-java-data-pipelines-metorikku"
-organization := "com.syngenta-digital"
+
 homepage := Some(
   url(
     "https://github.com/syngenta-digital/service-java-data-pipelines-metorikku"
   )
 )
-licenses := Seq(
-  "MIT License" -> url("http://www.opensource.org/licenses/mit-license.html")
-)
+
 scmInfo := Some(
   ScmInfo(
     url(
@@ -151,8 +150,8 @@ assembly / assemblyMergeStrategy := {
 Test / assembly / assemblyShadeRules := Seq(
   ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
 )
-assembly / assemblyJarName := s"${name.value}_${scalaBinaryVersion.value}.jar"
-Test / assembly / assemblyJarName := s"${name.value}-standalone_${scalaBinaryVersion.value}.jar"
+assembly / assemblyJarName := s"${name.value}_${scalaBinaryVersion.value}-${version.value}.jar"
+Test / assembly / assemblyJarName := s"${name.value}-standalone_${scalaBinaryVersion.value}-${version.value}.jar"
 assembly / assemblyOption := (assembly / assemblyOption).value
   .copy(cacheOutput = false)
 assembly / assemblyOption := (assembly / assemblyOption).value
@@ -168,14 +167,30 @@ Test / assembly / logLevel := Level.Error
 // Publish settings
 publishMavenStyle := true
 
+/*
+ Fury - DISABLE for now
+*/
+// publishTo := Some("maven.fury.io" at "https://maven.fury.io/syngenta-digital/")
+// credentials += Credentials(
+//   "maven.fury.io",
+//   "https://maven.fury.io/syngenta-digital/",
+//   sys.env.getOrElse("FURY_AUTH", ""),
+//   "NOPASS"
+// )
+
+
+/*
+  Github - ENABLE for now
+*/
+publishTo := Some("maven.pkg.github.com" at "https://maven.pkg.github.com/")
 credentials += Credentials(
-  "Gemfury Repository Manager",
-  "https://maven.fury.io/syngenta-digital/",
-  sys.env.getOrElse("FURY_PKG_AUTH", ""),
-  sys.env.getOrElse("FURY_PKG_AUTH", "")
+  "fury.io",
+  "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku",
+  sys.env.getOrElse("GITHUB_ACTOR", ""),
+  sys.env.getOrElse("GITHUB_TOKEN", "")
 )
 
-publishTo := Some(Resolver.url("https://maven.fury.io/syngenta-digital/"))
+ThisBuild / versionScheme := Some("early-semver")
 
 import ReleaseTransformations._
 
@@ -183,13 +198,12 @@ releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
   runClean,
-  runTest,
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
   publishArtifacts,
   setNextVersion,
-  commitNextVersion,
+  commitNextVersion
   pushChanges
 )
 

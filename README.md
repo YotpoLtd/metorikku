@@ -146,26 +146,21 @@ The subject contains succinct description of the change:
 The release process works as follow:
 
 - Update version number.
+- In case of *mayor* and *minor*, publish a new branch for later patching.
 - Upload artifacts to the artifactory server.
 
-[sbt-ci-release](https://github.com/sbt/sbt-ci-release) library is used to generate a new version.
+[sbt-release](https://github.com/sbt/sbt-release) library is used to generate a new version.
 
 In order to generate a new version:
 
-- Get the hash of a specific commit in Git.
-- Tag it setting values for *{VERSION_NUMER}* (**X.Y.Z**) and *{SOME_HASH}* (hash of the commit to use).
-
-    ```bash
-    GIT_HASH="{SOME_HASH}"
-    TAG_NAME="v{VERSION_NUMER}"
-
-    # Delete tag if needed
-    git tag -d $TAG_NAME 2> /dev/null && echo "Deleted tag $TAG_NAME"
-
-    git tag $TAG_NAME $GIT_HASH
-
-    git push --force origin $TAG_NAME
-    ```
+- Go to the [CircleCI project page](https://app.circleci.com/pipelines/github/syngenta-digital/infra-terraform-data-pipelines).
+- Filter the branch. Valid values are**master** or **releases/\***.
+- Click in *Trigger pipeline*.
+- Add **release_type** parameter with type *string* with one of these values:
+    - **patch**: generate a patch verion on **releases/\*** branches.
+    - **minor**: generate a minor version on **master** branch.
+    - **major** generate a mayor version on **master** branch.
+- Click again in *Trigger pipeline* button.
 
 ## How to use it
 
@@ -184,13 +179,13 @@ In order to generate a new version:
 3. Execute an example
 
     ```bash
-    spark-submit --class com.yotpo.metorikku.Metorikku target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}.jar -c examples/movies.yaml
+    spark-submit --class com.yotpo.metorikku.Metorikku target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}*.jar -c examples/movies.yaml
     ```
 
 4. Execute an test example
 
     ```bash
-    spark-submit --class com.yotpo.metorikku.MetorikkuTester target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}.jar -t examples/movies_test.yaml
+    spark-submit --class com.yotpo.metorikku.MetorikkuTester target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}*.jar -t examples/movies_test.yaml
     ```
 
 ## Other interesting local commands
