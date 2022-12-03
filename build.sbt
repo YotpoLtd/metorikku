@@ -167,19 +167,19 @@ Test / assembly / logLevel := Level.Error
 // Publish settings
 publishMavenStyle := true
 
-// publishTo := Some("maven.fury.io" at "https://maven.fury.io/syngenta-digital/")
+// publishTo := Some("fury" at "https://maven.fury.io/syngenta-digital/")
 // credentials += Credentials(
-//   "maven.fury.io",
+//   "fury",
 //   "maven.fury.io",
 //   sys.env.getOrElse("FURY_AUTH", ""),
 //   "NOPASS"
 // )
 
 publishTo := Some(
-  "maven.pkg.github.com" at "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku"
+  "GitHub Package Registry" at "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku"
 )
 credentials += Credentials(
-  "maven.pkg.github.com",
+  "GitHub Package Registry",
   "maven.pkg.github.com",
   sys.env.getOrElse("GITHUB_EMAIL", ""),
   sys.env.getOrElse("GITHUB_TOKEN", "")

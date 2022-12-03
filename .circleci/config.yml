@@ -61,7 +61,7 @@ commands:
           name: Sbt setup
           command: |
             cd $HOME
-          
+
             curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -q -y
   scala-build:
     steps:
@@ -114,8 +114,6 @@ commands:
 
               exit 0
             fi
-
-            export SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"
 
             sbt bump-$RELEASE_TYPE
 jobs:
