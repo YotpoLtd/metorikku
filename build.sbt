@@ -185,7 +185,7 @@ publishTo := Some("maven.pkg.github.com" at "https://maven.pkg.github.com/")
 credentials += Credentials(
   "maven.pkg.github.com",
   "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku",
-  sys.env.getOrElse("GITHUB_ACTOR", ""),
+  sys.env.getOrElse("GITHUB_EMAIL", ""),
   sys.env.getOrElse("GITHUB_TOKEN", "")
 )
 
