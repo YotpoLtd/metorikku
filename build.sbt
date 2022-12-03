@@ -169,7 +169,7 @@ publishMavenStyle := true
 
 /*
  Fury - DISABLE for now
-*/
+ */
 // publishTo := Some("maven.fury.io" at "https://maven.fury.io/syngenta-digital/")
 // credentials += Credentials(
 //   "maven.fury.io",
@@ -178,13 +178,12 @@ publishMavenStyle := true
 //   "NOPASS"
 // )
 
-
 /*
   Github - ENABLE for now
-*/
+ */
 publishTo := Some("maven.pkg.github.com" at "https://maven.pkg.github.com/")
 credentials += Credentials(
-  "fury.io",
+  "maven.pkg.github.com",
   "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku",
   sys.env.getOrElse("GITHUB_ACTOR", ""),
   sys.env.getOrElse("GITHUB_TOKEN", "")
