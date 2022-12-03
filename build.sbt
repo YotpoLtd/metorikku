@@ -167,27 +167,23 @@ Test / assembly / logLevel := Level.Error
 // Publish settings
 publishMavenStyle := true
 
-/*
- Fury - DISABLE for now
- */
-// publishTo := Some("maven.fury.io" at "https://maven.fury.io/syngenta-digital/")
-// credentials += Credentials(
-//   "maven.fury.io",
-//   "https://maven.fury.io/syngenta-digital/",
-//   sys.env.getOrElse("FURY_AUTH", ""),
-//   "NOPASS"
-// )
-
-/*
-  Github - ENABLE for now
- */
-publishTo := Some("maven.pkg.github.com" at "https://maven.pkg.github.com/")
+publishTo := Some("maven.fury.io" at "https://maven.fury.io/syngenta-digital/")
 credentials += Credentials(
-  "maven.pkg.github.com",
-  "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku",
-  sys.env.getOrElse("GITHUB_EMAIL", ""),
-  sys.env.getOrElse("GITHUB_TOKEN", "")
+  "maven.fury.io",
+  "maven.fury.io",
+  sys.env.getOrElse("FURY_AUTH", ""),
+  "NOPASS"
 )
+
+// publishTo := Some(
+//   "maven.pkg.github.com" at "https://maven.pkg.github.com/syngenta-digital/service-java-data-pipelines-metorikku"
+// )
+// credentials += Credentials(
+//   "maven.pkg.github.com",
+//   "maven.pkg.github.com",
+//   sys.env.getOrElse("GITHUB_EMAIL", ""),
+//   sys.env.getOrElse("GITHUB_TOKEN", "")
+// )
 
 ThisBuild / versionScheme := Some("early-semver")
 
