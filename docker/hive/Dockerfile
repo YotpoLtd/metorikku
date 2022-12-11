@@ -101,7 +101,7 @@ ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.
 RUN chmod 644 /prometheus/*.jar
 
 COPY init-hive.sh /
-COPY start-hive.sh /
+COPY start-*.sh /
 COPY run_hive_import.sh /
 COPY health-check.sh /
 COPY log4j2.json.properties .
