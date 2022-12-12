@@ -23,7 +23,7 @@ object MemoryInstrumentation extends InstrumentationProvider {
       Tuple3[Long, Map[String, String], Long]
     ]]
 
-  def clear() = {
+  def clear(): Unit = {
     countMetrics.clear()
     gagugeMetrics.clear()
   }

@@ -76,7 +76,7 @@ object ValidationRunner {
     }
   }
 
-  def clear() = {
+  def clear(): Unit = {
     verificationResults.clear()
   }
 
