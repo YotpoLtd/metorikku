@@ -11,7 +11,8 @@ class CatalogTable(tableName: String) {
   def setTableMetadata(ss: SparkSession, properties: Option[Map[String, Any]]): Unit = {
     properties match {
       case Some(metadata) => {
-        val properties = metadata.map { case (k: String,v: Any) => s"'$k'='${v.toString}'" }
+        val properties = metadata
+          .map { case (k: String, v: Any) => s"'$k'='${v.toString}'" }
           .mkString(",")
         ss.sql(s"ALTER TABLE $tableName SET TBLPROPERTIES ($properties)")
       }
@@ -19,15 +20,24 @@ class CatalogTable(tableName: String) {
     }
   }
 
-  def createOrUpdateExternalTable(dataFrame: DataFrame, filePath: String, partitionBy: Option[Seq[String]],
-                                  alwaysUpdateSchemaInCatalog: Boolean): Unit = {
-    val ss = dataFrame.sparkSession
+  def createOrUpdateExternalTable(
+      dataFrame: DataFrame,
+      filePath: String,
+      partitionBy: Option[Seq[String]],
+      alwaysUpdateSchemaInCatalog: Boolean
+  ): Unit = {
+    val ss      = dataFrame.sparkSession
     val catalog = ss.catalog
 
     if (catalog.tableExists(tableName)) {
-      overwriteExternalTableMetadata(ss = ss, tableName = tableName,
-        dataFrame = dataFrame, filePath = filePath,
-        alwaysUpdateSchemaInCatalog = alwaysUpdateSchemaInCatalog, partitionBy = partitionBy)
+      overwriteExternalTableMetadata(
+        ss = ss,
+        tableName = tableName,
+        dataFrame = dataFrame,
+        filePath = filePath,
+        alwaysUpdateSchemaInCatalog = alwaysUpdateSchemaInCatalog,
+        partitionBy = partitionBy
+      )
     } else {
       log.info(s"Creating new external table $tableName to path $filePath")
       catalog.createTable(tableName, filePath)
@@ -42,7 +52,10 @@ class CatalogTable(tableName: String) {
     catalog.refreshTable(tableName)
   }
 
-  private def removePartitionedByColumnsFromSchemaIfExists(dataFrame: DataFrame, partitionBy: Option[Seq[String]]): StructType = {
+  private def removePartitionedByColumnsFromSchemaIfExists(
+      dataFrame: DataFrame,
+      partitionBy: Option[Seq[String]]
+  ): StructType = {
     if (partitionBy.isDefined) {
       val partitionedByColumnsSet = partitionBy.get.toSet
       StructType(dataFrame.schema.filter(field => !partitionedByColumnsSet.contains(field.name)))
@@ -51,9 +64,14 @@ class CatalogTable(tableName: String) {
     }
   }
 
-  private def overwriteExternalTableMetadata(ss: SparkSession, tableName: String,
-                                     dataFrame: DataFrame, filePath: String,
-                                     alwaysUpdateSchemaInCatalog: Boolean, partitionBy: Option[Seq[String]]): Unit = {
+  private def overwriteExternalTableMetadata(
+      ss: SparkSession,
+      tableName: String,
+      dataFrame: DataFrame,
+      filePath: String,
+      alwaysUpdateSchemaInCatalog: Boolean,
+      partitionBy: Option[Seq[String]]
+  ): Unit = {
     log.info(s"Overwriting external table $tableName to new path $filePath")
     ss.sql(s"ALTER TABLE $tableName SET LOCATION '$filePath'")
     val catalog = ss.catalog
@@ -68,11 +86,9 @@ class CatalogTable(tableName: String) {
             tableInfo.tableName,
             schema
           )
+        } catch {
+          case e: Exception => log.info(s"Failed to update schema in hive: ${e.getMessage}")
         }
-        catch
-          {
-            case e: Exception => log.info(s"Failed to update schema in hive: ${e.getMessage}")
-          }
       }
       case false =>
     }

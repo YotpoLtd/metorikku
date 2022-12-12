@@ -1,0 +1,9 @@
+metrics:
+  - ./metric.json
+inputs:
+  employees:
+    file:
+      path: src/test/tables/employees.parquet
+output:
+  file:
+    dir: src/test/out/

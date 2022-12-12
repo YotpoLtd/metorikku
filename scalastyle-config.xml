@@ -66,7 +66,7 @@
   </parameters>
  </check>
  <check level="error" class="org.scalastyle.scalariform.NoWhitespaceBeforeLeftBracketChecker" enabled="true"></check>
- <check level="error" class="org.scalastyle.scalariform.NoWhitespaceAfterLeftBracketChecker" enabled="true"></check>
+ <check level="error" class="org.scalastyle.scalariform.NoWhitespaceAfterLeftBracketChecker" enabled="false"></check>
  <check level="error" class="org.scalastyle.scalariform.ReturnChecker" enabled="false"></check>
  <check level="error" class="org.scalastyle.scalariform.NullChecker" enabled="true"></check>
  <check level="error" class="org.scalastyle.scalariform.NoCloneChecker" enabled="true"></check>
@@ -98,7 +98,7 @@
  </check>
  <check level="error" class="org.scalastyle.scalariform.MethodLengthChecker" enabled="true">
   <parameters>
-   <parameter name="maxLength"><![CDATA[50]]></parameter>
+   <parameter name="maxLength"><![CDATA[60]]></parameter>
   </parameters>
  </check>
  <check level="error" class="org.scalastyle.scalariform.MethodNamesChecker" enabled="true">

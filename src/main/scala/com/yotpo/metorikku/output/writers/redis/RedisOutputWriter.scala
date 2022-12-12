@@ -22,7 +22,7 @@ class RedisOutputWriter(props: Map[String, String], sparkSession: SparkSession) 
 
   case class RedisOutputProperties(keyColumn: String)
 
-  val log = LogManager.getLogger(this.getClass)
+  val log                = LogManager.getLogger(this.getClass)
   val redisOutputOptions = RedisOutputProperties(props("keyColumn"))
 
   override def write(dataFrame: DataFrame): Unit = {
@@ -31,9 +31,13 @@ class RedisOutputWriter(props: Map[String, String], sparkSession: SparkSession) 
 
       import dataFrame.sparkSession.implicits._
 
-      val redisDF = dataFrame.na.fill(0).na.fill("")
-        .map(row => row.getAs[Any](redisOutputOptions.keyColumn).toString ->
-          JSONObject(row.getValuesMap(columns)).toString()
+      val redisDF = dataFrame.na
+        .fill(0)
+        .na
+        .fill("")
+        .map(row =>
+          row.getAs[Any](redisOutputOptions.keyColumn).toString ->
+            JSONObject(row.getValuesMap(columns)).toString()
         )
       log.info(s"Writting Dataframe into redis with key ${redisOutputOptions.keyColumn}")
       redisDF.sparkSession.sparkContext.toRedisKV(redisDF.toJavaRDD)

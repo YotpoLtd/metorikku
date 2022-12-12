@@ -8,7 +8,6 @@ import org.apache.spark.sql.{DataFrame, SaveMode}
 
 import java.sql.DriverManager
 
-
 class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) extends Writer {
 
   case class JDBCOutputProperties(saveMode: SaveMode, dbTable: String)
@@ -21,7 +20,8 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
       case Some(jdbcConf) =>
         props.get("preQuery") match {
           case Some(query) =>
-            val conn = DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
+            val conn =
+              DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
             val stmt = conn.prepareStatement(query)
             stmt.execute()
             stmt.close()
@@ -50,13 +50,15 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
           connectionProperties.put("sessionInitStatement", jdbcConf.sessionInitStatement.get)
         }
         var df = dataFrame
-        val writer = df.write.format(jdbcConf.driver)
+        val writer = df.write
+          .format(jdbcConf.driver)
           .mode(dbOptions.saveMode)
           .jdbc(jdbcConf.connectionUrl, dbOptions.dbTable, connectionProperties)
 
         props.get("postQuery") match {
           case Some(query) =>
-            val conn = DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
+            val conn =
+              DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
             val stmt = conn.prepareStatement(query)
             stmt.execute()
             stmt.close()

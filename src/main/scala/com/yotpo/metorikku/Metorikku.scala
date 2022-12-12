@@ -7,7 +7,7 @@ import org.apache.log4j.LogManager
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
   log.info("Starting Metorikku - Parsing configuration")
-  val config = ConfigurationParser.parse(args)
+  val config       = ConfigurationParser.parse(args)
   val sparkSession = Job.createSparkSession(config.appName, config.output)
 
   try {
@@ -21,20 +21,20 @@ object Metorikku extends App {
         runMetrics(job)
         try {
           job.instrumentationClient.close()
-        }
-        catch {
-          case e: Throwable => log.error(s"Got exception while closing connection to instrumentationClient", e)
+        } catch {
+          case e: Throwable =>
+            log.error(s"Got exception while closing connection to instrumentationClient", e)
         }
       }
     }
-  }  finally {
+  } finally {
     sparkSession.stop()
   }
 
   private def executePeriodicTask(periodic: Periodic, job: Job) = {
     val duration = periodic.getTriggerDurationInMillis()
 
-    while(true) {
+    while (true) {
       val start = System.currentTimeMillis
       log.info(s"Starting a periodic task at ${start}")
       sparkSession.catalog.clearCache()
@@ -52,10 +52,11 @@ object Metorikku extends App {
 
   def runMetrics(job: Job): Unit = {
     job.config.metrics match {
-      case Some(metrics) => metrics.foreach(metricSetPath => {
-        val metricSet = new MetricSet(metricSetPath)
-        metricSet.run(job)
-      })
+      case Some(metrics) =>
+        metrics.foreach(metricSetPath => {
+          val metricSet = new MetricSet(metricSetPath, job.config.configFile)
+          metricSet.run(job)
+        })
       case None => log.warn("No metrics were defined, exiting")
     }
   }

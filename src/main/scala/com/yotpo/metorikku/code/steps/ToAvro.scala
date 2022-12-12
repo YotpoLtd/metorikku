@@ -12,11 +12,28 @@ object ToAvro {
   val message = "You need to send the following parameters to output to Avro format:" +
     "table, schema.registry.url, schema.registry.topic, schema.name, schema.namespace " +
     "Will create an entry in the schema registry under: <schema.registry.topic>-value or <schema.registry.topic>-key"
-  private val ToAvroInputMatcher = new InputMatcher("table", "schema.registry.url", "schema.registry.topic",  "schema.name", "schema.namespace")
+  private val ToAvroInputMatcher = new InputMatcher(
+    "table",
+    "schema.registry.url",
+    "schema.registry.topic",
+    "schema.name",
+    "schema.namespace"
+  )
 
-  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
+  def run(
+      ss: org.apache.spark.sql.SparkSession,
+      metricName: String,
+      dataFrameName: String,
+      params: Option[Map[String, String]]
+  ): Unit = {
     params.get match {
-      case ToAvroInputMatcher(tableName, schemaRegistryUrl, schemaRegistryTopic, schemaName, schemaNamespace) => {
+      case ToAvroInputMatcher(
+            tableName,
+            schemaRegistryUrl,
+            schemaRegistryTopic,
+            schemaName,
+            schemaNamespace
+          ) => {
         val dataFrame = ss.table(tableName)
 
         val commonRegistryConfig = Map(
@@ -37,13 +54,13 @@ object ToAvro {
         // scalastyle:off null
         var avroDf: DataFrame = null
 
-        if(dataFrame.columns.contains("key")) {
+        if (dataFrame.columns.contains("key")) {
           avroDf = dataFrame.select(
             to_confluent_avro(col("key"), keyRegistryConfig) as 'key,
-            to_confluent_avro(col("value"), valueRegistryConfig) as 'value)
+            to_confluent_avro(col("value"), valueRegistryConfig) as 'value
+          )
         } else {
-          avroDf = dataFrame.select(
-            to_confluent_avro(col("value"), valueRegistryConfig) as 'value)
+          avroDf = dataFrame.select(to_confluent_avro(col("value"), valueRegistryConfig) as 'value)
         }
 
         avroDf.createOrReplaceTempView(dataFrameName)

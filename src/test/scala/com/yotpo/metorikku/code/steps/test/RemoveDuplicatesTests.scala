@@ -9,12 +9,14 @@ import org.scalatest.{FunSuite, _}
 
 //noinspection ScalaStyle
 class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
-  private val log: Logger = LogManager.getLogger(this.getClass)
+  private val log: Logger                = LogManager.getLogger(this.getClass)
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 
   override def beforeEach() {
-    sparkSession = SparkSession.builder().appName("udf tests")
+    sparkSession = SparkSession
+      .builder()
+      .appName("udf tests")
       .master("local")
       .config("", "")
       .getOrCreate()
@@ -35,9 +37,17 @@ class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with Before
     )
     employeeDataSrc.toDF("id", "employee_name").createOrReplaceTempView("employeeDataActual")
     employeeDataExpected.toDF("id", "employee_name").createOrReplaceTempView("employeeDataExpected")
-    RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual", "columns"->"id")))
+    RemoveDuplicates.run(
+      sparkSession,
+      "",
+      "employeeDataExpectedResult",
+      Some(Map("table" -> "employeeDataActual", "columns" -> "id"))
+    )
 
-    assertDataFrameEquals(sparkSession.table("employeeDataExpected"), sparkSession.table("employeeDataExpectedResult"))
+    assertDataFrameEquals(
+      sparkSession.table("employeeDataExpected"),
+      sparkSession.table("employeeDataExpectedResult")
+    )
 
   }
 
@@ -59,9 +69,17 @@ class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with Before
 
     employeeDataSrc.toDF("id", "employee_name").createOrReplaceTempView("employeeDataActual")
     employeeDataExpected.toDF("id", "employee_name").createOrReplaceTempView("employeeDataExpected")
-    RemoveDuplicates.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual")))
+    RemoveDuplicates.run(
+      sparkSession,
+      "",
+      "employeeDataExpectedResult",
+      Some(Map("table" -> "employeeDataActual"))
+    )
 
-    assertDataFrameEquals(sparkSession.table("employeeDataExpected"), sparkSession.table("employeeDataExpectedResult"))
+    assertDataFrameEquals(
+      sparkSession.table("employeeDataExpected"),
+      sparkSession.table("employeeDataExpectedResult")
+    )
 
   }
 

@@ -14,7 +14,7 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private val log = LogManager.getLogger(this.getClass)
   val sparkSession = session match {
     case Some(ss) => ss
-    case _ => Job.createSparkSession(config.appName, config.output)
+    case _        => Job.createSparkSession(config.appName, config.output)
   }
 
   val sparkContext = sparkSession.sparkContext
@@ -22,8 +22,8 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
   config.checkpointStorageLocation.map(path => sparkContext.setCheckpointDir(path))
 
   // Set up instrumentation
-  val instrumentationFactory = InstrumentationProvider.getInstrumentationFactory(
-    config.appName, config.instrumentation)
+  val instrumentationFactory =
+    InstrumentationProvider.getInstrumentationFactory(config.appName, config.instrumentation)
 
   val instrumentationClient = instrumentationFactory.create()
   sparkContext.addSparkListener(new SparkListener() {
@@ -54,14 +54,18 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private def setSparkLogLevel(logLevel: Option[String], sparkContext: SparkContext) {
     logLevel match {
       case Some(level) => sparkContext.setLogLevel(level)
-      case None =>
+      case None        =>
     }
   }
 
-  private def registerVariables(variables: Option[Map[String, String]], quoteVariables: Option[Boolean], sparkSession: SparkSession): Unit = {
+  private def registerVariables(
+      variables: Option[Map[String, String]],
+      quoteVariables: Option[Boolean],
+      sparkSession: SparkSession
+  ): Unit = {
     val sql = quoteVariables.get match {
       case true => "set %s='%s'"
-      case _ => "set %s=%s"
+      case _    => "set %s=%s"
     }
     variables.getOrElse(Map()).foreach { case (key, value) =>
       sparkSession.sql(sql.format(key, value))
@@ -86,17 +90,17 @@ object Job {
     output match {
       case Some(out) => {
         out.cassandra match {
-          case Some(cassandra) => CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandra)
+          case Some(cassandra) =>
+            CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandra)
           case None =>
         }
         out.redis match {
           case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redis)
-          case None =>
+          case None        =>
         }
       }
       case None =>
     }
-
 
     sparkSessionBuilder.getOrCreate()
   }

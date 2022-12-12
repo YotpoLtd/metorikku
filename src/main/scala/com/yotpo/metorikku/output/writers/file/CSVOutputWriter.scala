@@ -13,11 +13,13 @@ class CSVOutputWriter(var props: Map[String, Any], outputFile: Option[File]) ext
   val csvOptions = props.getOrElse("csvOptions", Map.empty).asInstanceOf[Map[String, String]]
 
   val extraOptions = props.getOrElse("extraOptions", Map.empty).asInstanceOf[Map[String, String]]
-  val options = defaultCSVOptions ++ csvOptions ++ extraOptions
+  val options      = defaultCSVOptions ++ csvOptions ++ extraOptions
 
-  val fileOutputWriter = new FileOutputWriter(props + (
-    "extraOptions"-> options,
-    "format" -> "csv"), outputFile)
+  val fileOutputWriter = new FileOutputWriter(
+    props + ("extraOptions" -> options,
+    "format"                -> "csv"),
+    outputFile
+  )
 
   override def write(dataFrame: DataFrame): Unit = {
     fileOutputWriter.write(dataFrame)

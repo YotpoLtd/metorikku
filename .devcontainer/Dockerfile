@@ -18,6 +18,7 @@ USER root
 RUN yum install -y \
     curl \
     git \
+    rsync \
     sudo \
     telnet \
     unzip \

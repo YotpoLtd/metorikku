@@ -7,9 +7,9 @@ abstract case class Operator(level: Option[String]) {
 
   def getLevel(level: String): CheckLevel.Value = {
     level match {
-      case "error" => CheckLevel.Error
+      case "error"            => CheckLevel.Error
       case "warn" | "warning" => CheckLevel.Warning
-      case _ => throw new IllegalArgumentException(s"Illegal DQ level")
+      case _                  => throw new IllegalArgumentException(s"Illegal DQ level")
     }
   }
 }

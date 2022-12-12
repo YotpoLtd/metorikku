@@ -7,30 +7,42 @@ import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
-  private var sparkSession : SparkSession = _
+  private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 
   override def beforeEach() {
-    sparkSession = SparkSession.builder().appName("dq tests")
+    sparkSession = SparkSession
+      .builder()
+      .appName("dq tests")
       .master("local")
       .config("", "")
       .getOrCreate()
   }
 
-  private def validateIsCompleteOverDf(employeeData: Seq[(String, Int, Integer, Int, Int)], level: String): Unit = {
-    val sqlContext = sparkSession.sqlContext
-    val isCompleteCheck = new IsComplete(level = Some(level),column = "salary")
-    val dqCheckDefinitionList = DataQualityCheckList(List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))), None, None)
+  private def validateIsCompleteOverDf(
+      employeeData: Seq[(String, Int, Integer, Int, Int)],
+      level: String
+  ): Unit = {
+    val sqlContext      = sparkSession.sqlContext
+    val isCompleteCheck = new IsComplete(level = Some(level), column = "salary")
+    val dqCheckDefinitionList = DataQualityCheckList(
+      List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))),
+      None,
+      None
+    )
     import sqlContext.implicits._
 
     val dfName = "employee_data"
-    val df = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
+    val df     = employeeData.toDF(dfName, "id", "salary", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
     dqCheckDefinitionList.runChecks(sparkSession, dfName)
   }
 
-  test("is_complete on a non-unique field with level error should raise exception",UnsupportedInCurrentVersion) {
+  test(
+    "is_complete on a non-unique field with level error should raise exception",
+    UnsupportedInCurrentVersion
+  ) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
       ("Maria", 2, Integer.valueOf(22), 222, 2222)
@@ -43,7 +55,10 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
 
-  test("is_complete on a unique field with level error should not raise exception",UnsupportedInCurrentVersion) {
+  test(
+    "is_complete on a unique field with level error should not raise exception",
+    UnsupportedInCurrentVersion
+  ) {
     val employeeData = Seq(
       ("James", 1, Integer.valueOf(11), 111, 1111),
       ("Maria", 2, Integer.valueOf(22), 222, 2222)
@@ -53,7 +68,10 @@ class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
     validateIsCompleteOverDf(employeeData, level)
   }
 
-  test("is_complete on a non-unique field with level warn should not raise exception",UnsupportedInCurrentVersion) {
+  test(
+    "is_complete on a non-unique field with level warn should not raise exception",
+    UnsupportedInCurrentVersion
+  ) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
       ("Maria", 2, Integer.valueOf(22), 222, 2222)

@@ -13,32 +13,33 @@ import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructTyp
 
 import scala.collection.mutable
 
-case class MongoDBInput(name: String,
-                        uri: String,
-                        database: String,
-                        collection: String,
-                        sampleSize: Option[String],
-                        partitionKey: Option[String],
-                        samplesPerPartition: Option[String],
-                        schemaPath: Option[String],
-                        options: Option[Map[String, String]]) extends Reader {
+case class MongoDBInput(
+    name: String,
+    uri: String,
+    database: String,
+    collection: String,
+    sampleSize: Option[String],
+    partitionKey: Option[String],
+    samplesPerPartition: Option[String],
+    schemaPath: Option[String],
+    options: Option[Map[String, String]]
+) extends Reader {
   def read(sparkSession: SparkSession): DataFrame = {
     var mongoDBOptions = Map(
-      "uri" -> uri,
-      "database" -> database,
-      "collection" -> collection,
-      "partitioner" -> "MongoSamplePartitioner",
-      "sampleSize" -> sampleSize.getOrElse("10000"),
+      "uri"                                    -> uri,
+      "database"                               -> database,
+      "collection"                             -> collection,
+      "partitioner"                            -> "MongoSamplePartitioner",
+      "sampleSize"                             -> sampleSize.getOrElse("10000"),
       "partitionerOptions.samplesPerPartition" -> samplesPerPartition.getOrElse("200"),
-      "partitionerOptions.partitionKey" -> partitionKey.getOrElse("_id")
+      "partitionerOptions.partitionKey"        -> partitionKey.getOrElse("_id")
     )
 
     mongoDBOptions ++= options.getOrElse(Map())
 
-
     val schema = schemaPath match {
       case Some(path) => SchemaConverter.convert(FileUtils.readFileWithHadoop(path))
-      case None => sparkSession.loadFromMongoDB(ReadConfig(mongoDBOptions)).schema
+      case None       => sparkSession.loadFromMongoDB(ReadConfig(mongoDBOptions)).schema
     }
 
     val df = buildDf(sparkSession, mongoDBOptions, schema)
@@ -49,7 +50,11 @@ case class MongoDBInput(name: String,
 object MongoDBInput {
   val BSONRegex = """\{ ?\"\$.*\" ?: ?\"?(.*?)\"? ?\}""".r
 
-  private def buildDf(sparkSession: SparkSession, options: Map[String, String], schema: StructType): DataFrame = {
+  private def buildDf(
+      sparkSession: SparkSession,
+      options: Map[String, String],
+      schema: StructType
+  ): DataFrame = {
     MongoSpark
       .builder()
       .sparkSession(sparkSession)
@@ -58,19 +63,18 @@ object MongoDBInput {
       .toDF(stringifySchema(schema))
   }
 
-  private def stringifySchema(schema : StructType): StructType = {
+  private def stringifySchema(schema: StructType): StructType = {
     val fields = mutable.ArrayBuffer[StructField]()
     schema.foreach(field => {
       field.dataType match {
-        case struct : StructType => {
+        case struct: StructType => {
           if (isSingleField(struct)) {
             fields += StructField(field.name, StringType)
-          }
-          else {
+          } else {
             fields += StructField(field.name, stringifySchema(struct))
           }
         }
-        case array : ArrayType => {
+        case array: ArrayType => {
           array.elementType match {
             case struct: StructType => {
               fields += StructField(field.name, ArrayType(stringifySchema(struct)))
@@ -84,11 +88,11 @@ object MongoDBInput {
     return StructType(fields)
   }
 
-  private def isSingleField(struct : StructType): Boolean = {
+  private def isSingleField(struct: StructType): Boolean = {
     struct.fields.size == 1
   }
 
-  private def sanitizeRow(row : Row): Row = {
+  private def sanitizeRow(row: Row): Row = {
     val sanitizedRow = mutable.ArrayBuffer[Any]()
 
     for (i <- 0 to row.size - 1) {
@@ -96,7 +100,7 @@ object MongoDBInput {
         case strValue: String => sanitizedRow += sanitizeObject(strValue)
         case subRow: Row => {
           row.schema(i).dataType match {
-            case struct : StructType => {
+            case struct: StructType => {
               if (isSingleField(struct)) {
                 sanitizedRow += sanitizeObject(subRow.get(0))
               } else {
@@ -106,17 +110,18 @@ object MongoDBInput {
             case _ => sanitizedRow += sanitizeObject(subRow.get(0))
           }
         }
-        case array : Seq[Any] => {
+        case array: Seq[Any] => {
           if (array.isEmpty) {
             sanitizedRow += array
-          }
-          else {
+          } else {
             array(0) match {
               case _: Row => {
                 val sanitizedSubRowArray = mutable.ArrayBuffer[Any]()
-                array.asInstanceOf[Seq[Row]].foreach(innerRow => {
-                  sanitizedSubRowArray += sanitizeRow(innerRow)
-                })
+                array
+                  .asInstanceOf[Seq[Row]]
+                  .foreach(innerRow => {
+                    sanitizedSubRowArray += sanitizeRow(innerRow)
+                  })
                 sanitizedRow += sanitizedSubRowArray
               }
               case _ => {
@@ -136,7 +141,7 @@ object MongoDBInput {
     Row.fromSeq(sanitizedRow)
   }
 
-  private def sanitizeObject(obj : Any): String = {
+  private def sanitizeObject(obj: Any): String = {
     if (obj == null) {
       // scalastyle:off null
       return null
@@ -146,7 +151,7 @@ object MongoDBInput {
     val str = obj.toString
     str match {
       case BSONRegex(innerValue) => innerValue
-      case default => default
+      case default               => default
     }
   }
 }

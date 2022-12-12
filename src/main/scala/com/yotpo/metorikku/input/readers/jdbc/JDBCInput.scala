@@ -16,15 +16,15 @@ case class JDBCInput(
 ) extends Reader {
   val MinNumberOfPartitions = 10
   val MaxNumberOfPartitions = 640
-  val TableSizeFactor = 1000000
+  val TableSizeFactor       = 1000000
 
   def read(sparkSession: SparkSession): DataFrame = {
     val baseDBOptions = Map(
-      "url" -> connectionUrl,
-      "user" -> user,
+      "url"      -> connectionUrl,
+      "user"     -> user,
       "password" -> password,
-      "driver" -> driver,
-      "dbtable" -> dbTable
+      "driver"   -> driver,
+      "dbtable"  -> dbTable
     )
 
     val extraOptions = partitionColumn match {
@@ -54,9 +54,9 @@ case class JDBCInput(
 
         Map(
           "partitionColumn" -> partitionColumn,
-          "lowerBound" -> "0",
-          "upperBound" -> maxId.toString,
-          "numPartitions" -> numPartitions.toString
+          "lowerBound"      -> "0",
+          "upperBound"      -> maxId.toString,
+          "numPartitions"   -> numPartitions.toString
         )
       }
 

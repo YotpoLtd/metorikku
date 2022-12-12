@@ -12,7 +12,9 @@ class CamelCaseColumnNamesTest extends FunSuite with DataFrameSuiteBase with Bef
   Logger.getLogger("org").setLevel(Level.WARN)
 
   override def beforeEach() {
-    sparkSession = SparkSession.builder().appName("udf tests")
+    sparkSession = SparkSession
+      .builder()
+      .appName("udf tests")
       .master("local")
       .config("", "")
       .getOrCreate()
@@ -26,11 +28,23 @@ class CamelCaseColumnNamesTest extends FunSuite with DataFrameSuiteBase with Bef
       ("James", 1),
       ("Maria", 2)
     )
-    employeeData.toDF("employee_name", "employee_salary").createOrReplaceTempView("employeeDataActual")
-    employeeData.toDF("employeeName", "employeeSalary").createOrReplaceTempView("employeeDataExpected")
-    CamelCaseColumnNames.run(sparkSession, "", "employeeDataExpectedResult", Some(Map("table" -> "employeeDataActual")))
+    employeeData
+      .toDF("employee_name", "employee_salary")
+      .createOrReplaceTempView("employeeDataActual")
+    employeeData
+      .toDF("employeeName", "employeeSalary")
+      .createOrReplaceTempView("employeeDataExpected")
+    CamelCaseColumnNames.run(
+      sparkSession,
+      "",
+      "employeeDataExpectedResult",
+      Some(Map("table" -> "employeeDataActual"))
+    )
 
-    assertDataFrameEquals(sparkSession.table("employeeDataExpected"), sparkSession.table("employeeDataExpectedResult"))
+    assertDataFrameEquals(
+      sparkSession.table("employeeDataExpected"),
+      sparkSession.table("employeeDataExpectedResult")
+    )
 
   }
 

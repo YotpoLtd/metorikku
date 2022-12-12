@@ -26,14 +26,14 @@ object ConfigurationParser {
       .validate(x => {
         if (x.exists(f => !Files.exists(Paths.get(f)))) {
           failure("One of the file is not found")
-        }
-        else {
+        } else {
           success
         }
       })
       .required()
-    opt[Int]('p', "preview").action((x, c) =>
-      c.copy(preview = x)).text("number of preview lines for each step")
+    opt[Int]('p', "preview")
+      .action((x, c) => c.copy(preview = x))
+      .text("number of preview lines for each step")
     help("help") text "use command line arguments to specify the settings for each metric set"
   }
 
@@ -43,7 +43,11 @@ object ConfigurationParser {
     CLIparser.parse(args, TesterArgs()) match {
       case Some(arguments) =>
         arguments.settings.map(fileName => {
-          TesterConfig(parseConfigurationFile(fileName), new File(fileName).getParentFile, arguments.preview)
+          TesterConfig(
+            parseConfigurationFile(fileName),
+            new File(fileName).getParentFile,
+            arguments.preview
+          )
         })
       case None => throw new MetorikkuException("Failed to parse config file")
     }
@@ -55,9 +59,9 @@ object ConfigurationParser {
         mapper.registerModule(DefaultScalaModule)
         mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
       }
-      case None => throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+      case None =>
+        throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
     }
   }
-
 
 }

@@ -9,25 +9,34 @@ import com.yotpo.metorikku.utils.FileUtils
 
 object StepFactory {
 
-  def getStepAction(configuration: Step, metricDir: Option[File], metricName: String,
-                    showPreviewLines: Int, cacheOnPreview: Option[Boolean],
-                    showQuery: Option[Boolean], dqConfigurator: DeequFactory): StepAction[_] = {
+  def getStepAction(
+      configuration: Step,
+      metricDir: Option[File],
+      metricName: String,
+      showPreviewLines: Int,
+      cacheOnPreview: Option[Boolean],
+      showQuery: Option[Boolean],
+      dqConfigurator: DeequFactory
+  ): StepAction[_] = {
     configuration.sql match {
 
-      case Some(expression) => Sql(expression,
-        configuration.dataFrameName,
-        showPreviewLines, cacheOnPreview,
-        showQuery,
-        dqConfigurator.generateDeequeList(configuration.dq),
-        configuration.checkpoint)
-
+      case Some(expression) =>
+        Sql(
+          expression,
+          configuration.dataFrameName,
+          showPreviewLines,
+          cacheOnPreview,
+          showQuery,
+          dqConfigurator.generateDeequeList(configuration.dq),
+          configuration.checkpoint
+        )
 
       case None => {
         configuration.file match {
           case Some(filePath) =>
             val path = metricDir match {
               case Some(dir) => new File(dir, filePath).getPath
-              case _ => filePath
+              case _         => filePath
             }
             Sql(
               FileUtils.readConfigurationFile(path),
@@ -36,14 +45,18 @@ object StepFactory {
               cacheOnPreview,
               showQuery,
               dqConfigurator.generateDeequeList(configuration.dq),
-              configuration.checkpoint)
+              configuration.checkpoint
+            )
 
           case None => {
             configuration.classpath match {
               case Some(cp) => {
                 Code(cp, metricName, configuration.dataFrameName, configuration.params)
               }
-              case None => throw MetorikkuException("Each step requires an SQL query or a path to a file (SQL/Scala)")
+              case None =>
+                throw MetorikkuException(
+                  "Each step requires an SQL query or a path to a file (SQL/Scala)"
+                )
             }
           }
         }

@@ -11,31 +11,38 @@ import scala.collection.mutable.ArrayBuffer
 
 //noinspection ScalaStyle
 class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
-  private val log: Logger = LogManager.getLogger(this.getClass)
-  private var sparkSession : SparkSession = _
+  private val log: Logger                = LogManager.getLogger(this.getClass)
+  private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 
   override def beforeEach() {
-    sparkSession = SparkSession.builder().appName("udf tests")
+    sparkSession = SparkSession
+      .builder()
+      .appName("udf tests")
       .master("local")
       .config("", "")
       .getOrCreate()
   }
 
   def getDfAsStr(df: DataFrame): String = {
-    val showString = classOf[org.apache.spark.sql.DataFrame].getDeclaredMethod("showString", classOf[Int], classOf[Int], classOf[Boolean])
+    val showString = classOf[org.apache.spark.sql.DataFrame]
+      .getDeclaredMethod("showString", classOf[Int], classOf[Int], classOf[Boolean])
     showString.setAccessible(true)
-    showString.invoke(df, 10.asInstanceOf[Object], 20.asInstanceOf[Object], false.asInstanceOf[Object]).asInstanceOf[String]
+    showString
+      .invoke(df, 10.asInstanceOf[Object], 20.asInstanceOf[Object], false.asInstanceOf[Object])
+      .asInstanceOf[String]
   }
 
   def assertSuccess(df1: DataFrame, df2: DataFrame, isEqual: Boolean): Unit = {
     val sortedSchemeArrBuff: ArrayBuffer[String] = ArrayBuffer[String]()
-    df1.schema.sortBy({f: StructField => f.name}).map({f: StructField => sortedSchemeArrBuff += f.name})
-    val sortedSchemeArr: Array[String] = sortedSchemeArrBuff.sortWith(_<_).toArray
+    df1.schema
+      .sortBy({ f: StructField => f.name })
+      .map({ f: StructField => sortedSchemeArrBuff += f.name })
+    val sortedSchemeArr: Array[String] = sortedSchemeArrBuff.sortWith(_ < _).toArray
 
-    val sortedMergedDf = df1.orderBy("table_key").select("table_key", sortedSchemeArr:_*)
-    val sortedExpectedDf = df2.orderBy("table_key").select("table_key", sortedSchemeArr:_*)
-    val equals = sortedMergedDf.except(sortedExpectedDf).isEmpty
+    val sortedMergedDf   = df1.orderBy("table_key").select("table_key", sortedSchemeArr: _*)
+    val sortedExpectedDf = df2.orderBy("table_key").select("table_key", sortedSchemeArr: _*)
+    val equals           = sortedMergedDf.except(sortedExpectedDf).isEmpty
 
     if (equals != isEqual) {
       if (!equals) {
@@ -43,8 +50,7 @@ class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
         log.error("Actual:\n" + getDfAsStr(sortedMergedDf))
         log.error("Expected:\n" + getDfAsStr(sortedExpectedDf))
         assert(false)
-      }
-      else {
+      } else {
         log.error("Actual and expected are equal (but expected to differ)")
         assert(false)
       }
@@ -52,7 +58,8 @@ class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
   }
 
   test("Load If table doesn't exist") {
-    val params: Option[Map[String, String]] = Option(Map("dfName" -> "testDf", "tableName" -> "missing_table"))
+    val params: Option[Map[String, String]] =
+      Option(Map("dfName" -> "testDf", "tableName" -> "missing_table"))
 
     val sparkSession = SparkSession.builder.appName("test").getOrCreate()
     import sparkSession.implicits._
@@ -64,10 +71,12 @@ class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
     val df = table.toDF("table_key", "value1", "value2", "value3", "value4")
     df.createOrReplaceTempView("testDf")
 
-
     LoadIfExists.run(sparkSession, "MetricName", "testDfResult", params)
-    assertSuccess(sparkSession.table("testDfResult"),
-                  sparkSession.createDataFrame(sparkSession.sparkContext.emptyRDD[Row], df.schema), true)
+    assertSuccess(
+      sparkSession.table("testDfResult"),
+      sparkSession.createDataFrame(sparkSession.sparkContext.emptyRDD[Row], df.schema),
+      true
+    )
   }
 
   test("Load If table exists") {

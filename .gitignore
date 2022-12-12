@@ -16,3 +16,5 @@ e2e/*/*/warehouse
 .bloop
 **/metals.sbt
 spark-warehouse
+.DS_Store
+**/.DS_Store

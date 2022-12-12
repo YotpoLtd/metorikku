@@ -3,13 +3,13 @@ package com.yotpo.metorikku.metric
 import com.yotpo.metorikku.metric.stepActions.dataQuality.DataQualityCheckList
 import org.apache.log4j.Logger
 
+class DeequFactory(
+    log: Logger,
+    failedDFLocation: Option[String] = None,
+    ignoreDeequeValidations: Option[Boolean] = None
+) {
 
-class DeequFactory(log: Logger,
-                   failedDFLocation: Option[String] = None,
-                   ignoreDeequeValidations: Option[Boolean] = None) {
-
-  def generateDeequeList(dq: Option[DataQualityCheckList]
-                 ): Option[DataQualityCheckList] = {
+  def generateDeequeList(dq: Option[DataQualityCheckList]): Option[DataQualityCheckList] = {
     ignoreDeequeValidations match {
       case Some(true) => {
         log.info("Skipping Deequ validations for this metric")

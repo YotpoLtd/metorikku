@@ -8,7 +8,7 @@ import org.apache.log4j.LogManager
 object MetricSet {
   type metricSetCallback = (String) => Unit
   private var beforeRun: Option[metricSetCallback] = None
-  private var afterRun: Option[metricSetCallback] = None
+  private var afterRun: Option[metricSetCallback]  = None
 
   def setBeforeRunCallback(callback: metricSetCallback) {
     beforeRun = Some(callback)
@@ -19,27 +19,36 @@ object MetricSet {
   }
 }
 
-class MetricSet(metricSet: String, write: Boolean = true) {
+class MetricSet(
+    metricSet: String,
+    jobPath: Option[String] = None,
+    write: Boolean = true
+) {
   val log = LogManager.getLogger(this.getClass)
 
-  val metrics: Seq[Metric] = parseMetrics(metricSet)
+  val metrics: Seq[Metric] = parseMetrics(metricSet, jobPath)
 
-  def parseMetrics(metricSet: String): Seq[Metric] = {
+  def parseMetrics(
+      metricSet: String,
+      jobPath: Option[String] = None
+  ): Seq[Metric] = {
     log.info(s"Starting to parse metricSet")
 
     FileUtils.isLocalDirectory(metricSet) match {
       case true => {
         val metricsToCalculate = FileUtils.getListOfLocalFiles(metricSet)
-        metricsToCalculate.filter(ConfigurationParser.isValidFile(_)).map(f => ConfigurationParser.parse(f.getPath))
+        metricsToCalculate
+          .filter(ConfigurationParser.isValidFile(_))
+          .map(f => ConfigurationParser.parse(f.getPath, jobPath))
       }
-      case false => Seq(ConfigurationParser.parse(metricSet))
+      case false => Seq(ConfigurationParser.parse(metricSet, jobPath))
     }
   }
 
   def run(job: Job) {
     MetricSet.beforeRun match {
       case Some(callback) => callback(metricSet)
-      case None =>
+      case None           =>
     }
 
     metrics.foreach(metric => {
@@ -50,14 +59,18 @@ class MetricSet(metricSet: String, write: Boolean = true) {
         metric.write(job)
       }
 
-      val endTime = System.nanoTime()
+      val endTime         = System.nanoTime()
       val elapsedTimeInNS = (endTime - startTime)
-      job.instrumentationClient.gauge(name="timer", value=elapsedTimeInNS, tags=Map("metric" -> metric.metricName))
+      job.instrumentationClient.gauge(
+        name = "timer",
+        value = elapsedTimeInNS,
+        tags = Map("metric" -> metric.metricName)
+      )
     })
 
     MetricSet.afterRun match {
       case Some(callback) => callback(metricSet)
-      case None =>
+      case None           =>
     }
   }
 }

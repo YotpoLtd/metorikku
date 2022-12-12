@@ -33,7 +33,7 @@ parameters:
   ###############################################################
   sbt_version:
     type: string
-    default: "1.6.2"
+    default: "1.8.0"
 
 executors:
   main-docker-executor:
@@ -54,7 +54,7 @@ commands:
 
             docker ps
 
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cp -R /workspace/* /data"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cp -R /workspace/* /workspace/.[^.]* /data > /dev/null"
   sbt-setup:
     steps:
       - run:
@@ -169,7 +169,3 @@ workflows:
           context:
             - shared-sonarcloud-token
             - shared-gemfury-tokens
-          filters:
-            branches:
-              only:
-                - <<pipeline.parameters.git_main_branch>>

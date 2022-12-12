@@ -16,8 +16,7 @@ case class EnrichedRow(row: Map[String, Any], index: Int) {
     if (row.keys != wantedKeys) {
       val wantedRow = wantedKeys.map(key => key -> row(key)).toMap
       EnrichedRow(wantedRow, index)
-    }
-    else {
+    } else {
       this
     }
   }
@@ -64,11 +63,16 @@ case class EnrichedRows(enrichedRows: List[EnrichedRow]) {
     EnrichedRows(enrichedRows :+ alignmentEnrichedRow)
   }
 
-  def toDF(resultsType: ResultsType.Value,
-           schemaColumns: List[String], sparkSession: SparkSession): DataFrame = {
+  def toDF(
+      resultsType: ResultsType.Value,
+      schemaColumns: List[String],
+      sparkSession: SparkSession
+  ): DataFrame = {
     val reducedEnrichedRows = resultsType match {
       case ResultsType.actual =>
-        enrichedRows.map(mapRes => mapRes.getRowSubsetByKeys(schemaColumns)) //remove undeclared columns
+        enrichedRows.map(mapRes =>
+          mapRes.getRowSubsetByKeys(schemaColumns)
+        ) // remove undeclared columns
       case _ => enrichedRows
     }
     val rowIdField = "row_number"
@@ -76,23 +80,37 @@ case class EnrichedRows(enrichedRows: List[EnrichedRow]) {
       ListMap[String, String](rowIdField -> (enrichedRow.index + 1).toString) ++
         enrichedRow.row.mapValues { v => if (v == null) "" else v.toString }
     })
-    val allSchemaKeys = (rowIdField +: schemaColumns)
-    val rowsOrdered = mapWithIndexes.map(m => allSchemaKeys.map(column => m(column)))
-    val rows = rowsOrdered.map(m => spark.sql.Row(m: _*))
+    val allSchemaKeys          = (rowIdField +: schemaColumns)
+    val rowsOrdered            = mapWithIndexes.map(m => allSchemaKeys.map(column => m(column)))
+    val rows                   = rowsOrdered.map(m => spark.sql.Row(m: _*))
     val x: java.util.List[Row] = rows.asJava
 
-    val schema = org.apache.spark.sql.types.StructType(allSchemaKeys.map(fieldName => StructField(fieldName, StringType, nullable = true)))
+    val schema = org.apache.spark.sql.types.StructType(
+      allSchemaKeys.map(fieldName => StructField(fieldName, StringType, nullable = true))
+    )
     sparkSession.createDataFrame(x, schema)
   }
 
-
-   def logErrorByResType(resType: ResultsType.Value, indexesOfErroredRows: Seq[Int],
-                         columns: List[String], sparkSession: SparkSession, tableName: String): Unit = {
-    log.warn(s"**********************  $tableName $resType results with Mismatches  ************************")
+  def logErrorByResType(
+      resType: ResultsType.Value,
+      indexesOfErroredRows: Seq[Int],
+      columns: List[String],
+      sparkSession: SparkSession,
+      tableName: String
+  ): Unit = {
+    log.warn(
+      s"**********************  $tableName $resType results with Mismatches  ************************"
+    )
     val indexesToCollect = indexesOfErroredRows.sorted
-    val subtableErrored = getSubTable(indexesToCollect)
-    val subDF = subtableErrored.toDF(resType, columns, sparkSession)
-    log.warn(TestUtil.dfToString(TestUtil.replaceColVal(subDF, "row_number", size().toString, "  "), indexesOfErroredRows.size + 1, truncate = false))
+    val subtableErrored  = getSubTable(indexesToCollect)
+    val subDF            = subtableErrored.toDF(resType, columns, sparkSession)
+    log.warn(
+      TestUtil.dfToString(
+        TestUtil.replaceColVal(subDF, "row_number", size().toString, "  "),
+        indexesOfErroredRows.size + 1,
+        truncate = false
+      )
+    )
   }
 }
 
@@ -102,18 +120,35 @@ object EnrichedRows {
     EnrichedRows(allRows.zipWithIndex.map { case (row, index) => EnrichedRow(row, index) })
   }
 
-  def logSubtableErrors(sortedExpectedResults: EnrichedRows, sortedActualResults: EnrichedRows,
-                        errorsIndexArrExpected: Seq[Int], errorsIndexArrActual: Seq[Int], redirectDfShowToLogger: Boolean,
-                        sparkSession: SparkSession, tableName: String): Unit = {
+  def logSubtableErrors(
+      sortedExpectedResults: EnrichedRows,
+      sortedActualResults: EnrichedRows,
+      errorsIndexArrExpected: Seq[Int],
+      errorsIndexArrActual: Seq[Int],
+      redirectDfShowToLogger: Boolean,
+      sparkSession: SparkSession,
+      tableName: String
+  ): Unit = {
     val expectedCols = sortedExpectedResults.getHeadRowKeys()
     if (errorsIndexArrExpected.nonEmpty) {
-      sortedExpectedResults.logErrorByResType(ResultsType.expected, errorsIndexArrExpected, expectedCols, sparkSession, tableName)
+      sortedExpectedResults.logErrorByResType(
+        ResultsType.expected,
+        errorsIndexArrExpected,
+        expectedCols,
+        sparkSession,
+        tableName
+      )
 
       if (errorsIndexArrActual.nonEmpty) {
-        sortedActualResults.logErrorByResType(ResultsType.actual, errorsIndexArrActual, expectedCols, sparkSession, tableName)
+        sortedActualResults.logErrorByResType(
+          ResultsType.actual,
+          errorsIndexArrActual,
+          expectedCols,
+          sparkSession,
+          tableName
+        )
       }
     }
   }
 
 }
-
