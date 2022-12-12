@@ -16,9 +16,9 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.collection.Seq
 
 case class Tester(config: TesterConfig) {
-  val log: Logger = LogManager.getLogger(this.getClass)
+  val log: Logger                 = LogManager.getLogger(this.getClass)
   val metricConfig: Configuration = createMetorikkuConfigFromTestSettings()
-  val job = Job(metricConfig)
+  val job                         = Job(metricConfig)
 
   def run(): Unit = {
     var errors = Array[String]()
@@ -51,8 +51,8 @@ case class Tester(config: TesterConfig) {
   }
 
   private def createMetorikkuConfigFromTestSettings(): Configuration = {
-    val metrics = getMetricFromDir(config.test.metric, config.basePath)
-    val params = config.test.params.getOrElse(Params(None))
+    val metrics   = getMetricFromDir(config.test.metric, config.basePath)
+    val params    = config.test.params.getOrElse(Params(None))
     val variables = params.variables
     val inputs =
       getMockFilesForStreamingInputs(config.test.mocks, config.basePath)
@@ -142,6 +142,7 @@ case class Tester(config: TesterConfig) {
     }
   }
 
+  // scalastyle:off method.length
   private def compareActualToExpected(metricName: String): Array[String] = {
     var errors = Array[ErrorMessage]()
     val (metricExpectedTests, configuredKeys) =
@@ -149,8 +150,9 @@ case class Tester(config: TesterConfig) {
     val invalidSchemaMap = getTableNameToInvalidRowStructureIndexes(
       metricExpectedTests
     )
-    if (invalidSchemaMap.nonEmpty)
+    if (invalidSchemaMap.nonEmpty) {
       return getInvalidSchemaErrors(invalidSchemaMap)
+    }
 
     metricExpectedTests.keys.foreach(tableName => {
       val actualResultsDf = extractTableContents(
@@ -181,7 +183,7 @@ case class Tester(config: TesterConfig) {
           tableName
         )
       }
-      val tableKeys = keys
+      val tableKeys  = keys
       val keyColumns = KeyColumns(tableKeys)
       val (expectedKeys, actualKeys) = (
         keyColumns.getKeysMapFromRows(expectedResults),
@@ -261,6 +263,7 @@ case class Tester(config: TesterConfig) {
     })
     errors.map(_.toString)
   }
+  // scalastyle:on method.length
 
   private def getTableNameToInvalidRowStructureIndexes(
       results: Map[String, List[Map[String, Any]]]
@@ -268,21 +271,20 @@ case class Tester(config: TesterConfig) {
     results.flatMap { case (tableName, tableRows) =>
       val columnNamesHeader = tableRows.head.keys.toList
 
-      val inconsistentRowsIndexes = tableRows.zipWithIndex.flatMap {
-        case (row, index) =>
-          val columnNames = row.keys.toList
-          columnNames match {
-            case _ if columnNames.sorted.equals(columnNamesHeader.sorted) =>
-              None
-            case _ =>
-              Option(
-                InvalidSchemaData(
-                  index,
-                  columnNamesHeader.diff(columnNames).sorted,
-                  columnNames.diff(columnNamesHeader).sorted
-                )
+      val inconsistentRowsIndexes = tableRows.zipWithIndex.flatMap { case (row, index) =>
+        val columnNames = row.keys.toList
+        columnNames match {
+          case _ if columnNames.sorted.equals(columnNamesHeader.sorted) =>
+            None
+          case _ =>
+            Option(
+              InvalidSchemaData(
+                index,
+                columnNamesHeader.diff(columnNames).sorted,
+                columnNames.diff(columnNamesHeader).sorted
               )
-          }
+            )
+        }
       }
 
       inconsistentRowsIndexes match {

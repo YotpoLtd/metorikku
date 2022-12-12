@@ -5,12 +5,22 @@ import org.apache.spark.sql.SparkSession
 import scala.reflect.runtime.universe._
 import scala.language.reflectiveCalls
 
-case class Code(objectClassPath: String, metricName: String, dataFrameName: String, params: Option[Map[String, String]]) extends StepAction[Unit] {
+case class Code(
+    objectClassPath: String,
+    metricName: String,
+    dataFrameName: String,
+    params: Option[Map[String, String]]
+) extends StepAction[Unit] {
   type MetorikkuCustomCode = {
-    def run(sparkSession: SparkSession, metric: String, step: String, params: Option[Map[String, String]]): Unit
+    def run(
+        sparkSession: SparkSession,
+        metric: String,
+        step: String,
+        params: Option[Map[String, String]]
+    ): Unit
   }
 
-  val rm = runtimeMirror(getClass.getClassLoader)
+  val rm     = runtimeMirror(getClass.getClassLoader)
   val module = rm.staticModule(objectClassPath)
 
   val obj = rm.reflectModule(module).instance.asInstanceOf[MetorikkuCustomCode]

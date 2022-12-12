@@ -15,11 +15,11 @@ object StreamingQueryMetricsListener {
   }
 }
 
-class StreamingQueryMetricsListener(instrumentationProvider: InstrumentationProvider) extends StreamingQueryListener {
+class StreamingQueryMetricsListener(instrumentationProvider: InstrumentationProvider)
+    extends StreamingQueryListener {
   @transient lazy val log = org.apache.log4j.LogManager.getLogger(this.getClass)
 
-  def onQueryStarted(event: QueryStartedEvent): Unit = {
-  }
+  def onQueryStarted(event: QueryStartedEvent): Unit = {}
 
   def onQueryTerminated(event: QueryTerminatedEvent): Unit = {
     event.exception match {
@@ -36,6 +36,9 @@ class StreamingQueryMetricsListener(instrumentationProvider: InstrumentationProv
     instrumentationProvider.gauge(name = "InputEventsCount", value = numInputRows)
 
     val processedRowsPerSecond = event.progress.processedRowsPerSecond
-    instrumentationProvider.gauge(name = "ProcessedEventsPerSecond", value = processedRowsPerSecond.toLong)
+    instrumentationProvider.gauge(
+      name = "ProcessedEventsPerSecond",
+      value = processedRowsPerSecond.toLong
+    )
   }
 }

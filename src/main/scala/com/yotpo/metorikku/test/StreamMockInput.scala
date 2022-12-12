@@ -12,10 +12,10 @@ class StreamMockInput(fileInput: File) extends File("", None, None, None, None) 
 
 case class StreamMockInputReader(val name: String, fileInput: File) extends Reader {
   def read(sparkSession: SparkSession): DataFrame = {
-    val df = fileInput.getReader(name).read(sparkSession)
-    implicit val encoder = RowEncoder(df.schema)
+    val df                  = fileInput.getReader(name).read(sparkSession)
+    implicit val encoder    = RowEncoder(df.schema)
     implicit val sqlContext = sparkSession.sqlContext
-    val stream = MemoryStream[Row]
+    val stream              = MemoryStream[Row]
     stream.addData(df.collect())
     stream.toDF()
   }

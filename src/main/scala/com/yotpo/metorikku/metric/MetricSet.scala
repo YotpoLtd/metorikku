@@ -8,7 +8,7 @@ import org.apache.log4j.LogManager
 object MetricSet {
   type metricSetCallback = (String) => Unit
   private var beforeRun: Option[metricSetCallback] = None
-  private var afterRun: Option[metricSetCallback] = None
+  private var afterRun: Option[metricSetCallback]  = None
 
   def setBeforeRunCallback(callback: metricSetCallback) {
     beforeRun = Some(callback)
@@ -59,7 +59,7 @@ class MetricSet(
         metric.write(job)
       }
 
-      val endTime = System.nanoTime()
+      val endTime         = System.nanoTime()
       val elapsedTimeInNS = (endTime - startTime)
       job.instrumentationClient.gauge(
         name = "timer",

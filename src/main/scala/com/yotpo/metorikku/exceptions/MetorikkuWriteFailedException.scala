@@ -1,5 +1,6 @@
 package com.yotpo.metorikku.exceptions
 
-case class MetorikkuWriteFailedException(private val message: String = "",
-                                         private val cause: Throwable = None.orNull)
-  extends Exception(message, cause)
+case class MetorikkuWriteFailedException(
+    private val message: String = "",
+    private val cause: Throwable = None.orNull
+) extends Exception(message, cause)

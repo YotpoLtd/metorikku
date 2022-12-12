@@ -6,12 +6,10 @@ import org.apache.log4j.LogManager
 
 object MetorikkuTester extends App {
   lazy val log = LogManager.getLogger(this.getClass)
-  val configs = ConfigurationParser.parse(args)
+  val configs  = ConfigurationParser.parse(args)
 
   configs.foreach(config => {
     Tester(config).run
   })
 
 }
-
-

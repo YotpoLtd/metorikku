@@ -17,14 +17,14 @@ object ConfigurationParser {
   private val localFileRegex = "\\./(.+)".r
 
   def isValidFile(path: File): Boolean = {
-    val fileName = path.getName
+    val fileName  = path.getName
     val extension = FilenameUtils.getExtension(fileName)
     validExtensions.contains(extension)
   }
 
   def parse(path: String, jobFile: Option[String]): Metric = {
     val hadoopPath = FileUtils.getHadoopPath(path)
-    val fileName = hadoopPath.getName
+    val fileName   = hadoopPath.getName
     val metricDir = FileUtils.isLocalFile(path) match {
       case true  => Option(new File(path).getParentFile)
       case false => None

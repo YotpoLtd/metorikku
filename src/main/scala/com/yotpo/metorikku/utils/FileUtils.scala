@@ -37,8 +37,15 @@ object FileUtils {
 
   def getObjectMapperByExtension(extension: String): Option[ObjectMapper] = {
     extension match {
-      case "json" => Option(new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
-      case "yaml" | "yml" | _ => Option(new ObjectMapper(new YAMLFactory()).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false))
+      case "json" =>
+        Option(
+          new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        )
+      case "yaml" | "yml" | _ =>
+        Option(
+          new ObjectMapper(new YAMLFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        )
     }
   }
 
@@ -55,16 +62,14 @@ object FileUtils {
     StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
   }
 
-  def getEnvProperties(): Map[String, String] =  {
+  def getEnvProperties(): Map[String, String] = {
     val envAndSystemProperties = System.getProperties().asScala ++= System.getenv().asScala
     envAndSystemProperties.toMap
   }
 
-  def getFilesPathPrefix(envProperties: Option[Map[String,String]]): Option[String] = {
+  def getFilesPathPrefix(envProperties: Option[Map[String, String]]): Option[String] = {
     envProperties.getOrElse(getEnvProperties()).get("CONFIG_FILES_PATH_PREFIX")
   }
-
-
 
   def getHadoopPath(path: String): HadoopPath = {
     val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
@@ -95,8 +100,8 @@ object FileUtils {
   def getFileFormat(path: String): String = {
     FileType.getFileType(path) match {
       case FileType.json | FileType.jsonl => "json"
-      case FileType.csv => "csv"
-      case _ => "parquet"
+      case FileType.csv                   => "csv"
+      case _                              => "parquet"
     }
   }
 }

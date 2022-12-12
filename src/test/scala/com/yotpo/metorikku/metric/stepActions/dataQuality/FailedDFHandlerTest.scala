@@ -64,7 +64,7 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     )
 
     val dfName = "employee_data"
-    val df = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
+    val df     = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
 
     val exception = intercept[Exception] {
@@ -114,7 +114,7 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     )
 
     val dfName = "employee_data"
-    val df = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
+    val df     = employeeData.toDF(dfName, "id", "name", "fake", "fake2")
     df.createOrReplaceTempView(dfName)
     var wasInvoked = false
 

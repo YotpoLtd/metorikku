@@ -8,7 +8,7 @@ object AlignTables {
   val message = "You need to send 2 parameters with the names of the dataframes to align: from, to"
 
   private def align(fromCols: Array[String], toCols: Array[String]): Array[Column] = {
-    toCols.map( {
+    toCols.map({
       case x if fromCols.contains(x) => col(x)
       // scalastyle:off null
       case y => lit(null).as(y)
@@ -16,14 +16,19 @@ object AlignTables {
     })
   }
 
-  def run(ss: org.apache.spark.sql.SparkSession, metricName: String, dataFrameName: String, params: Option[Map[String, String]]): Unit = {
+  def run(
+      ss: org.apache.spark.sql.SparkSession,
+      metricName: String,
+      dataFrameName: String,
+      params: Option[Map[String, String]]
+  ): Unit = {
     params match {
       case Some(parameters) =>
         val fromName = parameters("from")
-        val toName = parameters("to")
+        val toName   = parameters("to")
 
         val from = ss.table(fromName)
-        val to = ss.table(toName)
+        val to   = ss.table(toName)
 
         val aligned = from.select(align(from.columns, to.columns): _*)
         aligned.createOrReplaceTempView(dataFrameName)

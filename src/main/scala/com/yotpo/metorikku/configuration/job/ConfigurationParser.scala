@@ -2,10 +2,7 @@ package com.yotpo.metorikku.configuration.job
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.exceptions.{
-  MetorikkuException,
-  MetorikkuInvalidMetricFileException
-}
+import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser

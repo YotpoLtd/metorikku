@@ -5,9 +5,10 @@ import java.sql.Timestamp
 import org.scalatest.{FunSuite, Suites}
 import com.yotpo.metorikku.code.steps.functions.UserDefinedFunctions._
 
-class SerDefinedFunctionsTests extends Suites (
-  new EpochMilliToTimestampTest
-)
+class SerDefinedFunctionsTests
+    extends Suites(
+      new EpochMilliToTimestampTest
+    )
 
 class EpochMilliToTimestampTest extends FunSuite {
 

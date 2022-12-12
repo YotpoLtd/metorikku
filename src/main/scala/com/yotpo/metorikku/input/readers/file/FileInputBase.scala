@@ -6,7 +6,6 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 trait FileInputBase {
 
-
   def getFormat(format: Option[String], path: String): String = {
 
     format match {
@@ -15,29 +14,38 @@ trait FileInputBase {
         FileUtils.getFileFormat(path)
       }
     }
-   }
+  }
 
-  def getOptions(readFormat: String, options: Option[Map[String, String]]): Option[Map[String, String]] ={
+  def getOptions(
+      readFormat: String,
+      options: Option[Map[String, String]]
+  ): Option[Map[String, String]] = {
     readFormat match {
       case "csv" => {
-        Option(Map("quote" -> "\"",
-          "escape" -> "\"",
-          "quoteAll" -> "true",
-          "header" -> "true"
-        ) ++ options.getOrElse(Map()))
+        Option(
+          Map(
+            "quote"    -> "\"",
+            "escape"   -> "\"",
+            "quoteAll" -> "true",
+            "header"   -> "true"
+          ) ++ options.getOrElse(Map())
+        )
       }
       case _ => options
     }
   }
 
-  def processDF(df: DataFrame, readFormat: String): DataFrame ={
+  def processDF(df: DataFrame, readFormat: String): DataFrame = {
     readFormat match {
       case "csv" => df.na.fill("")
-      case _ => df
+      case _     => df
     }
   }
 
-  def getSchemaStruct(schemaPath: Option[String], sparkSession: SparkSession): Option[StructType] = {
+  def getSchemaStruct(
+      schemaPath: Option[String],
+      sparkSession: SparkSession
+  ): Option[StructType] = {
     schemaPath match {
       case Some(path) => {
         Option(SchemaConverter.convert(FileUtils.readFileWithHadoop(path)))
@@ -47,4 +55,3 @@ trait FileInputBase {
   }
 
 }
-

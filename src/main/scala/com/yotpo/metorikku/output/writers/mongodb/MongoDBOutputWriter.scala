@@ -88,8 +88,8 @@ class MongoDBOutputWriter(
         }
 
         var options = collection.mutable.Map[String, String](
-          "uri" -> mongoDBConf.uri,
-          "database" -> mongoDBProps.database,
+          "uri"        -> mongoDBConf.uri,
+          "database"   -> mongoDBProps.database,
           "collection" -> mongoDBProps.collection,
           "collection" -> mongoDBProps.collection
         )

@@ -9,39 +9,49 @@ object TestUtil {
 
   val log = LogManager.getLogger(this.getClass)
 
-  def getDuplicatedRowToIndexes(keys: Array[Map[String, String]]): Map[Map[String, String], List[Int]] = {
-    keys.zipWithIndex.groupBy(s => s._1).filter(x => x._2.length > 1).
-      mapValues(arrayOfTuples => arrayOfTuples.map(tupleIn => tupleIn._2).toList)
+  def getDuplicatedRowToIndexes(
+      keys: Array[Map[String, String]]
+  ): Map[Map[String, String], List[Int]] = {
+    keys.zipWithIndex
+      .groupBy(s => s._1)
+      .filter(x => x._2.length > 1)
+      .mapValues(arrayOfTuples => arrayOfTuples.map(tupleIn => tupleIn._2).toList)
   }
 
-  def flattenWithoutDuplications(array: Array[List[Int]]): List[Int] = array.flatten.groupBy(identity).keys.toList.sorted
+  def flattenWithoutDuplications(array: Array[List[Int]]): List[Int] =
+    array.flatten.groupBy(identity).keys.toList.sorted
 
   def getRowsFromDf(df: DataFrame): List[Map[String, Any]] = {
-    df.rdd.map {
-      dfRow =>
+    df.rdd
+      .map { dfRow =>
         dfRow.getValuesMap[Any](dfRow.schema.fieldNames)
-    }.collect().toList
+      }
+      .collect()
+      .toList
   }
-
 
   def getColToMaxLengthValue(rows: List[Map[String, Any]]): Map[String, Int] = {
     // the  keys of head result should be from the expected format
     // (actual results might have fields that are missing in the expected results (those fields need to be ignored)
-    rows.head.keys.map(colName => {
-      val valMaxLength = rows.maxBy(c => {
-        if (c(colName) == null) {
-          0
-        } else {
-          c(colName).toString.length
-        }
+    rows.head.keys
+      .map(colName => {
+        val valMaxLength = rows.maxBy(c => {
+          if (c(colName) == null) {
+            0
+          } else {
+            c(colName).toString.length
+          }
+        })
+        colName -> valMaxLength.get(colName).toString.length
       })
-      colName -> valMaxLength.get(colName).toString.length
-    }
-    ).toMap
+      .toMap
   }
 
-
-  def getMismatchedVals(expectedRow: Map[String, Any], actualRow: Map[String, Any], mismatchingCols: ArrayBuffer[String]): ArrayBuffer[String] = {
+  def getMismatchedVals(
+      expectedRow: Map[String, Any],
+      actualRow: Map[String, Any],
+      mismatchingCols: ArrayBuffer[String]
+  ): ArrayBuffer[String] = {
     var res = ArrayBuffer[String]()
     for (mismatchCol <- mismatchingCols) {
       res +:= s"${mismatchCol} - Expected = ${expectedRow(mismatchCol)}, Actual = ${actualRow(mismatchCol)}"
@@ -49,11 +59,14 @@ object TestUtil {
     res
   }
 
-  def getMismatchingColumns(actualRow: Map[String, Any], expectedRowCandidate: Map[String, Any]): ArrayBuffer[String] = {
+  def getMismatchingColumns(
+      actualRow: Map[String, Any],
+      expectedRowCandidate: Map[String, Any]
+  ): ArrayBuffer[String] = {
     var mismatchingCols = ArrayBuffer[String]()
     for (key <- expectedRowCandidate.keys) {
       val expectedValue = Option(expectedRowCandidate.get(key))
-      val actualValue = Option(actualRow.get(key))
+      val actualValue   = Option(actualRow.get(key))
       // TODO: support nested Objects and Arrays
       if (expectedValue.toString != actualValue.toString) {
         mismatchingCols += key
@@ -62,9 +75,17 @@ object TestUtil {
     mismatchingCols
   }
 
-  def replaceColVal(df: DataFrame, colName: String, currValStr: String, newValStr: String): DataFrame = {
-    df.withColumn(colName, when(col(colName).equalTo(currValStr), newValStr)
-      .otherwise(col(colName)))
+  def replaceColVal(
+      df: DataFrame,
+      colName: String,
+      currValStr: String,
+      newValStr: String
+  ): DataFrame = {
+    df.withColumn(
+      colName,
+      when(col(colName).equalTo(currValStr), newValStr)
+        .otherwise(col(colName))
+    )
   }
 
   def dfToString(df: DataFrame, size: Int, truncate: Boolean): String = {
