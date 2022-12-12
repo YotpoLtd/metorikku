@@ -119,7 +119,7 @@ class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
     var wasInvoked = false
 
     val runDq = () =>
-      ValidationRunner().runChecks(
+      ValidationRunner.runChecks(
         sparkSession,
         dfName,
         List(
