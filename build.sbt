@@ -127,16 +127,6 @@ Test / javaOptions ++= Seq(
 // Assembly settings
 Project.inConfig(Test)(baseAssemblySettings)
 
-Test / assembly / assemblyMergeStrategy := {
-  case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
-  case PathList("LICENSE", xs @ _*)               => MergeStrategy.discard
-  case PathList("META-INF", "services", xs @ _*) =>
-    MergeStrategy.filterDistinctLines
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case "log4j.properties"            => MergeStrategy.first
-  case _                             => MergeStrategy.first
-}
-
 assembly / assemblyMergeStrategy := {
   case m if m.toLowerCase.endsWith("manifest.mf") => MergeStrategy.discard
   case PathList("LICENSE", xs @ _*)               => MergeStrategy.discard
@@ -147,22 +137,12 @@ assembly / assemblyMergeStrategy := {
   case _                             => MergeStrategy.first
 }
 
-Test / assembly / assemblyShadeRules := Seq(
-  ShadeRule.rename("com.google.**" -> "shadeio.@1").inAll
-)
 assembly / assemblyJarName := s"${name.value}_${scalaBinaryVersion.value}-${version.value}.jar"
-Test / assembly / assemblyJarName := s"${name.value}-standalone_${scalaBinaryVersion.value}-${version.value}.jar"
 assembly / assemblyOption := (assembly / assemblyOption).value
   .copy(cacheOutput = false)
 assembly / assemblyOption := (assembly / assemblyOption).value
   .copy(cacheUnzip = false)
-Test / assembly / assemblyOption := (Test / assembly / assemblyOption).value
-  .copy(cacheOutput = false)
-Test / assembly / assemblyOption := (Test / assembly / assemblyOption).value
-  .copy(cacheUnzip = false)
-
 assembly / logLevel := Level.Error
-Test / assembly / logLevel := Level.Error
 
 // Publish settings
 publishMavenStyle := true
@@ -209,13 +189,6 @@ Compile / assembly / artifact := {
 
 addArtifact(Compile / assembly / artifact, assembly)
 
-Test / assembly / artifact := {
-  val art = (Test / assembly / artifact).value
-  art.withClassifier(Some("standalone"))
-}
-
-addArtifact(Test / assembly / artifact, Test / assembly)
-
 // Fix for SBT run to include the provided at runtime
 Compile / run := Defaults
   .runTask(
@@ -224,6 +197,8 @@ Compile / run := Defaults
     Compile / run / runner
   )
   .evaluated
+
+releaseNextCommitMessage := s"Setting version to ${(ThisBuild / version).value} [skip ci]"
 
 commands += Command.command("bump-patch") { state =>
   println("Bumping patch version!")

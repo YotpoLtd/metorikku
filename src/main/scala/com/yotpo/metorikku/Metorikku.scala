@@ -53,7 +53,7 @@ object Metorikku extends App {
   def runMetrics(job: Job): Unit = {
     job.config.metrics match {
       case Some(metrics) => metrics.foreach(metricSetPath => {
-        val metricSet = new MetricSet(metricSetPath)
+        val metricSet = new MetricSet(metricSetPath, job.config.configFile)
         metricSet.run(job)
       })
       case None => log.warn("No metrics were defined, exiting")

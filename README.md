@@ -11,7 +11,8 @@ The platform also includes a simple way to write unit and E2E tests.
 ## Changes from Original
 
 - Added compatibility with MongoDB (Input/Output).
-- Added MemoryInstrumentation for retrieving metrics from memory.
+- Metrics and Verification results are stored in memory for later used by other apps.
+- Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 3.0.
 
 ## Pre-requisites
@@ -196,8 +197,14 @@ In order to generate a new version:
     docker exec -it $(docker ps -aqf "name=service-java-data-pipelines-metorikku_devcontainer-postgres-1") bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
     ```
 
-1. Access to DocumentDB: (non vscode shell):
+2. Access to DocumentDB: (non vscode shell):
 
     ```bash
     docker exec -it $(docker ps -aqf "name=service-java-data-pipelines-metorikku_devcontainer-mongodb-1") bash -c 'mongo'
+    ```
+
+3. Creete package without testing:
+
+    ```bash
+    sbt 'set test in assembly := {}' clean assembly
     ```

@@ -1,0 +1,31 @@
+{
+  "steps": [
+    {
+      "sql": "select * from employees",
+      "dataFrameName": "testOutput",
+      "checkpoint": true
+    },
+    {
+      "sql": "select * from employees where name = 'ron'",
+      "dataFrameName": "filteredOutput"
+    }
+  ],
+  "output": [
+    {
+      "dataFrameName": "testOutput",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/metric_test/metric/testOutput/"
+      }
+    },
+    {
+      "dataFrameName": "filteredOutput",
+      "outputType": "Parquet",
+      "outputOptions": {
+        "saveMode": "Overwrite",
+        "path": "/metric_test/metric/filteredOutput/"
+      }
+    }
+  ]
+}
