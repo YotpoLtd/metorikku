@@ -76,6 +76,10 @@ object ValidationRunner {
     }
   }
 
+  def clear() = {
+    verificationResults.clear()
+  }
+
   def getResultNames(): List[String] = {
     return verificationResults.keys.toList
   }

@@ -23,6 +23,11 @@ object MemoryInstrumentation extends InstrumentationProvider {
       Tuple3[Long, Map[String, String], Long]
     ]]
 
+  def clear() = {
+    countMetrics.clear()
+    gagugeMetrics.clear()
+  }
+
   def getCountNames(
   ): List[String] = {
     return countMetrics.keys.toList
