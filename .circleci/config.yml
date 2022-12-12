@@ -169,7 +169,3 @@ workflows:
           context:
             - shared-sonarcloud-token
             - shared-gemfury-tokens
-          filters:
-            branches:
-              only:
-                - <<pipeline.parameters.git_main_branch>>
