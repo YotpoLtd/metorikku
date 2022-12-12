@@ -116,8 +116,6 @@ resolvers ++= Seq(
   "confluent" at "https://packages.confluent.io/maven/"
 )
 
-scalafmtOnCompile := true
-
 fork := true
 
 Test / javaOptions ++= Seq(
