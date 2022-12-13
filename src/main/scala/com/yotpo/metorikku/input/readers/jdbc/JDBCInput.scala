@@ -17,6 +17,8 @@ case class JDBCInput(
 ) extends Reader {
   val log = LogManager.getLogger(this.getClass)
 
+  private final val DEFAULT_PARITIONS = 100;
+
   def read(sparkSession: SparkSession): DataFrame = {
     val baseDBOptions = Map(
       "url"      -> connectionUrl,
@@ -45,17 +47,18 @@ case class JDBCInput(
         else { tableInfo(0).toString }
 
         val numPartitions =
-          if (partitionsNumber.isEmpty || partitionsNumber.get == 0) 100
-          else partitionsNumber.get
+          if (partitionsNumber.isEmpty || partitionsNumber.get == 0) { DEFAULT_PARITIONS }
+          else { partitionsNumber.get }
 
-        if (minId == null || maxId == null || minId.equals(maxId)) Map()
-        else
+        if (minId == null || maxId == null || minId.equals(maxId)) { Map() }
+        else {
           Map(
             "partitionColumn" -> partitionColumn,
             "lowerBound"      -> minId,
             "upperBound"      -> maxId,
             "numPartitions"   -> numPartitions.toString
           )
+        }
       }
 
       case _ => Map()
