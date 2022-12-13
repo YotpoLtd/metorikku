@@ -6,7 +6,9 @@ import org.apache.log4j.LogManager
 
 object Metorikku extends App {
   val log = LogManager.getLogger(this.getClass)
+
   log.info("Starting Metorikku - Parsing configuration")
+
   val config       = ConfigurationParser.parse(args)
   val sparkSession = Job.createSparkSession(config.appName, config.output)
 
