@@ -1,28 +1,29 @@
 create schema if not exists test;
 CREATE TABLE test.test_table (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    test_date DATE NOT NULL
 );
-INSERT INTO test.test_table (id, name)
-VALUES ('0001', 'NAME_0001');
-INSERT INTO test.test_table (id, name)
-VALUES ('0002', 'NAME_0002');
-INSERT INTO test.test_table (id, name)
-VALUES ('0003', 'NAME_0003');
-INSERT INTO test.test_table (id, name)
-VALUES ('0004', 'NAME_0004');
-INSERT INTO test.test_table (id, name)
-VALUES ('0005', 'NAME_0005');
-INSERT INTO test.test_table (id, name)
-VALUES ('0006', 'NAME_0006');
-INSERT INTO test.test_table (id, name)
-VALUES ('0007', 'NAME_0007');
-INSERT INTO test.test_table (id, name)
-VALUES ('0008', 'NAME_0008');
-INSERT INTO test.test_table (id, name)
-VALUES ('0009', 'NAME_0009');
-INSERT INTO test.test_table (id, name)
-VALUES ('0010', 'NAME_0010');
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0001', 'NAME_0001', date('2022-12-01'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0002', 'NAME_0002', date('2022-12-02'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0003', 'NAME_0003', date('2022-12-03'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0004', 'NAME_0004', date('2022-12-04'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0005', 'NAME_0005', date('2022-12-05'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0006', 'NAME_0006', date('2022-12-06'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0007', 'NAME_0007', date('2022-12-07'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0008', 'NAME_0008', date('2022-12-08'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0009', 'NAME_0009', date('2022-12-09'));
+INSERT INTO test.test_table (id, name, test_date)
+VALUES ('0010', 'NAME_0010', date('2022-12-10'));
 --- #############################################
 ---
 ---

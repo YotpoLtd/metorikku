@@ -9,9 +9,9 @@ inputs:
       user: "${POSTGRES_USER}"
       password: "${POSTGRES_PASSWORD}"
       driver: "org.postgresql.Driver"
-      dbTable: "(select id, name from test.test_table) as test_table"
-      partitionColumn: "id"
-      partitionsNumber: 0
+      dbTable: "(select id, name, test_date from test.test_table) as test_table"
+      partitionColumn: "test_date"
+      partitionsNumber: 100
 
 output:
   mongodb:

@@ -12,6 +12,7 @@ import com.yotpo.metorikku.input.readers.mongodb.MongoDBInput.sanitizeRow
 import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType, TimestampType}
 
 import scala.collection.mutable
+import org.apache.log4j.LogManager
 
 case class MongoDBInput(
     name: String,
@@ -49,12 +50,15 @@ case class MongoDBInput(
 
 object MongoDBInput {
   val BSONRegex = """\{ ?\"\$.*\" ?: ?\"?(.*?)\"? ?\}""".r
+  val log       = LogManager.getLogger(this.getClass)
 
   private def buildDf(
       sparkSession: SparkSession,
       options: Map[String, String],
       schema: StructType
   ): DataFrame = {
+    log.info(f"Using options: ${options}")
+
     MongoSpark
       .builder()
       .sparkSession(sparkSession)

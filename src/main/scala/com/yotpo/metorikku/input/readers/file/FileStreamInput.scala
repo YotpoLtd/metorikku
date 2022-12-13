@@ -3,6 +3,7 @@ package com.yotpo.metorikku.input.readers.file
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.log4j.LogManager
 
 case class FileStreamInput(
     name: String,
@@ -12,6 +13,7 @@ case class FileStreamInput(
     format: Option[String]
 ) extends Reader
     with FileInputBase {
+  val log = LogManager.getLogger(this.getClass)
   def read(sparkSession: SparkSession): DataFrame = {
     val readFormat  = getFormat(format, path)
     val reader      = sparkSession.readStream.format(readFormat)
@@ -30,6 +32,9 @@ case class FileStreamInput(
           FilesInput(name, Seq(path), options, schemaPath, format).read(sparkSession).schema
         )
     }
+
+    log.info(f"Using options: ${readOptions}")
+
     val df = reader.load(path)
 
     processDF(df, readFormat)

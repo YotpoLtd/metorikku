@@ -1,7 +1,7 @@
 steps:
   - dataFrameName: test_table_df
     sql: |
-      SELECT id, name
+      SELECT id, name, test_date
       FROM test_table
 output:
   - dataFrameName: test_table_df

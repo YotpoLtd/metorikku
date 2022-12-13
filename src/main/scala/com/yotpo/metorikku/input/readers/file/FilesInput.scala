@@ -1,6 +1,7 @@
 package com.yotpo.metorikku.input.readers.file
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.log4j.LogManager
 
 case class FilesInput(
     name: String,
@@ -10,6 +11,7 @@ case class FilesInput(
     format: Option[String]
 ) extends Reader
     with FileInputBase {
+  val log = LogManager.getLogger(this.getClass)
   def read(sparkSession: SparkSession): DataFrame = {
     val readFormat = getFormat(format, paths.head)
     val reader     = sparkSession.read.format(readFormat)
@@ -26,6 +28,8 @@ case class FilesInput(
       case Some(schemaStruct) => reader.schema(schemaStruct)
       case None               =>
     }
+
+    log.info(f"Using options: ${readOptions}")
 
     val df = reader.load(paths: _*)
 

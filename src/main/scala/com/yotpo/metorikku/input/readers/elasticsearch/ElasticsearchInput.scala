@@ -2,6 +2,7 @@ package com.yotpo.metorikku.input.readers.elasticsearch
 
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.log4j.LogManager
 
 case class ElasticsearchInput(
     name: String,
@@ -11,19 +12,23 @@ case class ElasticsearchInput(
     index: String,
     options: Option[Map[String, String]]
 ) extends Reader {
+  val log = LogManager.getLogger(this.getClass)
+
   def read(sparkSession: SparkSession): DataFrame = {
-    var elasticsearchOptions = Map("es.nodes" -> nodes)
+    var readOptions = Map("es.nodes" -> nodes)
 
     if (user.nonEmpty) {
-      elasticsearchOptions += ("es.net.http.auth.user" -> user.get)
+      readOptions += ("es.net.http.auth.user" -> user.get)
     }
     if (password.nonEmpty) {
-      elasticsearchOptions += ("es.net.http.auth.pass" -> password.get)
+      readOptions += ("es.net.http.auth.pass" -> password.get)
     }
-    elasticsearchOptions ++= options.getOrElse(Map())
+    readOptions ++= options.getOrElse(Map())
+
+    log.info(f"Using options: ${readOptions}")
 
     val dbTable =
-      sparkSession.read.format("org.elasticsearch.spark.sql").options(elasticsearchOptions)
+      sparkSession.read.format("org.elasticsearch.spark.sql").options(readOptions)
     dbTable.load(index)
   }
 }

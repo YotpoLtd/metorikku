@@ -2,6 +2,7 @@ package com.yotpo.metorikku.input.readers.jdbc
 
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.log4j.LogManager
 
 case class JDBCInput(
     val name: String,
@@ -14,9 +15,7 @@ case class JDBCInput(
     partitionColumn: Option[String],
     options: Option[Map[String, String]]
 ) extends Reader {
-  val MinNumberOfPartitions = 10
-  val MaxNumberOfPartitions = 640
-  val TableSizeFactor       = 1000000
+  val log = LogManager.getLogger(this.getClass)
 
   def read(sparkSession: SparkSession): DataFrame = {
     val baseDBOptions = Map(
@@ -34,39 +33,35 @@ case class JDBCInput(
           .options(baseDBOptions)
           .option(
             "dbtable",
-            s"(SELECT max(${partitionColumn}) AS maxId FROM $dbTable) tmp"
+            s"(SELECT max(${partitionColumn}) AS maxId, min(${partitionColumn}) AS minId FROM $dbTable) tmp"
           )
           .load
           .collect()(0)
 
-        val maxId =
-          if (tableInfo(0) == null) 0 else tableInfo(0).toString.toLong
+        val minId = if (tableInfo(1) == null) "" else tableInfo(1).toString
+        val maxId = if (tableInfo(0) == null) "" else tableInfo(0).toString
 
-        val numPartitions = partitionsNumber.getOrElse(0) match {
-          case 0 => {
+        val numPartitions =
+          if (partitionsNumber.isEmpty || partitionsNumber.get == 0) 100
+          else partitionsNumber.get
 
-            (maxId / TableSizeFactor)
-              .max(MinNumberOfPartitions)
-              .min(MaxNumberOfPartitions)
-          }
-          case numPartitions => numPartitions
-        }
-
-        Map(
-          "partitionColumn" -> partitionColumn,
-          "lowerBound"      -> "0",
-          "upperBound"      -> maxId.toString,
-          "numPartitions"   -> numPartitions.toString
-        )
+        if (minId == null || maxId == null || minId.equals(maxId)) Map()
+        else
+          Map(
+            "partitionColumn" -> partitionColumn,
+            "lowerBound"      -> minId,
+            "upperBound"      -> maxId,
+            "numPartitions"   -> numPartitions.toString
+          )
       }
 
       case _ => Map()
     }
 
-    val dbOptions = baseDBOptions ++ options.getOrElse(Map()) ++ extraOptions
+    val readOptions = baseDBOptions ++ options.getOrElse(Map()) ++ extraOptions
 
-    print(dbOptions)
+    log.info(f"Using options: ${readOptions}")
 
-    sparkSession.read.format("jdbc").options(dbOptions).load()
+    sparkSession.read.format("jdbc").options(readOptions).load()
   }
 }

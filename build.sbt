@@ -26,14 +26,6 @@ val jacksonVersion: Def.Initialize[String] = Def.setting {
   Option(System.getenv("JACKSON_VERSION")).getOrElse("2.12.7")
 }
 
-val sparkRedshiftVersion: Def.Initialize[String] = Def.setting {
-  "5.1.0"
-}
-
-val parquetVersion: Def.Initialize[String] = Def.setting {
-  "1.12.3"
-}
-
 val deequVersion: Def.Initialize[String] = Def.setting {
   "2.0.1-spark-3.2"
 }
@@ -91,14 +83,14 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module"  %% "jackson-module-scala"    % jacksonVersion.value % "provided",
   "org.apache.commons"             % "commons-text"            % "1.8",
   "org.influxdb"                   % "influxdb-java"           % "2.23",
-  "io.github.spark-redshift-community" %% "spark-redshift"            % sparkRedshiftVersion.value,
+  "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0"        % "provided",
   "com.segment.analytics.java"          % "analytics"                 % "2.1.1"        % "provided",
   "com.datastax.spark"                 %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
   "com.redislabs"                      %% "spark-redis"               % "3.1.0"        % "provided",
   "org.apache.kafka"                   %% "kafka"                     % "2.2.0"        % "provided",
   "za.co.absa" %% "abris" % "3.2.1" % "provided" excludeAll (excludeAvro, excludeSpark),
-  "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0"             % "provided",
-  "org.apache.parquet" % "parquet-avro"      % parquetVersion.value % "provided",
+  "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0" % "provided",
+  "org.apache.parquet" % "parquet-avro"      % "1.12.3" % "provided",
   "com.amazon.deequ" % "deequ"     % deequVersion.value excludeAll (excludeSpark, excludeScalanlp),
   "org.apache.avro"  % "avro"      % "1.11.1" % "provided",
   "com.databricks"  %% "spark-xml" % "0.15.0",
