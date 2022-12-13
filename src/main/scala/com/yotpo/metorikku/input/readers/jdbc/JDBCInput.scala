@@ -38,8 +38,11 @@ case class JDBCInput(
           .load
           .collect()(0)
 
-        val minId = if (tableInfo(1) == null) "" else tableInfo(1).toString
-        val maxId = if (tableInfo(0) == null) "" else tableInfo(0).toString
+        val minId = if (tableInfo(1) == null) {
+          ""
+        } else { tableInfo(1).toString }
+        val maxId = if (tableInfo(0) == null) { "" }
+        else { tableInfo(0).toString }
 
         val numPartitions =
           if (partitionsNumber.isEmpty || partitionsNumber.get == 0) 100
