@@ -29,7 +29,7 @@ case class FilesInput(
       case None               =>
     }
 
-    log.info(f"Using options: ${readOptions}")
+    log.debug(f"Using options: ${readOptions}")
 
     val df = reader.load(paths: _*)
 

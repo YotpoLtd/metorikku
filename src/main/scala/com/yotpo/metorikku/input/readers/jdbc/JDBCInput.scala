@@ -66,7 +66,7 @@ case class JDBCInput(
 
     val readOptions = baseDBOptions ++ options.getOrElse(Map()) ++ extraOptions
 
-    log.info(f"Using options: ${readOptions}")
+    log.debug(f"Using options: ${(readOptions - "password")}")
 
     sparkSession.read.format("jdbc").options(readOptions).load()
   }

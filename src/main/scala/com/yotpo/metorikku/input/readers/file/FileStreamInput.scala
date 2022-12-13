@@ -33,7 +33,7 @@ case class FileStreamInput(
         )
     }
 
-    log.info(f"Using options: ${readOptions}")
+    log.debug(f"Using options: ${readOptions}")
 
     val df = reader.load(path)
 

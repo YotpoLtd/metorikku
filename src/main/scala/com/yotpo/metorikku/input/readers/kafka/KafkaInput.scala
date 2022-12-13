@@ -52,7 +52,7 @@ case class KafkaInput(
       inputStream.options(options.get)
     }
 
-    log.info(f"Using options: ${options}")
+    log.debug(f"Using options: ${options}")
 
     val kafkaDataFrame = inputStream.load()
     schemaRegistryUrl match {

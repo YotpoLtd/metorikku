@@ -57,7 +57,7 @@ object MongoDBInput {
       options: Map[String, String],
       schema: StructType
   ): DataFrame = {
-    log.info(f"Using options: ${options}")
+    log.debug(f"Using options: ${(options - "uri")}")
 
     MongoSpark
       .builder()

@@ -25,7 +25,7 @@ case class ElasticsearchInput(
     }
     readOptions ++= options.getOrElse(Map())
 
-    log.info(f"Using options: ${readOptions}")
+    log.debug(f"Using options: ${readOptions - "es.net.http.auth.pass"}")
 
     val dbTable =
       sparkSession.read.format("org.elasticsearch.spark.sql").options(readOptions)

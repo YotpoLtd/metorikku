@@ -35,7 +35,7 @@ case class CassandraInput(
       "cluster"  -> name
     )
 
-    log.info(f"Using options: ${readOptions}")
+    log.debug(f"Using options: ${readOptions}")
 
     val dbTable = sparkSession.read
       .format("org.apache.spark.sql.cassandra")

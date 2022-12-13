@@ -48,7 +48,9 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
   StreamingQueryMetricsListener.init(sparkSession, instrumentationClient)
   setSparkLogLevel(config.logLevel, sparkContext)
   registerVariables(config.variables, config.quoteSparkVariables, sparkSession)
-  log.info(s"these are the config inputs: ${config.inputs}")
+
+  log.debug(s"These are the config inputs: ${config.inputs}")
+
   registerDataframes(config.getReaders, sparkSession)
 
   private def setSparkLogLevel(logLevel: Option[String], sparkContext: SparkContext) {
