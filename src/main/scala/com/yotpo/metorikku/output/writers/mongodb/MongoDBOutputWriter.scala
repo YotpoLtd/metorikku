@@ -35,8 +35,26 @@ class MongoDBOutputWriter(
     SaveMode.valueOf(props.get("saveMode").getOrElse("Append")),
     props("database"),
     props("collection"),
-    props.get("ssl").asInstanceOf[Option[Boolean]],
-    props.get("ssl.domain_match").asInstanceOf[Option[Boolean]]
+    mongoDBConf
+      .map(
+        _.options
+          .get
+          .get("ssl")
+          .asInstanceOf[Option[String]]
+          .map(_.toBoolean)
+          .asInstanceOf[Option[Boolean]]
+      )
+      .get,
+    mongoDBConf
+      .map(
+        _.options
+          .get
+          .get("ssl.domain_match")
+          .asInstanceOf[Option[String]]
+          .map(_.toBoolean)
+          .asInstanceOf[Option[Boolean]]
+      )
+      .get
   )
 
   private def executeCommand(
