@@ -12,9 +12,8 @@ if [[ ! -f "$INIT_FILE" ]]; then
     stty echo
 
     ln -s /home/${USER}/.cache/pypoetry/virtualenvs/* /home/${USER}/.cache/pypoetry/virtualenvs/venv
-
-    mv /home/glue_user/spark/conf/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.glue
-    mv /home/glue_user/spark/conf/hive-site.xml.local /home/glue_user/spark/conf/hive-site.xml
+    
+    sed -i '/SetEnv/d' "$HOME/.ssh/config"
     
     touch "$INIT_FILE"
 fi

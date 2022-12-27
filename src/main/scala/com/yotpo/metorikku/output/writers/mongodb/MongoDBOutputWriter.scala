@@ -38,7 +38,7 @@ class MongoDBOutputWriter(
     mongoDBConf
       .map(
         _.options
-          .get
+          .getOrElse(Map())
           .get("ssl")
           .asInstanceOf[Option[String]]
           .map(_.toBoolean)
@@ -48,7 +48,7 @@ class MongoDBOutputWriter(
     mongoDBConf
       .map(
         _.options
-          .get
+          .getOrElse(Map())
           .get("ssl.domain_match")
           .asInstanceOf[Option[String]]
           .map(_.toBoolean)
