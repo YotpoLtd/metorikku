@@ -12,3 +12,5 @@ output:
   outputType: Dynamodb
   outputOptions:
     tableName: movies
+    options:
+      dynamodb.endpoint: dynamodb:8000

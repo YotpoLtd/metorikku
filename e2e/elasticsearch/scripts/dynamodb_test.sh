@@ -1,8 +1,9 @@
 #!/bin/bash
 DYNAMODB=${DYNAMODB:=dynamodb:8000}
+TABLE_NAME=movies
 
 runQuery() {
-    curl -X GET "http://${DYNAMODB}/movies"
+    aws dynamodb scan --table-name $TABLE_NAME --endpoint-url $DYNAMODB
 }
 
 results=$(runQuery)

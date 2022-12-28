@@ -1,0 +1,46 @@
+version: '3'
+services:
+  spark-submit:
+    image: metorikku/metorikku:spark2_standalone
+    environment:
+      - SUBMIT_COMMAND=spark-submit --packages com.audienceproject:spark-dynamodb_2.12:1.1.2 --class com.yotpo.metorikku.Metorikku metorikku.jar -c examples/dynamodb/movies.yaml
+    entrypoint:
+      - /scripts/entrypoint-submit.sh
+    depends_on:
+      - spark-master
+      - spark-worker
+  spark-master:
+    image: metorikku/metorikku:spark2_standalone
+    entrypoint:
+      - /scripts/entrypoint-master.sh
+    logging:
+      driver: none
+  spark-worker:
+    image: metorikku/metorikku:spark2_standalone
+    entrypoint:
+      - /scripts/entrypoint-worker.sh
+    logging:
+      driver: none
+  dynamodb:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  dynamodb-tester:
+    image: "circleci/buildpack-deps:stretch-curl"
+    volumes:
+      - ./scripts:/scripts
+      - ./mocks:/mocks
+    command: /scripts/dynamodb_test.sh
+    environment:
+      - MOCK_OUTPUT=/mocks/movies.json
+      - DEBUG=true
+  dynamodb-init:
+    image: "circleci/buildpack-deps:stretch-curl"
+    volumes:
+      - ./scripts:/scripts
+    command: /scripts/dynamodb_init.sh
+    environment: {}
