@@ -53,7 +53,6 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
         val writer = df.write
           .format("io.github.spark_redshift_community.spark.redshift")
           .option("url", redshiftDBConf.jdbcURL)
-          .option("forward_spark_s3_credentials", true)
           .option("tempdir", redshiftDBConf.tempS3Dir)
           .option("dbtable", dbOptions.dbTable)
           .mode(dbOptions.saveMode)
@@ -66,6 +65,10 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
         }
         if (!dbOptions.extraCopyOptions.isEmpty) {
           writer.option("extracopyoptions", dbOptions.extraCopyOptions)
+        }
+        redshiftDBConf.awsIAMRole match {
+          case Some(awsIAMRole) => writer.option("aws_iam_role", awsIAMRole)
+          case _                => writer.option("forward_spark_s3_credentials", true)
         }
 
         dbOptions.extraOptions match {

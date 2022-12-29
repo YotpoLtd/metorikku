@@ -98,6 +98,7 @@ output:
   redshift:
     jdbcURL: jdbc:redshift://<IP>:<PORT>/file?user=username&password=pass
     tempS3Dir: s3://path/to/redshift/temp/dir/
+    awsIAMRole: <your-aws-role-arn>
   # Redis Database arguments: host is mandatory. port, auth and db are supported
   redis:
     host: hostname
