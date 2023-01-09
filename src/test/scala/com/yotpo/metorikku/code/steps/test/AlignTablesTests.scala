@@ -3,10 +3,11 @@ package com.yotpo.metorikku.code.steps.test
 import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import com.yotpo.metorikku.code.steps.AlignTables
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{FunSuite, _}
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
 //noinspection ScalaStyle
-class AlignTablesTests extends FunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
+class AlignTablesTests extends AnyFunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
 
   private var sparkSession: SparkSession = _
 

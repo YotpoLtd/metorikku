@@ -5,10 +5,11 @@ import com.yotpo.metorikku.code.steps.RemoveDuplicates
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{FunSuite, _}
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
 //noinspection ScalaStyle
-class RemoveDuplicatesTests extends FunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
+class RemoveDuplicatesTests extends AnyFunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
   private val log: Logger                = LogManager.getLogger(this.getClass)
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)

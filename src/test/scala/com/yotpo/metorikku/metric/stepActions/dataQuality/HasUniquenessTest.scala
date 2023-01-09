@@ -5,9 +5,10 @@ import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasUniquenes
 import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.{BeforeAndAfterEach}
+import org.scalatest.funsuite.AnyFunSuite
 
-class HasUniquenessTest extends FunSuite with BeforeAndAfterEach {
+class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 

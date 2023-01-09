@@ -3,10 +3,11 @@ package com.yotpo.metorikku.code.steps.test
 import com.yotpo.metorikku.code.steps.{ToAvro}
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{FunSuite, _}
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
 //noinspection ScalaStyle
-class ToAvroTests extends FunSuite with BeforeAndAfterEach {
+class ToAvroTests extends AnyFunSuite with BeforeAndAfterEach {
   private val log: Logger                = LogManager.getLogger(this.getClass)
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)

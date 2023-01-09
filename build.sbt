@@ -19,7 +19,7 @@ scmInfo := Some(
 scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.17")
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
-  Option(System.getenv("SPARK_VERSION")).getOrElse("3.1.3")
+  Option(System.getenv("SPARK_VERSION")).getOrElse("3.3.1")
 }
 
 val jacksonVersion: Def.Initialize[String] = Def.setting {
@@ -31,7 +31,7 @@ val deequVersion: Def.Initialize[String] = Def.setting {
 }
 
 val sparkTestVersion: Def.Initialize[String] = Def.setting {
-  "3.1.2_1.1.2"
+  "3.3.1_1.3.0"
 }
 
 Test / testOptions := Seq(
@@ -69,33 +69,33 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-streaming"      % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-avro"           % sparkVersion.value % "provided",
-  "com.holdenkarau" %% "spark-testing-base" % sparkTestVersion.value % "test" excludeAll excludeSpark,
+  "com.holdenkarau" %% "spark-testing-base" % sparkTestVersion.value % "test" excludeAll (excludeSpark),
   "com.github.scopt" %% "scopt"         % "3.7.1",
   "org.scala-lang"    % "scala-library" % scalaVersion.value,
   "com.typesafe.play" %% "play-json" % "2.9.3" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.core" % "jackson-core"        % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.core" % "jackson-databind"    % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8"   % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % jacksonVersion.value % "provided",
-  "com.fasterxml.jackson.module"  %% "jackson-module-scala"    % jacksonVersion.value % "provided",
-  "org.apache.commons"             % "commons-text"            % "1.8",
-  "org.influxdb"                   % "influxdb-java"           % "2.23",
-  "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0"        % "provided",
-  "com.segment.analytics.java"          % "analytics"                 % "2.1.1"        % "provided",
-  "com.datastax.spark"                 %% "spark-cassandra-connector" % "3.0.0-alpha2" % "provided",
-  "com.redislabs"                      %% "spark-redis"               % "3.1.0"        % "provided",
-  "org.apache.kafka"                   %% "kafka"                     % "2.2.0"        % "provided",
+  "com.fasterxml.jackson.core"          % "jackson-annotations"       % jacksonVersion.value,
+  "com.fasterxml.jackson.core"          % "jackson-core"              % jacksonVersion.value,
+  "com.fasterxml.jackson.core"          % "jackson-databind"          % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat"    % "jackson-dataformat-cbor"   % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat"    % "jackson-dataformat-yaml"   % jacksonVersion.value,
+  "com.fasterxml.jackson.datatype"      % "jackson-datatype-jdk8"     % jacksonVersion.value,
+  "com.fasterxml.jackson.datatype"      % "jackson-datatype-jsr310"   % jacksonVersion.value,
+  "com.fasterxml.jackson.module"       %% "jackson-module-scala"      % jacksonVersion.value,
+  "org.apache.commons"                  % "commons-text"              % "1.8",
+  "org.influxdb"                        % "influxdb-java"             % "2.23",
+  "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0",
+  "com.segment.analytics.java"          % "analytics"                 % "2.1.1" % "provided",
+  "com.datastax.spark"                 %% "spark-cassandra-connector" % "3.2.0" % "provided",
+  "com.redislabs"                      %% "spark-redis"               % "3.1.0" % "provided",
+  "org.apache.kafka"                   %% "kafka"                     % "2.2.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1" % "provided" excludeAll (excludeAvro, excludeSpark),
   "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0" % "provided",
   "org.apache.parquet" % "parquet-avro"      % "1.12.3" % "provided",
   "com.amazon.deequ" % "deequ"     % deequVersion.value excludeAll (excludeSpark, excludeScalanlp),
   "org.apache.avro"  % "avro"      % "1.11.1" % "provided",
-  "com.databricks"  %% "spark-xml" % "0.15.0",
+  "com.databricks"  %% "spark-xml" % "0.16.0",
   "com.outr"        %% "hasher"    % "1.2.2",
-  "org.mongodb.spark"       %% "mongo-spark-connector" % "3.0.2"  % "provided",
+  "org.mongodb.spark"       %% "mongo-spark-connector" % "3.0.2",
   "mysql"                    % "mysql-connector-java"  % "8.0.31" % "provided",
   "org.apache.logging.log4j" % "log4j-api"             % "2.19.0" % "provided",
   "org.apache.logging.log4j" % "log4j-core"            % "2.19.0" % "provided",

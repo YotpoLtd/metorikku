@@ -13,7 +13,7 @@ The platform also includes a simple way to write unit and E2E tests.
 - Added compatibility with MongoDB (Input/Output).
 - Metrics and Verification results are stored in memory for later used by other apps.
 - Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
-- Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 3.0.
+- Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
 
 ## Pre-requisites
 
@@ -207,4 +207,10 @@ In order to generate a new version:
 
     ```bash
     sbt 'set test in assembly := {}' clean assembly
+    ```
+
+4. Delete devcontainer containers (non vscode shell):
+
+    ```bash
+    docker rm -f $(docker ps -aqf "name=service-java-data-pipelines-metorikku_")
     ```

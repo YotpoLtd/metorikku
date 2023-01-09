@@ -1,75 +1,90 @@
-ARG GLUE_IMAGE_VERSION=3.0.0_image_01
+FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04
 
-FROM amazon/aws-glue-libs:glue_libs_${GLUE_IMAGE_VERSION}
-
-ARG USERNAME=glue_user
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-ARG LOCAL_DEV=true
-
-ENV AWS_REGION=eu-central-1
-
-ENV SCALA_VERSION=2.12.17
-ENV SCALA_BINARY_VERSION=2.12
-ENV SBT_VERSION=1.2.8
+SHELL ["/bin/bash", "-c"]
 
 USER root
 
-RUN yum install -y \
-    curl \
-    git \
-    rsync \
-    sudo \
-    telnet \
-    unzip \
-    vim \
-    zip
+ARG USERNAME=vscode
 
-RUN usermod -aG wheel $USERNAME && \
-    echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers
+RUN apt-get update \
+    && apt-get install -y curl \
+                          git \
+                          gnupg2 \
+                          jq \
+                          software-properties-common \
+                          telnet \
+                          unzip \
+                          vim \
+                          wget \
+                          zip
 
-ADD .devcontainer/install_gnupg22.sh /usr/local/bin/
-RUN test "$LOCAL_DEV" == "TRUE" && \
-    yum install -y \
-    gnupg2 && \
-    bash /usr/local/bin/install_gnupg22.sh || bash -c true
+# Install Python
+ARG PYTHON_VERSION="3.10"
+
+RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt install -y python$PYTHON_VERSION python3-pip
+
+# Install sudo
+RUN apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
 RUN test "$LOCAL_DEV" != "TRUE" && \
     mkdir -p /data && chown -R $USERNAME:$USER_GID /data || bash -c true
 
 USER $USERNAME
-WORKDIR /workspace
+WORKDIR "/home/${USERNAME}"
+ENV HOME="/home/${USERNAME}"
 
-# Fix MongoDB bug
-RUN mv /home/glue_user/aws-glue-libs/jars/mongo-java-driver-3.10.1.jar /home/glue_user/aws-glue-libs/jars/mongo-java-driver-3.10.1.jar.old
+# Install Java & related
+RUN curl -s "https://get.sdkman.io?rcupdate=false" | bash
+
+ARG JDK_VERSION="11"
+ARG SCALA_VERSION="2.12.17"
+ENV SCALA_BINARY_VERSION="2.12"
+ARG MAVEN_VERSION="3.8.7"
+ARG SBT_VERSION="1.8.0"
+
+RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
+    && FINAL_JDK_VERSION=$(sdk list java | sed -En 's/.+ ('${JDK_VERSION}'(.+)-amzn).*/\1/p') \
+    && sdk install java "$FINAL_JDK_VERSION" \
+    && sdk install scala "$SCALA_VERSION" \
+    && sdk install sbt "$SBT_VERSION" \
+    && sdk install maven "$MAVEN_VERSION"
+
+# Install aws-glue-libs
+ARG AWS_GLUE_SPARK_URL="https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-4.0/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0.tgz"
+ARG AWS_GLUE_VERSION="4.0"
+
+RUN wget -qO- "$AWS_GLUE_SPARK_URL" | tar zxf - 2>/dev/null \
+    && mv build/spark spark && rm -Rf build
+
+RUN wget -qO- "https://github.com/awslabs/aws-glue-libs/archive/refs/tags/v$AWS_GLUE_VERSION.tar.gz" | tar zxf - 2>/dev/null \
+    && mv aws-glue-libs-* aws-glue-libs \
+    && python3 -m pip install boto3 pytest
+
+RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
+    && cd aws-glue-libs \
+    && mvn clean package dependency:copy-dependencies \
+    && mkdir conf
 
 # Other stuff
 ADD .devcontainer/init_container.sh /usr/local/bin/
 
-ADD .devcontainer/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.local
+# Configure profile
+RUN echo 'alias python=python3' >> "${HOME}/.profile"
+RUN echo 'export PATH="${HOME}/aws-glue-libs/bin:${HOME}/spark/bin:${PATH}":${HOME}/.local/bin' >> "${HOME}/.profile"
+RUN echo 'export SPARK_HOME="${HOME}/spark"' >> "${HOME}/.profile"
+RUN echo 'export AWS_REGION=eu-central-1' >> "${HOME}/.profile"
+RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> "${HOME}/.profile"
 
-RUN mv /home/glue_user/spark/conf/hive-site.xml /home/glue_user/spark/conf/hive-site.xml.bck && \
-    mv /home/glue_user/spark/conf/hive-site.xml.local /home/glue_user/spark/conf/hive-site.xml
-
-USER root
-
-# Install JDK, Scala and SBT
-RUN yum install -y java-1.8.0-amazon-corretto-devel
-
-RUN curl -fsL "https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz" | tar xfz - -C /usr/share && \
-    chown -R root:root /usr/share/sbt && \
-    chmod -R 755 /usr/share/sbt && \
-    ln -s /usr/share/sbt/bin/sbt /usr/local/bin/sbt
-
-RUN curl -fsL https://downloads.typesafe.com/scala/$SCALA_VERSION/scala-$SCALA_VERSION.tgz | tar xfz - -C /usr/share && \
-    mv /usr/share/scala-$SCALA_VERSION /usr/share/scala && \
-    chown -R root:root /usr/share/scala && \
-    chmod -R 755 /usr/share/scala && \
-    ln -s /usr/share/scala/bin/* /usr/local/bin
-
+ENV AWS_REGION="eu-central-1"
 ENV SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"
 
+# Init aws-glue-libs
+ADD .devcontainer/glue-setup.sh "${HOME}/aws-glue-libs/bin/glue-setup.sh"
+ADD .devcontainer/hive-site.xml "${HOME}/aws-glue-libs/conf/hive-site.xml"
 
-
-# Clean up
-USER $USERNAME
+RUN source "$HOME/.profile" \
+    && bash "$HOME/aws-glue-libs/bin/glue-setup.sh"

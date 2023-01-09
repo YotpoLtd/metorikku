@@ -4,10 +4,11 @@ import com.holdenkarau.spark.testing.DataFrameSuiteBase
 import com.yotpo.metorikku.code.steps.CamelCaseColumnNames
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{FunSuite, _}
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
 //noinspection ScalaStyle
-class CamelCaseColumnNamesTest extends FunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
+class CamelCaseColumnNamesTest extends AnyFunSuite with DataFrameSuiteBase with BeforeAndAfterEach {
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 

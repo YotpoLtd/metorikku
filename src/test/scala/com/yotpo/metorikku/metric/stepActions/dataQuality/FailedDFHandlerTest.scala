@@ -3,9 +3,10 @@ package com.yotpo.metorikku.metric.stepActions.dataQuality
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasUniqueness
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.{BeforeAndAfterEach}
+import org.scalatest.funsuite.AnyFunSuite
 
-class FailedDFHandlerTest extends FunSuite with BeforeAndAfterEach {
+class FailedDFHandlerTest extends AnyFunSuite with BeforeAndAfterEach {
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 

@@ -9,13 +9,11 @@ import com.yotpo.metorikku.code.steps.obfuscate.{
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.scalatest.{BeforeAndAfterEach, FunSpec, MustMatchers}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.must.Matchers._
+import org.scalatest.funspec.AnyFunSpec
 
-class ObfuscateColumnsTests
-    extends FunSpec
-    with MustMatchers
-    with BeforeAndAfterEach
-    with DataFrameSuiteBase {
+class ObfuscateColumnsTests extends AnyFunSpec with BeforeAndAfterEach with DataFrameSuiteBase {
   private var sparkSession: SparkSession = _
   private val defaultSchema = StructType(
     List(

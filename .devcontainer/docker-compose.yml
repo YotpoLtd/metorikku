@@ -3,7 +3,7 @@ version: '3.7'
 x-environment:
   &default-environment
   LOCAL_DEV: "TRUE"
-  POSTGRES_USER: glue_user
+  POSTGRES_USER: vscode
   POSTGRES_PASSWORD: none
   POSTGRES_DB: mio
   AWS_ACCESS_KEY_ID: minio
@@ -17,15 +17,15 @@ services:
       context: ..
       dockerfile: .devcontainer/Dockerfile
       args:
-        - USERNAME=glue_user
+        - USERNAME=vscode
         - LOCAL_DEV=${LOCAL_DEV:-TRUE}
     environment:
       <<: *default-environment
-    user: glue_user
-    command: -c "sleep infinity"
+    user: vscode
+    command: "sleep infinity"
     volumes:
       - ../:/workspace
-      - ${HOME}/.aws:/home/glue_user/.aws:ro
+      - ${HOME}/.aws:/home/vscode/.aws:ro
       - ${HOME}/.gnupg/public.key:/tmp/.gnupg/public.key:ro
       - ${HOME}/.gnupg/private.key:/tmp/.gnupg/private.key:ro
       - ${HOME}/.ssh:/tmp/.ssh:ro

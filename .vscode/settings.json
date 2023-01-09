@@ -1,5 +1,6 @@
 {
     "files.watcherExclude": {
         "**/target": true
-    }
+    },
+    "metals.javaHome": "/home/vscode/.sdkman/candidates/java/current/"
 }

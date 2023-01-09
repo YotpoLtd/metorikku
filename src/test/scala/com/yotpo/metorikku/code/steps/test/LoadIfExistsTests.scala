@@ -5,12 +5,13 @@ import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.log4j.{Level, LogManager, Logger}
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.scalatest.{FunSuite, _}
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 
 import scala.collection.mutable.ArrayBuffer
 
 //noinspection ScalaStyle
-class LoadIfExistsTests extends FunSuite with BeforeAndAfterEach {
+class LoadIfExistsTests extends AnyFunSuite with BeforeAndAfterEach {
   private val log: Logger                = LogManager.getLogger(this.getClass)
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)

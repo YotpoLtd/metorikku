@@ -12,9 +12,10 @@ import com.yotpo.metorikku.configuration.test.ConfigurationParser.{
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.{Assertion, BeforeAndAfterAll, FunSuite}
+import org.scalatest.{Assertion, BeforeAndAfterAll}
+import org.scalatest.funsuite.AnyFunSuite
 
-class MetorikkuTest extends FunSuite with BeforeAndAfterAll {
+class MetorikkuTest extends AnyFunSuite with BeforeAndAfterAll {
 
   override def afterAll(): Unit = {
     org.apache.commons.io.FileUtils.deleteDirectory(new File("src/test/out"))

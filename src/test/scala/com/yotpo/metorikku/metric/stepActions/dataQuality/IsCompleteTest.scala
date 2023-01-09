@@ -4,9 +4,10 @@ import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.IsComplete
 import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.scalatest.{BeforeAndAfterEach}
+import org.scalatest.funsuite.AnyFunSuite
 
-class IsCompleteTest extends FunSuite with BeforeAndAfterEach {
+class IsCompleteTest extends AnyFunSuite with BeforeAndAfterEach {
   private var sparkSession: SparkSession = _
   Logger.getLogger("org").setLevel(Level.WARN)
 
