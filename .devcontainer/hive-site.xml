@@ -1,5 +1,17 @@
 <configuration>
     <property>
+        <name>fs.s3.endpoint</name>
+        <value>http://s3:9000</value>
+    </property>
+    <property>
+        <name>fs.s3.path.style.access</name>
+        <value>true</value>
+    </property>
+    <property>
+        <name>fs.s3.impl</name>
+        <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+    <property>
         <name>fs.s3a.endpoint</name>
         <value>http://s3:9000</value>
     </property>
@@ -8,7 +20,15 @@
         <value>true</value>
     </property>
     <property>
-        <name>fs.s3.impl</name>
+        <name>fs.s3a.impl</name>
         <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+    </property>
+    <property>
+        <name>hive.metastore.connect.retries</name>
+        <value>15</value>
+    </property>
+    <property>
+        <name>hive.metastore.client.factory.class</name>
+        <value>com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory</value>
     </property>
 </configuration>

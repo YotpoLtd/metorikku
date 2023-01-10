@@ -54,7 +54,7 @@ commands:
 
             docker ps
 
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cp -R /workspace/* /workspace/.[^.]* /data > /dev/null"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c -i "cp -R /workspace/* /workspace/.[^.]* /data > /dev/null"
   sbt-setup:
     steps:
       - run:
@@ -68,14 +68,14 @@ commands:
       - run:
           name: Build jar
           command: |
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/build.sh"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c -i "cd /data; ./scripts/build.sh"
   scala-test:
     description: Test execution
     steps:
       - run:
           name: Execute tests
           command: |
-            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c "cd /data; ./scripts/test.sh"
+            docker exec $(docker ps -aqf "name=devcontainer-main-1") bash -l -c -i "cd /data; ./scripts/test.sh"
   configure-git:
     steps:
       - run:

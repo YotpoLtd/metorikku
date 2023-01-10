@@ -6,10 +6,7 @@ import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import com.mongodb.spark.config._
-import com.mongodb.spark.MongoSpark
-
-import org.bson.BsonDocument;
+import org.bson.BsonDocument
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
 import com.mongodb.connection.SslSettings
@@ -106,10 +103,10 @@ class MongoDBOutputWriter(
         }
 
         var options = collection.mutable.Map[String, String](
-          "uri"        -> mongoDBConf.uri,
-          "database"   -> mongoDBProps.database,
-          "collection" -> mongoDBProps.collection,
-          "collection" -> mongoDBProps.collection
+          "connection.uri" -> mongoDBConf.uri,
+          "database"       -> mongoDBProps.database,
+          "collection"     -> mongoDBProps.collection,
+          "collection"     -> mongoDBProps.collection
         )
 
         mongoDBProps.ssl match {
@@ -125,9 +122,7 @@ class MongoDBOutputWriter(
 
         options ++= props
 
-        val writeConfig = WriteConfig(options)
-
-        MongoSpark.save(dataFrame, writeConfig)
+        dataFrame.write.format("mongodb").mode(mongoDBProps.saveMode).options(options).save()
 
         props.get("postCommand") match {
           case Some(command) =>

@@ -13,8 +13,9 @@
                 "-c",
                 "tests/config/postgres_2_mongodb/main.yaml"
             ],
-            "jvmOptions": ["-Dspark.master=local[*]"],
-            "env": {}
+            "jvmOptions": [
+                "-Dspark.master=local[*]"
+            ]
         }
     ]
 }

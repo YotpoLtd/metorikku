@@ -10,8 +10,6 @@ if [[ ! -f "$INIT_FILE" ]]; then
     gpg --import "/tmp/.gnupg/public.key"
     gpg --import "/tmp/.gnupg/private.key"
     stty echo
-
-    ln -s /home/${USER}/.cache/pypoetry/virtualenvs/* /home/${USER}/.cache/pypoetry/virtualenvs/venv
     
     sed -i '/SetEnv/d' "$HOME/.ssh/config"
     

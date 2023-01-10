@@ -1,7 +1,5 @@
 package com.yotpo.metorikku.input.readers.mongodb
 
-import com.mongodb.spark.MongoSpark
-import com.mongodb.spark.config.ReadConfig
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import com.yotpo.metorikku.input.readers.file.SchemaConverter
@@ -27,24 +25,17 @@ case class MongoDBInput(
 ) extends Reader {
   def read(sparkSession: SparkSession): DataFrame = {
     var mongoDBOptions = Map(
-      "uri"                                    -> uri,
-      "database"                               -> database,
-      "collection"                             -> collection,
-      "partitioner"                            -> "MongoSamplePartitioner",
-      "sampleSize"                             -> sampleSize.getOrElse("10000"),
-      "partitionerOptions.samplesPerPartition" -> samplesPerPartition.getOrElse("200"),
-      "partitionerOptions.partitionKey"        -> partitionKey.getOrElse("_id")
+      "connection.uri"            -> uri,
+      "database"                  -> database,
+      "collection"                -> collection,
+      "sampleSize"                -> sampleSize.getOrElse("10000"),
+      "partitioner.options.size"  -> samplesPerPartition.getOrElse("200"),
+      "partitioner.options.field" -> partitionKey.getOrElse("_id")
     )
 
     mongoDBOptions ++= options.getOrElse(Map())
 
-    val schema = schemaPath match {
-      case Some(path) => SchemaConverter.convert(FileUtils.readFileWithHadoop(path))
-      case None       => sparkSession.loadFromMongoDB(ReadConfig(mongoDBOptions)).schema
-    }
-
-    val df = buildDf(sparkSession, mongoDBOptions, schema)
-    sparkSession.createDataFrame(df.rdd.map(row => sanitizeRow(row)), df.schema)
+    buildDf(sparkSession, mongoDBOptions, schemaPath)
   }
 }
 
@@ -55,16 +46,21 @@ object MongoDBInput {
   private def buildDf(
       sparkSession: SparkSession,
       options: Map[String, String],
-      schema: StructType
+      schemaPath: Option[String]
   ): DataFrame = {
     log.debug(f"Using options: ${(options - "uri")}")
 
-    MongoSpark
-      .builder()
-      .sparkSession(sparkSession)
-      .readConfig(ReadConfig(options))
-      .build()
-      .toDF(stringifySchema(schema))
+    var df = sparkSession.read.format("mongodb").options(options)
+
+    schemaPath match {
+      case Some(path) =>
+        df = df.schema(
+          stringifySchema(SchemaConverter.convert(FileUtils.readFileWithHadoop(path)))
+        )
+      case None =>
+    }
+
+    df.load()
   }
 
   private def stringifySchema(schema: StructType): StructType = {

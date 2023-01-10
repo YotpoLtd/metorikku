@@ -69,22 +69,21 @@ RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
     && mvn clean package dependency:copy-dependencies \
     && mkdir conf
 
+# Configure aws-glue-libs
+ADD .devcontainer/glue-setup.sh "${HOME}/aws-glue-libs/bin/glue-setup.sh"
+ADD .devcontainer/pom.xml "${HOME}/aws-glue-libs/pom.xml"
+ADD .devcontainer/hive-site.xml "${HOME}/aws-glue-libs/conf/hive-site.xml"
+
 # Other stuff
 ADD .devcontainer/init_container.sh /usr/local/bin/
 
 # Configure profile
-RUN echo 'alias python=python3' >> "${HOME}/.profile"
-RUN echo 'export PATH="${HOME}/aws-glue-libs/bin:${HOME}/spark/bin:${PATH}":${HOME}/.local/bin' >> "${HOME}/.profile"
-RUN echo 'export SPARK_HOME="${HOME}/spark"' >> "${HOME}/.profile"
-RUN echo 'export AWS_REGION=eu-central-1' >> "${HOME}/.profile"
-RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> "${HOME}/.profile"
-
-ENV AWS_REGION="eu-central-1"
-ENV SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"
+RUN echo 'alias python=python3' >> "${HOME}/.bashrc"
+RUN echo 'export PATH="${HOME}/aws-glue-libs/bin:${HOME}/spark/bin:${PATH}":${HOME}/.local/bin' >> "${HOME}/.bashrc"
+RUN echo 'export SPARK_HOME="${HOME}/spark"' >> "${HOME}/.bashrc"
+RUN echo 'export AWS_REGION=eu-central-1' >> "${HOME}/.bashrc"
+RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> "${HOME}/.bashrc"
+RUN echo 'export SBT_OPTS="-Xms512M -Xmx2G -Xss2M -XX:MaxMetaspaceSize=1G"' >> "${HOME}/.bashrc"
 
 # Init aws-glue-libs
-ADD .devcontainer/glue-setup.sh "${HOME}/aws-glue-libs/bin/glue-setup.sh"
-ADD .devcontainer/hive-site.xml "${HOME}/aws-glue-libs/conf/hive-site.xml"
-
-RUN source "$HOME/.profile" \
-    && bash "$HOME/aws-glue-libs/bin/glue-setup.sh"
+RUN bash -i -l -c 'sudo chown -R "$USERNAME:$USERNAME" "$HOME/aws-glue-libs" && source "$HOME/.bashrc" && bash "$HOME/aws-glue-libs/bin/glue-setup.sh"'
