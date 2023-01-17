@@ -204,3 +204,23 @@ output:
               { msg: "Added entry" }
             ]
         }
+  - dataFrameName: table1
+    outputType: Delta
+    outputOptions:
+      saveMode: Overwrite
+      # Write to a path if not to a table
+      path: some_path_or_full_path
+      tableName: some_schema.some_table
+      # Optional: partition data by some columns
+      partitionBy: ["column_1", "column_1"]
+      # Optional: Delta will add current records and delete records that match this
+      replaceWhere: "replaceWhere"
+      # Optional: configure partition overwrite mode. Valid values are "dynamic" and "static".
+      partitionOverwriteMode: "replaceWhere"
+      # Optional: Delta will change a column’s type or name or drop a column by rewriting the table
+      overwriteSchema: false
+      # Optional: Configure idempotent writes. https://docs.delta.io/latest/delta-batch.html#idempotent-writes
+      txnAppId: "some_app"
+      txnVersion: "some_txn_version_1234"
+      # Optional: add a user-defined string as metadata in the commit made by these operation
+      userMetadata: "overwritten-for-fixing-incorrect-data"

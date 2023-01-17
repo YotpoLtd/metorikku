@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - tests/config/mongodb_2_s3/main_metric.yaml
+  - ./main_metric.yaml
 
 inputs:
   test_read_collection:

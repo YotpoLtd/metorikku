@@ -150,6 +150,16 @@ output:
     options:
       ssl: true
       ssl.domain_match: false
+  # Delta
+  delta:
+    dir: /path/to/parquet/output
+    # Optional: max records per parquet file
+    maxRecordsPerFile: 1000
+    # Optional: This controls if manifest files have to be created for Trino / Athena compatibility
+    generateManifest: true
+    # Optional: extra options (https://docs.delta.io/latest/delta-batch.html)
+    options:
+      ....
 
 # You can also use named outputs (all outputs above are supported)
 outputs:

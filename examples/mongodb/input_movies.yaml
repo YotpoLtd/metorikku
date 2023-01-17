@@ -8,8 +8,6 @@ inputs:
       database: movies
       collection: rated_movies
       options:
-        ssl: false
-        ssl.domain_match: false
         pipeline: |
           {
             $match: {

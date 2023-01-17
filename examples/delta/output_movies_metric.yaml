@@ -1,0 +1,14 @@
+steps:
+  - dataFrameName: RatedMovies
+    sql: SELECT userid,
+      movies.movieid,
+      split(movies.genres, '|')[0] as genre
+      FROM movies
+      LEFT JOIN ratings ON ratings.movieid = movies.movieid
+output:
+  - dataFrameName: RatedMovies
+    outputType: Delta
+    outputOptions:
+      saveMode: Overwrite
+      path: rated_movies
+      partitionBy: ["genre"]

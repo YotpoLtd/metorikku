@@ -20,7 +20,7 @@ object OutputType extends Enumeration {
   type OutputType = Value
 
   val Parquet, Cassandra, CSV, JSON, Redshift, Redis, Segment, Instrumentation, JDBC, JDBCQuery,
-      Elasticsearch, File, Kafka, Catalog, Hudi, MongoDB = Value
+      Elasticsearch, File, Kafka, Catalog, Hudi, MongoDB, Delta = Value
 }
 
 class OutputTypeReference extends TypeReference[OutputType.type]

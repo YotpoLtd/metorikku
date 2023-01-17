@@ -2,18 +2,20 @@ package com.yotpo.metorikku.output
 
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.Configuration
-import com.yotpo.metorikku.configuration.metric.{Output, OutputType}
+import com.yotpo.metorikku.configuration.metric.Output
+import com.yotpo.metorikku.configuration.metric.OutputType
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
+import com.yotpo.metorikku.output.writers.elasticsearch.ElasticsearchOutputWriter
 import com.yotpo.metorikku.output.writers.file._
 import com.yotpo.metorikku.output.writers.instrumentation.InstrumentationOutputWriter
-import com.yotpo.metorikku.output.writers.jdbc.{JDBCOutputWriter, JDBCQueryWriter}
+import com.yotpo.metorikku.output.writers.jdbc.JDBCOutputWriter
+import com.yotpo.metorikku.output.writers.jdbc.JDBCQueryWriter
 import com.yotpo.metorikku.output.writers.kafka.KafkaOutputWriter
-import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.mongodb.MongoDBOutputWriter
+import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.redshift.RedshiftOutputWriter
 import com.yotpo.metorikku.output.writers.segment.SegmentOutputWriter
-import com.yotpo.metorikku.output.writers.elasticsearch.ElasticsearchOutputWriter
 
 object WriterFactory {
   // scalastyle:off cyclomatic.complexity
@@ -62,6 +64,7 @@ object WriterFactory {
         new ElasticsearchOutputWriter(metricOutputOptions, output.elasticsearch.get)
       case OutputType.Catalog => new CatalogWriter(metricOutputOptions)
       case OutputType.MongoDB => new MongoDBOutputWriter(metricOutputOptions, output.mongodb)
+      case OutputType.Delta   => new DeltaOutputWriter(metricOutputOptions, output.delta)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(

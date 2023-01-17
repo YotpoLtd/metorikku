@@ -1,0 +1,14 @@
+metrics:
+  - examples/delta/output_movies_metric.yaml
+
+inputs:
+  movies:
+    file:
+      path: examples/mocks/movies.jsonl
+  ratings:
+    file:
+      path: examples/mocks/ratings.jsonl
+output:
+  delta:
+    dir: /tmp/delta_test
+    generateManifest: true

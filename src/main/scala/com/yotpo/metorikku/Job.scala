@@ -5,6 +5,7 @@ import com.yotpo.metorikku.input.Reader
 import com.yotpo.metorikku.instrumentation.{InstrumentationProvider, StreamingQueryMetricsListener}
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
+import com.yotpo.metorikku.output.writers.file.DeltaOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.SparkContext
 import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
@@ -98,6 +99,10 @@ object Job {
         }
         out.redis match {
           case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redis)
+          case None        =>
+        }
+        out.delta match {
+          case Some(delta) => DeltaOutputWriter.addConfToSparkSession(sparkSessionBuilder, delta)
           case None        =>
         }
       }

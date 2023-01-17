@@ -100,7 +100,8 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-api"             % "2.19.0" % "provided",
   "org.apache.logging.log4j" % "log4j-core"            % "2.19.0" % "provided",
   "org.apache.logging.log4j" % "log4j-slf4j-impl"      % "2.19.0" % "provided",
-  "org.postgresql"           % "postgresql"            % "42.5.1" % "provided"
+  "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
+  "io.delta"                %% "delta-core"            % "2.2.0"
 )
 
 resolvers ++= Seq(

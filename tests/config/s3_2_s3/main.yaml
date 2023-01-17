@@ -1,6 +1,6 @@
 # The MQL file path
 metrics:
-  - tests/config/s3_2_s3/main_metric.yaml
+  - ./main_metric.yaml
 
 inputs:
   persons_s3:

@@ -11,7 +11,7 @@
             "mainClass": "com.yotpo.metorikku.Metorikku",
             "args": [
                 "-c",
-                "tests/config/postgres_2_mongodb/main.yaml"
+                "examples/delta/output_movies.yaml"
             ],
             "jvmOptions": [
                 "-Dspark.master=local[*]"

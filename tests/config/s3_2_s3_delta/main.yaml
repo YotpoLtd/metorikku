@@ -8,16 +8,11 @@ inputs:
       path: s3://test-bucket/persons.json
 
 output:
-  jdbc:
-    connectionUrl: "jdbc:postgresql://postgres:5432/${POSTGRES_DB}"
-    user: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    driver: "org.postgresql.Driver"
+  delta:
+    dir: s3://test-bucket/output
+    generateManifest: true
 
 explain: true
-
 logLevel: WARN
-
 appName: TestApp
-
 showPreviewLines: 10

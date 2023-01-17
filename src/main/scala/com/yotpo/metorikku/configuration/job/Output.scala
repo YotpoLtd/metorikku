@@ -13,5 +13,6 @@ case class Output(
     kafka: Option[Kafka] = None,
     elasticsearch: Option[Elasticsearch] = None,
     hudi: Option[Hudi] = None,
-    mongodb: Option[MongoDB] = None
+    mongodb: Option[MongoDB] = None,
+    delta: Option[Delta] = None
 )

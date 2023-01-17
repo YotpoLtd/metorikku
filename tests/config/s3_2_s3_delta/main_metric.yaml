@@ -1,0 +1,12 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM persons_s3
+output:
+  - dataFrameName: persons
+    outputType: Delta
+    outputOptions:
+      saveMode: Overwrite
+      path: delta_persons
+      partitionBy: ["given_name"]
