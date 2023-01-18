@@ -10,7 +10,7 @@ output:
       saveMode: Overwrite
       tableName: delta_persons
       txnAppId: "some_app"
-      txnVersion: "123456789"
+      txnVersion: 123456789
       overwriteSchema: true
       partitionBy: ["gender"]
       partitionOverwriteMode: "static"
