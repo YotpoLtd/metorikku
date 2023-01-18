@@ -1,0 +1,17 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM persons_s3
+output:
+  - dataFrameName: persons
+    outputType: Delta
+    outputOptions:
+      saveMode: Overwrite
+      tableName: delta_persons
+      txnAppId: "some_app"
+      txnVersion: "123456789"
+      overwriteSchema: true
+      partitionBy: ["gender"]
+      partitionOverwriteMode: "static"
+      replaceWhere: "name == 'some_name'"

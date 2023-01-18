@@ -42,7 +42,7 @@ class DeltaOutputWriter(props: Map[String, Object], output: Option[Delta]) exten
       partitionOverwriteMode: Option[String],
       overwriteSchema: Option[Boolean],
       txnAppId: Option[String],
-      txnVersion: Option[String],
+      txnVersion: Option[Integer],
       userMetadata: Option[Boolean],
       extraOptions: Option[Map[String, String]]
   )
@@ -56,7 +56,7 @@ class DeltaOutputWriter(props: Map[String, Object], output: Option[Delta]) exten
     props.get("partitionOverwriteMode").asInstanceOf[Option[String]],
     props.get("overwriteSchema").asInstanceOf[Option[Boolean]],
     props.get("txnAppId").asInstanceOf[Option[String]],
-    props.get("txnVersion").asInstanceOf[Option[String]],
+    props.get("txnVersion").asInstanceOf[Option[Integer]],
     props.get("userMetadata").asInstanceOf[Option[Boolean]],
     props.get("extraOptions").asInstanceOf[Option[Map[String, String]]]
   )
@@ -105,10 +105,10 @@ class DeltaOutputWriter(props: Map[String, Object], output: Option[Delta]) exten
       case None                    =>
     }
 
-    (properties.txnVersion, properties.txnAppId) match {
-      case (Some(txnVersion), Some(txnAppId)) => {
-        writer.option("txnVersion", properties.txnVersion.get)
+    (properties.txnAppId, properties.txnVersion) match {
+      case (Some(txnAppId), Some(txnVersion)) => {
         writer.option("txnAppId", properties.txnAppId.get)
+        writer.option("txnVersion", properties.txnVersion.get.toString)
       }
       case _ =>
     }

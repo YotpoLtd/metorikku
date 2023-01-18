@@ -1,0 +1,18 @@
+# The MQL file path
+metrics:
+  - ./main_metric.yaml
+
+inputs:
+  persons_s3:
+    file:
+      path: s3://test-bucket/persons.json
+
+output:
+  delta:
+    generateManifest: true
+    maxRecordsPerFile: 10
+
+explain: true
+logLevel: WARN
+appName: TestApp
+showPreviewLines: 10

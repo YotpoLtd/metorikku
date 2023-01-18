@@ -221,6 +221,6 @@ output:
       overwriteSchema: false
       # Optional: Configure idempotent writes. https://docs.delta.io/latest/delta-batch.html#idempotent-writes
       txnAppId: "some_app"
-      txnVersion: "some_txn_version_1234"
+      txnVersion: "1234"
       # Optional: add a user-defined string as metadata in the commit made by these operation
       userMetadata: "overwritten-for-fixing-incorrect-data"
