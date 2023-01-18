@@ -47,7 +47,7 @@ ARG MAVEN_VERSION="3.8.7"
 ARG SBT_VERSION="1.8.0"
 
 RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
-    && FINAL_JDK_VERSION=$(sdk list java | sed -En 's/.+ ('${JDK_VERSION}'(.+)-amzn).*/\1/p') \
+    && FINAL_JDK_VERSION=$(sdk list java | sed -En 's/.+ ('${JDK_VERSION}'(.+)-amzn).*/\1/p' | head -1) \
     && sdk install java "$FINAL_JDK_VERSION" \
     && sdk install scala "$SCALA_VERSION" \
     && sdk install sbt "$SBT_VERSION" \
