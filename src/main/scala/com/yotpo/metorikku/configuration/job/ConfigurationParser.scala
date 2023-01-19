@@ -99,7 +99,8 @@ object ConfigurationParser {
             log.debug(s"Failed parsing config file[$job]", e)
 
             throw MetorikkuInvalidMetricFileException(
-              "Failed parsing config file"
+              "Failed parsing config file",
+              e
             )
         }
       }
