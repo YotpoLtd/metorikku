@@ -25,7 +25,11 @@ case class FilesInput(
     }
 
     schema match {
-      case Some(schemaStruct) => reader.schema(schemaStruct)
+      case Some(schemaStruct) => {
+        log.info(f"Using custom schema: ${schemaStruct}")
+
+        reader.schema(schemaStruct)
+      }
       case None               =>
     }
 

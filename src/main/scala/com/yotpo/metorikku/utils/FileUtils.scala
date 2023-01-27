@@ -24,6 +24,14 @@ case class HadoopPath(path: Path, fs: FileSystem) {
 }
 
 object FileUtils {
+  private var parentPath: Option[String] = None
+
+  private val LOCAL_FILE_REGEX = "\\./(.+)".r
+
+  def setParentPath(newParentPath: String): Unit = {
+    parentPath = Option(newParentPath)
+  }
+
   def getListOfLocalFiles(dir: String): List[File] = {
     val d = new File(dir)
     if (d.isDirectory) {
@@ -81,7 +89,14 @@ object FileUtils {
   }
 
   def readFileWithHadoop(path: String): String = {
-    val hadoopPath = getHadoopPath(path)
+    val finalPath = (path, parentPath) match {
+      case (LOCAL_FILE_REGEX(path), Some(parentPath)) => {
+        f"${parentPath}/${path}"
+      }
+      case _ => path
+    }
+
+    val hadoopPath = getHadoopPath(finalPath)
 
     val fsFile = hadoopPath.open
 

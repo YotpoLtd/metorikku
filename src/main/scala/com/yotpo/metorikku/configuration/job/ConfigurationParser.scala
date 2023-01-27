@@ -52,6 +52,8 @@ object ConfigurationParser {
                   FileUtils.getObjectMapperByFileName(filename)
                 )
 
+                FileUtils.setParentPath(FileUtils.getHadoopPath(filename).path.getParent.toString)
+
                 configuration.configFile = Option(filename)
 
                 configuration

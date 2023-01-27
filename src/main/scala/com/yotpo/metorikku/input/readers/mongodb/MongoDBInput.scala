@@ -54,9 +54,11 @@ object MongoDBInput {
 
     schemaPath match {
       case Some(path) =>
-        df = df.schema(
-          stringifySchema(SchemaConverter.convert(FileUtils.readFileWithHadoop(path)))
-        )
+        val schema = stringifySchema(SchemaConverter.convert(FileUtils.readFileWithHadoop(path)))
+
+        log.info(f"Using custom schema: ${schema}")
+
+        df.schema(schema)
       case None =>
     }
 

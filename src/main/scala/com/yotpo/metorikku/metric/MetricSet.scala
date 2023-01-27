@@ -21,16 +21,14 @@ object MetricSet {
 
 class MetricSet(
     metricSet: String,
-    jobPath: Option[String] = None,
     write: Boolean = true
 ) {
   val log = LogManager.getLogger(this.getClass)
 
-  val metrics: Seq[Metric] = parseMetrics(metricSet, jobPath)
+  val metrics: Seq[Metric] = parseMetrics(metricSet)
 
   def parseMetrics(
-      metricSet: String,
-      jobPath: Option[String] = None
+      metricSet: String
   ): Seq[Metric] = {
     log.info(s"Starting to parse metricSet")
 
@@ -39,9 +37,9 @@ class MetricSet(
         val metricsToCalculate = FileUtils.getListOfLocalFiles(metricSet)
         metricsToCalculate
           .filter(ConfigurationParser.isValidFile(_))
-          .map(f => ConfigurationParser.parse(f.getPath, jobPath))
+          .map(f => ConfigurationParser.parse(f.getPath))
       }
-      case false => Seq(ConfigurationParser.parse(metricSet, jobPath))
+      case false => Seq(ConfigurationParser.parse(metricSet))
     }
   }
 

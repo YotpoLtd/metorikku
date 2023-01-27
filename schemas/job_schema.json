@@ -210,7 +210,8 @@
           "type": "object",
           "properties": {
             "jdbcURL": { "type": "string" },
-            "tempS3Dir": { "type": "string" }
+            "tempS3Dir": { "type": "string" },
+            "awsIAMRole": { "type": "string" }
           },
           "required": [
             "jdbcURL",
@@ -218,15 +219,19 @@
           ]
 
         },
-        "segment": {
+        "delta": {
           "type": "object",
           "properties": {
-            "apiKey": { "type": "string" }
+            "dir": { "type": "string" },
+            "maxRecordsPerFile": { "type": "number" , "minimum": 1},
+            "generateManifest": { "type": "boolean" },
+            "options": { "type": "object" }
           },
           "required": [
             "apiKey"
           ]
         }
+      }
       }
     }
   }

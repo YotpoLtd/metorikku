@@ -5,9 +5,7 @@ import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 trait FileInputBase {
-
   def getFormat(format: Option[String], path: String): String = {
-
     format match {
       case Some(f) => f
       case None => {

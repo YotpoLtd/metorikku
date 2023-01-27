@@ -14,6 +14,7 @@ The platform also includes a simple way to write unit and E2E tests.
 - Metrics and Verification results are stored in memory for later used by other apps.
 - Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
+- JSON schema is simplified and use pure *json-schema* with no extra elements.
 
 ## Pre-requisites
 
@@ -103,6 +104,58 @@ Also make sure to check out:
 
 - All the [tests](tests/data) and [examples](examples).
 - Original [project](https://github.com/YotpoLtd/metorikku).
+
+### Schema files
+
+While working with Files, it is possible to specify a schema. For that purpose, a schema file based on [json-schema](https://json-schema.org/) must be created. [jsonschema.NET](https://www.jsonschema.net/) website can help you while creating this schema based on a current json example.
+
+```json
+{
+    "type": "object",
+    "required": [
+        "id",
+        "name"
+    ],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "name": {
+            "type": "object",
+            "required": [
+                "given_name"
+            ],
+            "properties": {
+                "given_name": {
+                    "type": "string"
+                },
+                "family_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "links": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "note": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+> A schema is commonly used while working with file formats like CSV or JSON.
 
 ## Git Commit Guidelines
 

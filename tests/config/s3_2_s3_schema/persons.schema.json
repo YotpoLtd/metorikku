@@ -1,0 +1,109 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "required": [
+        "family_name",
+        "name",
+        "gender",
+        "sort_name",
+        "birth_date",
+        "id"
+    ],
+    "properties": {
+        "family_name": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "links": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "note": {
+                        "type": "string"
+                    },
+                    "url": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "gender": {
+            "type": "string"
+        },
+        "image": {
+            "type": "string"
+        },
+        "identifiers": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "scheme",
+                    "identifier"
+                ],
+                "properties": {
+                    "scheme": {
+                        "type": "string"
+                    },
+                    "identifier": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "other_names": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "lang",
+                    "name"
+                ],
+                "properties": {
+                    "lang": {
+                        "type": "string"
+                    },
+                    "note": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "sort_name": {
+            "type": "string"
+        },
+        "images": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "url"
+                ],
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "given_name": {
+            "type": "string"
+        },
+        "birth_date": {
+            "type": "string"
+        },
+        "id": {
+            "type": "string"
+        }
+    }
+}

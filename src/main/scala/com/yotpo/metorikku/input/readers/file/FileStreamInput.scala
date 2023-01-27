@@ -25,13 +25,13 @@ case class FileStreamInput(
       case None       =>
     }
 
-    schema match {
-      case Some(schemaStruct) => reader.schema(schemaStruct)
-      case None =>
-        reader.schema(
-          FilesInput(name, Seq(path), options, schemaPath, format).read(sparkSession).schema
-        )
-    }
+    val finalSchema = schema.getOrElse(
+      FilesInput(name, Seq(path), options, schemaPath, format).read(sparkSession).schema
+    )
+
+    log.info(f"Using custom schema: ${finalSchema}")
+
+    reader.schema(finalSchema)
 
     log.debug(f"Using options: ${readOptions}")
 

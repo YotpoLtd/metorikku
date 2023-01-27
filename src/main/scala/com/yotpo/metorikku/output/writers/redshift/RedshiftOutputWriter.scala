@@ -38,16 +38,16 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
 
         var df = dataFrame
 
-        df.schema.fields
-          .filter(f => f.dataType.isInstanceOf[StringType])
-          .foreach(f => {
-            val maxlength = dbOptions match {
-              case _ if !dbOptions.maxStringSize.isEmpty => dbOptions.maxStringSize.toInt
-              case _ => df.agg(max(length(df(f.name)))).as[Int].first
-            }
-            val varcharMetaData = new MetadataBuilder().putLong("maxlength", maxlength).build()
-            df = df.withColumn(f.name, df(f.name).as(f.name, varcharMetaData))
-          })
+        if (!dbOptions.maxStringSize.isEmpty) {
+          df.schema.fields
+            .filter(f => f.dataType.isInstanceOf[StringType])
+            .foreach(f => {
+              val maxlength       = dbOptions.maxStringSize.toInt
+              val varcharMetaData = new MetadataBuilder().putLong("maxlength", maxlength).build()
+
+              df = df.withColumn(f.name, df(f.name).as(f.name, varcharMetaData))
+            })
+        }
 
         log.info(s"Writing dataframe to Redshift' table ${props("dbTable")}")
         val writer = df.write

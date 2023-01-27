@@ -10,11 +10,9 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.{LogManager, Logger}
 
 object ConfigurationParser {
-  private val log: Logger = LogManager.getLogger(this.getClass)
+  val log: Logger = LogManager.getLogger(this.getClass)
 
-  private val validExtensions = Seq("json", "yaml", "yml")
-
-  private val localFileRegex = "\\./(.+)".r
+  val validExtensions = Seq("json", "yaml", "yml")
 
   def isValidFile(path: File): Boolean = {
     val fileName  = path.getName
@@ -22,7 +20,7 @@ object ConfigurationParser {
     validExtensions.contains(extension)
   }
 
-  def parse(path: String, jobFile: Option[String]): Metric = {
+  def parse(path: String): Metric = {
     val hadoopPath = FileUtils.getHadoopPath(path)
     val fileName   = hadoopPath.getName
     val metricDir = FileUtils.isLocalFile(path) match {
@@ -32,46 +30,23 @@ object ConfigurationParser {
 
     log.info(s"Initializing Metric file $fileName")
     try {
-      val metricConfig = parseFile(path, jobFile)
+      val metricConfig = parseFile(path)
       Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
     } catch {
       case e: FileNotFoundException => throw e
       case e: Exception =>
-        throw MetorikkuInvalidMetricFileException(
-          s"Failed to parse metric file $fileName",
-          e
-        )
+        throw MetorikkuInvalidMetricFileException(s"Failed to parse metric file $fileName", e)
     }
   }
 
-  private def parseFile(
-      fileName: String,
-      jobFile: Option[String]
-  ): Configuration = {
+  private def parseFile(fileName: String): Configuration = {
     FileUtils.getObjectMapperByExtension(fileName) match {
       case Some(mapper) => {
-        val finalFileName = (fileName, jobFile) match {
-          case (localFileRegex(path), Some(jobFile)) => {
-            val parentPath =
-              FileUtils.getHadoopPath(jobFile).path.getParent.toString
-
-            f"${parentPath}/${path}"
-          }
-          case _ => fileName
-        }
-
-        log.info(f"Parsing metric file ${finalFileName}")
-
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(
-          FileUtils.readConfigurationFile(finalFileName),
-          classOf[Configuration]
-        )
+        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
       }
       case None =>
-        throw MetorikkuInvalidMetricFileException(
-          s"Unknown extension for file $fileName"
-        )
+        throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
     }
   }
 }
