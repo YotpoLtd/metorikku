@@ -57,8 +57,7 @@ RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
 ARG AWS_GLUE_SPARK_URL="https://aws-glue-etl-artifacts.s3.amazonaws.com/glue-4.0/spark-3.3.0-amzn-1-bin-3.3.3-amzn-0.tgz"
 ARG AWS_GLUE_VERSION="4.0"
 
-RUN wget -qO- "$AWS_GLUE_SPARK_URL" | tar zxf - 2>/dev/null \
-    && mv build/spark spark && rm -Rf build
+RUN wget -qO- "$AWS_GLUE_SPARK_URL" | tar zxf - 2>/dev/null
 
 RUN wget -qO- "https://github.com/awslabs/aws-glue-libs/archive/refs/tags/v$AWS_GLUE_VERSION.tar.gz" | tar zxf - 2>/dev/null \
     && mv aws-glue-libs-* aws-glue-libs \
