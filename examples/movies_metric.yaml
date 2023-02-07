@@ -25,6 +25,12 @@ steps:
     SELECT *
     FROM topFantasyMovies
     WHERE title = ${myFavoriteMovie}
+- dataFrameName: myFavoriteMovieRatedComplex
+  sql:
+    SELECT named_struct("id", movieId, "title", title) as movie,
+           averageRating
+    FROM topFantasyMovies tfm
+    WHERE tfm.title = ${myFavoriteMovie}
 output:
 - dataFrameName: topFantasyMovies
   outputType: Parquet

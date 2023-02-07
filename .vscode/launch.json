@@ -16,6 +16,19 @@
             "jvmOptions": [
                 "-Dspark.master=local[*]"
             ]
+        },
+        {
+            "type": "scala",
+            "request": "launch",
+            "name": "MetorikkuTester",
+            "mainClass": "com.yotpo.metorikku.MetorikkuTester",
+            "args": [
+                "--test-settings",
+                "examples/movies_test.yaml"
+            ],
+            "jvmOptions": [
+                "-Dspark.master=local[*]"
+            ]
         }
     ]
 }

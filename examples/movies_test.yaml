@@ -15,3 +15,8 @@ tests:
   - movieId: 1
     title: Lord of the Rings, The (1978)
     averageRating: 2.5
+  myFavoriteMovieRatedComplex:
+  - movie:
+      id: 1
+      title: Lord of the Rings, The (1978)
+    averageRating: 2.5
