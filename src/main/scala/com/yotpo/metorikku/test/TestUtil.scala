@@ -26,9 +26,7 @@ object TestUtil {
 
   def getRowsFromDf(df: DataFrame): List[Map[String, Any]] = {
     df.rdd
-      .map { dfRow => 
-        rowToMap(dfRow)
-      }
+      .map(rowToMap)
       .collect()
       .toList
   }
@@ -129,7 +127,7 @@ object TestUtil {
               .map(_.asInstanceOf[Map[String, Any]])
               .map(mapToRow(_, getStructTypeFromArrayType(key, schema)))
         case (key, None) =>
-          schema.fieldIndex(key) -> null
+          schema.fieldIndex(key) -> null // scalastyle:ignore
         case (key, Some(other: Map[_, _])) =>
           schema.fieldIndex(key) -> mapToRow(
             other.asInstanceOf[Map[String, Any]],
