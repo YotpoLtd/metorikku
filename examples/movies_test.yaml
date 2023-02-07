@@ -20,3 +20,7 @@ tests:
       id: 1
       title: Lord of the Rings, The (1978)
     averageRating: 2.5
+    ratingArray: [2.5, 0.0]
+    ratingArrayStruct:
+      - rating: 2.5
+      - rating: 0.0

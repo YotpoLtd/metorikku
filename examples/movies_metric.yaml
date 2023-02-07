@@ -28,7 +28,9 @@ steps:
 - dataFrameName: myFavoriteMovieRatedComplex
   sql:
     SELECT named_struct("id", movieId, "title", title) as movie,
-           averageRating
+           averageRating,
+           array(averageRating, 0.0) as ratingArray,
+           array(named_struct("rating", averageRating), named_struct("rating", 0.0)) as ratingArrayStruct
     FROM topFantasyMovies tfm
     WHERE tfm.title = ${myFavoriteMovie}
 output:
