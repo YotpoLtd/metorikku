@@ -50,6 +50,8 @@ commands:
       - run:
           name: Start Docker Compose
           command: |
+            echo ${GITHUB_TOKEN} | docker login ghcr.io -u "$GITHUB_EMAIL" --password-stdin
+            
             LOCAL_DEV=FALSE docker-compose -f .devcontainer/docker-compose.yml up -d --build
 
             docker ps
@@ -169,3 +171,4 @@ workflows:
           context:
             - shared-sonarcloud-token
             - shared-gemfury-tokens
+            - shared-github-token

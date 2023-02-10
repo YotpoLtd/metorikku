@@ -13,12 +13,7 @@ x-environment:
   TEST_BUCKET_NAME: test-bucket
 services:
   main:
-    build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile
-      args:
-        - USERNAME=vscode
-        - LOCAL_DEV=${LOCAL_DEV:-TRUE}
+    image: ghcr.io/syngenta-digital/service-java-data-pipelines-metorikku:devcontainer
     environment:
       <<: *default-environment
     user: vscode
