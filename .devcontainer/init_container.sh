@@ -21,6 +21,8 @@ if [[ ! -f "$INIT_FILE" ]]; then
     stty echo
     
     sed -i '/SetEnv/d' "$HOME/.ssh/config"
+
+    update_cas
     
     touch "$INIT_FILE"
 fi
