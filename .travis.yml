@@ -99,7 +99,7 @@ jobs:
         - provider: releases
           skip_cleanup: true
           token:
-            secure: i+W1C7xBogQ5XUxctAV92+YaraEGrHscjnuIkXHesfGEvF5rz9AdwGvpLzRIdLOHH0S4tR5uPFVUF+w86IWQOHLyZhNDybbkIpoQqRRuB0xiOwsqlcjz5IwNkhraTRF+8sPl9FBI5OuGfOKh8jy91xLpYvcMt+EKsai+5rugDxyb8/L3G5nQcH+/5c40dflDmDChkJF/qoNB7iLofMoW9uG72QHKeO87JoVJKg6o73anpuqQ9qZA7W4GYZBmU5QrHNMfdQqt/8XgrPvxq4DW8EnH1Tzg4nXuBREvY92rBxBYpAuff0uxlRJmd8n19Nk4hNRNNpwBIBlHwmbzCAY4AnRJmZT1G/A3E5wznfUt1JekIdwCfaVBbIaAbeFwrTV2DjJYSWdmeB79HF82CYRHuWY4tkxUzUMuBUK2KKFovfMvNG2Lx33cQRwC1YrCb+9W587rWx3dNfIY4vj9aWbCcfZnfrM0N00rlQKZH16dkdYIEZlg396h3v9M41MmvNgez7O/ftUILF3cIc6AG2X8xzcpbXB0lGCFwNdMXKtEpUf04Nw5Lu84Ov662OWfPAM2G/edSnXF1d56XxLnax8dQNcoqc25wcn+1VmpguzLr530rI9dNREZC2sQ7C0/cLnk6SAP12PKXk9nmigyWIbbGHe2FBC4WBSssb8xMg+bgLs=
+            secure: ntE1exRG3eCuBrcucyXyF+Dhuw5vRZDTo7SfyVwHNusGZ6+6BL98tr50Txk7O28Fv0+zmVbPaQmGvSdzZ3jX9qodK/NNFu51WaAanyYDK9DifXrgmze8FcA+w9SmLOpUIjv2kZfOTTn9cSNrppT00qauZdDIg9gmGve7bHZuepbWYTtZ+nigFN+DE/3e6x1G564cur4hZiV1INcY2tmkpe03s1xlHWPRMdtJ2FU7/oZbBohgIPTjAwqMnC8ajwRkXeA9ke94mUooxHPjimpLn9hu+bcjA4cTVPsQq3Si9Ahpl/Z0nUI+eEo3EovBmv3Y/H0mc3ToeY4a3WgUyxfe5f+/2RUqjrqcm2yte00g8CQ90eRwaDR3Q+wYMcgzTPNPeEIMviYoMWyfNNrOokaXEWl5W3cW5SoKD8WATVHFAjxJAx96T82MZ4RquEFDeNt03bOQJ6kBD+kWsPNfR/qdM5zkZYPN6ZlqAc9OxmvBKBeB7mcnIQ2DZUSBe9/gqezLufvpdUxDwxN0reC4UHsNdEuPKPR/z1L0JeaUjMlO8NVz0W0AJuMRYhZi3UzJGhfMT8ahiAESYKasLqV90VsjDnH9NuEgVFM7OCtZonoUMsQNSqHKXt15psZTmOksLCMH8dcVXAAiYxCztZ491qHobu2C3mKDwbZv1xbpqTC2Q88=
           file_glob: true
           file: "$TRAVIS_BUILD_DIR/target/scala-*/*.jar"
           on:
