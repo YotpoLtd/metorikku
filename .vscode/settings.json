@@ -2,5 +2,5 @@
     "files.watcherExclude": {
         "**/target": true
     },
-    "metals.javaHome": "/home/vscode/.sdkman/candidates/java/current/"
+    "metals.javaHome": "/home/glue_user/.sdkman/candidates/java/current/"
 }
