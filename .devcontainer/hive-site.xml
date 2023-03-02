@@ -27,8 +27,8 @@
         <name>hive.metastore.connect.retries</name>
         <value>15</value>
     </property>
-    <property>
+    <!-- <property>
         <name>hive.metastore.client.factory.class</name>
         <value>com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory</value>
-    </property>
+    </property> -->
 </configuration>

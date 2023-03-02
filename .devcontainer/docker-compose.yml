@@ -17,7 +17,7 @@ services:
     environment:
       <<: *default-environment
     user: glue_user
-    command: "sleep infinity"
+    command: -c "sleep infinity"
     volumes:
       - ../:/workspace
       - ${HOME}/.aws:/home/glue_user/.aws:ro

@@ -5,7 +5,7 @@ FROM amazon/aws-glue-libs:glue_libs_${GLUE_IMAGE_VERSION}
 ARG USERNAME=glue_user
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-ARG LOCAL_DEV=true
+ARG LOCAL_DEV=TRUE
 
 SHELL ["/bin/bash", "-c"]
 
@@ -13,7 +13,6 @@ USER root
 
 RUN yum install -y curl \
     git \
-    gnupg2 \
     jq \
     software-properties-common \
     telnet \
@@ -30,14 +29,23 @@ RUN yum install -y sudo \
 RUN test "$LOCAL_DEV" != "TRUE" && \
     mkdir -p /data && chown -R $USERNAME:$USER_GID /data || bash -c true
 
+ADD .devcontainer/install_gnupg22.sh /usr/local/bin/
+RUN test "$LOCAL_DEV" == "TRUE" && \
+    yum install -y \
+        gnupg2 && \
+    bash /usr/local/bin/install_gnupg22.sh || bash -c true
+
 USER $USERNAME
 WORKDIR "/home/${USERNAME}"
 ENV HOME="/home/${USERNAME}"
 
 # Fix MongoDB bug
-RUN mv ${HOME}/aws-glue-libs/jars/mongo-java-driver-3.10.1.jar ${HOME}/aws-glue-libs/jars/mongo-java-driver-3.10.1.jar.old
+RUN rm -f /home/${USERNAME}/spark/jars/*mongo* /home/${USERNAME}/spark/jars/*bson* \
+          /home/${USERNAME}/aws-glue-libs/jars/*mongo* /home/${USERNAME}/aws-glue-libs/jars/*bson*
 
 # Install Java & related
+RUN sudo yum install -y java-1.8.0-amazon-corretto-devel
+
 RUN curl -s "https://get.sdkman.io?rcupdate=false" | bash
 
 ARG SCALA_VERSION="2.12.17"
@@ -50,6 +58,8 @@ RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
 
 # Other stuff
 ADD .devcontainer/init_container.sh /usr/local/bin/
+
+ADD .devcontainer/hive-site.xml ${HOME}/spark/conf/hive-site.xml
 
 # Configure profile
 RUN echo '' >> "${HOME}/.bashrc"
