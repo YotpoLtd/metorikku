@@ -26,9 +26,6 @@ RUN yum install -y sudo \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
-RUN test "$LOCAL_DEV" != "TRUE" && \
-    mkdir -p /data && chown -R $USERNAME:$USER_GID /data || bash -c true
-
 ADD .devcontainer/install_gnupg22.sh /usr/local/bin/
 RUN test "$LOCAL_DEV" == "TRUE" && \
     yum install -y \
