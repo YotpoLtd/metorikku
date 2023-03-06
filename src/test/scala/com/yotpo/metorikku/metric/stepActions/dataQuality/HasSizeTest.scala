@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasSize
-import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach}
@@ -41,8 +40,7 @@ class HasSizeTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "has_size with assertion 2 == on a data frame size of 3 with level error should raise exception",
-    UnsupportedInCurrentVersion
+    "has_size with assertion 2 == on a data frame size of 3 with level error should raise exception"
   ) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),
@@ -58,8 +56,7 @@ class HasSizeTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "has_size with assertion 2 == on a data frame size of 2 with level error should not raise exception",
-    UnsupportedInCurrentVersion
+    "has_size with assertion 2 == on a data frame size of 2 with level error should not raise exception"
   ) {
     val employeeData = Seq(
       ("James", 1, Integer.valueOf(11), 111, 1111),
@@ -71,8 +68,7 @@ class HasSizeTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "has_size with assertion 2 == on a data frame size of 3 with level warn should not raise exception",
-    UnsupportedInCurrentVersion
+    "has_size with assertion 2 == on a data frame size of 3 with level warn should not raise exception"
   ) {
     val employeeData = Seq(
       ("James", 1, null.asInstanceOf[Integer], 111, 1111),

@@ -2,7 +2,6 @@ package com.yotpo.metorikku.metric.stepActions.dataQuality
 
 import com.amazon.deequ.checks.Check
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasUniqueness
-import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach}
@@ -48,8 +47,7 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "has_uniqueness on a non-unique field with level error should raise exception",
-    UnsupportedInCurrentVersion
+    "has_uniqueness on a non-unique field with level error should raise exception"
   ) {
     val employeeData = Seq(
       ("Maria", 1, "Smith", 111, 1111),
@@ -64,8 +62,7 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "has_uniqueness on a unique field with level error should not raise exception",
-    UnsupportedInCurrentVersion
+    "has_uniqueness on a unique field with level error should not raise exception"
   ) {
     val employeeData = Seq(
       ("James", 1, "Smith", 111, 1111),
@@ -77,8 +74,7 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "is_unique on a non-unique field with level warn should not raise exception",
-    UnsupportedInCurrentVersion
+    "is_unique on a non-unique field with level warn should not raise exception"
   ) {
     val employeeData = Seq(
       ("James", 1, "Smith", 111, 1111),

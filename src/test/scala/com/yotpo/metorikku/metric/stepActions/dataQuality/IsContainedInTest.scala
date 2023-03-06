@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.IsContainedIn
-import com.yotpo.metorikku.tags.UnsupportedInCurrentVersion
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 import org.scalatest.{BeforeAndAfterEach}
@@ -45,8 +44,7 @@ class IsContainedInTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "is_contained_in on an unsupported field with level error should raise exception",
-    UnsupportedInCurrentVersion
+    "is_contained_in on an unsupported field with level error should raise exception"
   ) {
     val storeData = Seq(
       ("petstop", 1, "pets", 111, 1111),
@@ -62,8 +60,7 @@ class IsContainedInTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "is_contained_in on a supported field with level error should not raise exception",
-    UnsupportedInCurrentVersion
+    "is_contained_in on a supported field with level error should not raise exception"
   ) {
     val storeData = Seq(
       ("petstop", 1, "pets", 111, 1111),
@@ -76,8 +73,7 @@ class IsContainedInTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test(
-    "is_contained_in on an unsupported field with level warning should not raise exception",
-    UnsupportedInCurrentVersion
+    "is_contained_in on an unsupported field with level warning should not raise exception"
   ) {
     val storeData = Seq(
       ("petstop", 1, "pets", 111, 1111),
