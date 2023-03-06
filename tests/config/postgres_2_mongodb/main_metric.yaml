@@ -3,6 +3,36 @@ steps:
     sql: |
       SELECT id, name, test_date
       FROM test_table
+    dq:
+      level: warn
+      checks:
+        - isComplete:
+            column: id
+        - satisfies:
+            level: error
+            column: id
+            operator: ">"
+            value: 0
+        - satisfies:
+            level: error
+            column: id
+            operator: "<"
+            value: 11
+        - satisfies:
+            level: error
+            column: id
+            operator: "<="
+            value: 10
+        - satisfies:
+            level: error
+            column: id
+            operator: ">="
+            value: 1
+        - satisfies:
+            level: warn
+            column: id
+            operator: "!="
+            value: 1.0
 output:
   - dataFrameName: test_table_df
     outputType: MongoDB

@@ -15,6 +15,7 @@ The platform also includes a simple way to write unit and E2E tests.
 - Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
 - JSON schema is simplified and use pure *json-schema* with no extra elements.
+- Add more DQ check operators.
 
 ## Pre-requisites
 
