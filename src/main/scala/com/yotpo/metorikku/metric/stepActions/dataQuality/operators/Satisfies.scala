@@ -7,7 +7,7 @@ class Satisfies(
     level: Option[String],
     column: String,
     operator: String,
-    value: String,
+    value: String
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
