@@ -81,8 +81,10 @@ output:
     outputOptions:
       saveMode: Overwrite
       dbTable: table_in_db
+      # Optional: run this before writing to JDBC
+      preActions: CREATE TABLE...
       # Optional: run this after writing to JDBC
-      postQuery: CREATE INDEX...
+      postActions: CREATE INDEX...
   - dataFrameName: table1
     outputType: JDBCQuery
     outputOptions:
@@ -124,7 +126,11 @@ output:
       dbTable: table
       # Specify any copy options if required
       extraCopyOptions: TRUNCATECOLUMNS ACCEPTINVCHARS BLANKSASNULL COMPUPDATE ON
+      # Before write is completed run the following query
+      preActions: GRANT SELECT ON TABLE table TO GROUP group
       # After write is completed run the following query
+      postActions: GRANT SELECT ON TABLE table TO GROUP group
+      # After write is commited
       postActions: GRANT SELECT ON TABLE table TO GROUP group
       maxStringSize: 1000
   - dataFrameName: table1

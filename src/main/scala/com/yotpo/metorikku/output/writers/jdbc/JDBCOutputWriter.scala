@@ -18,13 +18,17 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
   override def write(dataFrame: DataFrame): Unit = {
     jdbcConf match {
       case Some(jdbcConf) =>
-        props.get("preQuery") match {
-          case Some(query) =>
+        props.get("preActions") match {
+          case Some(preActions) =>
             val conn =
               DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
-            val stmt = conn.prepareStatement(query)
-            stmt.execute()
-            stmt.close()
+
+            preActions.trim.split(";").foreach { action =>
+              val stmt = conn.prepareStatement(action)
+              stmt.execute()
+              stmt.close()
+            }
+
             conn.close()
           case _ =>
         }
@@ -55,13 +59,17 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
           .mode(dbOptions.saveMode)
           .jdbc(jdbcConf.connectionUrl, dbOptions.dbTable, connectionProperties)
 
-        props.get("postQuery") match {
-          case Some(query) =>
+        props.get("postActions") match {
+          case Some(postActions) =>
             val conn =
               DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
-            val stmt = conn.prepareStatement(query)
-            stmt.execute()
-            stmt.close()
+
+            postActions.trim.split(";").foreach { action =>
+              val stmt = conn.prepareStatement(action)
+              stmt.execute()
+              stmt.close()
+            }
+
             conn.close()
           case _ =>
         }
