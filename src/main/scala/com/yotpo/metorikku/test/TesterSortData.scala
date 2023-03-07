@@ -1,12 +1,13 @@
 package com.yotpo.metorikku.test
 
 case class TesterSortData(keys: List[String]) {
-
   def sortEnrichedRows(a: EnrichedRow, b: EnrichedRow): Boolean = {
     for (colName <- keys) {
       if (a.row.get(colName) != b.row.get(colName)) {
-        return a.row.getOrElse(colName, 0).toString().hashCode() < b.row
-          .getOrElse(colName, 0)
+        return a.row.get(colName).filter(_ != null).getOrElse(0).toString().hashCode() < b.row
+          .get(colName)
+          .filter(_ != null)
+          .getOrElse(0)
           .toString()
           .hashCode()
       }
