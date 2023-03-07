@@ -22,13 +22,11 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
           case Some(preActions) =>
             val conn =
               DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
-
             preActions.trim.split(";").foreach { action =>
               val stmt = conn.prepareStatement(action)
               stmt.execute()
               stmt.close()
             }
-
             conn.close()
           case _ =>
         }
@@ -63,17 +61,14 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
           case Some(postActions) =>
             val conn =
               DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
-
             postActions.trim.split(";").foreach { action =>
               val stmt = conn.prepareStatement(action)
               stmt.execute()
               stmt.close()
             }
-
             conn.close()
           case _ =>
         }
-
       case None =>
     }
   }

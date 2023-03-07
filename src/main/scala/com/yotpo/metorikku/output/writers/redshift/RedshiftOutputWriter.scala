@@ -47,7 +47,6 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
             .foreach(f => {
               val maxlength       = dbOptions.maxStringSize.toInt
               val varcharMetaData = new MetadataBuilder().putLong("maxlength", maxlength).build()
-
               df = df.withColumn(f.name, df(f.name).as(f.name, varcharMetaData))
             })
         }
@@ -73,7 +72,6 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
           case Some(awsIAMRole) => writer.option("aws_iam_role", awsIAMRole)
           case _                => writer.option("forward_spark_s3_credentials", true)
         }
-
         dbOptions.extraOptions match {
           case Some(options) => writer.options(options)
           case None          =>
@@ -83,17 +81,14 @@ class RedshiftOutputWriter(props: Map[String, String], redshiftDBConf: Option[Re
         dbOptions.postCommitActions match {
           case Some(postCommitActions) =>
             val conn = DriverManager.getConnection(redshiftDBConf.jdbcURL)
-
             postCommitActions.trim.split(";").foreach { action =>
               val stmt = conn.prepareStatement(action)
               stmt.execute()
               stmt.close()
             }
-
             conn.close()
           case _ =>
         }
-
       case None => log.error(s"Redshift DB configuration isn't provided")
     }
   }
