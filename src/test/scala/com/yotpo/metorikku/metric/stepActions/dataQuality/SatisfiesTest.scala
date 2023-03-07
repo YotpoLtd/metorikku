@@ -22,14 +22,21 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def valideSatisfiesOverDf(
       employeeData: Seq[(String, Int, String, Int, Int)],
-      column: String,
+      columnCondition: String,
       operator: String,
       value: String,
-      level: String
+      level: String,
+      where: Option[String] = None
   ) = {
     val sqlContext = sparkSession.sqlContext
     val satisfiesCheck =
-      new Satisfies(level = Some(level), column = column, operator = operator, value = value)
+      new Satisfies(
+        level = Some(level),
+        columnCondition = columnCondition,
+        operator = operator,
+        value = value,
+        where = where
+      )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](
         DataQualityCheck(None, None, satisfies = Some(satisfiesCheck))
@@ -87,6 +94,19 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
     val level = "warn"
 
     valideSatisfiesOverDf(employeeData, "id", "!=", "1.0", level)
+  }
+
+  test(
+    "satisfies on a field with level error and where should not raise exception"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, "Smith", 111, 1111),
+      ("Maria", 1, "Pitt", 222, 2222)
+    )
+    val level = "error"
+
+    valideSatisfiesOverDf(employeeData, "name", "==", "'Smith'", level, Option("fake == 111"))
+    valideSatisfiesOverDf(employeeData, "name", "==", "'Pitt'", level, Option("fake == 222"))
   }
 
   override def afterEach() {
