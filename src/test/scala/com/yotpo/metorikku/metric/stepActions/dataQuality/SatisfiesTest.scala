@@ -22,7 +22,7 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def valideSatisfiesOverDf(
       employeeData: Seq[(String, Int, String, Int, Int)],
-      columnCondition: String,
+      column: String,
       operator: String,
       value: String,
       level: String,
@@ -32,7 +32,7 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
     val satisfiesCheck =
       new Satisfies(
         level = Some(level),
-        columnCondition = columnCondition,
+        column = column,
         operator = operator,
         value = value,
         where = where

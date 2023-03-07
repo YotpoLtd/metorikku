@@ -56,7 +56,7 @@ Required parameter: `column`
 Required parameter: `allowedValues` (List of strings)
 ##### `satisfies`
 Creates a constraint that asserts a given condition on a single column.
-Required parameter: `columnCondition`
+Required parameter: `column`
 Required parameter: `operator` Valid values: [==, !=, >=, >, <=, <]
 Required parameter: `value`
 Required parameter: `where` Defines a filter to apply before evaluating the constraint
