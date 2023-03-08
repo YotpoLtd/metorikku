@@ -5,9 +5,9 @@ metrics:
 inputs:
   test_table:
     jdbc:
-      connectionUrl: "jdbc:postgresql://postgres:5432/${POSTGRES_DB}"
-      user: "${POSTGRES_USER}"
-      password: "${POSTGRES_PASSWORD}"
+      connectionUrl: "jdbc:postgresql://postgres:5432/{{ POSTGRES_DB }}"
+      user: "{{ POSTGRES_USER }}"
+      password: "{{ POSTGRES_PASSWORD }}"
       driver: "org.postgresql.Driver"
       dbTable: "(select id, name, test_date from test.test_table) as test_table"
       partitionColumn: "test_date"

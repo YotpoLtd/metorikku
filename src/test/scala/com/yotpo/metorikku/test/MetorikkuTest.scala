@@ -1051,6 +1051,21 @@ class MetorikkuTest extends AnyFunSuite with BeforeAndAfterAll {
     )
   }
 
+  test(
+    "Test Metorikku should support Jinja templating"
+  ) {
+    var definedKeys = List[String]()
+    val test = parseConfigurationFile(
+      "src/test/configurations/metorikku-tester-test-jinja-templating.json.tpl"
+    )
+    val basePath = new File("src/test/configurations")
+    val preview  = 5
+    val testConf = TesterConfig(test, basePath, preview)
+
+    definedKeys = testConf.test.tests.head._2(0).keys.toList
+    Tester(testConf).run()
+  }
+
   private def assertMismatchExpected(
       definedKeys: List[String],
       thrownMsg: String,

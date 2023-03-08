@@ -9,9 +9,9 @@ inputs:
 
 output:
   jdbc:
-    connectionUrl: "jdbc:postgresql://postgres:5432/${POSTGRES_DB}"
-    user: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    connectionUrl: "jdbc:postgresql://postgres:5432/{{ POSTGRES_DB }}"
+    user: "{{ POSTGRES_USER }}"
+    password: "{{ POSTGRES_PASSWORD }}"
     driver: "org.postgresql.Driver"
 
 explain: true

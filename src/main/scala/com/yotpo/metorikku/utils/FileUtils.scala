@@ -1,16 +1,21 @@
 package com.yotpo.metorikku.utils
 
-import java.io.{BufferedReader, File, FileNotFoundException, InputStreamReader}
-import java.util.stream.Collectors
-
-import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.hubspot.jinjava.Jinjava
 import com.yotpo.metorikku.input.readers.file.FileType
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.text.StringSubstitutor
-import org.apache.hadoop.fs.{FSDataInputStream, FileSystem, Path}
+import org.apache.hadoop.fs.FSDataInputStream
+import org.apache.hadoop.fs.FileSystem
+import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SparkSession
 
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStreamReader
+import java.util.stream.Collectors
 import scala.collection.JavaConverters._
 
 case class HadoopPath(path: Path, fs: FileSystem) {
@@ -66,8 +71,10 @@ object FileUtils {
     val envAndSystemProperties = getEnvProperties()
     val prefix = getFilesPathPrefix(Option.apply(envAndSystemProperties)).getOrElse("")
 
+    val jinjava = new Jinjava()
+
     val fileContents = readFileWithHadoop(prefix + path)
-    StringSubstitutor.replace(fileContents, envAndSystemProperties.asJava)
+    jinjava.render(fileContents, envAndSystemProperties.asJava)
   }
 
   def getEnvProperties(): Map[String, String] = {

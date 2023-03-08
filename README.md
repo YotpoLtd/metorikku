@@ -16,6 +16,7 @@ The platform also includes a simple way to write unit and E2E tests.
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
 - JSON schema is simplified and use pure *json-schema* with no extra elements.
 - Add more DQ check operators.
+- Compatible with [Jinja templating engine](https://jinja.palletsprojects.com/) instead of `org.apache.commons.text.StringSubstitutor`.
 
 ## Pre-requisites
 
