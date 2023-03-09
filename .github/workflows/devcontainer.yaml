@@ -26,6 +26,14 @@ jobs:
         run: |
           echo 'GITHUB_USER=${{ github.repository_owner }}' >> .env
           echo 'GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}' >> .env
+      - name: Prune
+        uses: vlaurin/action-ghcr-prune@v0.5.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          organization: ${{ github.repository_owner }}
+          container: ghcr.io/${{ github.repository }}
+          keep-last: 2
+          prune-untagged: true
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
