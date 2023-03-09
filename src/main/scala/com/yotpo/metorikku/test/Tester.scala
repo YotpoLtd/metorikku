@@ -88,13 +88,16 @@ case class Tester(config: TesterConfig) {
 
   private def setSystemProperties(
       systemProperties: Option[Map[String, String]]
-  ) = systemProperties
-    .getOrElse(Map.empty())
-    .foreach(_ match {
-      case (k, v) => {
-        System.setProperty(k, v)
-      }
-    })
+  ) =
+    systemProperties
+      .getOrElse(Map.empty)
+      .foreach(_ match {
+        case (k, v) => {
+          this.synchronized {
+            System.setProperty(k, v)
+          }
+        }
+      })
 
   private def getMockFilesForStreamingInputs(
       mocks: Option[List[Mock]],
