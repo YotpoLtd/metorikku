@@ -31,9 +31,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           organization: ${{ github.repository_owner }}
-          container: ghcr.io/${{ github.repository }}
-          keep-last: 2
-          prune-untagged: true
+          container: ${{ github.event.repository.name }}
+          untagged: true
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
