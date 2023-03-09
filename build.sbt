@@ -81,7 +81,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.datatype"      % "jackson-datatype-jdk8"     % jacksonVersion.value,
   "com.fasterxml.jackson.datatype"      % "jackson-datatype-jsr310"   % jacksonVersion.value,
   "com.fasterxml.jackson.module"       %% "jackson-module-scala"      % jacksonVersion.value,
-  "com.hubspot.jinjava"                 % "jinjava"                   % "2.7.0",
+  "com.hubspot.jinjava"                 % "jinjava"                   % "2.7.0" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),,
   "org.influxdb"                        % "influxdb-java"             % "2.23",
   "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0",
   "com.segment.analytics.java"          % "analytics"                 % "2.1.1" % "provided",
