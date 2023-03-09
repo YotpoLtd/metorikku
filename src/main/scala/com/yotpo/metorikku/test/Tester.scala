@@ -54,8 +54,12 @@ case class Tester(config: TesterConfig) {
     val metrics   = getMetricFromDir(config.test.metric, config.basePath)
     val params    = config.test.params.getOrElse(Params(None))
     val variables = params.variables
+
+    setSystemProperties(params.systemProperties)
+
     val inputs =
       getMockFilesForStreamingInputs(config.test.mocks, config.basePath)
+
     Configuration(
       Option(metrics),
       inputs,
@@ -81,6 +85,16 @@ case class Tester(config: TesterConfig) {
       None
     )
   }
+
+  private def setSystemProperties(
+      systemProperties: Option[Map[String, String]]
+  ) = systemProperties
+    .getOrElse(Map.empty())
+    .foreach(_ match {
+      case (k, v) => {
+        System.setProperty(k, v)
+      }
+    })
 
   private def getMockFilesForStreamingInputs(
       mocks: Option[List[Mock]],

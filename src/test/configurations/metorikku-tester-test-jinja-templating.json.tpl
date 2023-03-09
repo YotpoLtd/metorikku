@@ -1,6 +1,11 @@
 {%- set array = [("default.accounts", "mocks/accounts.jsonl"), ("metadatas.accounts", "mocks/accounts_metadata.jsonl")] %}
 {
-  "metric": "metorikku-tester-test-multiple-databases.yaml",
+  "metric": "metorikku-tester-test-multiple-databases-filtered.yaml",
+  "params": {
+    "systemProperties": {
+      "MIN_METADATA": "2"
+    }
+  },
   "mocks": [
     {%- for x in array %}
     {
@@ -11,11 +16,6 @@
   ],
   "tests": {
     "accountsDf": [
-      {
-        "app_key": "AAAA",
-        "id": "A",
-        "metadata": 1
-      },
       {
         "app_key": "BBBB",
         "id": "B",

@@ -1,0 +1,13 @@
+steps:
+  - dataFrameName: accountsDf
+    sql: SELECT a.app_key, a.id, am.metadata
+      FROM accounts AS a
+      INNER JOIN metadatas.accounts am ON a.id = am.id
+      WHERE am.metadata >= {{ MIN_METADATA }}
+
+output:
+  - dataFrameName: accountsDf
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: accountsDf.parquet
