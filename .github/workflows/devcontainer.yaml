@@ -3,6 +3,14 @@ name: "Build DevContainer image"
 on:
   workflow_dispatch:
     inputs: {}
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - .devcontainer/**
+      - pyproject.toml
+      - build.gradle
 
 jobs:
   build:
