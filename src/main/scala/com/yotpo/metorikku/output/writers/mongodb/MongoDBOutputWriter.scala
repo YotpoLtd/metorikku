@@ -68,7 +68,7 @@ class MongoDBOutputWriter(
             builder
               .enabled(mongoDBProps.ssl.getOrElse(false))
               .invalidHostNameAllowed(
-                mongoDBProps.sslDomainMatch.getOrElse(false)
+                !mongoDBProps.sslDomainMatch.getOrElse(false)
               )
           }
         })
