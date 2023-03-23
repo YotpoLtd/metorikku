@@ -7,7 +7,8 @@ import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.{
   IsComplete,
   IsUnique,
   IsContainedIn,
-  Satisfies
+  Satisfies,
+  AreAnyComplete
 }
 import org.apache.log4j.LogManager
 
@@ -17,15 +18,17 @@ case class DataQualityCheck(
     hasSize: Option[HasSize] = None,
     hasUniqueness: Option[HasUniqueness] = None,
     isContainedIn: Option[IsContainedIn] = None,
-    satisfies: Option[Satisfies] = None
+    satisfies: Option[Satisfies] = None,
+    areAnyComplete: Option[AreAnyComplete] = None
 ) {
   private val log = LogManager.getLogger(this.getClass)
 
   def getCheck(level: String): Check = {
-    val operator = Seq(isComplete, isUnique, hasSize, hasUniqueness, isContainedIn, satisfies)
-      .find(x => x.isDefined)
-      .get
-      .get
+    val operator =
+      Seq(isComplete, isUnique, hasSize, hasUniqueness, isContainedIn, satisfies, areAnyComplete)
+        .find(x => x.isDefined)
+        .get
+        .get
     try {
       operator.getCheck(operator.level.getOrElse(level))
     } catch {

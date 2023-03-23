@@ -60,6 +60,9 @@ Required parameter: `column`
 Required parameter: `operator` Valid values: [==, !=, >=, >, <=, <]
 Required parameter: `value`
 Required parameter: `where` Defines a filter to apply before evaluating the constraint
+##### `areAnyComplete`
+Creates a constraint that asserts that al least one column is complete.
+Required parameter: `columns`
 
 ### Failures
 To help debug dataframes that failed verification, they will be stored as Parquet files.
