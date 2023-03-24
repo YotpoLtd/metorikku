@@ -11,4 +11,5 @@ case class Output(cassandra: Option[Cassandra] = None,
                   file: Option[File] = None,
                   kafka: Option[Kafka] = None,
                   elasticsearch: Option[Elasticsearch] = None,
-                  hudi: Option[Hudi] = None)
+                  hudi: Option[Hudi] = None,
+                  dynamodb: Option[Dynamodb] = None)

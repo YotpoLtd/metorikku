@@ -1,0 +1,16 @@
+steps:
+- dataFrameName: RatedMovies
+  sql:
+    SELECT userid,
+           movies.movieid,
+           AVG(rating)
+    FROM movies
+    LEFT JOIN ratings ON ratings.movieid = movies.movieid
+    GROUP BY 1,2
+output:
+- dataFrameName: RatedMovies
+  outputType: Dynamodb
+  outputOptions:
+    tableName: movies
+    options:
+      dynamodb.endpoint: dynamodb:8000
