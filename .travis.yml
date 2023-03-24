@@ -42,7 +42,7 @@ before_script:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 jobs:
   include:
-    - stage: "Build"
+    - stage: "Build1"
       script: scripts/travis_build.sh
       before_cache: scripts/before_cache.sh
     - stage: "Tests"
