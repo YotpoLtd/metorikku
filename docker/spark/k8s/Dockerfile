@@ -34,6 +34,9 @@ ADD https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.28/mysql-conne
 ADD https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/3.0.1/mongo-spark-connector_2.12-3.0.1.jar $SPARK_HOME/jars
 ADD https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/3.12.10/mongo-java-driver-3.12.10.jar $SPARK_HOME/jars
 
+# Delta dependencies.
+ADD https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.0.2/delta-core_2.12-2.0.2.jar $SPARK_HOME/jars
+
 RUN chmod 644 $SPARK_HOME/jars/*
 
 ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.11.0/jmx_prometheus_javaagent-0.11.0.jar /prometheus/
