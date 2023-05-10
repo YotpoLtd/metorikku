@@ -1,0 +1,73 @@
+---
+title: JSON schema for Metroikku test config files
+"$schema": https://json-schema.org/draft/2020-12/schema
+filematch:
+  - "*.json"
+  - "*.yaml"
+  - "*.yml"
+type: object
+additionalProperties: false
+properties:
+  metric:
+    type: string
+  mocks:
+    type: array
+    items:
+      "$ref": "#/$defs/mock"
+    minItems: 1
+  params:
+    "$ref": "#/$defs/params"
+  tests:
+    type: object
+    patternProperties:
+      ".+":
+        "$ref": "#/$defs/test"
+  keys:
+    type: object
+    patternProperties:
+      ".+":
+        "$ref": "#/$defs/arr_str"
+    minItems: 1
+  outputMode:
+    type: string
+required:
+  - metric
+  - tests
+"$defs":
+  arr_str:
+    type: array
+    items:
+      type: string
+    minItems: 1
+  test:
+    type: array
+    items:
+      anyOf:
+        - type: string
+        - type: integer
+        - type: number
+        - type: array
+        - type: object
+    minItems: 1
+
+  mock:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      path:
+        type: string
+      streaming:
+        type: boolean
+    required:
+      - name
+      - path
+  params:
+    type: object
+    additionalProperties: false
+    properties:
+      variables:
+        type: object
+      systemProperties:
+        type: object

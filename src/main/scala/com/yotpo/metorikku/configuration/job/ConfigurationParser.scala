@@ -2,7 +2,7 @@ package com.yotpo.metorikku.configuration.job
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
+import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidFileException}
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser
@@ -10,6 +10,7 @@ import scopt.OptionParser
 import scala.util.{Try, Success, Failure}
 
 import java.io.StringWriter
+import com.yotpo.metorikku.configuration.ConfigurationType
 
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
@@ -94,21 +95,32 @@ object ConfigurationParser {
   ): Configuration = {
     mapper match {
       case Some(mapper) => {
+        Try(FileUtils.validateConfigFile(job, ConfigurationType.job, mapper)) match {
+          case Success(v) => v
+          case Failure(e) =>
+            log.debug(s"Failed validating JOB config file", e)
+
+            throw MetorikkuInvalidFileException(
+              "Failed validating JOB config file",
+              e
+            )
+        }
+
         mapper.registerModule(DefaultScalaModule)
         Try(mapper.readValue(job, classOf[Configuration])) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Failed parsing config file[$job]", e)
+            log.debug(s"Failed parsing JOB config file", e)
 
-            throw MetorikkuInvalidMetricFileException(
-              "Failed parsing config file",
+            throw MetorikkuInvalidFileException(
+              "Failed parsing JOB config file",
               e
             )
         }
       }
       case None =>
-        throw MetorikkuInvalidMetricFileException(
-          s"File extension should be json or yaml"
+        throw MetorikkuInvalidFileException(
+          s"Failed validating JOB Config File: unknown extension"
         )
     }
   }

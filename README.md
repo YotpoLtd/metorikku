@@ -258,7 +258,7 @@ In order to generate a new version:
     docker exec -it $(docker ps -aqf "name=service-java-data-pipelines-metorikku_devcontainer-mongodb-1") bash -c 'mongo'
     ```
 
-3. Creete package without testing:
+3. Create package without testing:
 
     ```bash
     sbt 'set test in assembly := {}' clean assembly

@@ -3,11 +3,15 @@ package com.yotpo.metorikku.configuration.metric
 import java.io.{File, FileNotFoundException}
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import com.yotpo.metorikku.metric.Metric
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.apache.log4j.{LogManager, Logger}
+import com.yotpo.metorikku.configuration.ConfigurationType
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
@@ -33,20 +37,36 @@ object ConfigurationParser {
       val metricConfig = parseFile(path)
       Metric(metricConfig, metricDir, FilenameUtils.removeExtension(fileName))
     } catch {
-      case e: FileNotFoundException => throw e
+      case e: FileNotFoundException         => throw e
+      case e: MetorikkuInvalidFileException => throw e
       case e: Exception =>
-        throw MetorikkuInvalidMetricFileException(s"Failed to parse metric file $fileName", e)
+        throw MetorikkuInvalidFileException(s"Failed parsing METRIC config file[$fileName]", e)
     }
   }
 
   private def parseFile(fileName: String): Configuration = {
     FileUtils.getObjectMapperByExtension(fileName) match {
       case Some(mapper) => {
+        val configFile = FileUtils.readConfigurationFile(fileName)
+
+        Try(FileUtils.validateConfigFile(configFile, ConfigurationType.metric, mapper)) match {
+          case Success(v) => v
+          case Failure(e) =>
+            log.debug(s"Failed validating METRIC config file[$fileName]", e)
+
+            throw MetorikkuInvalidFileException(
+              s"Failed validating METRIC config file[$fileName]",
+              e
+            )
+        }
+
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
+        mapper.readValue(configFile, classOf[Configuration])
       }
       case None =>
-        throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+        throw MetorikkuInvalidFileException(
+          s"Failed validating METRIC config file[$fileName]: unknown extension"
+        )
     }
   }
 }

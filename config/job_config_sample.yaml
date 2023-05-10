@@ -24,17 +24,17 @@ inputs:
       # Optional define stream reader that can be used to read streaming data.
       isStream: true
   input_3:
-      file_date_range:
-        template: parquet/%s/input_1.parquet
-        date_range:
-          format: yyyy/MM/dd
-          startDate: 2017/09/01
-          endDate: 2017/09/03
-        # Below are optional (check out the file input example above)
-        format: parquet
-        schemaPath: schema/schema.json
-        options:
-          opt: val
+    file_date_range:
+      template: parquet/%s/input_1.parquet
+      date_range:
+        format: yyyy/MM/dd
+        startDate: 2017/09/01
+        endDate: 2017/09/03
+      # Below are optional (check out the file input example above)
+      format: parquet
+      schemaPath: schema/schema.json
+      options:
+        opt: val
   input_4:
     jdbc:
       connectionUrl: jdbc:mysql://localhost/db?zeroDateTimeBehavior=convertToNull
@@ -46,16 +46,16 @@ inputs:
         numPartitions: 100
         driver: com.mysql.jdbc.Driver
   input_5:
-      kafka:
-        servers:
-          - localhost:9092
-        topic: some_topic
-        schemaRegistryUrl: https://schema-registry-url # optional
-        schemaSubject: subject # optional
-        # Add any other options supported by the DataStreamWriter/Kafka Producer
-        extraOptions:
-          kafka.max.request.size: "30000000"
-          opt: val
+    kafka:
+      servers:
+        - localhost:9092
+      topic: some_topic
+      schemaRegistryUrl: https://schema-registry-url # optional
+      schemaSubject: subject # optional
+      # Add any other options supported by the DataStreamWriter/Kafka Producer
+      extraOptions:
+        kafka.max.request.size: "30000000"
+        opt: val
   input_6:
     cassandra:
       host: 127.0.0.1
@@ -76,12 +76,11 @@ inputs:
       database: test
       collection: users
 
-
 # Set custom variables that would be accessible from the SQL
 variables:
- StartDate: 2017/09/01
- EndDate: 2017/09/20
- TrimmedDateFormat: yyyy/MM/dd
+  StartDate: 2017/09/01
+  EndDate: 2017/09/20
+  TrimmedDateFormat: yyyy/MM/dd
 
 output:
   # elasticsearch Database argument: (host:port) specifying host (under nodes option) is mandatory.
@@ -144,7 +143,8 @@ output:
       part: 0
     # Optional: extra options (http://hudi.incubator.apache.org/configurations.html)
     options:
-      ....
+      propery_a: value_a
+      propery_b: value_b
   mongodb:
     uri: mongodb://localhost:27017
     options:
@@ -159,7 +159,8 @@ output:
     generateManifest: true
     # Optional: extra options (https://docs.delta.io/latest/delta-batch.html)
     options:
-      ....
+      propery_a: value_a
+      propery_b: value_b
 
 # You can also use named outputs (all outputs above are supported)
 outputs:
@@ -169,7 +170,6 @@ outputs:
   fileDir2:
     file:
       dir: /path/to/parquet/output2
-
 
 # If set to true, triggers Explain before saving
 explain: true

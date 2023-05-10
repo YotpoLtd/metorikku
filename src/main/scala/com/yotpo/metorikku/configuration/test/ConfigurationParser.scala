@@ -4,10 +4,15 @@ import java.io.File
 import java.nio.file.{Files, Paths}
 
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.yotpo.metorikku.exceptions.{MetorikkuException, MetorikkuInvalidMetricFileException}
+import com.yotpo.metorikku.exceptions.{MetorikkuException}
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import com.yotpo.metorikku.utils.FileUtils
 import org.apache.log4j.{LogManager, Logger}
 import scopt.OptionParser
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
+import _root_.com.yotpo.metorikku.configuration.ConfigurationType
 
 object ConfigurationParser {
   val log: Logger = LogManager.getLogger(this.getClass)
@@ -56,11 +61,26 @@ object ConfigurationParser {
   def parseConfigurationFile(fileName: String): Configuration = {
     FileUtils.getObjectMapperByExtension(fileName) match {
       case Some(mapper) => {
+        val configFile = FileUtils.readConfigurationFile(fileName)
+
+        Try(FileUtils.validateConfigFile(configFile, ConfigurationType.test, mapper)) match {
+          case Success(v) => v
+          case Failure(e) =>
+            log.debug(s"Failed validating TEST Config File[$fileName]", e)
+
+            throw MetorikkuInvalidFileException(
+              s"Failed validating TEST Config File[$fileName]",
+              e
+            )
+        }
+
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(FileUtils.readConfigurationFile(fileName), classOf[Configuration])
+        mapper.readValue(configFile, classOf[Configuration])
       }
       case None =>
-        throw MetorikkuInvalidMetricFileException(s"Unknown extension for file $fileName")
+        throw MetorikkuInvalidFileException(
+          s"Failed validating TEST Config File[$fileName]: unknown extension"
+        )
     }
   }
 

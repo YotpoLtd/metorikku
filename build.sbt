@@ -73,15 +73,15 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt"         % "3.7.1",
   "org.scala-lang"    % "scala-library" % scalaVersion.value,
   "com.typesafe.play" %% "play-json" % "2.9.3" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "com.fasterxml.jackson.core"          % "jackson-annotations"       % jacksonVersion.value,
-  "com.fasterxml.jackson.core"          % "jackson-core"              % jacksonVersion.value,
-  "com.fasterxml.jackson.core"          % "jackson-databind"          % jacksonVersion.value,
-  "com.fasterxml.jackson.dataformat"    % "jackson-dataformat-cbor"   % jacksonVersion.value,
-  "com.fasterxml.jackson.dataformat"    % "jackson-dataformat-yaml"   % jacksonVersion.value,
-  "com.fasterxml.jackson.datatype"      % "jackson-datatype-jdk8"     % jacksonVersion.value,
-  "com.fasterxml.jackson.datatype"      % "jackson-datatype-jsr310"   % jacksonVersion.value,
-  "com.fasterxml.jackson.module"       %% "jackson-module-scala"      % jacksonVersion.value,
-  "com.hubspot.jinjava"                 % "jinjava"                   % "2.7.0" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
+  "com.fasterxml.jackson.core"       % "jackson-annotations"     % jacksonVersion.value,
+  "com.fasterxml.jackson.core"       % "jackson-core"            % jacksonVersion.value,
+  "com.fasterxml.jackson.core"       % "jackson-databind"        % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion.value,
+  "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
+  "com.fasterxml.jackson.datatype"   % "jackson-datatype-jdk8"   % jacksonVersion.value,
+  "com.fasterxml.jackson.datatype"   % "jackson-datatype-jsr310" % jacksonVersion.value,
+  "com.fasterxml.jackson.module"    %% "jackson-module-scala"    % jacksonVersion.value,
+  "com.hubspot.jinjava" % "jinjava" % "2.7.0" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
   "org.influxdb"                        % "influxdb-java"             % "2.23",
   "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0",
   "com.segment.analytics.java"          % "analytics"                 % "2.1.1" % "provided",
@@ -101,7 +101,8 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-core"            % "2.19.0" % "provided",
   "org.apache.logging.log4j" % "log4j-slf4j-impl"      % "2.19.0" % "provided",
   "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
-  "io.delta"                %% "delta-core"            % "2.2.0"
+  "io.delta"                %% "delta-core"            % "2.2.0",
+  "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule)
 )
 
 resolvers ++= Seq(

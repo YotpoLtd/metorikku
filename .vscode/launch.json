@@ -29,6 +29,21 @@
             "jvmOptions": [
                 "-Dspark.master=local[*]"
             ]
+        },
+        {
+            "type": "scala",
+            "request": "launch",
+            "name": "MetorikkuValidator",
+            "mainClass": "com.yotpo.metorikku.MetorikkuValidator",
+            "args": [
+                "--file",
+                "tests/config/postgres_2_mongodb/main_metric.yaml",
+                "--type",
+                "metric"
+            ],
+            "jvmOptions": [
+                "-Dspark.master=local[*]"
+            ]
         }
     ]
 }

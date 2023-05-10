@@ -1,0 +1,219 @@
+---
+title: JSON schema for Metroikku metric config files
+"$schema": https://json-schema.org/draft/2020-12/schema
+filematch:
+  - "*.json"
+  - "*.yaml"
+  - "*.yml"
+type: object
+additionalProperties: false
+properties:
+  steps:
+    type: array
+    items:
+      "$ref": "#/$defs/step"
+    minItems: 1
+  output:
+    type: array
+    items:
+      "$ref": "#/$defs/output"
+required:
+  - steps
+  - output
+"$defs":
+  step:
+    type: object
+    additionalProperties: false
+    properties:
+      sql:
+        type: string
+      file:
+        type: string
+      classpath:
+        type: string
+      dataFrameName:
+        type: string
+      params:
+        type: object
+      ignoreOnFailures:
+        type: boolean
+      dq:
+        type: object
+        additionalProperties: false
+        properties:
+          checks:
+            type: array
+            items:
+              type: object
+              additionalProperties: false
+              properties:
+                isComplete:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    column:
+                      type: string
+                  required:
+                    - column
+                isUnique:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    column:
+                      type: string
+                  required:
+                    - column
+                hasSize:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    size:
+                      anyOf:
+                        - type: integer
+                        - type: string
+                    operator:
+                      type: string
+                  required:
+                    - size
+                    - operator
+                hasUniqueness:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    columns:
+                      type: array
+                      items:
+                        type: string
+                      minItems: 1
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    operator:
+                      type: string
+                  required:
+                    - columns
+                isContainedIn:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    column:
+                      type: string
+                    allowedValues:
+                      type: array
+                      items:
+                        type: string
+                      minItems: 1
+                  required:
+                    - column
+                    - allowedValues
+                satisfies:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    column:
+                      type: string
+                    operator:
+                      type: string
+                    value:
+                      anyOf:
+                        - type: boolean
+                        - type: number
+                        - type: string
+                    where:
+                      type: string
+                  required:
+                    - column
+                    - operator
+                    - value
+                areAnyComplete:
+                  type: object
+                  properties:
+                    level:
+                      type: string
+                      pattern: "^(warn|warning|error)$"
+                    columns:
+                      type: array
+                      items:
+                        type: string
+                      minItems: 1
+                  required:
+                    - columns
+              anyOf:
+                - required:
+                    - isComplete
+                - required:
+                    - isUnique
+                - required:
+                    - hasSize
+                - required:
+                    - hasUniqueness
+                - required:
+                    - isContainedIn
+                - required:
+                    - satisfies
+                - required:
+                    - areAnyComplete
+          level:
+            type: string
+            pattern: "^(warn|warning|error)$"
+          cacheDf:
+            type: boolean
+          failedDfLocation:
+            type: string
+        required:
+          - checks
+          - level
+      checkpoint:
+        type: boolean
+    anyOf:
+      - required:
+          - sql
+      - required:
+          - file
+      - required:
+          - classpath
+  output:
+    type: object
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+      dataFrameName:
+        type: string
+      outputType:
+        type: string
+        pattern: "^(Parquet|Cassandra|CSV|JSON|Redshift|Redis|Segment|Instrumentation|JDBC|JDBCQuery|Elasticsearch|File|Kafka|Catalog|Hudi|MongoDB|Delta)$"
+      reportLag:
+        type: boolean
+      reportLagTimeColumn:
+        type: boolean
+      reporreportLagTimeColumnUnitstLag:
+        type: boolean
+      repartition:
+        anyOf:
+          - type: integer
+          - type: string
+      coalesce:
+        type: boolean
+      protectFromEmptyOutput:
+        type: boolean
+      outputOptions:
+        type: object
+        minItems: 1
+    required:
+      - dataFrameName
+      - outputType
+      - outputOptions

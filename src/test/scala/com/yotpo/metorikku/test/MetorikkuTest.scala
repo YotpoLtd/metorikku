@@ -9,7 +9,7 @@ import com.yotpo.metorikku.configuration.test.ConfigurationParser.{
   TesterConfig,
   parseConfigurationFile
 }
-import com.yotpo.metorikku.exceptions.MetorikkuInvalidMetricFileException
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.{Assertion, BeforeAndAfterAll}
@@ -84,7 +84,7 @@ class MetorikkuTest extends AnyFunSuite with BeforeAndAfterAll {
   }
 
   test("Test Metorikku should Fail on invalid Writer") {
-    assertThrows[MetorikkuInvalidMetricFileException] {
+    assertThrows[MetorikkuInvalidFileException] {
       Metorikku.main(
         Array(
           "-c",

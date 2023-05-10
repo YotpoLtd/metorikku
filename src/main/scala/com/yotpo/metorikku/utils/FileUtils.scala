@@ -17,6 +17,13 @@ import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import java.util.stream.Collectors
 import scala.collection.JavaConverters._
+import com.yotpo.metorikku.configuration.ConfigurationType
+import io.vertx.core.json.JsonObject
+import io.vertx.json.schema.{Draft, SchemaRepository, JsonSchemaOptions, Validator}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import io.vertx.json.schema.JsonSchema
+import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
+import io.vertx.json.schema.OutputFormat
 
 case class HadoopPath(path: Path, fs: FileSystem) {
   def open: FSDataInputStream = {
@@ -125,5 +132,44 @@ object FileUtils {
       case FileType.csv                   => "csv"
       case _                              => "parquet"
     }
+  }
+
+  private def convertToJson(
+      input: String,
+      inputObjectMapper: ObjectMapper = getObjectMapperByExtension("yaml").get
+  ): String = {
+    inputObjectMapper.registerModule(DefaultScalaModule)
+
+    val jsonMapper = getObjectMapperByExtension("json").get
+    jsonMapper.registerModule(DefaultScalaModule)
+
+    val inputObject = inputObjectMapper.readValue(input, classOf[Map[String, AnyRef]])
+
+    jsonMapper.writeValueAsString(inputObject)
+  }
+
+  def validateConfigFile(
+      configFile: String,
+      configType: ConfigurationType.ConfigurationType,
+      configFileMapper: ObjectMapper
+  ): Unit = {
+    val schemaYaml = configType.getSchema()
+    val schemaJson = convertToJson(schemaYaml)
+
+    val configFileJson = convertToJson(configFile, configFileMapper)
+
+    val schema = JsonSchema.of(new JsonObject(schemaJson))
+
+    val validationResult = Validator
+      .create(
+        schema,
+        new JsonSchemaOptions()
+          .setDraft(Draft.DRAFT202012)
+          .setBaseUri("https://metorikku.org")
+          .setOutputFormat(OutputFormat.Basic)
+      )
+      .validate(new JsonObject(configFileJson))
+
+    validationResult.checkValidity()
   }
 }
