@@ -165,7 +165,7 @@ object FileUtils {
         schema,
         new JsonSchemaOptions()
           .setDraft(Draft.DRAFT202012)
-          .setBaseUri("https://metorikku.org")
+          .setBaseUri(s"https://github.com/syngenta-digital/service-java-data-pipelines-metorikku/schemas/${configType.toString()}")
           .setOutputFormat(OutputFormat.Basic)
       )
       .validate(new JsonObject(configFileJson))

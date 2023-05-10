@@ -98,10 +98,10 @@ object ConfigurationParser {
         Try(FileUtils.validateConfigFile(job, ConfigurationType.job, mapper)) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Failed validating JOB config file", e)
+            log.debug(s"Error validating JOB Metorikku file", e)
 
             throw MetorikkuInvalidFileException(
-              "Failed validating JOB config file",
+              "Error validating JOB Metorikku file",
               e
             )
         }
@@ -110,17 +110,17 @@ object ConfigurationParser {
         Try(mapper.readValue(job, classOf[Configuration])) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Failed parsing JOB config file", e)
+            log.debug(s"Error parsing JOB Metorikku file", e)
 
             throw MetorikkuInvalidFileException(
-              "Failed parsing JOB config file",
+              "Error parsing JOB Metorikku file",
               e
             )
         }
       }
       case None =>
         throw MetorikkuInvalidFileException(
-          s"Failed validating JOB Config File: unknown extension"
+          s"Error parsing JOB Metorikku file: unknown extension"
         )
     }
   }

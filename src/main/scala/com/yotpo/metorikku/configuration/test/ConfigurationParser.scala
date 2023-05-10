@@ -66,20 +66,29 @@ object ConfigurationParser {
         Try(FileUtils.validateConfigFile(configFile, ConfigurationType.test, mapper)) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Failed validating TEST Config File[$fileName]", e)
+            log.debug(s"Failed validating TEST Metorikku file[$fileName]", e)
 
             throw MetorikkuInvalidFileException(
-              s"Failed validating TEST Config File[$fileName]",
+              s"Failed validating TEST Metorikku file[$fileName]",
               e
             )
         }
 
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(configFile, classOf[Configuration])
+        Try(mapper.readValue(configFile, classOf[Configuration])) match {
+          case Success(v) => v
+          case Failure(e) =>
+            log.debug(s"Error parsing TEST Metorikku file[$fileName]", e)
+
+            throw MetorikkuInvalidFileException(
+              "Error parsing TEST Metorikku file[$fileName]",
+              e
+            )
+        }
       }
       case None =>
         throw MetorikkuInvalidFileException(
-          s"Failed validating TEST Config File[$fileName]: unknown extension"
+          s"Failed parsing TEST Metorikku file[$fileName]: unknown extension"
         )
     }
   }

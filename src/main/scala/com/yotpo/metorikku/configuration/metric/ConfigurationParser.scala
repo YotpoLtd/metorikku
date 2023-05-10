@@ -52,20 +52,29 @@ object ConfigurationParser {
         Try(FileUtils.validateConfigFile(configFile, ConfigurationType.metric, mapper)) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Failed validating METRIC config file[$fileName]", e)
+            log.debug(s"Error validating METRIC config file[$fileName]", e)
 
             throw MetorikkuInvalidFileException(
-              s"Failed validating METRIC config file[$fileName]",
+              s"Error validating METRIC config file[$fileName]",
               e
             )
         }
 
         mapper.registerModule(DefaultScalaModule)
-        mapper.readValue(configFile, classOf[Configuration])
+        Try(mapper.readValue(configFile, classOf[Configuration])) match {
+          case Success(v) => v
+          case Failure(e) =>
+            log.debug(s"Error parsing METRIC Metorikku file[$fileName]", e)
+
+            throw MetorikkuInvalidFileException(
+              "Error parsing METRIC Metorikku file[$fileName]",
+              e
+            )
+        }
       }
       case None =>
         throw MetorikkuInvalidFileException(
-          s"Failed validating METRIC config file[$fileName]: unknown extension"
+          s"Error parsing METRIC config file[$fileName]: unknown extension"
         )
     }
   }
