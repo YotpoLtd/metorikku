@@ -15,6 +15,7 @@ The platform also includes a simple way to write unit and E2E tests.
 - Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
 - JSON schema is simplified and use pure *json-schema* with no extra elements.
+- Enforce JSON schema validation.
 - Add more DQ check operators.
 - Compatible with [Jinja templating engine](https://jinja.palletsprojects.com/) instead of `org.apache.commons.text.StringSubstitutor`.
 
@@ -242,6 +243,12 @@ In order to generate a new version:
 
     ```bash
     spark-submit --class com.yotpo.metorikku.MetorikkuTester target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}*.jar -t examples/movies_test.yaml
+    ```
+
+5. Validate an config file
+
+    ```bash
+    spark-submit --class com.yotpo.metorikku.MetorikkuValidator target/service-java-data-pipelines-metorikku_${SCALA_BINARY_VERSION}*.jar -f examples/movies.yaml
     ```
 
 ## Other interesting local commands
