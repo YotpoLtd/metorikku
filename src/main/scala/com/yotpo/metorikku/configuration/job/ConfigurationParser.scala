@@ -90,15 +90,15 @@ object ConfigurationParser {
   }
 
   def parseConfigurationFile(
-      job: String,
+      configFile: String,
       mapper: Option[ObjectMapper]
   ): Configuration = {
     mapper match {
       case Some(mapper) => {
-        Try(FileUtils.validateConfigFile(job, ConfigurationType.job, mapper)) match {
+        Try(FileUtils.validateConfigFile(configFile, ConfigurationType.job, mapper)) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Error validating JOB Metorikku file", e)
+            log.debug(s"Error validating JOB Metorikku file: $configFile", e)
 
             throw MetorikkuInvalidFileException(
               "Error validating JOB Metorikku file",
@@ -107,10 +107,10 @@ object ConfigurationParser {
         }
 
         mapper.registerModule(DefaultScalaModule)
-        Try(mapper.readValue(job, classOf[Configuration])) match {
+        Try(mapper.readValue(configFile, classOf[Configuration])) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Error parsing JOB Metorikku file", e)
+            log.debug(s"Error parsing JOB Metorikku file: $configFile", e)
 
             throw MetorikkuInvalidFileException(
               "Error parsing JOB Metorikku file",

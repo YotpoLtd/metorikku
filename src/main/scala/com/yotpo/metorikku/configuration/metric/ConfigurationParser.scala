@@ -52,7 +52,7 @@ object ConfigurationParser {
         Try(FileUtils.validateConfigFile(configFile, ConfigurationType.metric, mapper)) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Error validating METRIC config file[$fileName]", e)
+            log.debug(s"Error validating METRIC config file[$fileName]: $configFile", e)
 
             throw MetorikkuInvalidFileException(
               s"Error validating METRIC config file[$fileName]",
@@ -64,7 +64,7 @@ object ConfigurationParser {
         Try(mapper.readValue(configFile, classOf[Configuration])) match {
           case Success(v) => v
           case Failure(e) =>
-            log.debug(s"Error parsing METRIC Metorikku file[$fileName]", e)
+            log.debug(s"Error parsing METRIC Metorikku file[$fileName]: $configFile", e)
 
             throw MetorikkuInvalidFileException(
               "Error parsing METRIC Metorikku file[$fileName]",
