@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           organization: ${{ github.repository_owner }}
           container: ${{ github.event.repository.name }}
-          untagged: true
+          keep-last: 6
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
