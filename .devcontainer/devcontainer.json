@@ -2,6 +2,11 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "main",
     "workspaceFolder": "/workspace",
+	"initializeCommand": [
+		"bash",
+		"-c",
+		"docker pull ghcr.io/syngenta-digital/service-java-data-pipelines-metorikku:devcontainer"
+	],
     "postCreateCommand": [
         "bash",
         "/usr/local/bin/init_container.sh"
