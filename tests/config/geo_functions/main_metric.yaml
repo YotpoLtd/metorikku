@@ -3,7 +3,7 @@ steps:
     sql: |
       SELECT
         ST_GeomFromGeoJSON(geometry) as geometry,
-        properties.country as country_code
+        properties.ISO_A2 as country_code
       FROM countries_geojson
   - dataFrameName: place_ids_with_geomerty
     sql: |      

@@ -12,16 +12,13 @@
         "properties": {
             "type": "object",
             "properties": {
-                "ISO3166-1-Alpha-3": {
+                "CONTINENT": {
                     "type": "string"
                 },
-                "country": {
+                "ISO_A2": {
                     "type": "string"
                 },
-                "id": {
-                    "type": "string"
-                },
-                "name": {
+                "NAME_EN": {
                     "type": "string"
                 }
             }

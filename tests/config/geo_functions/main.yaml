@@ -5,8 +5,7 @@ metrics:
 inputs:
   countries_geojson:
     file:
-      path: /workspace/tests/data/s3/geo_countries.features_geojson.jsonl
-      # path: s3://test-bucket/geo_countries.features_geojson.jsonl
+      path: s3://test-bucket/geo_countries.features_geojson.jsonl
       format: json
       schemaPath: ./main.features_geojson.schema
   place_ids:
@@ -16,8 +15,7 @@ inputs:
 
 output:
   file:
-    #dir: s3://test-bucket/output
-    dir: /tmp/geo_2_parquet
+    dir: s3://test-bucket/geo_functions
 
 explain: true
 
