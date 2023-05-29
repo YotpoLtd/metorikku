@@ -19,11 +19,21 @@ import java.net.URI
 import java.util.concurrent.TimeUnit
 import scala.collection.immutable.Map
 import io.delta.tables.DeltaTable
+import org.apache.spark.SparkConf
 
 object DeltaOutputWriter extends WriterSessionRegistration {
-  def addConfToSparkSession(sparkSessionBuilder: SparkSession.Builder, deltaConf: Delta): Unit = {
-    sparkSessionBuilder.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-    sparkSessionBuilder.config(
+  def addConfToSparkSession(
+      sparkConf: SparkConf,
+      deltaConf: Delta
+  ): Unit = {
+    sparkConf.set(
+      "spark.sql.extensions",
+      sparkConf
+        .getOption("spark.sql.extensions")
+        .map(_ + ",")
+        .getOrElse("") + "io.delta.sql.DeltaSparkSessionExtension"
+    )
+    sparkConf.set(
       "spark.sql.catalog.spark_catalog",
       "org.apache.spark.sql.delta.catalog.DeltaCatalog"
     )

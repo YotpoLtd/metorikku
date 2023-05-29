@@ -1,0 +1,30 @@
+{
+    "$id": "http://example.com/example.json",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string"
+        },
+        "geometry": {
+            "type": "string"
+        },
+        "properties": {
+            "type": "object",
+            "properties": {
+                "ISO3166-1-Alpha-3": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

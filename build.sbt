@@ -17,6 +17,9 @@ scmInfo := Some(
 )
 
 scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.17")
+val scalaCompatibilityVersion: Def.Initialize[String] = Def.setting {
+  Option(System.getenv("SCALA_COMPATIBILITY_VERSION")).getOrElse("2.12")
+}
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   Option(System.getenv("SPARK_VERSION")).getOrElse("3.3.1")
@@ -102,7 +105,14 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-slf4j-impl"      % "2.19.0" % "provided",
   "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
   "io.delta"                %% "delta-core"            % "2.2.0",
-  "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule)
+  "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
+  "org.apache.sedona" % "sedona-spark-shaded-3.0_".concat(
+    scalaCompatibilityVersion.value
+  ) % "1.4.0",
+  "org.apache.sedona" % "sedona-viz-3.0_".concat(
+    scalaCompatibilityVersion.value
+  )                % "1.4.0",
+  "org.datasyslab" % "geotools-wrapper" % "1.4.0-28.2"
 )
 
 resolvers ++= Seq(

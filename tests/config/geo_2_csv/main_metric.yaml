@@ -1,0 +1,30 @@
+steps:
+  - dataFrameName: countries
+    sql: |
+      SELECT
+        ST_GeomFromGeoJSON(geometry) as geometry,
+        properties.country as country_code
+      FROM countries_geojson
+  - dataFrameName: place_ids_with_geomerty
+    sql: |      
+      SELECT
+        lon,
+        lat,
+        ST_POINT(lon, lat) as geometry,
+        country_code
+      FROM place_ids
+  - dataFrameName: place_ids_with_countries
+    sql: |      
+      SELECT
+        p.lon,
+        p.lat,
+        p.country_code as  ori_country_code,
+        c.country_code as  cal_country_code
+      FROM place_ids_with_geomerty p, countries c
+      WHERE ST_Covers(c.geometry, p.geometry)
+output:
+  - dataFrameName: countries
+    outputType: CSV
+    outputOptions:
+      saveMode: Overwrite
+      path: place_ids_with_countries

@@ -19,6 +19,7 @@
 		"eamodio.gitlens",
 		"mtxr.sqltools-driver-pg",
 		"DavidAnson.vscode-markdownlint",
-		"scalameta.metals"
+		"scalameta.metals",
+		"eriklynd.json-tools"
 	]
 }

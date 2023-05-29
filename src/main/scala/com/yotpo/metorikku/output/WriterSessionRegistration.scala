@@ -1,7 +1,7 @@
 package com.yotpo.metorikku.output
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.SparkConf
 
 trait WriterSessionRegistration {
-  def addToSparkSession(sparkSession: SparkSession): Unit = {}
+  def addToSparkSession(sparkConf: SparkConf): Unit = {}
 }

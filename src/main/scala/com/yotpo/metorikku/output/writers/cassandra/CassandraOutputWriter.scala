@@ -5,6 +5,7 @@ import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter.host
 import com.yotpo.metorikku.output.{WriterSessionRegistration, Writer}
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+import org.apache.spark.SparkConf
 
 object CassandraOutputWriter extends WriterSessionRegistration {
   val host     = "spark.cassandra.connection.host"
@@ -12,16 +13,12 @@ object CassandraOutputWriter extends WriterSessionRegistration {
   val password = "spark.cassandra.auth.password"
 
   def addConfToSparkSession(
-      sparkSessionBuilder: SparkSession.Builder,
+      sparkConf: SparkConf,
       cassandraDBConf: Cassandra
   ): Unit = {
-    sparkSessionBuilder.config(s"$host", cassandraDBConf.host)
-    cassandraDBConf.username.foreach(_username =>
-      sparkSessionBuilder.config(s"$username", _username)
-    )
-    cassandraDBConf.password.foreach(_password =>
-      sparkSessionBuilder.config(s"$password", _password)
-    )
+    sparkConf.set(s"$host", cassandraDBConf.host)
+    cassandraDBConf.username.foreach(_username => sparkConf.set(s"$username", _username))
+    cassandraDBConf.password.foreach(_password => sparkConf.set(s"$password", _password))
   }
 }
 

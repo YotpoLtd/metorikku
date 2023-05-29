@@ -1,14 +1,18 @@
 package com.yotpo.metorikku
 
-import com.yotpo.metorikku.configuration.job.{Configuration, Output}
+import com.yotpo.metorikku.configuration.job.Configuration
+import com.yotpo.metorikku.configuration.job.Output
 import com.yotpo.metorikku.input.Reader
-import com.yotpo.metorikku.instrumentation.{InstrumentationProvider, StreamingQueryMetricsListener}
+import com.yotpo.metorikku.instrumentation.InstrumentationProvider
+import com.yotpo.metorikku.instrumentation.StreamingQueryMetricsListener
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
-import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import com.yotpo.metorikku.output.writers.file.DeltaOutputWriter
+import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.scheduler.{SparkListener, SparkListenerJobEnd}
+import org.apache.spark.scheduler.SparkListener
+import org.apache.spark.scheduler.SparkListenerJobEnd
 import org.apache.spark.sql.SparkSession
 
 case class Job(config: Configuration, session: Option[SparkSession] = None) {
@@ -87,28 +91,54 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
 }
 
 object Job {
+  private def addSedonaConfToSparkSession(
+      sparkConf: SparkConf
+  ): Unit = {
+    sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    sparkConf.set(
+      "spark.kryo.registrator",
+      "org.apache.sedona.core.serde.SedonaKryoRegistrator"
+    )
+    sparkConf.set(
+      "spark.sql.extensions",
+      "org.apache.sedona.viz.sql.SedonaVizExtensions,org.apache.sedona.sql.SedonaSqlExtensions"
+    )
+  }
+
   def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
+    // Close previous session if exists
+    SparkSession.getDefaultSession match {
+      case Some(session) => {
+        session.sparkContext.stop()
+      }
+      case None =>
+    }
+
     val sparkSessionBuilder = SparkSession.builder().appName(appName.get)
+
+    val sparkConf = new SparkConf()
+
+    addSedonaConfToSparkSession(sparkConf)
 
     output match {
       case Some(out) => {
         out.cassandra match {
           case Some(cassandra) =>
-            CassandraOutputWriter.addConfToSparkSession(sparkSessionBuilder, cassandra)
+            CassandraOutputWriter.addConfToSparkSession(sparkConf, cassandra)
           case None =>
         }
         out.redis match {
-          case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkSessionBuilder, redis)
+          case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkConf, redis)
           case None        =>
         }
         out.delta match {
-          case Some(delta) => DeltaOutputWriter.addConfToSparkSession(sparkSessionBuilder, delta)
+          case Some(delta) => DeltaOutputWriter.addConfToSparkSession(sparkConf, delta)
           case None        =>
         }
       }
       case None =>
     }
 
-    sparkSessionBuilder.getOrCreate()
+    sparkSessionBuilder.config(sparkConf).getOrCreate()
   }
 }
