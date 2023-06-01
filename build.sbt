@@ -56,6 +56,8 @@ lazy val excludeJacksonDatatype =
   ExclusionRule(organization = "com.fasterxml.jackson.datatype")
 lazy val excludeJacksonModule =
   ExclusionRule(organization = "com.fasterxml.jackson.module")
+lazy val excludeGuava =
+  ExclusionRule(organization = "*")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core"           % sparkVersion.value % "provided",
@@ -99,6 +101,7 @@ libraryDependencies ++= Seq(
   "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
   "io.delta"                %% "delta-core"            % "2.2.0",
   "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
+  "com.google.guava"   % "guava"            % "25.0-jre",
   "org.apache.sedona" %% "sedona-core-3.0"  % "1.4.0" excludeAll (excludeSpark),
   "org.apache.sedona" %% "sedona-sql-3.0"   % "1.4.0" excludeAll (excludeSpark),
   "org.apache.sedona" %% "sedona-viz-3.0"   % "1.4.0" excludeAll (excludeSpark),
