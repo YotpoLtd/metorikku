@@ -101,15 +101,22 @@ object Job {
     )
     sparkConf.set(
       "spark.sql.extensions",
-      "org.apache.sedona.viz.sql.SedonaVizExtensions,org.apache.sedona.sql.SedonaSqlExtensions"
+      sparkConf
+        .getOption("spark.sql.extensions")
+        .map(_ + ",")
+        .getOrElse(
+          ""
+        ) + "org.apache.sedona.viz.sql.SedonaVizExtensions,org.apache.sedona.sql.SedonaSqlExtensions"
     )
   }
 
   def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
-    // Close previous session if exists
+    // For local, close previous session if exists
     SparkSession.getDefaultSession match {
       case Some(session) => {
-        session.sparkContext.stop()
+        if (session.sparkContext.master.startsWith("local")) {
+          session.sparkContext.stop()
+        }
       }
       case None =>
     }

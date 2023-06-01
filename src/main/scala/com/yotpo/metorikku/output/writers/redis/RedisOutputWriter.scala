@@ -14,7 +14,6 @@ import scala.util.parsing.json.JSONObject
 
 object RedisOutputWriter extends WriterSessionRegistration {
   def addConfToSparkSession(sparkConf: SparkConf, redisConf: Redis): Unit = {
-
     sparkConf.set(s"redis.host", redisConf.host)
     redisConf.port.foreach(_port => sparkConf.set(s"redis.port", _port))
     redisConf.auth.foreach(_auth => sparkConf.set(s"redis.auth", _auth))

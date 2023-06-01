@@ -17,9 +17,6 @@ scmInfo := Some(
 )
 
 scalaVersion := Option(System.getenv("SCALA_VERSION")).getOrElse("2.12.17")
-val scalaCompatibilityVersion: Def.Initialize[String] = Def.setting {
-  Option(System.getenv("SCALA_COMPATIBILITY_VERSION")).getOrElse("2.12")
-}
 
 val sparkVersion: Def.Initialize[String] = Def.setting {
   Option(System.getenv("SPARK_VERSION")).getOrElse("3.3.1")
@@ -27,10 +24,6 @@ val sparkVersion: Def.Initialize[String] = Def.setting {
 
 val jacksonVersion: Def.Initialize[String] = Def.setting {
   Option(System.getenv("JACKSON_VERSION")).getOrElse("2.12.7")
-}
-
-val deequVersion: Def.Initialize[String] = Def.setting {
-  "2.0.1-spark-3.2"
 }
 
 val sparkTestVersion: Def.Initialize[String] = Def.setting {
@@ -94,7 +87,7 @@ libraryDependencies ++= Seq(
   "za.co.absa" %% "abris" % "3.2.1" % "provided" excludeAll (excludeAvro, excludeSpark),
   "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0" % "provided",
   "org.apache.parquet" % "parquet-avro"      % "1.12.3" % "provided",
-  "com.amazon.deequ" % "deequ"     % deequVersion.value excludeAll (excludeSpark, excludeScalanlp),
+  "com.amazon.deequ" % "deequ"     % "2.0.3-spark-3.3" excludeAll (excludeSpark, excludeScalanlp),
   "org.apache.avro"  % "avro"      % "1.11.1" % "provided",
   "com.databricks"  %% "spark-xml" % "0.16.0",
   "com.outr"        %% "hasher"    % "1.2.2",
@@ -106,13 +99,10 @@ libraryDependencies ++= Seq(
   "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
   "io.delta"                %% "delta-core"            % "2.2.0",
   "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "org.apache.sedona" % "sedona-spark-shaded-3.0_".concat(
-    scalaCompatibilityVersion.value
-  ) % "1.4.0",
-  "org.apache.sedona" % "sedona-viz-3.0_".concat(
-    scalaCompatibilityVersion.value
-  )                % "1.4.0",
-  "org.datasyslab" % "geotools-wrapper" % "1.4.0-28.2"
+  "org.apache.sedona" %% "sedona-core-3.0"  % "1.4.0" excludeAll (excludeSpark),
+  "org.apache.sedona" %% "sedona-sql-3.0"   % "1.4.0" excludeAll (excludeSpark),
+  "org.apache.sedona" %% "sedona-viz-3.0"   % "1.4.0" excludeAll (excludeSpark),
+  "org.datasyslab"     % "geotools-wrapper" % "1.4.0-28.2" excludeAll (excludeSpark)
 )
 
 resolvers ++= Seq(
