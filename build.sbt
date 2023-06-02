@@ -105,7 +105,8 @@ libraryDependencies ++= Seq(
   "org.apache.sedona" %% "sedona-core-3.0"  % "1.4.0" excludeAll (excludeSpark),
   "org.apache.sedona" %% "sedona-sql-3.0"   % "1.4.0" excludeAll (excludeSpark),
   "org.apache.sedona" %% "sedona-viz-3.0"   % "1.4.0" excludeAll (excludeSpark),
-  "org.datasyslab"     % "geotools-wrapper" % "1.4.0-28.2" excludeAll (excludeSpark)
+  "org.datasyslab"     % "geotools-wrapper" % "1.4.0-28.2" excludeAll (excludeSpark),
+  "com.amazonaws"      % "aws-java-sdk-s3"  % "1.12.479"
 )
 
 resolvers ++= Seq(

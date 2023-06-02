@@ -25,6 +25,8 @@ import io.vertx.json.schema.JsonSchema
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import io.vertx.json.schema.OutputFormat
 import org.apache.hadoop.conf.Configuration
+import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.GetObjectRequest
 
 case class HadoopPath(path: Path, fs: FileSystem) {
   def open: FSDataInputStream = {
@@ -40,6 +42,7 @@ object FileUtils {
   private var parentPath: Option[String] = None
 
   private val LOCAL_FILE_REGEX = "\\./(.+)".r
+  private val S3_FILE_REGEX    = "s3://([^/]+)/(.+)".r
 
   def setParentPath(newParentPath: String): Unit = {
     parentPath = Option(newParentPath)
@@ -111,11 +114,20 @@ object FileUtils {
       case _ => path
     }
 
-    val hadoopPath = getHadoopPath(finalPath)
+    val in = path match {
+      case S3_FILE_REGEX(bucketName, key) => {
+        val s3Client = AmazonS3Client.builder.build()
 
-    val fsFile = hadoopPath.open
+        val getObjectRequest = new GetObjectRequest(bucketName, key)
+        val objectResponse   = s3Client.getObject(getObjectRequest)
 
-    val reader = new BufferedReader(new InputStreamReader(fsFile))
+        objectResponse.getObjectContent()
+      }
+      case _ => getHadoopPath(finalPath).open
+    }
+
+    val reader = new BufferedReader(new InputStreamReader(in))
+
     reader.lines.collect(Collectors.joining("\n"))
   }
 
