@@ -111,16 +111,6 @@ object Job {
   }
 
   def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
-    // For local, close previous session if exists
-    SparkSession.getDefaultSession match {
-      case Some(session) => {
-        if (session.sparkContext.master.startsWith("local")) {
-          session.sparkContext.stop()
-        }
-      }
-      case None =>
-    }
-
     val sparkSessionBuilder = SparkSession.builder().appName(appName.get)
 
     val sparkConf = new SparkConf()

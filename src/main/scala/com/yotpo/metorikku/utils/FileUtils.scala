@@ -24,6 +24,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import io.vertx.json.schema.JsonSchema
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import io.vertx.json.schema.OutputFormat
+import org.apache.hadoop.conf.Configuration
 
 case class HadoopPath(path: Path, fs: FileSystem) {
   def open: FSDataInputStream = {
@@ -94,7 +95,7 @@ object FileUtils {
   }
 
   def getHadoopPath(path: String): HadoopPath = {
-    val hadoopConf = SparkSession.builder().getOrCreate().sessionState.newHadoopConf()
+    val hadoopConf = new Configuration()
 
     val file = new Path(path)
 
@@ -165,7 +166,9 @@ object FileUtils {
         schema,
         new JsonSchemaOptions()
           .setDraft(Draft.DRAFT202012)
-          .setBaseUri(s"https://github.com/syngenta-digital/service-java-data-pipelines-metorikku/schemas/${configType.toString()}")
+          .setBaseUri(
+            s"https://github.com/syngenta-digital/service-java-data-pipelines-metorikku/schemas/${configType.toString()}"
+          )
           .setOutputFormat(OutputFormat.Basic)
       )
       .validate(new JsonObject(configFileJson))
