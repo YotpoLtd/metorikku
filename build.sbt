@@ -164,21 +164,6 @@ credentials += Credentials(
 
 ThisBuild / versionScheme := Some("early-semver")
 
-import ReleaseTransformations._
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  publishArtifacts,
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
-
 Compile / assembly / artifact := {
   val art = (Compile / assembly / artifact).value
   art.withClassifier(Some("assembly"))
@@ -195,14 +180,18 @@ Compile / run := Defaults
   )
   .evaluated
 
-releaseNextCommitMessage := s"Setting version to ${(ThisBuild / version).value} [skip ci]"
+releaseCommitMessage := s"Setting version to ${(ThisBuild / version).value} [skip ci]"
 
 commands += Command.command("bump-patch") { state =>
-  println("Bumping patch version!")
   val extracted = Project extract state
   val customState = extracted.appendWithoutSession(
     Seq(
-      releaseVersionBump := sbtrelease.Version.Bump.Bugfix
+      releaseVersion := { ver =>
+        sbtrelease
+          .Version(ver)
+          .map(_.bump(sbtrelease.Version.Bump.Bugfix).string)
+          .getOrElse(sbtrelease.versionFormatError(ver))
+      }
     ),
     state
   )
@@ -214,7 +203,12 @@ commands += Command.command("bump-minor") { state =>
   val extracted = Project extract state
   val customState = extracted.appendWithoutSession(
     Seq(
-      releaseVersionBump := sbtrelease.Version.Bump.Minor
+      releaseVersion := { ver =>
+        sbtrelease
+          .Version(ver)
+          .map(_.bump(sbtrelease.Version.Bump.Minor).string)
+          .getOrElse(sbtrelease.versionFormatError(ver))
+      }
     ),
     state
   )
@@ -226,9 +220,28 @@ commands += Command.command("bump-major") { state =>
   val extracted = Project extract state
   val customState = extracted.appendWithoutSession(
     Seq(
-      releaseVersionBump := sbtrelease.Version.Bump.Major
+      releaseVersion := { ver =>
+        sbtrelease
+          .Version(ver)
+          .map(_.bump(sbtrelease.Version.Bump.Major).string)
+          .getOrElse(sbtrelease.versionFormatError(ver))
+      }
     ),
     state
   )
   Command.process("release with-defaults", customState)
 }
+
+import ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  pushChanges
+)
