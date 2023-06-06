@@ -5,6 +5,7 @@ import play.api.libs.json._
 
 import scala.annotation.tailrec
 import scala.io.Source
+import scala.util.Try
 
 object SchemaConverter {
   val SchemaFieldType      = "type"
@@ -21,7 +22,19 @@ object SchemaConverter {
     "array"   -> ArrayType
   )
 
-  def convert(fileContent: String): StructType = convert(loadSchemaJson(fileContent))
+  def convert(fileContent: String): StructType = {
+    try {
+      convert(loadSchemaJson(fileContent))
+    } catch {
+      case e: IllegalArgumentException =>
+        throw e
+      case e: Throwable =>
+        throw new IllegalArgumentException(
+          s"Error converting schema: ${fileContent}",
+          e
+        )
+    }
+  }
 
   def convert(inputSchema: JsValue): StructType = {
     val typeName = getJsonType(inputSchema)
@@ -90,13 +103,20 @@ object SchemaConverter {
     val fieldType = getJsonType(json)
 
     val dataType = typeMap(fieldType) match {
-      case dataType: DataType =>
-        dataType
+      case dataType: DataType => dataType
       case ArrayType =>
         ArrayType(
-          getDataType(
-            json,
-            JsPath \ SchemaArrayContents \ SchemaStructContents
+          Try(
+            {
+              getDataType(
+                json,
+                JsPath \ SchemaArrayContents \ SchemaStructContents
+              )
+            }
+          ).getOrElse(
+            {
+              typeMap(getJsonType((json \ SchemaArrayContents).as[JsObject])).asInstanceOf[DataType]
+            }
           )
         )
       case StructType =>
