@@ -163,9 +163,7 @@ workflows:
                 - /^<<pipeline.parameters.git_release_prefix>>\/v\d+\.\d+\.\d+$/
   main:
     when:
-      and:
-        - equal: ["EMPTY", "EMPTY<<pipeline.parameters.release_type>>"]
-        - equal: ["EMPTY", "EMPTY<<pipeline.git.tag>>"]
+      equal: ["", "<<pipeline.parameters.release_type>>"]
     jobs:
       - perform-qa:
           context:
