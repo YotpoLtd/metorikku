@@ -53,7 +53,7 @@ inputs:
       schemaRegistryUrl: https://schema-registry-url # optional
       schemaSubject: subject # optional
       # Add any other options supported by the DataStreamWriter/Kafka Producer
-      extraOptions:
+      options:
         kafka.max.request.size: "30000000"
         opt: val
   input_6:
@@ -75,6 +75,17 @@ inputs:
       uri: mongodb://localhost:27017
       database: test
       collection: users
+      options:
+        partitioner: com.mongodb.spark.sql.connector.read.partitioner.PaginateIntoPartitionsPartitioner
+        aggregation.pipeline: |
+          {
+            $match: {
+              $and: [
+                {"datetime": {"$gte": {"$date": "2023-01-01T00:00:00.000Z" } } },
+                {"datetime": {"$lt": {"$gte": "2024-01-01T00:00:00.000Z"" } } }
+              ]
+            }
+          }
 
 # Set custom variables that would be accessible from the SQL
 variables:

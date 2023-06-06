@@ -8,18 +8,18 @@ inputs:
       database: movies
       collection: rated_movies
       options:
-        pipeline: |
-          {
-            $match: {
-              $and: [
+        aggregation.pipeline: |
+          [
+            "$match": {
+              "$and": [
                 {
                   "movieid": {
-                    $lt: 2
+                    "$lt": 2
                   }
                 }
               ]
             }
-          }
+          ]
 
 output:
   file:

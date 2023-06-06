@@ -25,8 +25,7 @@ object ConfigurationParser {
   }
 
   def parse(path: String): Metric = {
-    val hadoopPath = FileUtils.getHadoopPath(path)
-    val fileName   = hadoopPath.getName
+    val fileName = FileUtils.getName(path).get
     val metricDir = FileUtils.isLocalFile(path) match {
       case true  => Option(new File(path).getParentFile)
       case false => None

@@ -53,7 +53,7 @@ object ConfigurationParser {
                   FileUtils.getObjectMapperByFileName(filename)
                 )
 
-                FileUtils.setParentPath(FileUtils.getHadoopPath(filename).path.getParent.toString)
+                FileUtils.setParentPath(filename)
 
                 configuration.configFile = Option(filename)
 

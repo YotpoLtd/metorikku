@@ -27,6 +27,8 @@ import io.vertx.json.schema.OutputFormat
 import org.apache.hadoop.conf.Configuration
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.GetObjectRequest
+import org.apache.log4j.LogManager
+import org.apache.log4j.Logger
 
 case class HadoopPath(path: Path, fs: FileSystem) {
   def open: FSDataInputStream = {
@@ -39,13 +41,15 @@ case class HadoopPath(path: Path, fs: FileSystem) {
 }
 
 object FileUtils {
+  private val log: Logger = LogManager.getLogger(this.getClass)
+
   private var parentPath: Option[String] = None
 
   private val LOCAL_FILE_REGEX = "\\./(.+)".r
   private val S3_FILE_REGEX    = "s3://([^/]+)/(.+)".r
 
-  def setParentPath(newParentPath: String): Unit = {
-    parentPath = Option(newParentPath)
+  def setParentPath(path: String): Unit = {
+    parentPath = getFolder(path)
   }
 
   def getListOfLocalFiles(dir: String): List[File] = {
@@ -97,6 +101,14 @@ object FileUtils {
     envProperties.getOrElse(getEnvProperties()).get("CONFIG_FILES_PATH_PREFIX")
   }
 
+  def getName(path: String): Option[String] = {
+    path.split("/").lastOption
+  }
+
+  def getFolder(path: String): Option[String] = {
+    Option(path.split("/").dropRight(1).mkString("/"))
+  }
+
   def getHadoopPath(path: String): HadoopPath = {
     val hadoopConf = new Configuration()
 
@@ -114,7 +126,9 @@ object FileUtils {
       case _ => path
     }
 
-    val in = path match {
+    log.info(f"Reading file with Hadoop: ${path} -> ${finalPath}")
+
+    val in = finalPath match {
       case S3_FILE_REGEX(bucketName, key) => {
         val s3Client = AmazonS3Client.builder.build()
 
