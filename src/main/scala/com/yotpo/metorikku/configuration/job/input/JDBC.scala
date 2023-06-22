@@ -12,6 +12,7 @@ case class JDBC(
     dbTable: String,
     partitionsNumber: Option[Integer],
     partitionColumn: Option[String],
+    preActions: Option[String],
     options: Option[Map[String, String]]
 ) extends InputConfig {
   require(Option(connectionUrl).isDefined, "JDBC connection: connection url is mandatory")
@@ -30,6 +31,7 @@ case class JDBC(
     dbTable,
     partitionsNumber,
     partitionColumn,
+    preActions,
     options
   )
 }

@@ -9,9 +9,12 @@ inputs:
       user: "{{ POSTGRES_USER }}"
       password: "{{ POSTGRES_PASSWORD }}"
       driver: "org.postgresql.Driver"
-      dbTable: "(select id, name, test_date from test.test_table) as test_table"
+      dbTable: "(select id, name, test_date FROM test.test_table) AS test_table2"
       partitionColumn: "test_date"
       partitionsNumber: 100
+      preActions: |
+        DROP TABLE IF EXISTS test.test_table2;
+        CREATE TABLE test.test_table2 AS select id, name, test_date FROM test.test_table;
 
 output:
   mongodb:

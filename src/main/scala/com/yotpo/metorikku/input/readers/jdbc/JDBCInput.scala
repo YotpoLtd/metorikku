@@ -3,6 +3,7 @@ package com.yotpo.metorikku.input.readers.jdbc
 import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.log4j.LogManager
+import java.sql.DriverManager
 
 case class JDBCInput(
     val name: String,
@@ -13,6 +14,7 @@ case class JDBCInput(
     dbTable: String,
     partitionsNumber: Option[Integer],
     partitionColumn: Option[String],
+    preActions: Option[String],
     options: Option[Map[String, String]]
 ) extends Reader {
   val log = LogManager.getLogger(this.getClass)
@@ -27,6 +29,19 @@ case class JDBCInput(
       "driver"   -> driver,
       "dbtable"  -> dbTable
     )
+
+    preActions match {
+      case Some(preActions) =>
+        val conn =
+          DriverManager.getConnection(connectionUrl, user, password)
+        preActions.trim.split(";").foreach { action =>
+          val stmt = conn.prepareStatement(action)
+          stmt.execute()
+          stmt.close()
+        }
+        conn.close()
+      case _ =>
+    }
 
     val extraOptions = partitionColumn match {
       case Some(partitionColumn) => {
@@ -60,12 +75,9 @@ case class JDBCInput(
           )
         }
       }
-
       case _ => Map()
     }
-
     val readOptions = baseDBOptions ++ options.getOrElse(Map()) ++ extraOptions
-
     sparkSession.read.format("jdbc").options(readOptions).load()
   }
 }

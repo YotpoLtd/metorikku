@@ -41,6 +41,9 @@ inputs:
       user: user
       password: pass
       dbTable: some_table
+      preActions: |
+        DROP TABLE IF EXISTS some_table;
+        CREATE TABLE some_table AS select * FROM other_table;
       # You can optionally add here any supported option from https://spark.apache.org/docs/latest/sql-programming-guide.html#jdbc-to-other-databases
       options:
         numPartitions: 100

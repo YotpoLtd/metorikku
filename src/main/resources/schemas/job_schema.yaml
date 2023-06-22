@@ -171,6 +171,8 @@ anyOf:
               - type: string
           partitionColumn:
             type: string
+          preActions:
+            type: string
           options:
             type: string
         required:
