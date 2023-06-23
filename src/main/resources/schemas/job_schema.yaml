@@ -94,7 +94,7 @@ anyOf:
           path:
             type: string
           options:
-            type: string
+            type: object
           schemaPath:
             type: string
           format:
@@ -146,7 +146,7 @@ anyOf:
           keySpace:
             type: string
           options:
-            type: string
+            type: object
         required:
           - host
           - keySpace
@@ -174,7 +174,7 @@ anyOf:
           preActions:
             type: string
           options:
-            type: string
+            type: object
         required:
           - connectionUrl
           - user
