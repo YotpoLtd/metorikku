@@ -10,14 +10,13 @@ The platform also includes a simple way to write unit and E2E tests.
 
 ## Changes from Original
 
-- Added compatibility with MongoDB (Input/Output).
+- Added compatibility with MongoDB (Input/Output), Delta (Input/Output) and Iceberg (Input/Output).
 - Metrics and Verification results are stored in memory for later used by other apps.
-- Metrics files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
+- Files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
-- JSON schema is simplified and use pure *json-schema* with no extra elements.
-- Enforce JSON schema validation.
+- JSON schema is simplified and use pure *json-schema* with no extra elements. Enforce JSON schema validation.
 - Add more DQ check operators.
-- Compatible with [Jinja templating engine](https://jinja.palletsprojects.com/) instead of `org.apache.commons.text.StringSubstitutor`.
+- [Jinja compatible](https://jinja.palletsprojects.com/) templating engine  instead of `org.apache.commons.text.StringSubstitutor`.
 
 ## Pre-requisites
 

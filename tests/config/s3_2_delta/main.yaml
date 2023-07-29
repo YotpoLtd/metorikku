@@ -1,0 +1,21 @@
+# The MQL file path
+metrics:
+  - ./main_metric.yaml
+
+catalog:
+  type: Delta
+
+inputs:
+  persons_s3:
+    file:
+      path: s3://test-bucket/persons.json
+
+output:
+  delta:
+    dir: /tmp/test-delta
+    generateManifest: true
+
+explain: true
+logLevel: WARN
+appName: TestApp
+showPreviewLines: 10

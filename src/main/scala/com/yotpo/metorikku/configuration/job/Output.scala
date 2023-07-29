@@ -14,5 +14,6 @@ case class Output(
     elasticsearch: Option[Elasticsearch] = None,
     hudi: Option[Hudi] = None,
     mongodb: Option[MongoDB] = None,
-    delta: Option[Delta] = None
+    delta: Option[Delta] = None,
+    iceberg: Option[Iceberg] = None
 )

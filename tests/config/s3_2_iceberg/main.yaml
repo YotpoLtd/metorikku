@@ -2,15 +2,19 @@
 metrics:
   - ./main_metric.yaml
 
+catalog:
+  type: Iceberg
+  options:
+    type: hadoop
+    warehouse: s3://test-bucket/iceberg
+
 inputs:
   persons_s3:
     file:
       path: s3://test-bucket/persons.json
 
 output:
-  delta:
-    dir: s3://test-bucket/output
-    generateManifest: true
+  iceberg: {}
 
 explain: true
 logLevel: WARN

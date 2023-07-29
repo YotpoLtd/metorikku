@@ -1,0 +1,11 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM delta_persons
+output:
+  - dataFrameName: persons
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: delta_persons_new

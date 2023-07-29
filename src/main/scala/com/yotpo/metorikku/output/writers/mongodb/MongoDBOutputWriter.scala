@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.output.writers.mongodb
 
-import java.util.Properties
 import com.yotpo.metorikku.configuration.job.output.MongoDB
 import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager

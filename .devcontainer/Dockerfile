@@ -56,7 +56,7 @@ RUN source "${HOME}/.sdkman/bin/sdkman-init.sh" \
 # Other stuff
 ADD .devcontainer/init_container.sh /usr/local/bin/
 
-ADD .devcontainer/hive-site.xml ${HOME}/spark/conf/hive-site.xml
+ADD src/main/resources/hive-site.xml ${HOME}/spark/conf/hive-site.xml
 
 # Configure profile
 RUN echo '' >> "${HOME}/.bashrc"

@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.output.writers.redis
 
 import com.redislabs.provider.redis._
-import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.job.output.Redis
 import com.yotpo.metorikku.output.Writer
 import com.yotpo.metorikku.output.WriterSessionRegistration

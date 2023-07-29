@@ -4,7 +4,6 @@ import org.apache.spark.sql.types._
 import play.api.libs.json._
 
 import scala.annotation.tailrec
-import scala.io.Source
 import scala.util.Try
 
 object SchemaConverter {

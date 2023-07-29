@@ -1,6 +1,9 @@
 metrics:
   - examples/delta/output_movies_metric.yaml
 
+catalog:
+  type: Delta
+
 inputs:
   movies:
     file:

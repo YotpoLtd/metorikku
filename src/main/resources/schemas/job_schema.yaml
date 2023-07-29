@@ -423,12 +423,35 @@ anyOf:
             type: boolean
           options:
             type: object
+      iceberg:
+        type: object
+        additionalProperties: false
+        properties:
+          dir:
+            type: string
+          writeFormat:
+            type: string
+          isolationLevel:
+            type: string
+          targetFileSizeBytes:
+            type: number
+            minimum: 1
+          options:
+            type: object
   catalog:
     type: object
     additionalProperties: false
     properties:
       database:
         type: string
+      type:
+        type: string
+        pattern: "^(Delta|Iceberg)$"
+      options:
+        type: object
+        patternProperties:
+          "^.+$":
+            type: string
   streaming:
     type: object
     additionalProperties: false

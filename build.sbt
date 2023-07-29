@@ -30,6 +30,11 @@ val sparkTestVersion: Def.Initialize[String] = Def.setting {
   "3.3.1_1.3.0"
 }
 
+// sbt-scalafix
+semanticdbEnabled := true
+semanticdbVersion := scalafixSemanticdb.revision
+scalacOptions += "-Ywarn-unused-import"
+
 Test / testOptions := Seq(
   Tests.Argument(
     "-l",
@@ -37,27 +42,13 @@ Test / testOptions := Seq(
   )
 )
 
-lazy val excludeJpountz =
-  ExclusionRule(organization = "net.jpountz.lz4", name = "lz4")
-lazy val excludeNetty = ExclusionRule(organization = "io.netty", name = "netty")
-lazy val excludeNettyAll =
-  ExclusionRule(organization = "io.netty", name = "netty-all")
-lazy val excludeAvro =
-  ExclusionRule(organization = "org.apache.avro", name = "avro")
+lazy val excludeAvro     = ExclusionRule(organization = "org.apache.avro", name = "avro")
 lazy val excludeSpark    = ExclusionRule(organization = "org.apache.spark")
 lazy val excludeLog4j    = ExclusionRule(organization = "org.apache.logging.log4j")
 lazy val excludeParquet  = ExclusionRule(organization = "org.apache.parquet")
 lazy val excludeScalanlp = ExclusionRule(organization = "org.scalanlp")
-lazy val excludeJacksonCore =
-  ExclusionRule(organization = "com.fasterxml.jackson.core")
-lazy val excludeJacksonDatatformat =
-  ExclusionRule(organization = "com.fasterxml.jackson.dataformat")
-lazy val excludeJacksonDatatype =
-  ExclusionRule(organization = "com.fasterxml.jackson.datatype")
-lazy val excludeJacksonModule =
-  ExclusionRule(organization = "com.fasterxml.jackson.module")
-lazy val excludeGuava =
-  ExclusionRule(organization = "*")
+lazy val excludeJackson  = ExclusionRule(organization = "com.fasterxml.jackson.*")
+lazy val excludeAWS      = ExclusionRule(organization = "com.amazonaws")
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core"           % sparkVersion.value % "provided",
@@ -67,25 +58,26 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-streaming"      % sparkVersion.value % "provided",
   "org.apache.spark" %% "spark-avro"           % sparkVersion.value % "provided",
+  "org.apache.spark" %% "spark-hadoop-cloud" % sparkVersion.value % "provided" excludeAll (excludeAWS),
   "com.holdenkarau" %% "spark-testing-base" % sparkTestVersion.value % "test" excludeAll (excludeSpark),
-  "com.github.scopt" %% "scopt"         % "3.7.1",
-  "org.scala-lang"    % "scala-library" % scalaVersion.value,
-  "com.typesafe.play" %% "play-json" % "2.9.3" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "com.fasterxml.jackson.core"       % "jackson-annotations"     % jacksonVersion.value,
-  "com.fasterxml.jackson.core"       % "jackson-core"            % jacksonVersion.value,
-  "com.fasterxml.jackson.core"       % "jackson-databind"        % jacksonVersion.value,
+  "com.github.scopt"          %% "scopt"               % "3.7.1",
+  "org.scala-lang"             % "scala-library"       % scalaVersion.value,
+  "com.typesafe.play"         %% "play-json"           % "2.9.3" excludeAll (excludeJackson),
+  "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion.value,
+  "com.fasterxml.jackson.core" % "jackson-core"        % jacksonVersion.value,
+  "com.fasterxml.jackson.core" % "jackson-databind"    % jacksonVersion.value,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % jacksonVersion.value,
   "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % jacksonVersion.value,
   "com.fasterxml.jackson.datatype"   % "jackson-datatype-jdk8"   % jacksonVersion.value,
   "com.fasterxml.jackson.datatype"   % "jackson-datatype-jsr310" % jacksonVersion.value,
   "com.fasterxml.jackson.module"    %% "jackson-module-scala"    % jacksonVersion.value,
-  "com.hubspot.jinjava" % "jinjava" % "2.7.0" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "org.influxdb"                        % "influxdb-java"             % "2.23",
-  "io.github.spark-redshift-community" %% "spark-redshift"            % "5.1.0",
-  "com.segment.analytics.java"          % "analytics"                 % "2.1.1" % "provided",
-  "com.datastax.spark"                 %% "spark-cassandra-connector" % "3.2.0" % "provided",
-  "com.redislabs"                      %% "spark-redis"               % "3.1.0" % "provided",
-  "org.apache.kafka"                   %% "kafka"                     % "2.2.0" % "provided",
+  "com.hubspot.jinjava"                 % "jinjava"        % "2.7.0" excludeAll (excludeJackson),
+  "org.influxdb"                        % "influxdb-java"  % "2.23",
+  "io.github.spark-redshift-community" %% "spark-redshift" % "5.1.0" excludeAll (excludeAWS),
+  "com.segment.analytics.java"          % "analytics"      % "2.1.1" % "provided",
+  "com.datastax.spark" %% "spark-cassandra-connector" % "3.2.0" % "provided",
+  "com.redislabs"      %% "spark-redis"               % "3.1.0" % "provided",
+  "org.apache.kafka"   %% "kafka"                     % "2.2.0" % "provided",
   "za.co.absa" %% "abris" % "3.2.1" % "provided" excludeAll (excludeAvro, excludeSpark),
   "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0" % "provided",
   "org.apache.parquet" % "parquet-avro"      % "1.12.3" % "provided",
@@ -93,20 +85,25 @@ libraryDependencies ++= Seq(
   "org.apache.avro"  % "avro"      % "1.11.1" % "provided",
   "com.databricks"  %% "spark-xml" % "0.16.0",
   "com.outr"        %% "hasher"    % "1.2.2",
-  "org.mongodb.spark"       %% "mongo-spark-connector" % "10.1.0",
-  "mysql"                    % "mysql-connector-java"  % "8.0.31" % "provided",
-  "org.apache.logging.log4j" % "log4j-api"             % "2.19.0" % "provided",
-  "org.apache.logging.log4j" % "log4j-core"            % "2.19.0" % "provided",
-  "org.apache.logging.log4j" % "log4j-slf4j-impl"      % "2.19.0" % "provided",
-  "org.postgresql"           % "postgresql"            % "42.5.1" % "provided",
-  "io.delta"                %% "delta-core"            % "2.2.0",
-  "io.vertx" % "vertx-json-schema" % "4.4.1" excludeAll (excludeJacksonCore, excludeJacksonDatatformat, excludeJacksonDatatype, excludeJacksonModule),
-  "com.google.guava"   % "guava"            % "25.0-jre",
-  "org.apache.sedona" %% "sedona-core-3.0"  % "1.4.0" excludeAll (excludeSpark),
-  "org.apache.sedona" %% "sedona-sql-3.0"   % "1.4.0" excludeAll (excludeSpark),
-  "org.apache.sedona" %% "sedona-viz-3.0"   % "1.4.0" excludeAll (excludeSpark),
-  "org.datasyslab"     % "geotools-wrapper" % "1.4.0-28.2" excludeAll (excludeSpark),
-  "com.amazonaws"      % "aws-java-sdk-s3"  % "1.12.479"
+  "org.mongodb.spark"       %% "mongo-spark-connector"     % "10.1.0",
+  "mysql"                    % "mysql-connector-java"      % "8.0.31" % "provided",
+  "org.apache.logging.log4j" % "log4j-api"                 % "2.19.0" % "provided",
+  "org.apache.logging.log4j" % "log4j-core"                % "2.19.0" % "provided",
+  "org.apache.logging.log4j" % "log4j-slf4j-impl"          % "2.19.0" % "provided",
+  "org.postgresql"           % "postgresql"                % "42.5.1" % "provided",
+  "io.delta"                %% "delta-core"                % "2.3.0",
+  "io.vertx"                 % "vertx-json-schema"         % "4.4.1" excludeAll (excludeJackson),
+  "com.google.guava"         % "guava"                     % "25.0-jre",
+  "org.apache.sedona"       %% "sedona-core-3.0"           % "1.4.0" excludeAll (excludeSpark),
+  "org.apache.sedona"       %% "sedona-sql-3.0"            % "1.4.0" excludeAll (excludeSpark),
+  "org.apache.sedona"       %% "sedona-viz-3.0"            % "1.4.0" excludeAll (excludeSpark),
+  "org.datasyslab"           % "geotools-wrapper"          % "1.4.0-28.2" excludeAll (excludeSpark),
+  "com.amazonaws"            % "aws-java-sdk-s3"           % "1.12.515",
+  "software.amazon.awssdk"   % "dynamodb"                      % "2.20.114",
+  "software.amazon.awssdk"   % "glue"                      % "2.20.114",
+  "software.amazon.awssdk"   % "s3"                        % "2.20.114",
+  "software.amazon.awssdk"   % "sts"                      % "2.20.114",
+  "org.apache.iceberg"      %% "iceberg-spark-runtime-3.3" % "1.3.1"
 )
 
 resolvers ++= Seq(
@@ -131,7 +128,8 @@ assembly / assemblyMergeStrategy := {
   case PathList("META-INF", "services", xs @ _*) =>
     MergeStrategy.filterDistinctLines
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case "log4j.properties"            => MergeStrategy.first
+  case PathList("log4j.properties")  => MergeStrategy.first
+  case PathList("hive-site.xml")     => MergeStrategy.discard
   case _                             => MergeStrategy.first
 }
 

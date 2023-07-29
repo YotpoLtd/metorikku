@@ -1,7 +1,6 @@
 package com.yotpo.metorikku.input.readers.file
 
 import com.yotpo.metorikku.input.Reader
-import org.apache.spark
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.log4j.LogManager
 

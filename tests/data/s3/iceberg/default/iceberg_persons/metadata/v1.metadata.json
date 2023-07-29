@@ -1,0 +1,232 @@
+{
+  "format-version" : 2,
+  "table-uuid" : "d60a5ed9-3a1b-499d-8412-bf1d73eb0feb",
+  "location" : "s3://test-bucket/iceberg/default/iceberg_persons",
+  "last-sequence-number" : 1,
+  "last-updated-ms" : 1690611258350,
+  "last-column-id" : 30,
+  "current-schema-id" : 0,
+  "schemas" : [ {
+    "type" : "struct",
+    "schema-id" : 0,
+    "fields" : [ {
+      "id" : 1,
+      "name" : "birth_date",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 2,
+      "name" : "contact_details",
+      "required" : false,
+      "type" : {
+        "type" : "list",
+        "element-id" : 16,
+        "element" : {
+          "type" : "struct",
+          "fields" : [ {
+            "id" : 17,
+            "name" : "type",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "id" : 18,
+            "name" : "value",
+            "required" : false,
+            "type" : "string"
+          } ]
+        },
+        "element-required" : false
+      }
+    }, {
+      "id" : 3,
+      "name" : "death_date",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 4,
+      "name" : "family_name",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 5,
+      "name" : "gender",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 6,
+      "name" : "given_name",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 7,
+      "name" : "id",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 8,
+      "name" : "identifiers",
+      "required" : false,
+      "type" : {
+        "type" : "list",
+        "element-id" : 19,
+        "element" : {
+          "type" : "struct",
+          "fields" : [ {
+            "id" : 20,
+            "name" : "identifier",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "id" : 21,
+            "name" : "scheme",
+            "required" : false,
+            "type" : "string"
+          } ]
+        },
+        "element-required" : false
+      }
+    }, {
+      "id" : 9,
+      "name" : "image",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 10,
+      "name" : "images",
+      "required" : false,
+      "type" : {
+        "type" : "list",
+        "element-id" : 22,
+        "element" : {
+          "type" : "struct",
+          "fields" : [ {
+            "id" : 23,
+            "name" : "url",
+            "required" : false,
+            "type" : "string"
+          } ]
+        },
+        "element-required" : false
+      }
+    }, {
+      "id" : 11,
+      "name" : "links",
+      "required" : false,
+      "type" : {
+        "type" : "list",
+        "element-id" : 24,
+        "element" : {
+          "type" : "struct",
+          "fields" : [ {
+            "id" : 25,
+            "name" : "note",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "id" : 26,
+            "name" : "url",
+            "required" : false,
+            "type" : "string"
+          } ]
+        },
+        "element-required" : false
+      }
+    }, {
+      "id" : 12,
+      "name" : "name",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 13,
+      "name" : "other_names",
+      "required" : false,
+      "type" : {
+        "type" : "list",
+        "element-id" : 27,
+        "element" : {
+          "type" : "struct",
+          "fields" : [ {
+            "id" : 28,
+            "name" : "lang",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "id" : 29,
+            "name" : "name",
+            "required" : false,
+            "type" : "string"
+          }, {
+            "id" : 30,
+            "name" : "note",
+            "required" : false,
+            "type" : "string"
+          } ]
+        },
+        "element-required" : false
+      }
+    }, {
+      "id" : 14,
+      "name" : "pint",
+      "required" : false,
+      "type" : "string"
+    }, {
+      "id" : 15,
+      "name" : "sort_name",
+      "required" : false,
+      "type" : "string"
+    } ]
+  } ],
+  "default-spec-id" : 0,
+  "partition-specs" : [ {
+    "spec-id" : 0,
+    "fields" : [ {
+      "name" : "given_name",
+      "transform" : "identity",
+      "source-id" : 6,
+      "field-id" : 1000
+    } ]
+  } ],
+  "last-partition-id" : 1000,
+  "default-sort-order-id" : 0,
+  "sort-orders" : [ {
+    "order-id" : 0,
+    "fields" : [ ]
+  } ],
+  "properties" : {
+    "owner" : "glue_user"
+  },
+  "current-snapshot-id" : 5900750581995213834,
+  "refs" : {
+    "main" : {
+      "snapshot-id" : 5900750581995213834,
+      "type" : "branch"
+    }
+  },
+  "snapshots" : [ {
+    "sequence-number" : 1,
+    "snapshot-id" : 5900750581995213834,
+    "timestamp-ms" : 1690611258350,
+    "summary" : {
+      "operation" : "append",
+      "spark.app.id" : "local-1690611231126",
+      "added-data-files" : "9",
+      "added-records" : "10",
+      "added-files-size" : "78823",
+      "changed-partition-count" : "9",
+      "total-records" : "10",
+      "total-files-size" : "78823",
+      "total-data-files" : "9",
+      "total-delete-files" : "0",
+      "total-position-deletes" : "0",
+      "total-equality-deletes" : "0"
+    },
+    "manifest-list" : "s3://test-bucket/iceberg/default/iceberg_persons/metadata/snap-5900750581995213834-1-0a8d6569-f81e-4e91-9e39-66e0e1968b8f.avro",
+    "schema-id" : 0
+  } ],
+  "statistics" : [ ],
+  "snapshot-log" : [ {
+    "timestamp-ms" : 1690611258350,
+    "snapshot-id" : 5900750581995213834
+  } ],
+  "metadata-log" : [ ]
+}

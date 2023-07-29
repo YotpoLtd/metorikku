@@ -1,11 +1,10 @@
 # ---- SAMPLE YAML OF METRIC CONFIG FILE ---- #
 
 steps:
-    # What will be the name of the table that represents the output of this step
+  # What will be the name of the table that represents the output of this step
   - dataFrameName: table1
     # Inline SQL
-    sql:
-      SELECT * FROM source
+    sql: SELECT * FROM source
     ignoreOnFailures: true
   - dataFrameName: table2
     # Use SQL from an external file
@@ -18,7 +17,7 @@ steps:
       param1: value
       param2: value
 output:
-    # What table should we send to the output from the above steps
+  # What table should we send to the output from the above steps
   - dataFrameName: table1
     # Defines the output type
     outputType: File
@@ -89,8 +88,7 @@ output:
     outputType: JDBCQuery
     outputOptions:
       # Run this query for each line in the table
-      query:
-        INSERT INTO table
+      query: INSERT INTO table
         (col1, col2)
         VALUES (?, ?)
         ON DUPLICATE KEY UPDATE value = VALUES(value)
@@ -129,8 +127,6 @@ output:
       # Before write is completed run the following query
       preActions: GRANT SELECT ON TABLE table TO GROUP group
       # After write is completed run the following query
-      postActions: GRANT SELECT ON TABLE table TO GROUP group
-      # After write is commited
       postActions: GRANT SELECT ON TABLE table TO GROUP group
       maxStringSize: 1000
   - dataFrameName: table1
@@ -217,16 +213,29 @@ output:
       # Write to a path if not to a table
       path: some_path_or_full_path
       tableName: some_schema.some_table
-      # Optional: partition data by some columns
+      # Optional: partition data by some columns. WARNING: on Iceberg it is obligatory to order the dataframe by this columns
       partitionBy: ["column_1", "column_1"]
       # Optional: Delta will add current records and delete records that match this
       replaceWhere: "replaceWhere"
       # Optional: configure partition overwrite mode. Valid values are "dynamic" and "static".
       partitionOverwriteMode: "replaceWhere"
-      # Optional: Delta will change a column’s type or name or drop a column by rewriting the table
-      overwriteSchema: false
-      # Optional: Configure idempotent writes. https://docs.delta.io/latest/delta-batch.html#idempotent-writes
-      txnAppId: "some_app"
-      txnVersion: 1234
-      # Optional: add a user-defined string as metadata in the commit made by these operation
-      userMetadata: "overwritten-for-fixing-incorrect-data"
+      # Optional: extra options (https://docs.delta.io/latest/delta-batch.html)
+      extraOptions:
+        propery_a: value_a
+        propery_b: value_b
+  - dataFrameName: table1
+    outputType: Iceberg
+    outputOptions:
+      # Could be Append, Overwrite, Create
+      saveMode: Overwrite
+      tableName: some_schema.some_table
+      # Optional: partition data by some columns
+      partitionBy: ["column_1", "column_1"]
+      # Optional: Iceberg will add current records and delete records that match this
+      replaceWhere: "replaceWhere"
+      # Optional: when saveMode = Create. Default is 2.
+      formatVersion: "2"
+      # Optional: extra options (https://iceberg.apache.org/docs/latest/spark-configuration/#write-options)
+      extraOptions:
+        propery_a: value_a
+        propery_b: value_b

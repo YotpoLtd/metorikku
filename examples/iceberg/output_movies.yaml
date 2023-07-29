@@ -1,0 +1,18 @@
+metrics:
+  - examples/delta/output_movies_metric.yaml
+
+catalog:
+  type: Iceberg
+  options:
+    type: hadoop
+    warehouse: /tmp/hadoop_warehouse
+
+inputs:
+  movies:
+    file:
+      path: examples/mocks/movies.jsonl
+  ratings:
+    file:
+      path: examples/mocks/ratings.jsonl
+output:
+  iceberg: {}

@@ -1,0 +1,14 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM persons_s3
+      ORDER BY given_name
+output:
+  - dataFrameName: persons
+    outputType: Iceberg
+    outputOptions:
+      saveMode: Overwrite
+      tableName: iceberg_persons
+      partitionBy: ["given_name"]
+      replaceWhere: "given_name IS NOT NULL"

@@ -164,7 +164,7 @@ output:
     options:
       ssl: true
       ssl.domain_match: false
-  # Delta
+  # Delta. WARNING: Must define catalog with Delta type
   delta:
     dir: /path/to/parquet/output
     # Optional: max records per parquet file
@@ -172,6 +172,19 @@ output:
     # Optional: This controls if manifest files have to be created for Trino / Athena compatibility
     generateManifest: true
     # Optional: extra options (https://docs.delta.io/latest/delta-batch.html)
+    options:
+      propery_a: value_a
+      propery_b: value_b
+  # Iceberg. WARNING: Must define catalog with Iceberg type
+  iceberg:
+    dir: /path/to/parquet/output # Use when saveMode = Create and Iceberg type != hadoop
+    # Optional: File format to use for this write operation; parquet, avro, or orc
+    writeFormat: orc
+    # Optional: Desired isolation level for Dataframe overwrite operations.
+    isolationLevel: serializable
+    # Optional: Overrides this table’s write.target-file-size-bytes
+    targetFileSizeBytes: 10000000
+    # Optional: extra options (https://iceberg.apache.org/docs/latest/spark-configuration/#write-options)
     options:
       propery_a: value_a
       propery_b: value_b
@@ -213,6 +226,27 @@ instrumentation:
 # Optionally set catalog parameters (for hive support)
 catalog:
   database: some_database
+
+  type: some_type
+  options:
+    opt: val
+
+  # If planning to use Delta Format
+  # type: Delta
+
+  # If planning to use Iceberg Format + AWS Glue. See https://iceberg.apache.org/docs/latest/configuration/#catalog-properties
+  # type: Iceberg
+  # options:
+  #   catalog-impl: org.apache.iceberg.aws.glue.GlueCatalog
+  #   io-impl: org.apache.iceberg.aws.s3.S3FileIO
+  #   lock-impl: org.apache.iceberg.aws.dynamodb.DynamoDbLockManager
+  #   lock.table: "some-dynamodb-table-name"
+
+  # If planning to use Iceberg Format + Local
+  # type: Iceberg
+  # options:
+  #   type: hadoop
+  #   warehouse: /tmp/hadoop_warehouse
 
 # Set options for streaming writing
 streaming:

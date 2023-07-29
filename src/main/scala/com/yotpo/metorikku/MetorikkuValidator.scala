@@ -1,7 +1,6 @@
 package com.yotpo.metorikku
 
 import com.yotpo.metorikku.configuration.ConfigurationType
-import com.yotpo.metorikku.test.Tester
 import org.apache.log4j.LogManager
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import com.yotpo.metorikku.configuration.job.{ConfigurationParser => JobConfigurationParser}

@@ -11,10 +11,12 @@
             "mainClass": "com.yotpo.metorikku.Metorikku",
             "args": [
                 "-c",
-                "tests/config/geo_functions/main.yaml"
+                "tests/config/s3_2_iceberg/main.yaml"
             ],
             "jvmOptions": [
-                "-Dspark.master=local[*]"
+                "-Dspark.master=local[*]",
+                "-cp",
+                "/workspace/src/test/resources/"
             ]
         },
         {

@@ -65,6 +65,7 @@ object WriterFactory {
       case OutputType.Catalog => new CatalogWriter(metricOutputOptions)
       case OutputType.MongoDB => new MongoDBOutputWriter(metricOutputOptions, output.mongodb)
       case OutputType.Delta   => new DeltaOutputWriter(metricOutputOptions, output.delta)
+      case OutputType.Iceberg => new IcebergOutputWriter(metricOutputOptions, output.iceberg)
       case _ => throw new MetorikkuException(s"Not Supported Writer ${outputConfig.outputType}")
     }
     metricOutputWriter.validateMandatoryArguments(

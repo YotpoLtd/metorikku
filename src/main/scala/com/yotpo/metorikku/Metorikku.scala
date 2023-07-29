@@ -10,7 +10,7 @@ object Metorikku extends App {
   log.info("Starting Metorikku - Parsing configuration")
 
   val config       = ConfigurationParser.parse(args)
-  val sparkSession = Job.createSparkSession(config.appName, config.output)
+  val sparkSession = Job.createSparkSession(config.appName, config.catalog, config.output)
 
   try {
     val job = Job(config, Option(sparkSession))

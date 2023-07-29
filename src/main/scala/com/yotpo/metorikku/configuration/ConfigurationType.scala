@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.configuration
 
-import java.net.URL
 import scala.io.Source
 
 final case class ConfigurationType()

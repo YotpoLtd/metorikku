@@ -2,15 +2,18 @@
 metrics:
   - ./main_metric.yaml
 
+catalog:
+  type: Delta
+
 inputs:
-  persons_s3:
+  delta_persons:
     file:
-      path: s3://test-bucket/persons.json
+      path: s3://test-bucket/delta_persons
+      format: delta
 
 output:
-  delta:
-    generateManifest: true
-    maxRecordsPerFile: 10
+  file:
+    dir: s3://test-bucket/output
 
 explain: true
 logLevel: WARN

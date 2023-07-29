@@ -9,7 +9,6 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.hadoop.fs.FSDataInputStream
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
-import org.apache.spark.sql.SparkSession
 
 import java.io.BufferedReader
 import java.io.File
@@ -19,16 +18,16 @@ import java.util.stream.Collectors
 import scala.collection.JavaConverters._
 import com.yotpo.metorikku.configuration.ConfigurationType
 import io.vertx.core.json.JsonObject
-import io.vertx.json.schema.{Draft, SchemaRepository, JsonSchemaOptions, Validator}
+import io.vertx.json.schema.{Draft, JsonSchemaOptions, Validator}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import io.vertx.json.schema.JsonSchema
-import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
 import io.vertx.json.schema.OutputFormat
 import org.apache.hadoop.conf.Configuration
-import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.GetObjectRequest
 import org.apache.log4j.LogManager
 import org.apache.log4j.Logger
+
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 
 case class HadoopPath(path: Path, fs: FileSystem) {
   def open: FSDataInputStream = {
@@ -130,12 +129,11 @@ object FileUtils {
 
     val in = finalPath match {
       case S3_FILE_REGEX(bucketName, key) => {
-        val s3Client = AmazonS3Client.builder.build()
+        val s3Client = S3Client.builder().build()
 
-        val getObjectRequest = new GetObjectRequest(bucketName, key)
-        val objectResponse   = s3Client.getObject(getObjectRequest)
+        val getObjectRequest = GetObjectRequest.builder().bucket(bucketName).key(key).build()
 
-        objectResponse.getObjectContent()
+        s3Client.getObject(getObjectRequest)
       }
       case _ => getHadoopPath(finalPath).open
     }

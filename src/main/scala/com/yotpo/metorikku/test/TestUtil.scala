@@ -4,10 +4,7 @@ import org.apache.log4j.LogManager
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, when}
 import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.Row
-import org.apache.spark.sql.types.ArrayType
-import scala.collection.mutable.WrappedArray
 
 object TestUtil {
 

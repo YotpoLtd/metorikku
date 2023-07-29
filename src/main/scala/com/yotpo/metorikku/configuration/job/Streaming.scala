@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.configuration.job
 
-import com.yotpo.metorikku.exceptions.MetorikkuWriteFailedException
 import org.apache.spark.sql.streaming.{DataStreamWriter, Trigger}
 
 case class Streaming(

@@ -4,10 +4,8 @@ import com.yotpo.metorikku.input.Reader
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import com.yotpo.metorikku.input.readers.file.SchemaConverter
 import com.yotpo.metorikku.utils.FileUtils
-import com.mongodb.spark.sql._
 import com.yotpo.metorikku.input.readers.mongodb.MongoDBInput.buildDf
-import com.yotpo.metorikku.input.readers.mongodb.MongoDBInput.sanitizeRow
-import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType, TimestampType}
+import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType}
 
 import scala.collection.mutable
 import org.apache.log4j.LogManager

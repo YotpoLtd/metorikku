@@ -195,7 +195,7 @@ required:
         type: string
       outputType:
         type: string
-        pattern: "^(Parquet|Cassandra|CSV|JSON|Redshift|Redis|Segment|Instrumentation|JDBC|JDBCQuery|Elasticsearch|File|Kafka|Catalog|Hudi|MongoDB|Delta)$"
+        pattern: "^(Parquet|Cassandra|CSV|JSON|Redshift|Redis|Segment|Instrumentation|JDBC|JDBCQuery|Elasticsearch|File|Kafka|Catalog|Hudi|MongoDB|Delta|Iceberg)$"
       reportLag:
         type: boolean
       reportLagTimeColumn:

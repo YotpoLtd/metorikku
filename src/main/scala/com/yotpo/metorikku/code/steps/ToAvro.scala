@@ -3,7 +3,6 @@ package com.yotpo.metorikku.code.steps
 import com.yotpo.metorikku.exceptions.MetorikkuException
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
-import org.apache.spark.sql.functions.struct
 import za.co.absa.abris.avro.functions.to_confluent_avro
 import za.co.absa.abris.avro.read.confluent.SchemaManager
 

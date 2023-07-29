@@ -7,6 +7,7 @@ import com.yotpo.metorikku.instrumentation.InstrumentationProvider
 import com.yotpo.metorikku.instrumentation.StreamingQueryMetricsListener
 import com.yotpo.metorikku.output.writers.cassandra.CassandraOutputWriter
 import com.yotpo.metorikku.output.writers.file.DeltaOutputWriter
+import com.yotpo.metorikku.output.writers.file.IcebergOutputWriter
 import com.yotpo.metorikku.output.writers.redis.RedisOutputWriter
 import org.apache.log4j.LogManager
 import org.apache.spark.SparkConf
@@ -14,12 +15,13 @@ import org.apache.spark.SparkContext
 import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.scheduler.SparkListenerJobEnd
 import org.apache.spark.sql.SparkSession
+import com.yotpo.metorikku.configuration.job.Catalog
 
 case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private val log = LogManager.getLogger(this.getClass)
   val sparkSession = session match {
     case Some(ss) => ss
-    case _        => Job.createSparkSession(config.appName, config.output)
+    case _        => Job.createSparkSession(config.appName, config.catalog, config.output)
   }
 
   val sparkContext = sparkSession.sparkContext
@@ -58,7 +60,7 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
 
   registerDataframes(config.getReaders, sparkSession)
 
-  private def setSparkLogLevel(logLevel: Option[String], sparkContext: SparkContext) {
+  private def setSparkLogLevel(logLevel: Option[String], sparkContext: SparkContext): Unit = {
     logLevel match {
       case Some(level) => sparkContext.setLogLevel(level)
       case None        =>
@@ -110,12 +112,29 @@ object Job {
     )
   }
 
-  def createSparkSession(appName: Option[String], output: Option[Output]): SparkSession = {
+  def createSparkSession(
+      appName: Option[String],
+      catalog: Option[Catalog],
+      output: Option[Output]
+  ): SparkSession = {
     val sparkSessionBuilder = SparkSession.builder().appName(appName.get)
 
     val sparkConf = new SparkConf()
 
     addSedonaConfToSparkSession(sparkConf)
+
+    catalog match {
+      case Some(catalog) => {
+        catalog._type.map(_.toLowerCase()) match {
+          case Some("delta") =>
+            DeltaOutputWriter.addConfToSparkSession(sparkConf, catalog.options)
+          case Some("iceberg") =>
+            IcebergOutputWriter.addConfToSparkSession(sparkConf, catalog.options)
+          case _ =>
+        }
+      }
+      case None =>
+    }
 
     output match {
       case Some(out) => {
@@ -126,10 +145,6 @@ object Job {
         }
         out.redis match {
           case Some(redis) => RedisOutputWriter.addConfToSparkSession(sparkConf, redis)
-          case None        =>
-        }
-        out.delta match {
-          case Some(delta) => DeltaOutputWriter.addConfToSparkSession(sparkConf, delta)
           case None        =>
         }
       }
