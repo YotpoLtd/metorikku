@@ -8,7 +8,7 @@ catalog:
 inputs:
   delta_persons:
     file:
-      path: s3://test-bucket/delta_persons
+      path: s3://test-bucket/delta/delta_persons
       format: delta
 
 output:
