@@ -106,7 +106,7 @@ class IcebergOutputWriter(props: Map[String, Object], output: Option[Iceberg]) e
 
         (properties.tableName, output.flatMap(_.dir)) match {
           case (Some(tableName), Some(dir)) =>
-            writer.tableProperty("location", dir + "/" + properties.tableName)
+            writer.tableProperty("location", dir + "/" + tableName)
           case _ => None
         }
 
