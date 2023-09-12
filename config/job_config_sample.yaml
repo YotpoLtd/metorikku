@@ -228,6 +228,12 @@ catalog:
   database: some_database
 
   type: some_type
+  
+  #Extra Hadoop configuration without "spark.hadoop."
+  hadoopConfig:
+    # If planning to use anther Glue Catalog
+    hive.metastore.glue.catalogid: 123456
+
   options:
     opt: val
 

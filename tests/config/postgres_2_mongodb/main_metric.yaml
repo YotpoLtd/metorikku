@@ -45,7 +45,12 @@ output:
             delete: "test_table"
             deletes: [
               {
-                q : {},
+                q : {
+                  "$and": [
+                    {"date": {"$gte": {"$date": "2023-01-01T00:00:00.000Z"}}},
+                    {"date": {"$lt": {"$date": "2024-01-01T00:00:00.000Z"}}}
+                  ]
+                },
                 limit: 0
               }
             ]

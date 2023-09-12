@@ -111,6 +111,19 @@ object Job {
         ) + "org.apache.sedona.viz.sql.SedonaVizExtensions,org.apache.sedona.sql.SedonaSqlExtensions"
     )
   }
+  private def addHadoopConfToSparkSession(
+      sparkConf: SparkConf,
+      options: Option[Map[String, String]]
+  ): Unit = {
+    options
+      .getOrElse(Map.empty)
+      .foreach(x =>
+        sparkConf.set(
+          "spark.hadoop." + x._1,
+          x._2
+        )
+      )
+  }
 
   def createSparkSession(
       appName: Option[String],
@@ -125,6 +138,8 @@ object Job {
 
     catalog match {
       case Some(catalog) => {
+        addHadoopConfToSparkSession(sparkConf, catalog.hadoopConfig)
+
         catalog._type.map(_.toLowerCase()) match {
           case Some("delta") =>
             DeltaOutputWriter.addConfToSparkSession(sparkConf, catalog.options)

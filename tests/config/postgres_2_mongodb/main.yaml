@@ -20,6 +20,10 @@ output:
   mongodb:
     uri: mongodb://mongodb:27017
 
+catalog:
+  hadoopConfig:
+    hive.metastore.glue.catalogid: "123456"
+
 explain: true
 
 logLevel: WARN

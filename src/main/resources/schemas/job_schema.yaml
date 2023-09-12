@@ -58,7 +58,6 @@ properties:
     type: string
 required:
   - metrics
-  - inputs
 anyOf:
   - required:
       - output
@@ -448,6 +447,11 @@ anyOf:
         type: string
         pattern: "^(Delta|Iceberg)$"
       options:
+        type: object
+        patternProperties:
+          "^.+$":
+            type: string
+      hadoopConfig:
         type: object
         patternProperties:
           "^.+$":
