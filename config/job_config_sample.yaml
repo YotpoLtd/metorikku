@@ -238,15 +238,17 @@ catalog:
   # type: Delta
   # enableHive: true
   # hadoopConfig:
+  #   hive.metastore.client.factory.class: "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
   #   # If planning to use another Glue Catalog
-  #   hive.metastore.glue.catalogid: 123456
+  #   hive.metastore.glue.catalogid: "123456"
 
   # If planning to use Iceberg Format + AWS Glue. See https://iceberg.apache.org/docs/latest/configuration/#catalog-properties
   # type: Iceberg
   # enableHive: true
   # hadoopConfig:
+  #   hive.metastore.client.factory.class: "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
   #   # If planning to use another Glue Catalog
-  #   hive.metastore.glue.catalogid: 123456
+  #   hive.metastore.glue.catalogid: "123456"
   # options:
   #   catalog-impl: org.apache.iceberg.aws.glue.GlueCatalog
   #   io-impl: org.apache.iceberg.aws.s3.S3FileIO
