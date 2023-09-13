@@ -6,5 +6,6 @@ case class Catalog(
     database: Option[String],
     @JsonProperty("type") _type: Option[String],
     options: Option[Map[String, String]],
-    hadoopConfig: Option[Map[String, String]]
+    hadoopConfig: Option[Map[String, String]],
+    enableHive: Option[Boolean]
 )

@@ -130,7 +130,7 @@ object Job {
       catalog: Option[Catalog],
       output: Option[Output]
   ): SparkSession = {
-    val sparkSessionBuilder = SparkSession.builder().appName(appName.get)
+    var sparkSessionBuilder = SparkSession.builder().appName(appName.get)
 
     val sparkConf = new SparkConf()
 
@@ -138,6 +138,10 @@ object Job {
 
     catalog match {
       case Some(catalog) => {
+        catalog.enableHive
+          .filter(x => x)
+          .foreach(x => sparkSessionBuilder = sparkSessionBuilder.enableHiveSupport())
+
         addHadoopConfToSparkSession(sparkConf, catalog.hadoopConfig)
 
         catalog._type.map(_.toLowerCase()) match {

@@ -456,6 +456,8 @@ anyOf:
         patternProperties:
           "^.+$":
             type: string
+      enableHive:
+        type: boolean
   streaming:
     type: object
     additionalProperties: false
