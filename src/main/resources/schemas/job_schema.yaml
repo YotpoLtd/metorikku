@@ -58,6 +58,7 @@ properties:
     type: string
 required:
   - metrics
+  - inputs
 anyOf:
   - required:
       - output
@@ -78,13 +79,17 @@ anyOf:
       - required:
           - file_date_range
       - required:
-          - cassandra
-      - required:
           - jdbc
       - required:
           - kafka
       - required:
+          - cassandra
+      - required:
+          - elasticsearch
+      - required:
           - mongodb
+      - required:
+          - catalog
     properties:
       file:
         type: object
@@ -237,6 +242,16 @@ anyOf:
           - uri
           - database
           - collection
+      catalog:
+        type: object
+        additionalProperties: false
+        properties:
+          tableName:
+            type: string
+          preActions:
+            type: string
+        required:
+          - tableName
   instrumentation:
     type: object
     additionalProperties: false
@@ -437,6 +452,16 @@ anyOf:
             minimum: 1
           options:
             type: object
+      catalog:
+        type: object
+        additionalProperties: false
+        properties:
+          tableName:
+            type: string
+          preActions:
+            type: string
+        required:
+          - tableName
   catalog:
     type: object
     additionalProperties: false

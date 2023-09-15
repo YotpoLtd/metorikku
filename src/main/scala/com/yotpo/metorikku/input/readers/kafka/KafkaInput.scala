@@ -10,7 +10,7 @@ import za.co.absa.abris.avro.functions.from_confluent_avro
 import org.apache.spark.sql.functions.col
 
 case class KafkaInput(
-    name: String,
+    val name: String,
     servers: Seq[String],
     topic: Option[String],
     topicPattern: Option[String],

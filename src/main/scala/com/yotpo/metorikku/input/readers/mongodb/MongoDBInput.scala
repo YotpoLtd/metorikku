@@ -11,7 +11,7 @@ import scala.collection.mutable
 import org.apache.log4j.LogManager
 
 case class MongoDBInput(
-    name: String,
+    val name: String,
     uri: String,
     database: String,
     collection: String,

@@ -162,7 +162,7 @@ object ValidationRunner {
                       metric.name
                     )
                   )
-                case "Mutlicolumn" =>
+                case "Multicolumn" =>
                   logByLevel(
                     verificationResult.status,
                     doubleMetricColumnConstrainFailedMsg.format(

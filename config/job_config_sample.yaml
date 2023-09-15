@@ -74,6 +74,14 @@ inputs:
       password: password
       index: index
   input_8:
+    catalog:
+      tableName: |
+        (
+          SELECT * FROM some_table
+        )
+      preActions: |
+        CREATE some_table VIEW persons AS SELECT 'some_id' as id, 'some_name' as name
+  input_9:
     mongo:
       uri: mongodb://localhost:27017
       database: test

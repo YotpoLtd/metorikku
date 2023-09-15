@@ -6,7 +6,7 @@ import org.apache.spark.sql.cassandra._
 import org.apache.log4j.LogManager
 
 case class CassandraInput(
-    name: String,
+    val name: String,
     host: String,
     user: Option[String],
     password: Option[String],

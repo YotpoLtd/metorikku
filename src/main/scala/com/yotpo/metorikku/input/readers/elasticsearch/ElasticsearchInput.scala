@@ -5,7 +5,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.log4j.LogManager
 
 case class ElasticsearchInput(
-    name: String,
+    val name: String,
     nodes: String,
     user: Option[String],
     password: Option[String],

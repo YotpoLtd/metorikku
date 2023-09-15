@@ -2,7 +2,6 @@ package com.yotpo.metorikku.configuration.job
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.yotpo.metorikku.configuration.job.input._
-import com.yotpo.metorikku.configuration.job.input.{Cassandra, JDBC, Kafka}
 import com.yotpo.metorikku.input.Reader
 
 case class Input(
@@ -12,10 +11,11 @@ case class Input(
     kafka: Option[Kafka],
     cassandra: Option[Cassandra],
     elasticsearch: Option[Elasticsearch],
-    mongodb: Option[MongoDB]
+    mongodb: Option[MongoDB],
+    catalog: Option[CatalogTable]
 ) extends InputConfig {
   def getReader(name: String): Reader = {
-    Seq(file, fileDateRange, jdbc, kafka, cassandra, elasticsearch, mongodb)
+    Seq(file, fileDateRange, jdbc, kafka, cassandra, elasticsearch, mongodb, catalog)
       .find(x => x.isDefined)
       .get
       .get

@@ -1,0 +1,12 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM catalog_persons
+      ORDER BY given_name
+output:
+  - dataFrameName: persons
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: iceberg_persons

@@ -1,0 +1,23 @@
+# The MQL file path
+metrics:
+  - ./main_metric.yaml
+
+inputs:
+  catalog_persons:
+    catalog:
+      tableName: |
+        (
+          SELECT * FROM persons
+        )
+      preActions: |
+        CREATE TEMPORARY VIEW persons AS SELECT 'some_id' as id, 'some_name' as name, 'some_given_name' as given_name
+
+
+output:
+  file:
+    dir: s3://test-bucket/output
+
+explain: true
+logLevel: WARN
+appName: TestApp
+showPreviewLines: 10

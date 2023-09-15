@@ -10,7 +10,7 @@ The platform also includes a simple way to write unit and E2E tests.
 
 ## Changes from Original
 
-- Added compatibility with MongoDB (Input/Output), Delta (Input/Output) and Iceberg (Input/Output).
+- Added compatibility with Hive Catalog(Input), MongoDB (Input/Output), Delta (Input/Output) and Iceberg (Input/Output).
 - Metrics and Verification results are stored in memory for later used by other apps.
 - Files can be read from the same path as the job file using local notation (\"./SOME_PATH"\).
 - Optimized to worh with [AWS Glue](https://aws.amazon.com/glue/) 4.0.
