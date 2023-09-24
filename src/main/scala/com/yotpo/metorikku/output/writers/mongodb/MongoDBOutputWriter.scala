@@ -79,10 +79,14 @@ class MongoDBOutputWriter(
 
       val document = BsonDocument.parse(command)
 
+      log.info(
+        s"Running command in DB[${mongoDBProps.database}]: ${command}"
+      )
+
       val commandResult = database.runCommand(document)
 
       log.info(
-        s"Run command in DB[${mongoDBProps.database}]: ${commandResult}"
+        s"Finish command in DB[${mongoDBProps.database}]: ${commandResult}"
       )
     } catch {
       case e: Exception =>
@@ -104,7 +108,6 @@ class MongoDBOutputWriter(
         var options = collection.mutable.Map[String, String](
           "connection.uri" -> mongoDBConf.uri,
           "database"       -> mongoDBProps.database,
-          "collection"     -> mongoDBProps.collection,
           "collection"     -> mongoDBProps.collection
         )
 

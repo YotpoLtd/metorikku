@@ -103,7 +103,8 @@ libraryDependencies ++= Seq(
   "software.amazon.awssdk"   % "glue"                      % "2.20.114",
   "software.amazon.awssdk"   % "s3"                        % "2.20.114",
   "software.amazon.awssdk"   % "sts"                       % "2.20.114",
-  "org.apache.iceberg"      %% "iceberg-spark-runtime-3.3" % "1.3.1"
+  "org.apache.iceberg"      %% "iceberg-spark-runtime-3.3" % "1.3.1",
+  "com.jayway.jsonpath"      % "json-path"                 % "2.8.0"
 )
 
 resolvers ++= Seq(

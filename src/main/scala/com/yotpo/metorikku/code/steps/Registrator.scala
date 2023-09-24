@@ -17,6 +17,11 @@ object Registrator {
       "EPOCH_MILLI_TO_TIMESTAMP",
       udf[Timestamp, Long](UserDefinedFunctions.epochMilliToTimestamp)
     )
+
+    ss.udf.register(
+      "GET_JSON_OBJECT_2",
+      udf[String, String, String](UserDefinedFunctions.getJsonObject)
+    )
   }
 
 }

@@ -13,6 +13,8 @@ import org.apache.spark.sql.DataFrame
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import com.yotpo.metorikku.utils.SparkUtils._
+import org.apache.spark.sql.SparkSession
 
 case class StreamingWritingConfiguration(
     dataFrame: DataFrame,
@@ -30,6 +32,8 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
 
     val tags = Map("metric" -> metricName)
 
+    implicit val spark: SparkSession = job.sparkSession
+
     for (stepConfig <- configuration.steps) {
       val step = StepFactory.getStepAction(
         stepConfig,
@@ -41,19 +45,21 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
         dqConfigurator
       )
 
-      try {
-        log.info(s"Calculating step ${step.dataFrameName}")
-        step.run(job.sparkSession)
-        job.instrumentationClient.count(name = "successfulSteps", value = 1, tags = tags)
-      } catch {
-        case ex: Exception => {
-          val errorMessage =
-            s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metricName}"
-          job.instrumentationClient.count(name = "failedSteps", value = 1, tags = tags)
-          if (stepConfig.ignoreOnFailures.get || job.config.continueOnFailedStep.get) {
-            log.error(errorMessage + " - " + ex.getMessage)
-          } else {
-            throw MetorikkuFailedStepException(errorMessage, ex)
+      appendJobDescription(step.dataFrameName) {
+        try {
+          log.info(s"Calculating step ${step.dataFrameName}")
+          step.run(job.sparkSession)
+          job.instrumentationClient.count(name = "successfulSteps", value = 1, tags = tags)
+        } catch {
+          case ex: Exception => {
+            val errorMessage =
+              s"Failed to calculate dataFrame: ${step.dataFrameName} on metric: ${metricName}"
+            job.instrumentationClient.count(name = "failedSteps", value = 1, tags = tags)
+            if (stepConfig.ignoreOnFailures.get || job.config.continueOnFailedStep.get) {
+              log.error(errorMessage + " - " + ex.getMessage)
+            } else {
+              throw MetorikkuFailedStepException(errorMessage, ex)
+            }
           }
         }
       }
@@ -66,6 +72,7 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
       streamingConfig: Option[Streaming],
       instrumentationProvider: InstrumentationProvider
   ): Unit = {
+
     log.info(s"Starting to write streaming results of ${dataFrameName}")
     streamingConfig match {
       case Some(config) => {
@@ -75,16 +82,20 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
           case Some(true) => {
             val query = streamWriter
               .foreachBatch((batchDF: DataFrame, _: Long) => {
-                writerConfig.writers.foreach(writer => writer.write(batchDF))
-                writerConfig.outputConfig.reportLag match {
-                  case Some(true) =>
-                    new MetricReporting().reportLagTime(
-                      batchDF,
-                      writerConfig.outputConfig.reportLagTimeColumn,
-                      writerConfig.outputConfig.reportLagTimeColumnUnits,
-                      instrumentationProvider
-                    )
-                  case _ =>
+                implicit val spark: SparkSession = batchDF.sparkSession
+
+                appendJobDescription(dataFrameName) {
+                  writerConfig.writers.foreach(writer => writer.write(batchDF))
+                  writerConfig.outputConfig.reportLag match {
+                    case Some(true) =>
+                      new MetricReporting().reportLagTime(
+                        batchDF,
+                        writerConfig.outputConfig.reportLagTimeColumn,
+                        writerConfig.outputConfig.reportLagTimeColumnUnits,
+                        instrumentationProvider
+                      )
+                    case _ =>
+                  }
                 }
               })
               .start()
@@ -122,40 +133,43 @@ case class Metric(configuration: Configuration, metricDir: Option[File], metricN
       instrumentationProvider: InstrumentationProvider,
       cacheCountOnOutput: Option[Boolean]
   ): Unit = {
+    implicit val spark: SparkSession = dataFrame.sparkSession
 
-    val dataFrameCount = cacheCountOnOutput match {
-      case Some(true) => {
-        dataFrame.cache()
-        dataFrame.count()
+    appendJobDescription(dataFrameName) {
+      val dataFrameCount = cacheCountOnOutput match {
+        case Some(true) => {
+          dataFrame.cache()
+          dataFrame.count()
+        }
+        case _ => 0
       }
-      case _ => 0
-    }
-    val tags = Map(
-      "metric"      -> metricName,
-      "dataframe"   -> dataFrameName,
-      "output_type" -> outputConfig.outputType.toString
-    )
-    instrumentationProvider.count(name = "counter", value = dataFrameCount, tags = tags)
-    log.info(s"Starting to Write results of ${dataFrameName}")
-    try {
-      writer.write(dataFrame)
-      outputConfig.reportLag match {
-        case Some(true) =>
-          new MetricReporting().reportLagTime(
-            dataFrame,
-            outputConfig.reportLagTimeColumn,
-            outputConfig.reportLagTimeColumnUnits,
-            instrumentationProvider
+      val tags = Map(
+        "metric"      -> metricName,
+        "dataframe"   -> dataFrameName,
+        "output_type" -> outputConfig.outputType.toString
+      )
+      instrumentationProvider.count(name = "counter", value = dataFrameCount, tags = tags)
+      log.info(s"Starting to Write results of ${dataFrameName}")
+      try {
+        writer.write(dataFrame)
+        outputConfig.reportLag match {
+          case Some(true) =>
+            new MetricReporting().reportLagTime(
+              dataFrame,
+              outputConfig.reportLagTimeColumn,
+              outputConfig.reportLagTimeColumnUnits,
+              instrumentationProvider
+            )
+          case _ =>
+        }
+      } catch {
+        case ex: Exception => {
+          throw MetorikkuWriteFailedException(
+            s"Failed to write dataFrame: " +
+              s"$dataFrameName to output: ${outputConfig.outputType} on metric: ${metricName}",
+            ex
           )
-        case _ =>
-      }
-    } catch {
-      case ex: Exception => {
-        throw MetorikkuWriteFailedException(
-          s"Failed to write dataFrame: " +
-            s"$dataFrameName to output: ${outputConfig.outputType} on metric: ${metricName}",
-          ex
-        )
+        }
       }
     }
   }

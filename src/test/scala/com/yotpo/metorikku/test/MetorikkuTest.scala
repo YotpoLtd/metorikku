@@ -2,17 +2,14 @@ package com.yotpo.metorikku.test
 
 import java.io.{File, FileNotFoundException}
 import java.io.File
-import java.nio.file.{Files, Paths}
 import com.yotpo.metorikku.Metorikku
-import com.yotpo.metorikku.configuration.test.{Configuration, Mock, Params}
 import com.yotpo.metorikku.configuration.test.ConfigurationParser.{
   TesterConfig,
   parseConfigurationFile
 }
 import com.yotpo.metorikku.exceptions.MetorikkuInvalidFileException
-import org.apache.log4j.Logger
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.scalatest.{Assertion, BeforeAndAfterAll}
+import org.apache.spark.sql.SparkSession
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 
 class MetorikkuTest extends AnyFunSuite with BeforeAndAfterAll {

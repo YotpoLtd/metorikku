@@ -1,6 +1,5 @@
 package com.yotpo.metorikku.metric.stepActions.dataQuality
 
-import com.amazon.deequ.checks.Check
 import com.yotpo.metorikku.metric.stepActions.dataQuality.operators.HasUniqueness
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession

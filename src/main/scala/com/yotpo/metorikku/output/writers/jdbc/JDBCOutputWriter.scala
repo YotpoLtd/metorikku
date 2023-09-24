@@ -15,19 +15,32 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
   @transient lazy val log = LogManager.getLogger(this.getClass)
   val dbOptions = JDBCOutputProperties(SaveMode.valueOf(props("saveMode")), props("dbTable"))
 
+  private def executeAction(jdbcConf: JDBC, action: String) {
+    val conn =
+      DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
+
+    log.info(
+      s"Running action: ${action}"
+    )
+    val stmt = conn.prepareStatement(action)
+    stmt.execute()
+    stmt.close()
+
+    log.info(
+      s"Finish action: ${action}"
+    )
+
+    conn.close()
+  }
+
   override def write(dataFrame: DataFrame): Unit = {
     jdbcConf match {
       case Some(jdbcConf) =>
         props.get("preActions") match {
           case Some(preActions) =>
-            val conn =
-              DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
             preActions.trim.split(";").foreach { action =>
-              val stmt = conn.prepareStatement(action)
-              stmt.execute()
-              stmt.close()
+              executeAction(jdbcConf, action)
             }
-            conn.close()
           case _ =>
         }
 
@@ -59,14 +72,9 @@ class JDBCOutputWriter(props: Map[String, String], jdbcConf: Option[JDBC]) exten
 
         props.get("postActions") match {
           case Some(postActions) =>
-            val conn =
-              DriverManager.getConnection(jdbcConf.connectionUrl, jdbcConf.user, jdbcConf.password)
             postActions.trim.split(";").foreach { action =>
-              val stmt = conn.prepareStatement(action)
-              stmt.execute()
-              stmt.close()
+              executeAction(jdbcConf, action)
             }
-            conn.close()
           case _ =>
         }
       case None =>

@@ -16,6 +16,7 @@ import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.scheduler.SparkListenerJobEnd
 import org.apache.spark.sql.SparkSession
 import com.yotpo.metorikku.configuration.job.Catalog
+import com.yotpo.metorikku.utils.SparkUtils._
 
 case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private val log = LogManager.getLogger(this.getClass)
@@ -83,11 +84,17 @@ case class Job(config: Configuration, session: Option[SparkSession] = None) {
 
   def registerDataframes(inputs: Seq[Reader], sparkSession: SparkSession): Unit = {
     if (inputs.nonEmpty) {
-      inputs.foreach(input => {
-        log.info(s"Registering ${input.name} table")
-        val df = input.read(sparkSession)
-        df.createOrReplaceTempView(input.name)
-      })
+      implicit val spark: SparkSession = sparkSession
+
+      withJobDescription("Inputs") {
+        inputs.foreach(input =>
+          appendJobDescription(input.name) {
+            log.info(s"Registering ${input.name} table")
+            val df = input.read(sparkSession)
+            df.createOrReplaceTempView(input.name)
+          }
+        )
+      }
     }
   }
 }

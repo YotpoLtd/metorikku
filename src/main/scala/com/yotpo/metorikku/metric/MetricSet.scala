@@ -3,7 +3,9 @@ package com.yotpo.metorikku.metric
 import com.yotpo.metorikku.Job
 import com.yotpo.metorikku.configuration.metric.ConfigurationParser
 import com.yotpo.metorikku.utils.FileUtils
+import com.yotpo.metorikku.utils.SparkUtils._
 import org.apache.log4j.LogManager
+import org.apache.spark.sql.SparkSession
 
 object MetricSet {
   type metricSetCallback = (String) => Unit
@@ -49,12 +51,19 @@ class MetricSet(
       case None           =>
     }
 
+    implicit val spark: SparkSession = job.sparkSession
+
     metrics.foreach(metric => {
       val startTime = System.nanoTime()
 
-      metric.calculate(job)
+      withJobDescription("Steps") {
+        metric.calculate(job)
+      }
+
       if (write) {
-        metric.write(job)
+        withJobDescription("Outputs") {
+          metric.write(job)
+        }
       }
 
       val endTime         = System.nanoTime()
