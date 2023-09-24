@@ -81,7 +81,7 @@ libraryDependencies ++= Seq(
   "za.co.absa" %% "abris" % "3.2.1" % "provided" excludeAll (excludeAvro, excludeSpark),
   "org.apache.hudi"   %% "hudi-spark-bundle" % "0.10.0" % "provided",
   "org.apache.parquet" % "parquet-avro"      % "1.12.3" % "provided",
-  "com.amazon.deequ" % "deequ"     % "2.0.4-spark-3.3" excludeAll (excludeSpark, excludeScalanlp),
+  "com.amazon.deequ" % "deequ"     % "2.0.3-spark-3.3" excludeAll (excludeSpark, excludeScalanlp),
   "org.apache.avro"  % "avro"      % "1.11.1" % "provided",
   "com.databricks"  %% "spark-xml" % "0.16.0",
   "com.outr"        %% "hasher"    % "1.2.2",
