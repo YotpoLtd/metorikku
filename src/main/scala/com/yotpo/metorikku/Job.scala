@@ -17,6 +17,7 @@ import org.apache.spark.scheduler.SparkListenerJobEnd
 import org.apache.spark.sql.SparkSession
 import com.yotpo.metorikku.configuration.job.Catalog
 import com.yotpo.metorikku.utils.SparkUtils._
+import com.yotpo.metorikku.code.steps.FunctionRegistrator
 
 case class Job(config: Configuration, session: Option[SparkSession] = None) {
   private val log = LogManager.getLogger(this.getClass)
@@ -177,6 +178,10 @@ object Job {
       case None =>
     }
 
-    sparkSessionBuilder.config(sparkConf).getOrCreate()
+    val spark = sparkSessionBuilder.config(sparkConf).getOrCreate()
+
+    FunctionRegistrator.run(spark)
+
+    spark
   }
 }

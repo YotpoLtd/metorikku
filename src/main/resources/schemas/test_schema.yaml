@@ -48,8 +48,6 @@ required:
         - type: number
         - type: array
         - type: object
-    minItems: 1
-
   mock:
     type: object
     additionalProperties: false
