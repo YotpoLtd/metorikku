@@ -75,6 +75,7 @@ class JsonObjectTest extends AnyFunSuite {
   test("Given a JSON and valid complex path returns a String") {
     assert(getJsonObject(json, "$.store.book[2].category") === "\"fiction\"")
     assert(getJsonObject(json, "$.store.book[?(@.price < 8.96)].category") === "[\"reference\"]")
+    assert(getJsonObject(json, "$.store.book[?(@.isbn == \"0-395-19395-8\" && @.author == \"J. R. R. Tolkien\")].title") === "[\"The Lord of the Rings\"]")
   }
 
   test("Given a JSON and invalid returns null") {
