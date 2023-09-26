@@ -25,7 +25,9 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
       operator: String,
       value: String,
       level: String,
-      where: Option[String] = None
+      where: Option[String] = None,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ) = {
     val sqlContext = sparkSession.sqlContext
     val satisfiesCheck =
@@ -34,7 +36,9 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
         column = column,
         operator = operator,
         value = value,
-        where = where
+        where = where,
+        fraction = fraction,
+        fractionOperator = fractionOperator
       )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](
@@ -65,6 +69,33 @@ class SatisfiesTest extends AnyFunSuite with BeforeAndAfterEach {
       valideSatisfiesOverDf(employeeData, "id", "!=", "1.0", level)
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "no satisfies on a field with level error should raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("Maria", 1, "Smith", 111, 1111),
+      ("Josh", 2, "Smith", 222, 2222)
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      valideSatisfiesOverDf(employeeData, "id", "!=", "1.0", level, fraction=Some("0.5"), fractionOperator=Some(">"))
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "no satisfies on a field with level error should not raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("Maria", 1, "Smith", 111, 1111),
+      ("Josh", 2, "Smith", 222, 2222)
+    )
+    val level = "error"
+
+    valideSatisfiesOverDf(employeeData, "id", "!=", "1.0", level, fraction=Some("0.5"), fractionOperator=Some(">="))
   }
 
   test(

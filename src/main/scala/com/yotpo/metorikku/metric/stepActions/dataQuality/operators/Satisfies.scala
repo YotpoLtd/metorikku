@@ -8,7 +8,9 @@ class Satisfies(
     column: String,
     operator: String,
     value: String,
-    where: Option[String] = None
+    where: Option[String] = None,
+    fraction: Option[String] = None,
+    fractionOperator: Option[String] = None
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
@@ -18,7 +20,7 @@ class Satisfies(
     ).satisfies(
       "%s %s %s".format(column, operator, value),
       "%s %s %s".format(column, operator, value),
-      Check.IsOne
+      getAssertion(fraction, fractionOperator)
     ).where(where.getOrElse("true"))
   }
 }

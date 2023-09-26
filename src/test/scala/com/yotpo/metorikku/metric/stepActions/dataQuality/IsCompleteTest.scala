@@ -21,10 +21,14 @@ class IsCompleteTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def validateIsCompleteOverDf(
       employeeData: Seq[(String, Int, Integer, Int, Int)],
-      level: String
+      level: String,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ): Unit = {
     val sqlContext      = sparkSession.sqlContext
-    val isCompleteCheck = new IsComplete(level = Some(level), column = "salary")
+    val isCompleteCheck = new IsComplete(level = Some(level), column = "salary",
+        fraction = fraction,
+        fractionOperator = fractionOperator)
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](DataQualityCheck(isComplete = Some(isCompleteCheck))),
       None,
@@ -52,6 +56,33 @@ class IsCompleteTest extends AnyFunSuite with BeforeAndAfterEach {
       validateIsCompleteOverDf(employeeData, level)
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "is_complete on a non-unique field with level error should raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, null.asInstanceOf[Integer], 111, 1111),
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      validateIsCompleteOverDf(employeeData, level, Some("0.5"), Some(">"))
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "is_complete on a non-unique field with level error should not raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, null.asInstanceOf[Integer], 111, 1111),
+      ("Maria", 2, Integer.valueOf(22), 222, 2222)
+    )
+    val level = "error"
+
+    validateIsCompleteOverDf(employeeData, level, Some("0.5"), Some(">="))
   }
 
   test(

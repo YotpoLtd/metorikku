@@ -21,13 +21,17 @@ class IsContainedInTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def valideIsContainedInOverDf(
       storeData: Seq[(String, Int, String, Int, Int)],
-      level: String
+      level: String,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ) = {
     val sqlContext = sparkSession.sqlContext
     val isContainedInCheck = new IsContainedIn(
       level = Some(level),
       column = "category",
-      allowedValues = Array("sports", "pets", "clothes")
+      allowedValues = Array("sports", "pets", "clothes"),
+      fraction = fraction,
+      fractionOperator = fractionOperator
     )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](DataQualityCheck(isContainedIn = Some(isContainedInCheck))),
@@ -57,6 +61,35 @@ class IsContainedInTest extends AnyFunSuite with BeforeAndAfterEach {
       valideIsContainedInOverDf(storeData, level)
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: store_data"))
+  }
+
+  test(
+    "is_contained_in on an unsupported field with level error should raise exception because of fraction"
+  ) {
+    val storeData = Seq(
+      ("petstop", 1, "pets", 111, 1111),
+      ("castro", 2, "clothes", 222, 2222),
+      ("ampm", 3, "groceries", 333, 3333)
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      valideIsContainedInOverDf(storeData, level, Some("0.90"), Some(">"))
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: store_data"))
+  }
+
+  test(
+    "is_contained_in on an unsupported field with level error should not raise exception because of fraction"
+  ) {
+    val storeData = Seq(
+      ("petstop", 1, "pets", 111, 1111),
+      ("castro", 2, "clothes", 222, 2222),
+      ("ampm", 3, "groceries", 333, 3333)
+    )
+    val level = "error"
+
+    valideIsContainedInOverDf(storeData, level, Some("0.5"), Some(">="))
   }
 
   test(

@@ -21,11 +21,18 @@ class AreAnyCompleteTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def validateAreAnyCompleteOverDf(
       employeeData: Seq[(String, Int, Integer, Integer)],
-      level: String
+      level: String,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ): Unit = {
     val sqlContext = sparkSession.sqlContext
     val AreAnyCompleteCheck =
-      new AreAnyComplete(level = Some(level), columns = List("column_a", "column_b"))
+      new AreAnyComplete(
+        level = Some(level),
+        columns = List("column_a", "column_b"),
+        fraction = fraction,
+        fractionOperator = fractionOperator
+      )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](DataQualityCheck(areAnyComplete = Some(AreAnyCompleteCheck))),
       None,
@@ -56,6 +63,37 @@ class AreAnyCompleteTest extends AnyFunSuite with BeforeAndAfterEach {
 
     val thrown = intercept[Exception] {
       validateAreAnyCompleteOverDf(employeeData, level)
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "are_any_complete on null fields with level error should not raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, Integer.valueOf(1), Integer.valueOf(1)),
+      ("Maria", 2, Integer.valueOf(2), Integer.valueOf(2)),
+      ("John", 3, Integer.valueOf(3), Integer.valueOf(3)),
+      ("Ursulla", 4, null.asInstanceOf[Integer], null.asInstanceOf[Integer])
+    )
+    val level = "error"
+
+    validateAreAnyCompleteOverDf(employeeData, level, Some("0.75"), Some(">="))
+  }
+
+  test(
+    "are_any_complete on null fields with level error should raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, Integer.valueOf(1), Integer.valueOf(1)),
+      ("Maria", 2, Integer.valueOf(2), Integer.valueOf(2)),
+      ("John", 3, Integer.valueOf(3), Integer.valueOf(3)),
+      ("Ursulla", 4, null.asInstanceOf[Integer], null.asInstanceOf[Integer])
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      validateAreAnyCompleteOverDf(employeeData, level, Some("0.76"), Some(">="))
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }

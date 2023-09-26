@@ -20,10 +20,17 @@ class IsUniqueTest extends AnyFunSuite with BeforeAndAfterEach {
 
   private def valideIsUniqueOverDf(
       employeeData: Seq[(String, Int, Int, Int, Int)],
-      level: String
+      level: String,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ) = {
-    val sqlContext    = sparkSession.sqlContext
-    val isUniqueCheck = new IsUnique(level = Some(level), column = "id")
+    val sqlContext = sparkSession.sqlContext
+    val isUniqueCheck = new IsUnique(
+      level = Some(level),
+      column = "id",
+      fraction = fraction,
+      fractionOperator = fractionOperator
+    )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](DataQualityCheck(isUnique = Some(isUniqueCheck))),
       None,
@@ -49,6 +56,36 @@ class IsUniqueTest extends AnyFunSuite with BeforeAndAfterEach {
 
     val thrown = intercept[Exception] {
       valideIsUniqueOverDf(employeeData, level)
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "is_unique on a non-unique field with level error should raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, 11, 111, 1111),
+      ("Maria", 1, 22, 222, 2222)
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      valideIsUniqueOverDf(employeeData, level, Some("0.5"), Some(">"))
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "is_unique on a non-unique field with level error should not raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("James", 1, 11, 111, 1111),
+      ("Maria", 1, 22, 222, 2222)
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      valideIsUniqueOverDf(employeeData, level, Some("0.66"), Some(">="))
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }

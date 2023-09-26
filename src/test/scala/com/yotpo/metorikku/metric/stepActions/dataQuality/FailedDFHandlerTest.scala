@@ -28,21 +28,18 @@ class FailedDFHandlerTest extends AnyFunSuite with BeforeAndAfterEach {
   }
 
   test("given a failed dq check then invokes failure handler") {
-
     executeDq(false, true)
   }
 
   test(
     "given a failed dq check then invokes failure handler even if log is set to warning"
   ) {
-
     executeDq(false, true, "warn")
   }
 
   test(
     "if handler fails then it doesnt interrupt normal flow and throws correct exception"
   ) {
-
     failedHandler()
   }
 

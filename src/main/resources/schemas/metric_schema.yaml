@@ -55,6 +55,12 @@ required:
                       pattern: "^(warn|warning|error)$"
                     column:
                       type: string
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    fractionOperator:
+                      type: string
                   required:
                     - column
                 isUnique:
@@ -64,6 +70,12 @@ required:
                       type: string
                       pattern: "^(warn|warning|error)$"
                     column:
+                      type: string
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    fractionOperator:
                       type: string
                   required:
                     - column
@@ -97,6 +109,8 @@ required:
                       anyOf:
                         - type: number
                         - type: string
+                    fractionOperator:
+                      type: string
                     operator:
                       type: string
                   required:
@@ -114,6 +128,12 @@ required:
                       items:
                         type: string
                       minItems: 1
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    fractionOperator:
+                      type: string
                   required:
                     - column
                     - allowedValues
@@ -132,6 +152,12 @@ required:
                         - type: boolean
                         - type: number
                         - type: string
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    fractionOperator:
+                      type: string
                     where:
                       type: string
                   required:
@@ -149,6 +175,12 @@ required:
                       items:
                         type: string
                       minItems: 1
+                    fraction:
+                      anyOf:
+                        - type: number
+                        - type: string
+                    fractionOperator:
+                      type: string
                   required:
                     - columns
               anyOf:

@@ -22,13 +22,18 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
   private def valideHasUniquenessOverDf(
       employeeData: Seq[(String, Int, String, Int, Int)],
       columns: Seq[String],
-      fraction: String,
-      operator: String,
-      level: String
+      level: String,
+      fraction: Option[String] = None,
+      fractionOperator: Option[String] = None
   ) = {
     val sqlContext = sparkSession.sqlContext
     val hasUniquenessCheck =
-      new HasUniqueness(level = Some(level), columns = columns, Some(fraction), Some(operator))
+      new HasUniqueness(
+        level = Some(level),
+        columns = columns,
+        fraction = fraction,
+        fractionOperator = fractionOperator
+      )
     val dqCheckDefinitionList = DataQualityCheckList(
       List[DataQualityCheck](
         DataQualityCheck(None, None, hasUniqueness = Some(hasUniquenessCheck))
@@ -55,7 +60,38 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
     val level = "error"
 
     val thrown = intercept[Exception] {
-      valideHasUniquenessOverDf(employeeData, Seq("id", "name"), "1.0", "==", level)
+      valideHasUniquenessOverDf(employeeData, Seq("id", "name"), level)
+    }
+    assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
+  }
+
+  test(
+    "has_uniqueness on a non-unique field with level error should not raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("Maria", 1, "Blue", 111, 1111),
+      ("Josh", 2, "Red", 222, 2222),
+      ("John", 3, "White", 333, 3333),
+      ("John", 3, "White", 333, 3333),
+    )
+    val level = "error"
+
+    valideHasUniquenessOverDf(employeeData, Seq("id", "name"), level, Some("0.5"), Some(">="))
+  }
+
+  test(
+    "has_uniqueness on a non-unique field with level error should raise exception because of fraction"
+  ) {
+    val employeeData = Seq(
+      ("Maria", 1, "Blue", 111, 1111),
+      ("Josh", 2, "Red", 222, 2222),
+      ("John", 3, "White", 333, 3333),
+      ("John", 3, "White", 333, 3333),
+    )
+    val level = "error"
+
+    val thrown = intercept[Exception] {
+      valideHasUniquenessOverDf(employeeData, Seq("id", "name"), level, Some("0.5"), Some(">"))
     }
     assert(thrown.getMessage.startsWith("Verifications failed over dataframe: employee_data"))
   }
@@ -69,7 +105,7 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
     )
     val level = "error"
 
-    valideHasUniquenessOverDf(employeeData, Seq("id", "name"), "1.0", "==", level)
+    valideHasUniquenessOverDf(employeeData, Seq("id", "name"), level)
   }
 
   test(
@@ -81,7 +117,7 @@ class HasUniquenessTest extends AnyFunSuite with BeforeAndAfterEach {
     )
     val level = "warn"
 
-    valideHasUniquenessOverDf(employeeData, Seq("id", "name"), "1.0", "==", level)
+    valideHasUniquenessOverDf(employeeData, Seq("id", "name"), level)
   }
 
   override def afterEach() {
