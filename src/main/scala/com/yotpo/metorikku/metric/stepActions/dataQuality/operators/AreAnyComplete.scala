@@ -11,7 +11,9 @@ class AreAnyComplete(
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
-    new Check(getLevel(level), "Completeness check for columns: %s".format(columns))
-      .haveAnyCompleteness(columns, getAssertion(fraction, fractionOperator))
+    val assertion = getAssertion(fraction, fractionOperator)
+
+    new Check(getLevel(level), "Completeness check for columns[%s]: %s".format(assertion, columns))
+      .haveAnyCompleteness(columns, assertion)
   }
 }

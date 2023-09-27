@@ -10,9 +10,11 @@ class IsUnique(
     fractionOperator: Option[String] = None
 ) extends Operator(level = level) {
   override def getCheck(level: String): Check = {
-    new Check(getLevel(level), "Uniqueness check for column: %s".format(column)).hasUniqueness(
-      List(column),
-      getAssertion(fraction, fractionOperator)
-    )
+    val assertion = getAssertion(fraction, fractionOperator)
+    new Check(getLevel(level), "Uniqueness check for column[%s]: %s".format(assertion, column))
+      .hasUniqueness(
+        List(column),
+        assertion
+      )
   }
 }

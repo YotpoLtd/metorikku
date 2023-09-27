@@ -11,12 +11,13 @@ class HasUniqueness(
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
+    val assertion = getAssertion(fraction, fractionOperator)
     new Check(
       getLevel(level),
-      "Uniqueness test for a single or combined set of key columns: %s".format(columns)
+      "Uniqueness test for a single or combined set of key columns[%s]: %s".format(assertion, columns)
     ).hasUniqueness(
       columns,
-      getAssertion(fraction, fractionOperator)
+      assertion
     )
   }
 }

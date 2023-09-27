@@ -49,6 +49,7 @@ required:
               properties:
                 isComplete:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -65,6 +66,7 @@ required:
                     - column
                 isUnique:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -81,6 +83,7 @@ required:
                     - column
                 hasSize:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -96,6 +99,7 @@ required:
                     - operator
                 hasUniqueness:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -117,6 +121,7 @@ required:
                     - columns
                 isContainedIn:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -139,6 +144,7 @@ required:
                     - allowedValues
                 satisfies:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string
@@ -166,6 +172,7 @@ required:
                     - value
                 areAnyComplete:
                   type: object
+                  additionalProperties: false
                   properties:
                     level:
                       type: string

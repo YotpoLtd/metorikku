@@ -1,0 +1,21 @@
+steps:
+  - dataFrameName: persons
+    sql: |
+      SELECT *
+      FROM persons_s3
+    dq:
+      level: error
+      checks:
+        - isComplete:
+            column: "name"
+        - isComplete:
+            column: "family_name"
+            fraction: "0.9"
+            fractionOperator: ">="
+
+output:
+  - dataFrameName: persons
+    outputType: Parquet
+    outputOptions:
+      saveMode: Overwrite
+      path: persons_parquet

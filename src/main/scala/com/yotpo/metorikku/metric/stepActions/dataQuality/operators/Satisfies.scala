@@ -14,13 +14,17 @@ class Satisfies(
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
+    val assertion = getAssertion(fraction, fractionOperator)
+    val condition = "%s %s %s".format(column, operator, value)
+    val whereStr  = where.getOrElse("true")
+
     new Check(
       getLevel(level),
-      "Satisfies test: %s %s %s".format(column, operator, value)
+      "Satisfies test[%s]: %s where %s".format(assertion, condition, whereStr)
     ).satisfies(
-      "%s %s %s".format(column, operator, value),
-      "%s %s %s".format(column, operator, value),
-      getAssertion(fraction, fractionOperator)
-    ).where(where.getOrElse("true"))
+      condition,
+      condition,
+      assertion
+    ).where(whereStr)
   }
 }

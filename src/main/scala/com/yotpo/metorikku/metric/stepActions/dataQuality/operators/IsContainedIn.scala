@@ -12,7 +12,8 @@ class IsContainedIn(
 ) extends Operator(level = level) {
 
   override def getCheck(level: String): Check = {
-    new Check(getLevel(level), "Is contained check for column: %s".format(column))
-      .isContainedIn(column, allowedValues, getAssertion(fraction, fractionOperator))
+    val assertion = getAssertion(fraction, fractionOperator)
+    new Check(getLevel(level), "Is contained check for column[%s]: %s".format(assertion, column))
+      .isContainedIn(column, allowedValues, assertion)
   }
 }
