@@ -5,12 +5,15 @@ import com.yotpo.metorikku.output.Writer
 import org.apache.log4j.LogManager
 import org.apache.spark.sql.{DataFrame, SaveMode}
 
-import org.bson.BsonDocument
+import org.bson.{BsonDocument, BsonArray}
 import com.mongodb.MongoClientSettings
 import com.mongodb.client.MongoClients
 import com.mongodb.connection.SslSettings
 import com.mongodb.Block
 import com.mongodb.ConnectionString
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 class MongoDBOutputWriter(
     props: Map[String, String],
@@ -77,17 +80,28 @@ class MongoDBOutputWriter(
 
       val database = client.getDatabase(mongoDBProps.database)
 
-      val document = BsonDocument.parse(command)
-
-      log.info(
-        s"Running command in DB[${mongoDBProps.database}]: ${command}"
-      )
-
-      val commandResult = database.runCommand(document)
-
-      log.info(
-        s"Finish command in DB[${mongoDBProps.database}]: ${commandResult}"
-      )
+      Try(BsonArray.parse(command))
+        .map(d => {
+          (0 until d.size()).map(i => d.get(i).asDocument()).toList
+        })
+        .getOrElse(List(BsonDocument.parse(command)))
+        .foreach(x =>
+          Try({
+            log.info(
+              s"Running command in DB[${mongoDBProps.database}]: ${x}"
+            )
+            database.runCommand(x)
+          }) match {
+            case Success(commandResult) =>
+              log.info(
+                s"Finish command in DB[${mongoDBProps.database}]: ${commandResult}"
+              )
+            case Failure(e) =>
+              log.error(
+                s"Failed to run command in DB[${mongoDBProps.database}]: ${e.getMessage}"
+              )
+          }
+        )
     } catch {
       case e: Exception =>
         log.error(

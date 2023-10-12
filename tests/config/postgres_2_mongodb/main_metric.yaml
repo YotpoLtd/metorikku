@@ -40,14 +40,14 @@ output:
       saveMode: Overwrite
       database: test_db
       collection: test_table
-      preCommand: |
+      preCommand: >
         {
-            delete: "test_table"
+            delete: "test_table",
             deletes: [
               {
                 q : {
                   "$and": [
-                    {"date": {"$gte": {"$date": "2023-01-01T00:00:00.000Z"}}},
+                    {"date": {"$gte": {"$date": "2022-01-01T00:00:00.000Z"}}},
                     {"date": {"$lt": {"$date": "2024-01-01T00:00:00.000Z"}}}
                   ]
                 },
@@ -55,3 +55,31 @@ output:
               }
             ]
         }
+  - dataFrameName: test_table_df
+    outputType: MongoDB
+    outputOptions:
+      saveMode: Overwrite
+      database: test_db
+      collection: test_table_2
+      preCommand: >
+        [
+          {
+                insert: "users",
+                documents: [ { user: "abc1", status: "before" } ]
+          },
+          {
+                insert: "users",
+                documents: [ { user: "abc2", status: "before" } ]
+          }
+        ]
+      postCommand: >
+        [
+          {
+                insert: "users",
+                documents: [ { user: "abc3", status: "after" } ]
+          },
+          {
+                insert: "users",
+                documents: [ { user: "abc4", status: "after" } ]
+          }
+        ]
