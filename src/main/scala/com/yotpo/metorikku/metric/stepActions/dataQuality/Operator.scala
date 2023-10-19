@@ -14,6 +14,20 @@ abstract case class Operator(level: Option[String]) {
     }
   }
 
-  def getAssertion(fraction: Option[String], fractionOperator: Option[String]): Double => Boolean =
-    Evaluator().dqAssertion(fractionOperator getOrElse "==", (fraction getOrElse "1.0").toDouble)
+  def getAssertion(
+      fraction: Option[String],
+      fractionOperator: Option[String]
+  ): Double => Boolean = {
+    val finalFractionOperator = fractionOperator getOrElse "=="
+    val finalFraction         = (fraction getOrElse "1.0").toDouble
+
+    Evaluator().dqAssertion(finalFractionOperator, finalFraction)
+  }
+
+  def getAssertionStr(fraction: Option[String], fractionOperator: Option[String]): String = {
+    val finalFractionOperator = fractionOperator getOrElse "=="
+    val finalFraction         = 100.0 * (fraction getOrElse "1.0").toDouble
+
+    s"${finalFractionOperator} ${finalFraction}%"
+  }
 }
