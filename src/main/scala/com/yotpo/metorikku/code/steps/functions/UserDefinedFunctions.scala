@@ -15,15 +15,27 @@ object UserDefinedFunctions {
     Timestamp.from(instant)
   }
 
+  private val jsonPathConfig = Configuration
+    .defaultConfiguration()
+    .addOptions(com.jayway.jsonpath.Option.ALWAYS_RETURN_LIST)
+
   def getJsonObject(jsonTxt: String, path: String): String = {
     Try({
-      val conf =
-        Configuration
-          .defaultConfiguration()
-          .addOptions(com.jayway.jsonpath.Option.ALWAYS_RETURN_LIST)
-      val document = Configuration.defaultConfiguration().jsonProvider().parse(jsonTxt)
+      val document = jsonPathConfig.jsonProvider().parse(jsonTxt)
 
       JSONValue.toJSONString(JsonPath.read(document, path))
+    }).getOrElse(null) // scalastyle:ignore null
+  }
+
+  def getJsonObjects(jsonTxt: String, paths: List[String]): List[String] = {
+    Try({
+      jsonPathConfig.jsonProvider().parse(jsonTxt)
+    }).map(document => {
+      paths.map(path => {
+        Try({
+          JSONValue.toJSONString(JsonPath.read(document, path))
+        }).getOrElse(null) // scalastyle:ignore null
+      })
     }).getOrElse(null) // scalastyle:ignore null
   }
 }

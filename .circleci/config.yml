@@ -6,31 +6,16 @@ orbs:
   slack: circleci/slack@4.1.3
 
 parameters:
-  ###############################################################
-  # Versioning vars
-  ###############################################################
   git_main_branch:
     type: string
     default: "master"
   git_release_prefix:
     type: string
     default: "releases"
-  ###############################################################
-  # Release vars
-  ###############################################################
   release_type:
     type: string
     enum: ["patch", "minor", "major"]
     default: ""
-  ###############################################################
-  # Notification vars
-  ###############################################################
-  slack_channel:
-    type: string
-    default: "data-team-cicd"
-  ###############################################################
-  # Scala vars
-  ###############################################################
   sbt_version:
     type: string
     default: "1.8.0"
