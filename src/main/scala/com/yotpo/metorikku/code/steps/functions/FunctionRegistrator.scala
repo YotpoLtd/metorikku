@@ -18,5 +18,10 @@ object FunctionRegistrator {
       "GET_JSON_OBJECT_2",
       udf[String, String, String](UserDefinedFunctions.getJsonObject)
     )
+
+    spark.udf.register(
+      "GET_JSON_OBJECTS",
+      udf[List[String], String, List[String]](UserDefinedFunctions.getJsonObjects)
+    )
   }
 }
