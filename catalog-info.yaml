@@ -9,8 +9,12 @@ metadata:
     circleci.com/project-slug: github/syngenta-digital/service-java-data-pipelines-metorikku
     backstage.io/techdocs-ref: dir:.
     github.com/project-slug: service-java-data-pipelines-metorikku
-    jira/project-key: DATA
+    # jira/project-key: DATA
     sonarqube.org/project-key: syngenta-digital_service-java-data-pipelines-metorikku
+  links:
+    - url: https://docs.de.insights.cropwise.com/
+      title: Computational Agronomy DE site
+      icon: docs
 
 spec:
   type: library
