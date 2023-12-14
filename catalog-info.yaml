@@ -20,4 +20,4 @@ spec:
   type: library
   lifecycle: production
   owner: group:default/global-data-science-cads
-  system: system:default/insight-engine
+  system: system:default/data-pipelines
