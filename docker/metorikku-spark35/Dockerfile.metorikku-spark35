@@ -1,0 +1,100 @@
+# =============================================================================
+# metorikku — Spark 3.5.8 / Delta 3.1.0 self-contained image
+# =============================================================================
+# Reproducibly builds the Metorikku base image that is published to ECR as
+#   402837048690.dkr.ecr.us-east-1.amazonaws.com/metorikku:spark-3.5.8-delta-3.1.0
+# and consumed as a base by downstream Spark jobs (e.g. topic-scoring's
+# es-top-engagement-topics — see YotpoLtd/topic-scoring#51, KOALA-2492).
+#
+# The image is SELF-CONTAINED: stage 1 builds metorikku.jar from this repo with
+# sbt, so no pre-built jar has to be supplied to the build. Stage 2 assembles
+# the runtime on top of the official apache/spark:3.5.8 image (Scala 2.12,
+# Hadoop 3.3.4, Java 11), adding exactly the jars/config the previous ECR image
+# carried:
+#   - Delta Lake 3.1.0            (delta-spark_2.12-3.1.0, delta-storage-3.1.0)
+#   - S3A support                 (hadoop-aws-3.3.4, aws-java-sdk-bundle-1.12.132)
+#   - JSON structured logging     (jsonevent-layout-1.7, json-smart-1.1.1)
+#   - Prometheus JMX exporter     (jmx_prometheus_javaagent-0.11.0)
+#   - metrics + log4j config      (from docker/spark/k8s)
+#   - metorikku.jar + examples    (at /opt/metorikku, the mainApplicationFile
+#                                  path downstream deployments point at:
+#                                  local:///opt/metorikku/metorikku.jar)
+#
+# Build context MUST be the repo root (both stages need the full project):
+#   docker build --platform linux/amd64 \
+#     -f docker/metorikku-spark35/Dockerfile.metorikku-spark35 \
+#     -t 402837048690.dkr.ecr.us-east-1.amazonaws.com/metorikku:spark-3.5.8-delta-3.1.0 .
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1 — build metorikku.jar (Spark deps are "provided", so the jar carries
+# no Spark itself; SPARK_VERSION only pins the provided API it compiles against).
+# -----------------------------------------------------------------------------
+FROM hseeberger/scala-sbt:11.0.12_1.5.5_2.12.15 AS build
+
+ARG SPARK_VERSION=3.5.8
+ENV SPARK_VERSION=${SPARK_VERSION}
+
+WORKDIR /app
+COPY . /app
+
+# Spark 3.5 overlay (KOALA-2492): the repo's own build.sbt / sources stay at
+# Spark 3.2 so the general build + CI are unaffected. Here we copy the
+# Spark-3.5-compatible variants of the 3 files that actually affect the assembly
+# jar (build.sbt + the two main sources changed by KOALA-2338) over the checked-
+# out 3.2 source. Tests are disabled below, so the 22 test-only changes from
+# KOALA-2338 are irrelevant and intentionally not overlaid.
+COPY docker/metorikku-spark35/spark35-overlay/ /app/
+
+# Drop any stale build artifacts a local checkout may carry (project/target and
+# project/project break sbt meta-build/plugin loading; target/ just bloats the
+# layer). Then assemble the fat jar with tests disabled.
+RUN rm -rf project/target project/project target \
+ && sbt 'set assembly / test := {}' clean assembly
+
+# -----------------------------------------------------------------------------
+# Stage 2 — runtime on the official Spark 3.5.8 image
+# -----------------------------------------------------------------------------
+FROM apache/spark:3.5.8
+
+ARG SCALA_MAJOR_VERSION=2.12
+ARG HADOOP_AWS_VERSION=3.3.4
+ARG AWS_SDK_BUNDLE_VERSION=1.12.132
+ARG DELTA_VERSION=3.1.0
+ARG JMX_EXPORTER_VERSION=0.11.0
+
+USER root
+
+# S3A support — hadoop-aws is pinned to the Hadoop version bundled in
+# apache/spark:3.5.8 (3.3.4); aws-java-sdk-bundle is its matching AWS SDK.
+ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/${AWS_SDK_BUNDLE_VERSION}/aws-java-sdk-bundle-${AWS_SDK_BUNDLE_VERSION}.jar $SPARK_HOME/jars/
+
+# Delta Lake 3.1.0 (compatible with Spark 3.5.x).
+ADD https://repo1.maven.org/maven2/io/delta/delta-spark_${SCALA_MAJOR_VERSION}/${DELTA_VERSION}/delta-spark_${SCALA_MAJOR_VERSION}-${DELTA_VERSION}.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/io/delta/delta-storage/${DELTA_VERSION}/delta-storage-${DELTA_VERSION}.jar $SPARK_HOME/jars/
+
+# JSON structured logging (used by the log4j.json config below).
+ADD https://repo1.maven.org/maven2/net/logstash/log4j/jsonevent-layout/1.7/jsonevent-layout-1.7.jar $SPARK_HOME/jars/
+ADD https://repo1.maven.org/maven2/net/minidev/json-smart/1.1.1/json-smart-1.1.1.jar $SPARK_HOME/jars/
+
+RUN chmod 644 $SPARK_HOME/jars/hadoop-aws-${HADOOP_AWS_VERSION}.jar \
+              $SPARK_HOME/jars/aws-java-sdk-bundle-${AWS_SDK_BUNDLE_VERSION}.jar \
+              $SPARK_HOME/jars/delta-spark_${SCALA_MAJOR_VERSION}-${DELTA_VERSION}.jar \
+              $SPARK_HOME/jars/delta-storage-${DELTA_VERSION}.jar \
+              $SPARK_HOME/jars/jsonevent-layout-1.7.jar \
+              $SPARK_HOME/jars/json-smart-1.1.1.jar
+
+# Prometheus JMX exporter agent.
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/${JMX_EXPORTER_VERSION}/jmx_prometheus_javaagent-${JMX_EXPORTER_VERSION}.jar /prometheus/
+RUN chmod 644 /prometheus/*.jar
+
+# Metrics + structured-logging configuration (sourced from docker/spark/k8s).
+RUN mkdir -p /etc/metrics/conf $SPARK_HOME/custom/conf
+COPY docker/spark/k8s/metrics/prometheus.yaml /etc/metrics/conf/prometheus.yaml
+COPY docker/spark/k8s/metrics/metrics_spark3.properties /etc/metrics/conf/metrics.properties
+COPY docker/spark/k8s/conf/log4j.json.properties $SPARK_HOME/custom/conf/log4j.json.properties
+
+# Metorikku application jar (built in stage 1) + bundled examples.
+COPY --from=build /app/target/scala-${SCALA_MAJOR_VERSION}/metorikku_${SCALA_MAJOR_VERSION}.jar /opt/metorikku/metorikku.jar
+COPY examples /opt/metorikku/examples
