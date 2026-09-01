@@ -65,6 +65,11 @@ ARG JMX_EXPORTER_VERSION=0.11.0
 
 USER root
 
+# The base image entrypoint drops privileges to user "spark" via gosu, which
+# causes AccessDeniedException on hostPath scratch volumes (KOALA-2373,
+# YotpoLtd/upsolver#91). Keep the process as root, matching the prod image.
+RUN sed -i 's/echo gosu spark/echo/' /opt/entrypoint.sh
+
 # S3A support — hadoop-aws is pinned to the Hadoop version bundled in
 # apache/spark:3.5.8 (3.3.4); aws-java-sdk-bundle is its matching AWS SDK.
 ADD https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/${HADOOP_AWS_VERSION}/hadoop-aws-${HADOOP_AWS_VERSION}.jar $SPARK_HOME/jars/
