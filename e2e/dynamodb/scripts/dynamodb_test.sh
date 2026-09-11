@@ -1,8 +1,9 @@
 #!/bin/bash
 DYNAMODB=${DYNAMODB:=dynamodb:8000}
+TABLE_NAME=${TABLE_NAME:=movies}
 
 runQuery() {
-    curl -X GET "http://${DYNAMODB}/movies"
+    curl -X GET "http://${DYNAMODB}/${TABLE_NAME}"
 }
 
 results=$(runQuery)

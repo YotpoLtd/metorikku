@@ -60,7 +60,7 @@ case class Tester(config: TesterConfig) {
             val fileInput = com.yotpo.metorikku.configuration.job.input.File(
               new File(testDir, mock.path).getCanonicalPath,
               None, None, None, None)
-            Input(Option(new StreamMockInput(fileInput)), None, None, None, None, None, None)
+            Input(Option(new StreamMockInput(fileInput)), None, None, None, None, None, None, None)
           }
         }).toMap)
       case None => None

@@ -62,10 +62,10 @@ Also make sure to check out all our [examples](examples).
 #### Supported input/output:
 
 Currently Metorikku supports the following inputs:
-**CSV, JSON, parquet, JDBC, Kafka, Cassandra, Elasticsearch**
+**CSV, JSON, parquet, JDBC, Kafka, Cassandra, Elasticsearch, DynamoDB**
 
 And the following outputs:
-**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch**<br />
+**CSV, JSON, parquet, Redshift, Cassandra, Segment, JDBC, Kafka, Elasticsearch, DynamoDB**<br />
 
 ### Running Metorikku
 There are currently 3 options to run Metorikku.
@@ -409,6 +409,14 @@ We use elasticsearch-hadoop as a provided jar - spark-submit command should look
 ```spark-submit --packages org.elasticsearch:elasticsearch-hadoop:6.6.1 --class com.yotpo.metorikku.Metorikku metorikku.jar```
 
 Check out the [example](examples/elasticsearch) and also the [Elasticsearch E2E test](e2e/elasticsearch) for further details.
+
+##### DynamoDB output
+Dynamodb output allows bulk writing to DynamoDB
+We use spark-dynamodb as a provided jar - spark-submit command should look like so:
+
+```spark-submit --packages com.audienceproject:spark-dynamodb_2.12:1.1.2 --class com.yotpo.metorikku.Metorikku metorikku.jar```
+
+Check out the [example](examples/dynamodb) for further details.
 
 #### Docker
 Metorikku is provided with a [docker image](https://hub.docker.com/r/metorikku/metorikku).
